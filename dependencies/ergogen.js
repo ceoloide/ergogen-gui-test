@@ -1,5 +1,5 @@
 /*!
- * Ergogen v4.0.5
+ * Ergogen v4.1.0
  * https://ergogen.xyz
  */
 
@@ -15,7 +15,7 @@
 
 	var utils = {};
 
-	const m$6 = require$$0;
+	const m$7 = require$$0;
 
 	utils.deepcopy = value => {
 	    if (value === undefined) return undefined
@@ -54,11 +54,11 @@
 	};
 
 	const line = utils.line = (a, b) => {
-	    return new m$6.paths.Line(a, b)
+	    return new m$7.paths.Line(a, b)
 	};
 
 	utils.circle = (p, r) => {
-	    return {paths: {circle: new m$6.paths.Circle(p, r)}}
+	    return {paths: {circle: new m$7.paths.Circle(p, r)}}
 	};
 
 	utils.rect = (w, h, o=[0, 0]) => {
@@ -68,7 +68,7 @@
 	        bottom: line([w, 0], [0, 0]),
 	        left:   line([0, 0], [0, h])
 	    };
-	    return m$6.model.move({paths: res}, o)
+	    return m$7.model.move({paths: res}, o)
 	};
 
 	utils.poly = (arr) => {
@@ -102,19 +102,19 @@
 	const farPoint = utils.farPoint = [1234.1234, 2143.56789];
 
 	utils.union = utils.add = (a, b) => {
-	    return m$6.model.combine(a, b, false, true, false, true, {
+	    return m$7.model.combine(a, b, false, true, false, true, {
 	        farPoint
 	    })
 	};
 
 	utils.subtract = (a, b) => {
-	    return m$6.model.combine(a, b, false, true, true, false, {
+	    return m$7.model.combine(a, b, false, true, true, false, {
 	        farPoint
 	    })
 	};
 
 	utils.intersect = (a, b) => {
-	    return m$6.model.combine(a, b, true, false, true, false, {
+	    return m$7.model.combine(a, b, true, false, true, false, {
 	        farPoint
 	    })
 	};
@@ -156,7 +156,7 @@
 
 	var assert$1 = {};
 
-	const m$5 = require$$0;
+	const m$6 = require$$0;
 	const u$8 = utils;
 
 	var point = class Point {
@@ -185,7 +185,7 @@
 	    shift(s, relative=true, resist=false) {
 	        s[0] *= (!resist && this.meta.mirrored) ? -1 : 1;
 	        if (relative) {
-	            s = m$5.point.rotate(s, this.r);
+	            s = m$6.point.rotate(s, this.r);
 	        }
 	        this.x += s[0];
 	        this.y += s[1];
@@ -195,7 +195,7 @@
 	    rotate(angle, origin=[0, 0], resist=false) {
 	        angle *= (!resist && this.meta.mirrored) ? -1 : 1;
 	        if (origin) {
-	            this.p = m$5.point.rotate(this.p, angle, origin);
+	            this.p = m$6.point.rotate(this.p, angle, origin);
 	        }
 	        this.r += angle;
 	        return this
@@ -217,11 +217,11 @@
 	    }
 
 	    position(model) {
-	        return m$5.model.moveRelative(m$5.model.rotate(model, this.r), this.p)
+	        return m$6.model.moveRelative(m$6.model.rotate(model, this.r), this.p)
 	    }
 
 	    unposition(model) {
-	        return m$5.model.rotate(m$5.model.moveRelative(model, [-this.x, -this.y]), -this.r)
+	        return m$6.model.rotate(m$6.model.moveRelative(model, [-this.x, -this.y]), -this.r)
 	    }
 
 	    rect(size=14) {
@@ -397,12 +397,87 @@
 	    return result
 	};
 
+	var name = "ergogen";
+	var version$2 = "4.1.0";
+	var description = "Ergonomic keyboard layout generator";
+	var author = "Bán Dénes <mr@zealot.hu>";
+	var license = "MIT";
+	var homepage = "https://ergogen.xyz";
+	var repository = "github:ergogen/ergogen";
+	var bugs = "https://github.com/ergogen/ergogen/issues";
+	var main = "./src/ergogen.js";
+	var bin = "./src/cli.js";
+	var scripts = {
+		build: "rollup -c",
+		test: "mocha -r test/helpers/register test/index.js",
+		coverage: "nyc --reporter=html --reporter=text npm test"
+	};
+	var dependencies = {
+		"fs-extra": "^11.1.0",
+		"js-yaml": "^3.14.1",
+		jszip: "^3.10.1",
+		"kle-serial": "github:ergogen/kle-serial#ergogen",
+		makerjs: "github:ergogen/maker.js#ergogen",
+		mathjs: "^11.5.0",
+		yargs: "^17.6.2"
+	};
+	var devDependencies = {
+		"@rollup/plugin-commonjs": "^24.0.1",
+		"@rollup/plugin-json": "^6.0.0",
+		chai: "^4.3.7",
+		"chai-as-promised": "^7.1.1",
+		"dir-compare": "^4.0.0",
+		glob: "^8.1.0",
+		mocha: "^10.2.0",
+		nyc: "^15.1.0",
+		rollup: "^3.10.1",
+		sinon: "^15.0.1"
+	};
+	var nyc = {
+		all: true,
+		include: [
+			"src/**/*.js"
+		],
+		exclude: [
+			"src/templates/kicad8.js"
+		]
+	};
+	var require$$8 = {
+		name: name,
+		version: version$2,
+		description: description,
+		author: author,
+		license: license,
+		homepage: homepage,
+		repository: repository,
+		bugs: bugs,
+		main: main,
+		bin: bin,
+		scripts: scripts,
+		dependencies: dependencies,
+		devDependencies: devDependencies,
+		nyc: nyc
+	};
+
 	const yaml$1 = require$$2;
 	const makerjs = require$$0;
 
 	const u$6 = utils;
 	const a$8 = assert$1;
 	const kle = kle$2;
+
+	const package_json = require$$8;
+
+	const fake_require = io$1.fake_require = injection => name => {
+	    const dependencies = {
+	        makerjs
+	    };
+	    if (name.endsWith('package.json')) {
+	        return package_json
+	    } else if (dependencies[name]) {
+	        return dependencies[name]
+	    } else throw new Error(`Unknown dependency "${name}" among the requirements of injection "${injection}"!`)
+	};
 
 	io$1.unpack = async (zip) => {
 
@@ -421,7 +496,7 @@
 	    for (const fp of fps.file(/.*\.js$/)) {
 	        const name = fp.name.slice('footprints/'.length).split('.')[0];
 	        const text = await fp.async('string');
-	        const parsed = new Function(module_prefix + text + module_suffix)();
+	        const parsed = new Function('require', module_prefix + text + module_suffix)(fake_require(name));
 	        // TODO: some sort of footprint validation?
 	        injections.push(['footprint', name, parsed]);
 	    }
@@ -431,7 +506,7 @@
 	    for (const tpl of tpls.file(/.*\.js$/)) {
 	        const name = tpl.name.slice('templates/'.length).split('.')[0];
 	        const text = await tpl.async('string');
-	        const parsed = new Function(module_prefix + text + module_suffix)();
+	        const parsed = new Function('require', module_prefix + text + module_suffix)(fake_require(name));
 	        // TODO: some sort of template validation?
 	        injections.push(['template', name, parsed]);
 	    }
@@ -672,7 +747,7 @@
 
 	const a$5 = assert$1;
 	const Point$2 = point;
-	const m$4 = require$$0;
+	const m$5 = require$$0;
 
 	const mirror_ref = anchor$4.mirror = (ref, mirror=true) => {
 	    if (mirror) {
@@ -713,8 +788,8 @@
 	            const p1 = [point.x, point.y - offset];
 	            const p2 = [point.x, point.y + offset];
 
-	            let line = new m$4.paths.Line(p1, p2);
-	            line = m$4.path.rotate(line, point.r, origin);
+	            let line = new m$5.paths.Line(p1, p2);
+	            line = m$5.path.rotate(line, point.r, origin);
 
 	            return line
 	        };
@@ -724,7 +799,7 @@
 
 	        const line1 = get_line_from_point(parts[0]);
 	        const line2 = get_line_from_point(parts[1]);
-	        const intersection = m$4.path.intersection(line1, line2);
+	        const intersection = m$5.path.intersection(line1, line2);
 
 	        a$5.assert(intersection, `The points under "${name}.parts" do not intersect!`);
 
@@ -839,7 +914,7 @@
 	    return point
 	};
 
-	const m$3 = require$$0;
+	const m$4 = require$$0;
 	const u$4 = utils;
 	const a$4 = assert$1;
 	const prep$2 = prepare$1;
@@ -848,7 +923,7 @@
 	const push_rotation = points._push_rotation = (list, angle, origin) => {
 	    let candidate = origin;
 	    for (const r of list) {
-	        candidate = m$3.point.rotate(candidate, r.angle, r.origin);
+	        candidate = m$4.point.rotate(candidate, r.angle, r.origin);
 	    }
 	    list.push({
 	        angle: angle,
@@ -1434,7 +1509,7 @@
 	    return result
 	};
 
-	const m$2 = require$$0;
+	const m$3 = require$$0;
 	const u$2 = utils;
 	const a$2 = assert$1;
 	const o$1 = operation;
@@ -1487,7 +1562,7 @@
 	        const ch = h - mod;
 	        a$2.assert(ch >= 0, error('tall', h));
 
-	        let rect = new m$2.models.Rectangle(cw, ch);
+	        let rect = new m$3.models.Rectangle(cw, ch);
 	        if (bevel) {
 	            rect = u$2.poly([
 	                [-bevel, 0],
@@ -1500,8 +1575,8 @@
 	                [0, -bevel]
 	            ]);
 	        }
-	        if (corner > 0) rect = m$2.model.outline(rect, corner, 0);
-	        rect = m$2.model.moveRelative(rect, [-cw/2, -ch/2]);
+	        if (corner > 0) rect = m$3.model.outline(rect, corner, 0);
+	        rect = m$3.model.moveRelative(rect, [-cw/2, -ch/2]);
 	        const bbox = {high: [w/2, h/2], low: [-w/2, -h/2]};
 
 	        return [rect, bbox]
@@ -1560,7 +1635,7 @@
 	    return [() => {
 	        let o = u$2.deepcopy(outlines[config.name]);
 	        o = origin.unposition(o);
-	        const bbox = m$2.measure.modelExtents(o);
+	        const bbox = m$3.measure.modelExtents(o);
 	        return [o, bbox]
 	    }, units]
 	};
@@ -1664,25 +1739,25 @@
 	            }
 
 	            if (scale !== 1) {
-	                outlines[outline_name] = m$2.model.scale(outlines[outline_name], scale);
+	                outlines[outline_name] = m$3.model.scale(outlines[outline_name], scale);
 	            }
 	    
 	            if (expand) {
-	                outlines[outline_name] = m$2.model.outline(
+	                outlines[outline_name] = m$3.model.outline(
 	                    outlines[outline_name], Math.abs(expand), joints, (expand < 0), {farPoint: u$2.farPoint}
 	                );
 	            }
 
 	            if (fillet) {
-	                for (const [index, chain] of m$2.model.findChains(outlines[outline_name]).entries()) {
-	                    outlines[outline_name].models[`fillet_${part_name}_${index}`] = m$2.chain.fillet(chain, fillet);
+	                for (const [index, chain] of m$3.model.findChains(outlines[outline_name]).entries()) {
+	                    outlines[outline_name].models[`fillet_${part_name}_${index}`] = m$3.chain.fillet(chain, fillet);
 	                }
 	            }
 	        }
 
 	        // final adjustments
-	        m$2.model.originate(outlines[outline_name]);
-	        m$2.model.simplify(outlines[outline_name]);
+	        m$3.model.originate(outlines[outline_name]);
+	        m$3.model.simplify(outlines[outline_name]);
 
 	    }
 
@@ -1691,7 +1766,7 @@
 
 	var cases = {};
 
-	const m$1 = require$$0;
+	const m$2 = require$$0;
 	const a$1 = assert$1;
 	const o = operation;
 
@@ -1767,7 +1842,7 @@
 	                // And on the long run, we'll probably be moving to CADQuery anyway...
 	                const extruded_name = `${name}_extrude_` + ('' + extrude).replace(/\D/g, '_');
 	                if (!scripts[extruded_name]) {
-	                    scripts[extruded_name] = m$1.exporter.toJscadScript(outline, {
+	                    scripts[extruded_name] = m$2.exporter.toJscadScript(outline, {
 	                        functionName: `${extruded_name}_outline_fn`,
 	                        extrude: extrude,
 	                        indent: 4
@@ -1832,19 +1907,13 @@
 
 	var pcbs = {};
 
-	var alps;
-	var hasRequiredAlps;
-
-	function requireAlps () {
-		if (hasRequiredAlps) return alps;
-		hasRequiredAlps = 1;
-		alps = {
-		    params: {
-		        designator: 'S',
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => `
+	var alps = {
+	    params: {
+	        designator: 'S',
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => `
 
     (module ALPS (layer F.Cu) (tedit 5CF31DEF)
 
@@ -1870,24 +1939,16 @@
     )
 
     `
-		};
-		return alps;
-	}
+	};
 
-	var button;
-	var hasRequiredButton;
-
-	function requireButton () {
-		if (hasRequiredButton) return button;
-		hasRequiredButton = 1;
-		button = {
-		    params: {
-		        designator: 'B', // for Button
-		        side: 'F',
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => `
+	var button = {
+	    params: {
+	        designator: 'B', // for Button
+	        side: 'F',
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => `
     
     (module E73:SW_TACT_ALPS_SKQGABE010 (layer F.Cu) (tstamp 5BF2CC94)
 
@@ -1917,41 +1978,33 @@
     )
     
     `
-		};
-		return button;
-	}
+	};
 
-	var choc$1;
-	var hasRequiredChoc$1;
+	// Kailh Choc PG1350
+	// Nets
+	//    from: corresponds to pin 1
+	//    to: corresponds to pin 2
+	// Params
+	//    hotswap: default is false
+	//      if true, will include holes and pads for Kailh choc hotswap sockets
+	//    reverse: default is false
+	//      if true, will flip the footprint such that the pcb can be reversible
+	//    keycaps: default is false
+	//      if true, will add choc sized keycap box around the footprint
+	// 
+	// note: hotswap and reverse can be used simultaneously
 
-	function requireChoc$1 () {
-		if (hasRequiredChoc$1) return choc$1;
-		hasRequiredChoc$1 = 1;
-		// Kailh Choc PG1350
-		// Nets
-		//    from: corresponds to pin 1
-		//    to: corresponds to pin 2
-		// Params
-		//    hotswap: default is false
-		//      if true, will include holes and pads for Kailh choc hotswap sockets
-		//    reverse: default is false
-		//      if true, will flip the footprint such that the pcb can be reversible
-		//    keycaps: default is false
-		//      if true, will add choc sized keycap box around the footprint
-		// 
-		// note: hotswap and reverse can be used simultaneously
-
-		choc$1 = {
-		  params: {
-		    designator: 'S',
-		    hotswap: false,
-		    reverse: false,
-		    keycaps: false,
-		    from: undefined,
-		    to: undefined
-		  },
-		  body: p => {
-		    const standard = `
+	var choc$1 = {
+	  params: {
+	    designator: 'S',
+	    hotswap: false,
+	    reverse: false,
+	    keycaps: false,
+	    from: undefined,
+	    to: undefined
+	  },
+	  body: p => {
+	    const standard = `
       (module PG1350 (layer F.Cu) (tedit 5DD50112)
       ${p.at /* parametric position */}
 
@@ -1976,16 +2029,16 @@
       (pad "" np_thru_hole circle (at 5.5 0) (size 1.7018 1.7018) (drill 1.7018) (layers *.Cu *.Mask))
       (pad "" np_thru_hole circle (at -5.5 0) (size 1.7018 1.7018) (drill 1.7018) (layers *.Cu *.Mask))
       `;
-		    const keycap = `
+	    const keycap = `
       ${'' /* keycap marks */}
       (fp_line (start -9 -8.5) (end 9 -8.5) (layer Dwgs.User) (width 0.15))
       (fp_line (start 9 -8.5) (end 9 8.5) (layer Dwgs.User) (width 0.15))
       (fp_line (start 9 8.5) (end -9 8.5) (layer Dwgs.User) (width 0.15))
       (fp_line (start -9 8.5) (end -9 -8.5) (layer Dwgs.User) (width 0.15))
       `;
-		    function pins(def_neg, def_pos, def_side) {
-		      if(p.hotswap) {
-		        return `
+	    function pins(def_neg, def_pos, def_side) {
+	      if(p.hotswap) {
+	        return `
           ${'' /* holes */}
           (pad "" np_thru_hole circle (at ${def_pos}5 -3.75) (size 3 3) (drill 3) (layers *.Cu *.Mask))
           (pad "" np_thru_hole circle (at 0 -5.95) (size 3 3) (drill 3) (layers *.Cu *.Mask))
@@ -1994,60 +2047,52 @@
           (pad 1 smd rect (at ${def_neg}3.275 -5.95 ${p.r}) (size 2.6 2.6) (layers ${def_side}.Cu ${def_side}.Paste ${def_side}.Mask)  ${p.from})
           (pad 2 smd rect (at ${def_pos}8.275 -3.75 ${p.r}) (size 2.6 2.6) (layers ${def_side}.Cu ${def_side}.Paste ${def_side}.Mask)  ${p.to})
         `
-		      } else {
-		          return `
+	      } else {
+	          return `
             ${''/* pins */}
             (pad 1 thru_hole circle (at ${def_pos}5 -3.8) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.from})
             (pad 2 thru_hole circle (at ${def_pos}0 -5.9) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.to})
           `
-		      }
-		    }
-		    if(p.reverse) {
-		      return `
+	      }
+	    }
+	    if(p.reverse) {
+	      return `
         ${standard}
         ${p.keycaps ? keycap : ''}
         ${pins('-', '', 'B')}
         ${pins('', '-', 'F')})
         `
-		    } else {
-		      return `
+	    } else {
+	      return `
         ${standard}
         ${p.keycaps ? keycap : ''}
         ${pins('-', '', 'B')})
         `
-		    }
-		  }
-		};
-		return choc$1;
-	}
+	    }
+	  }
+	};
 
-	var chocmini;
-	var hasRequiredChocmini;
+	// Kailh Choc PG1232
+	// Nets
+	//    from: corresponds to pin 1
+	//    to: corresponds to pin 2
+	// Params
+	//    reverse: default is false
+	//      if true, will flip the footprint such that the pcb can be reversible 
+	//    keycaps: default is false
+	//      if true, will add choc sized keycap box around the footprint
 
-	function requireChocmini () {
-		if (hasRequiredChocmini) return chocmini;
-		hasRequiredChocmini = 1;
-		// Kailh Choc PG1232
-		// Nets
-		//    from: corresponds to pin 1
-		//    to: corresponds to pin 2
-		// Params
-		//    reverse: default is false
-		//      if true, will flip the footprint such that the pcb can be reversible 
-		//    keycaps: default is false
-		//      if true, will add choc sized keycap box around the footprint
-
-		chocmini = {
-		    params: {
-		      designator: 'S',
-				  side: 'F',
-				  reverse: false,
-		      keycaps: false,
-		      from: undefined,
-		      to: undefined
-		    },
-		    body: p => {
-			    const standard = `
+	var chocmini = {
+	    params: {
+	      designator: 'S',
+			  side: 'F',
+			  reverse: false,
+	      keycaps: false,
+	      from: undefined,
+	      to: undefined
+	    },
+	    body: p => {
+		    const standard = `
         (module lib:Kailh_PG1232 (layer F.Cu) (tedit 5E1ADAC2)
         ${p.at /* parametric position */} 
 
@@ -2088,53 +2133,45 @@
         (pad 3 thru_hole circle (at 5.3 -4.75) (size 1.6 1.6) (drill 1.1) (layers *.Cu *.Mask) (clearance 0.2))
         (pad 4 thru_hole circle (at -5.3 -4.75) (size 1.6 1.6) (drill 1.1) (layers *.Cu *.Mask) (clearance 0.2))
       `;
-		      const keycap = `
+	      const keycap = `
         ${'' /* keycap marks */}
         (fp_line (start -9 -8.5) (end 9 -8.5) (layer Dwgs.User) (width 0.15))
         (fp_line (start 9 -8.5) (end 9 8.5) (layer Dwgs.User) (width 0.15))
         (fp_line (start 9 8.5) (end -9 8.5) (layer Dwgs.User) (width 0.15))
         (fp_line (start -9 8.5) (end -9 -8.5) (layer Dwgs.User) (width 0.15))
         `;
-		      function pins(def_neg, def_pos) {
-		        return `
+	      function pins(def_neg, def_pos) {
+	        return `
         ${''/* pins */}
         (pad 1 thru_hole circle (at ${def_neg}4.58 5.1) (size 1.6 1.6) (drill 1.1) (layers *.Cu *.Mask) ${p.from} (clearance 0.2))
         (pad 2 thru_hole circle (at ${def_pos}2 5.4) (size 1.6 1.6) (drill 1.1) (layers *.Cu *.Mask) ${p.to} (clearance 0.2))
 			  `
-		      }
-		      if(p.reverse){
-		        return `
+	      }
+	      if(p.reverse){
+	        return `
           ${standard}
           ${p.keycaps ? keycap : ''}
           ${pins('-', '')}
           ${pins('', '-')})
 
           `
-		      } else {
-		        return `
+	      } else {
+	        return `
           ${standard}
           ${p.keycaps ? keycap : ''}
           ${pins('-', '')})
           `
-		      }
-		    }
-		  };
-		return chocmini;
-	}
+	      }
+	    }
+	  };
 
-	var diode$1;
-	var hasRequiredDiode$1;
-
-	function requireDiode$1 () {
-		if (hasRequiredDiode$1) return diode$1;
-		hasRequiredDiode$1 = 1;
-		diode$1 = {
-		    params: {
-		        designator: 'D',
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => `
+	var diode$1 = {
+	    params: {
+	        designator: 'D',
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => `
   
     (module ComboDiode (layer F.Cu) (tedit 5B24D78E)
 
@@ -2173,24 +2210,16 @@
     )
   
     `
-		};
-		return diode$1;
-	}
+	};
 
-	var jstph;
-	var hasRequiredJstph;
-
-	function requireJstph () {
-		if (hasRequiredJstph) return jstph;
-		hasRequiredJstph = 1;
-		jstph = {
-		    params: {
-		        designator: 'JST',
-		        side: 'F',
-		        pos: undefined,
-		        neg: undefined
-		    },
-		    body: p => `
+	var jstph = {
+	    params: {
+	        designator: 'JST',
+	        side: 'F',
+	        pos: undefined,
+	        neg: undefined
+	    },
+	    body: p => `
     
     (module JST_PH_S2B-PH-K_02x2.00mm_Angled (layer F.Cu) (tedit 58D3FE32)
 
@@ -2221,24 +2250,16 @@
     )
     
     `
-		};
-		return jstph;
-	}
+	};
 
-	var jumper;
-	var hasRequiredJumper;
-
-	function requireJumper () {
-		if (hasRequiredJumper) return jumper;
-		hasRequiredJumper = 1;
-		jumper = {
-		    params: {
-		        designator: 'J',
-		        side: 'F',
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => `
+	var jumper = {
+	    params: {
+	        designator: 'J',
+	        side: 'F',
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => `
         (module lib:Jumper (layer F.Cu) (tedit 5E1ADAC2)
         ${p.at /* parametric position */} 
 
@@ -2252,41 +2273,33 @@
         (pad 2 smd rect (at 0.50038 0 ${p.r}) (size 0.635 1.143) (layers ${p.side}.Cu ${p.side}.Paste ${p.side}.Mask)
         (clearance 0.1905) ${p.to}))
     `
-		};
-		return jumper;
-	}
+	};
 
-	var mx;
-	var hasRequiredMx;
+	// Any MX switch
+	// Nets
+	//    from: corresponds to pin 1
+	//    to: corresponds to pin 2
+	// Params
+	//    hotswap: default is false
+	//      if true, will include holes and pads for Kailh MX hotswap sockets
+	//    reverse: default is false
+	//      if true, will flip the footprint such that the pcb can be reversible 
+	//    keycaps: default is false
+	//      if true, will add choc sized keycap box around the footprint
+	//
+	// note: hotswap and reverse can be used simultaneously
 
-	function requireMx () {
-		if (hasRequiredMx) return mx;
-		hasRequiredMx = 1;
-		// Any MX switch
-		// Nets
-		//    from: corresponds to pin 1
-		//    to: corresponds to pin 2
-		// Params
-		//    hotswap: default is false
-		//      if true, will include holes and pads for Kailh MX hotswap sockets
-		//    reverse: default is false
-		//      if true, will flip the footprint such that the pcb can be reversible 
-		//    keycaps: default is false
-		//      if true, will add choc sized keycap box around the footprint
-		//
-		// note: hotswap and reverse can be used simultaneously
-
-		mx = {
-		  params: {
-		    designator: 'S',
-		    hotswap: false,
-		    reverse: false,
-		    keycaps: false,
-		    from: undefined,
-		    to: undefined
-		  },
-		  body: p => {
-		    const standard = `
+	var mx = {
+	  params: {
+	    designator: 'S',
+	    hotswap: false,
+	    reverse: false,
+	    keycaps: false,
+	    from: undefined,
+	    to: undefined
+	  },
+	  body: p => {
+	    const standard = `
       (module MX (layer F.Cu) (tedit 5DD4F656)
       ${p.at /* parametric position */}
 
@@ -2311,16 +2324,16 @@
       (pad "" np_thru_hole circle (at 5.08 0) (size 1.7018 1.7018) (drill 1.7018) (layers *.Cu *.Mask))
       (pad "" np_thru_hole circle (at -5.08 0) (size 1.7018 1.7018) (drill 1.7018) (layers *.Cu *.Mask))
       `;
-		    const keycap = `
+	    const keycap = `
       ${'' /* keycap marks */}
       (fp_line (start -9.5 -9.5) (end 9.5 -9.5) (layer Dwgs.User) (width 0.15))
       (fp_line (start 9.5 -9.5) (end 9.5 9.5) (layer Dwgs.User) (width 0.15))
       (fp_line (start 9.5 9.5) (end -9.5 9.5) (layer Dwgs.User) (width 0.15))
       (fp_line (start -9.5 9.5) (end -9.5 -9.5) (layer Dwgs.User) (width 0.15))
       `;
-		    function pins(def_neg, def_pos, def_side) {
-		      if(p.hotswap) {
-		        return `
+	    function pins(def_neg, def_pos, def_side) {
+	      if(p.hotswap) {
+	        return `
         ${'' /* holes */}
         (pad "" np_thru_hole circle (at ${def_pos}2.54 -5.08) (size 3 3) (drill 3) (layers *.Cu *.Mask))
         (pad "" np_thru_hole circle (at ${def_neg}3.81 -2.54) (size 3 3) (drill 3) (layers *.Cu *.Mask))
@@ -2329,49 +2342,41 @@
         (pad 1 smd rect (at ${def_neg}7.085 -2.54 ${p.r}) (size 2.55 2.5) (layers ${def_side}.Cu ${def_side}.Paste ${def_side}.Mask) ${p.from})
         (pad 2 smd rect (at ${def_pos}5.842 -5.08 ${p.r}) (size 2.55 2.5) (layers ${def_side}.Cu ${def_side}.Paste ${def_side}.Mask) ${p.to})
         `
-		      } else {
-		          return `
+	      } else {
+	          return `
             ${''/* pins */}
             (pad 1 thru_hole circle (at ${def_pos}2.54 -5.08) (size 2.286 2.286) (drill 1.4986) (layers *.Cu *.Mask) ${p.from})
             (pad 2 thru_hole circle (at ${def_neg}3.81 -2.54) (size 2.286 2.286) (drill 1.4986) (layers *.Cu *.Mask) ${p.to})
           `
-		      }
-		    }
-		    if(p.reverse){
-		      return `
+	      }
+	    }
+	    if(p.reverse){
+	      return `
         ${standard}
         ${p.keycaps ? keycap : ''}
         ${pins('-', '', 'B')}
         ${pins('', '-', 'F')})
         `
-		    } else {
-		      return `
+	    } else {
+	      return `
         ${standard}
         ${p.keycaps ? keycap : ''}
         ${pins('-', '', 'B')})
         `
-		    }
-		  }
-		};
-		return mx;
-	}
+	    }
+	  }
+	};
 
-	var oled;
-	var hasRequiredOled;
-
-	function requireOled () {
-		if (hasRequiredOled) return oled;
-		hasRequiredOled = 1;
-		oled = {
-		    params: {
-		        designator: 'OLED',
-		        side: 'F',
-		        VCC: {type: 'net', value: 'VCC'},
-		        GND: {type: 'net', value: 'GND'},
-		        SDA: undefined,
-		        SCL: undefined
-		    },
-		    body: p => `
+	var oled = {
+	    params: {
+	        designator: 'OLED',
+	        side: 'F',
+	        VCC: {type: 'net', value: 'VCC'},
+	        GND: {type: 'net', value: 'GND'},
+	        SDA: undefined,
+	        SCL: undefined
+	    },
+	    body: p => `
         (module lib:OLED_headers (layer F.Cu) (tedit 5E1ADAC2)
         ${p.at /* parametric position */} 
 
@@ -2390,23 +2395,15 @@
         ${p.GND})
         )
         `
-		};
-		return oled;
-	}
+	};
 
-	var omron;
-	var hasRequiredOmron;
-
-	function requireOmron () {
-		if (hasRequiredOmron) return omron;
-		hasRequiredOmron = 1;
-		omron = {
-		    params: {
-		        designator: 'S',
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => `
+	var omron = {
+	    params: {
+	        designator: 'S',
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => `
     
     (module OMRON_B3F-4055 (layer F.Cu) (tstamp 5BF2CC94)
 
@@ -2433,52 +2430,44 @@
     )
     
     `
-		};
-		return omron;
-	}
+	};
 
-	var pad;
-	var hasRequiredPad;
+	var pad = {
+	    params: {
+	        designator: 'PAD',
+	        width: 1,
+	        height: 1,
+	        front: true,
+	        back: true,
+	        text: '',
+	        align: 'left',
+	        mirrored: {type: 'boolean', value: '{{mirrored}}'},
+	        net: undefined
+	    },
+	    body: p => {
 
-	function requirePad () {
-		if (hasRequiredPad) return pad;
-		hasRequiredPad = 1;
-		pad = {
-		    params: {
-		        designator: 'PAD',
-		        width: 1,
-		        height: 1,
-		        front: true,
-		        back: true,
-		        text: '',
-		        align: 'left',
-		        mirrored: {type: 'boolean', value: '{{mirrored}}'},
-		        net: undefined
-		    },
-		    body: p => {
+	        const layout = (toggle, side) => {
+	            if (!toggle) return ''
+	            let x = 0, y = 0;
+	            const mirror = side == 'B' ? '(justify mirror)' : '';
+	            const plus = (p.text.length + 1) * 0.5;
+	            let align = p.align;
+	            if (p.mirrored === true) {
+	                if (align == 'left') align = 'right';
+	                else if (align == 'right') align = 'left';
+	            }
+	            if (align == 'left') x -= p.width / 2 + plus;
+	            if (align == 'right') x += p.width / 2 + plus;
+	            if (align == 'up') y += p.height / 2 + plus;
+	            if (align == 'down') y -= p.height / 2 + plus;
+	            let text = '';
+	            if (p.text.length) {
+	                text = `(fp_text user ${p.text} (at ${x} ${y} ${p.r}) (layer ${side}.SilkS) (effects (font (size 0.8 0.8) (thickness 0.15)) ${mirror}))`;
+	            }
+	            return `(pad 1 smd rect (at 0 0 ${p.r}) (size ${p.width} ${p.height}) (layers ${side}.Cu ${side}.Paste ${side}.Mask) ${p.net})\n${text}`
+	        };
 
-		        const layout = (toggle, side) => {
-		            if (!toggle) return ''
-		            let x = 0, y = 0;
-		            const mirror = side == 'B' ? '(justify mirror)' : '';
-		            const plus = (p.text.length + 1) * 0.5;
-		            let align = p.align;
-		            if (p.mirrored === true) {
-		                if (align == 'left') align = 'right';
-		                else if (align == 'right') align = 'left';
-		            }
-		            if (align == 'left') x -= p.width / 2 + plus;
-		            if (align == 'right') x += p.width / 2 + plus;
-		            if (align == 'up') y += p.height / 2 + plus;
-		            if (align == 'down') y -= p.height / 2 + plus;
-		            let text = '';
-		            if (p.text.length) {
-		                text = `(fp_text user ${p.text} (at ${x} ${y} ${p.r}) (layer ${side}.SilkS) (effects (font (size 0.8 0.8) (thickness 0.15)) ${mirror}))`;
-		            }
-		            return `(pad 1 smd rect (at 0 0 ${p.r}) (size ${p.width} ${p.height}) (layers ${side}.Cu ${side}.Paste ${side}.Mask) ${p.net})\n${text}`
-		        };
-
-		        return `
+	        return `
     
         (module SMDPad (layer F.Cu) (tedit 5B24D78E)
 
@@ -2495,52 +2484,44 @@
         )
     
         `
-		    }
-		};
-		return pad;
-	}
+	    }
+	};
 
-	var promicro;
-	var hasRequiredPromicro;
+	// Arduino ProMicro atmega32u4au
+	// Params
+	//  orientation: default is down
+	//    if down, power led will face the pcb
+	//    if up, power led will face away from pcb
 
-	function requirePromicro () {
-		if (hasRequiredPromicro) return promicro;
-		hasRequiredPromicro = 1;
-		// Arduino ProMicro atmega32u4au
-		// Params
-		//  orientation: default is down
-		//    if down, power led will face the pcb
-		//    if up, power led will face away from pcb
-
-		promicro = {
-		  params: {
-		    designator: 'MCU',
-		    orientation: 'down',
-		    RAW: {type: 'net', value: 'RAW'},
-		    GND: {type: 'net', value: 'GND'},
-		    RST: {type: 'net', value: 'RST'},
-		    VCC: {type: 'net', value: 'VCC'},
-		    P21: {type: 'net', value: 'P21'},
-		    P20: {type: 'net', value: 'P20'},
-		    P19: {type: 'net', value: 'P19'},
-		    P18: {type: 'net', value: 'P18'},
-		    P15: {type: 'net', value: 'P15'},
-		    P14: {type: 'net', value: 'P14'},
-		    P16: {type: 'net', value: 'P16'},
-		    P10: {type: 'net', value: 'P10'},
-		    P1: {type: 'net', value: 'P1'},
-		    P0: {type: 'net', value: 'P0'},
-		    P2: {type: 'net', value: 'P2'},
-		    P3: {type: 'net', value: 'P3'},
-		    P4: {type: 'net', value: 'P4'},
-		    P5: {type: 'net', value: 'P5'},
-		    P6: {type: 'net', value: 'P6'},
-		    P7: {type: 'net', value: 'P7'},
-		    P8: {type: 'net', value: 'P8'},
-		    P9: {type: 'net', value: 'P9'}
-		  },
-		  body: p => {
-		    const standard = `
+	var promicro = {
+	  params: {
+	    designator: 'MCU',
+	    orientation: 'down',
+	    RAW: {type: 'net', value: 'RAW'},
+	    GND: {type: 'net', value: 'GND'},
+	    RST: {type: 'net', value: 'RST'},
+	    VCC: {type: 'net', value: 'VCC'},
+	    P21: {type: 'net', value: 'P21'},
+	    P20: {type: 'net', value: 'P20'},
+	    P19: {type: 'net', value: 'P19'},
+	    P18: {type: 'net', value: 'P18'},
+	    P15: {type: 'net', value: 'P15'},
+	    P14: {type: 'net', value: 'P14'},
+	    P16: {type: 'net', value: 'P16'},
+	    P10: {type: 'net', value: 'P10'},
+	    P1: {type: 'net', value: 'P1'},
+	    P0: {type: 'net', value: 'P0'},
+	    P2: {type: 'net', value: 'P2'},
+	    P3: {type: 'net', value: 'P3'},
+	    P4: {type: 'net', value: 'P4'},
+	    P5: {type: 'net', value: 'P5'},
+	    P6: {type: 'net', value: 'P6'},
+	    P7: {type: 'net', value: 'P7'},
+	    P8: {type: 'net', value: 'P8'},
+	    P9: {type: 'net', value: 'P9'}
+	  },
+	  body: p => {
+	    const standard = `
       (module ProMicro (layer F.Cu) (tedit 5B307E4C)
       ${p.at /* parametric position */}
 
@@ -2560,8 +2541,8 @@
       (fp_line (start 15.24 -8.89) (end -17.78 -8.89) (layer F.SilkS) (width 0.15))
       (fp_line (start -17.78 -8.89) (end -17.78 8.89) (layer F.SilkS) (width 0.15))
       `;
-		    function pins(def_neg, def_pos) {
-		      return `
+	    function pins(def_neg, def_pos) {
+	      return `
         ${''/* extra border around "RAW", in case the rectangular shape is not distinctive enough */}
         (fp_line (start -15.24 ${def_pos}6.35) (end -12.7 ${def_pos}6.35) (layer F.SilkS) (width 0.15))
         (fp_line (start -15.24 ${def_pos}6.35) (end -15.24 ${def_pos}8.89) (layer F.SilkS) (width 0.15))
@@ -2621,39 +2602,31 @@
         (pad 23 thru_hole circle (at 11.43 ${def_neg}7.62 0) (size 1.7526 1.7526) (drill 1.0922) (layers *.Cu *.SilkS *.Mask) ${p.P8})
         (pad 24 thru_hole circle (at 13.97 ${def_neg}7.62 0) (size 1.7526 1.7526) (drill 1.0922) (layers *.Cu *.SilkS *.Mask) ${p.P9})
       `
-		    }
-		    if(p.orientation == 'down') {
-		      return `
+	    }
+	    if(p.orientation == 'down') {
+	      return `
         ${standard}
         ${pins('-', '')})
         `
-		    } else {
-		      return `
+	    } else {
+	      return `
         ${standard}
         ${pins('', '-')})
         `
-		    }
-		  }
-		};
-		return promicro;
-	}
+	    }
+	  }
+	};
 
-	var rgb;
-	var hasRequiredRgb;
-
-	function requireRgb () {
-		if (hasRequiredRgb) return rgb;
-		hasRequiredRgb = 1;
-		rgb = {
-		    params: {
-		        designator: 'LED',
-		        side: 'F',
-		        din: undefined,
-		        dout: undefined,
-		        VCC: {type: 'net', value: 'VCC'},
-		        GND: {type: 'net', value: 'GND'}
-		    },
-		    body: p => `
+	var rgb = {
+	    params: {
+	        designator: 'LED',
+	        side: 'F',
+	        din: undefined,
+	        dout: undefined,
+	        VCC: {type: 'net', value: 'VCC'},
+	        GND: {type: 'net', value: 'GND'}
+	    },
+	    body: p => `
     
         (module WS2812B (layer F.Cu) (tedit 53BEE615)
 
@@ -2688,35 +2661,27 @@
         )
     
     `
-		};
-		return rgb;
-	}
+	};
 
-	var rotary;
-	var hasRequiredRotary;
+	// EC11 rotary encoder
+	//
+	// Nets
+	//    from: corresponds to switch pin 1 (for button presses)
+	//    to: corresponds to switch pin 2 (for button presses)
+	//    A: corresponds to pin 1 (for rotary)
+	//    B: corresponds to pin 2 (for rotary, should be GND)
+	//    C: corresponds to pin 3 (for rotary)
 
-	function requireRotary () {
-		if (hasRequiredRotary) return rotary;
-		hasRequiredRotary = 1;
-		// EC11 rotary encoder
-		//
-		// Nets
-		//    from: corresponds to switch pin 1 (for button presses)
-		//    to: corresponds to switch pin 2 (for button presses)
-		//    A: corresponds to pin 1 (for rotary)
-		//    B: corresponds to pin 2 (for rotary, should be GND)
-		//    C: corresponds to pin 3 (for rotary)
-
-		rotary = {
-		    params: {
-		        designator: 'ROT',
-		        from: undefined,
-		        to: undefined,
-		        A: undefined,
-		        B: undefined,
-		        C: undefined
-		    },
-		    body: p => `
+	var rotary = {
+	    params: {
+	        designator: 'ROT',
+	        from: undefined,
+	        to: undefined,
+	        A: undefined,
+	        B: undefined,
+	        C: undefined
+	    },
+	    body: p => `
         (module rotary_encoder (layer F.Cu) (tedit 603326DE)
 
             ${p.at /* parametric position */}
@@ -2767,51 +2732,43 @@
             (pad "" thru_hole rect (at -0.12 5.56 ${p.r})  (size 3.2 2) (drill oval 2.8 1.5) (layers *.Cu *.Mask))
         )
     `
-		};
-		return rotary;
-	}
+	};
 
-	var scrollwheel;
-	var hasRequiredScrollwheel;
-
-	function requireScrollwheel () {
-		if (hasRequiredScrollwheel) return scrollwheel;
-		hasRequiredScrollwheel = 1;
-		// Panasonic EVQWGD001 horizontal rotary encoder
-		//
-		//   __________________
-		//  (f) (t)         | |
-		//  | (1)           | |
-		//  | (2)           | |
-		//  | (3)           | |
-		//  | (4)           | |
-		//  |_( )___________|_|
-		//
-		// Nets
-		//    from: corresponds to switch pin 1 (for button presses)
-		//    to: corresponds to switch pin 2 (for button presses)
-		//    A: corresponds to pin 1 (for rotary)
-		//    B: corresponds to pin 2 (for rotary, should be GND)
-		//    C: corresponds to pin 3 (for rotary)
-		//    D: corresponds to pin 4 (for rotary, unused)
-		// Params
-		//    reverse: default is false
-		//      if true, will flip the footprint such that the pcb can be reversible
+	// Panasonic EVQWGD001 horizontal rotary encoder
+	//
+	//   __________________
+	//  (f) (t)         | |
+	//  | (1)           | |
+	//  | (2)           | |
+	//  | (3)           | |
+	//  | (4)           | |
+	//  |_( )___________|_|
+	//
+	// Nets
+	//    from: corresponds to switch pin 1 (for button presses)
+	//    to: corresponds to switch pin 2 (for button presses)
+	//    A: corresponds to pin 1 (for rotary)
+	//    B: corresponds to pin 2 (for rotary, should be GND)
+	//    C: corresponds to pin 3 (for rotary)
+	//    D: corresponds to pin 4 (for rotary, unused)
+	// Params
+	//    reverse: default is false
+	//      if true, will flip the footprint such that the pcb can be reversible
 
 
-		scrollwheel = {
-		    params: {
-		      designator: 'S',
-				  reverse: false,
-		      from: undefined,
-		      to: undefined,
-		      A: undefined,
-		      B: undefined,
-		      C: undefined,
-		      D: undefined
-		    },
-		    body: p => {
-		      const standard = `
+	var scrollwheel = {
+	    params: {
+	      designator: 'S',
+			  reverse: false,
+	      from: undefined,
+	      to: undefined,
+	      A: undefined,
+	      B: undefined,
+	      C: undefined,
+	      D: undefined
+	    },
+	    body: p => {
+	      const standard = `
         (module RollerEncoder_Panasonic_EVQWGD001 (layer F.Cu) (tedit 6040A10C)
         ${p.at /* parametric position */}   
         (fp_text reference REF** (at 0 0 ${p.r}) (layer F.Fab) (effects (font (size 1 1) (thickness 0.15))))
@@ -2823,8 +2780,8 @@
         (fp_line (start 8.4 7.4) (end -8.4 7.4) (layer Dwgs.User) (width 0.12))
         (fp_line (start -8.4 7.4) (end -8.4 -6.4) (layer Dwgs.User) (width 0.12))
       `;
-		      function pins(def_neg, def_pos) {
-		        return `
+	      function pins(def_neg, def_pos) {
+	        return `
           ${'' /* edge cuts */}
           (fp_line (start ${def_pos}9.8 7.3) (end ${def_pos}9.8 -6.3) (layer Edge.Cuts) (width 0.15))
           (fp_line (start ${def_pos}7.4 -6.3) (end ${def_pos}7.4 7.3) (layer Edge.Cuts) (width 0.15))
@@ -2846,43 +2803,35 @@
           ${'' /* stabilizer */}
           (pad "" np_thru_hole circle (at ${def_neg}5.625 6.3 ${p.r}) (size 1.5 1.5) (drill 1.5) (layers *.Cu *.Mask))
         `
-		    }
-		    if(p.reverse) {
-		      return `
+	    }
+	    if(p.reverse) {
+	      return `
         ${standard}
         ${pins('-', '')}
         ${pins('', '-')})
         `
-		    } else {
-		      return `
+	    } else {
+	      return `
         ${standard}
         ${pins('-', '')})
         `
-		    }
-		  }
-		};
-		return scrollwheel;
-	}
+	    }
+	  }
+	};
 
-	var slider;
-	var hasRequiredSlider;
+	var slider = {
+	    params: {
+	        designator: 'T', // for Toggle
+	        side: 'F',
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => {
 
-	function requireSlider () {
-		if (hasRequiredSlider) return slider;
-		hasRequiredSlider = 1;
-		slider = {
-		    params: {
-		        designator: 'T', // for Toggle
-		        side: 'F',
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => {
+	        const left = p.side == 'F' ? '-' : '';
+	        const right = p.side == 'F' ? '' : '-';
 
-		        const left = p.side == 'F' ? '-' : '';
-		        const right = p.side == 'F' ? '' : '-';
-
-		        return `
+	        return `
         
         (module E73:SPDT_C128955 (layer F.Cu) (tstamp 5BF2CC3C)
 
@@ -2922,64 +2871,56 @@
         )
         
         `
-		    }
-		};
-		return slider;
-	}
+	    }
+	};
 
-	var trrs;
-	var hasRequiredTrrs;
+	// TRRS-PJ-320A-dual
+	//
+	// Normal footprint:
+	//     _________________
+	//    |   (2)   (3) (4)|
+	//    |                |
+	//    | (1)            |
+	//    |________________|
+	// 
+	// Reverse footprint:
+	//     _________________
+	//    |   (2)   (3) (4)|
+	//    | (1)            |
+	//    | (1)            |
+	//    |___(2)___(3)_(4)|
+	//
+	// Reverse & symmetric footprint:
+	//     _________________
+	//    | (1|2)   (3) (4)|
+	//    |                |
+	//    |_(1|2)___(3)_(4)|
+	//
+	// Nets
+	//    A: corresponds to pin 1
+	//    B: corresponds to pin 2
+	//    C: corresponds to pin 3
+	//    D: corresponds to pin 4
+	// Params
+	//    reverse: default is false
+	//      if true, will flip the footprint such that the pcb can be reversible
+	//    symmetric: default is false
+	//      if true, will only work if reverse is also true
+	//      this will cause the footprint to be symmetrical on each half
+	//      pins 1 and 2 must be identical if symmetric is true, as they will overlap
 
-	function requireTrrs () {
-		if (hasRequiredTrrs) return trrs;
-		hasRequiredTrrs = 1;
-		// TRRS-PJ-320A-dual
-		//
-		// Normal footprint:
-		//     _________________
-		//    |   (2)   (3) (4)|
-		//    |                |
-		//    | (1)            |
-		//    |________________|
-		// 
-		// Reverse footprint:
-		//     _________________
-		//    |   (2)   (3) (4)|
-		//    | (1)            |
-		//    | (1)            |
-		//    |___(2)___(3)_(4)|
-		//
-		// Reverse & symmetric footprint:
-		//     _________________
-		//    | (1|2)   (3) (4)|
-		//    |                |
-		//    |_(1|2)___(3)_(4)|
-		//
-		// Nets
-		//    A: corresponds to pin 1
-		//    B: corresponds to pin 2
-		//    C: corresponds to pin 3
-		//    D: corresponds to pin 4
-		// Params
-		//    reverse: default is false
-		//      if true, will flip the footprint such that the pcb can be reversible
-		//    symmetric: default is false
-		//      if true, will only work if reverse is also true
-		//      this will cause the footprint to be symmetrical on each half
-		//      pins 1 and 2 must be identical if symmetric is true, as they will overlap
-
-		trrs = {
-		  params: {
-		    designator: 'TRRS',
-		    reverse: false,
-		    symmetric: false,
-		    A: undefined,
-		    B: undefined,
-		    C: undefined,
-		    D: undefined
-		  },
-		  body: p => {
-		    const standard = `
+	var trrs = {
+	  params: {
+	    designator: 'TRRS',
+	    reverse: false,
+	    symmetric: false,
+	    A: undefined,
+	    B: undefined,
+	    C: undefined,
+	    D: undefined
+	  },
+	  body: p => {
+	    const standard = `
       (module TRRS-PJ-320A-dual (layer F.Cu) (tedit 5970F8E5)
 
       ${p.at /* parametric position */}   
@@ -2998,62 +2939,54 @@
       (fp_line (start 0.75 0) (end -5.35 0) (layer Dwgs.User) (width 0.15))
 
       `;
-		    function stabilizers(def_pos) {
-		      return `
+	    function stabilizers(def_pos) {
+	      return `
         (pad "" np_thru_hole circle (at ${def_pos} 8.6) (size 1.5 1.5) (drill 1.5) (layers *.Cu *.Mask))
         (pad "" np_thru_hole circle (at ${def_pos} 1.6) (size 1.5 1.5) (drill 1.5) (layers *.Cu *.Mask))
       `
-		    }
-		    function pins(def_neg, def_pos) {
-		      return `
+	    }
+	    function pins(def_neg, def_pos) {
+	      return `
         (pad 1 thru_hole oval (at ${def_neg} 11.3 ${p.r}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.A})
         (pad 2 thru_hole oval (at ${def_pos} 10.2 ${p.r}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.B})
         (pad 3 thru_hole oval (at ${def_pos} 6.2 ${p.r}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.C})
         (pad 4 thru_hole oval (at ${def_pos} 3.2 ${p.r}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.D})
       `
-		    }
-		    if(p.reverse & p.symmetric) {
-		      return `
+	    }
+	    if(p.reverse & p.symmetric) {
+	      return `
         ${standard}
         ${stabilizers('-2.3')}
         ${pins('0', '-4.6')}
         ${pins('-4.6', '0')})
       `
-		    } else if(p.reverse) {
-		        return `
+	    } else if(p.reverse) {
+	        return `
           ${standard}
           ${stabilizers('-2.3')}
           ${stabilizers('0')}
           ${pins('-2.3', '2.3')}
           ${pins('0', '-4.6')})
         `
-		    } else {
-		      return `
+	    } else {
+	      return `
         ${standard}
         ${stabilizers('-2.3')}
         ${pins('-4.6', '0')})
       `
-		    }
-		  }
-		};
-		return trrs;
-	}
+	    }
+	  }
+	};
 
-	var via;
-	var hasRequiredVia;
+	// Via
+	// Nets
+	//		net: the net this via should be connected to
 
-	function requireVia () {
-		if (hasRequiredVia) return via;
-		hasRequiredVia = 1;
-		// Via
-		// Nets
-		//		net: the net this via should be connected to
-
-		via = {
-		    params: {
-		      net: undefined
-		    },
-		    body: p => `
+	var via = {
+	    params: {
+	      net: undefined
+	    },
+	    body: p => `
       (module VIA-0.6mm (layer F.Cu) (tedit 591DBFB0)
       ${p.at /* parametric position */}   
       ${'' /* footprint reference */}
@@ -3064,112 +2997,104 @@
       (pad 1 thru_hole circle (at 0 0) (size 0.6 0.6) (drill 0.3) (layers *.Cu) (zone_connect 2) ${p.net})
       )
     `
-		};
-		return via;
-	}
+	};
 
-	var battery_connector_jst_ph_2;
-	var hasRequiredBattery_connector_jst_ph_2;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Author: @ceoloide
+	//
+	// Description:
+	//  A reversible JST PH 2.0mm footprint with support for solder jumpers and traces. This is
+	//  the same part sold at Typeractive.xyz and LCSC.
+	//
+	//  Note that the footprint's courtyard includes the space required for the male connector
+	//  and its cables. Make sure to leave enough room in front of the connector. The silkscreen
+	//  includes a handy reference for positive and negative terminals that remains visible
+	//  after the connector is soldered, to ensure wire polarity is correct.
+	//
+	// Datasheet:
+	//  https://cdn.shopify.com/s/files/1/0618/5674/3655/files/JST-S2B-PH-K.pdf?v=1670451309
+	//
+	// Params
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    include_traces: default is true
+	//      if true it will include traces that connect the jumper pads to the connector pins
+	//    trace_width: default is 0.250mm
+	//      allows to override the trace width that connects the jumper pads to the connector
+	//      pins. Not recommended to go below 0.25mm.
+	//    silkscreen: default is true
+	//      if true it will include the silkscreen. Recommended to be true to ensure connector
+	//      polarity is not reversed, which can lead to shorting and damage to the MCU
+	//    fabrication: default is true
+	//      if true it will include the outline of the connector in the fabrication layer
+	//    courtyard: default is true
+	//      if true it will include a courtyard outline around the connector and in front of it
+	//      to also account for the male connector plug and the wires. Recommended to be true
+	//      at least once in the development of a board to confirm sufficient clearance for the
+	//      connector and wires.
 
-	function requireBattery_connector_jst_ph_2 () {
-		if (hasRequiredBattery_connector_jst_ph_2) return battery_connector_jst_ph_2;
-		hasRequiredBattery_connector_jst_ph_2 = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Author: @ceoloide
-		//
-		// Description:
-		//  A reversible JST PH 2.0mm footprint with support for solder jumpers and traces. This is
-		//  the same part sold at Typeractive.xyz and LCSC.
-		//
-		//  Note that the footprint's courtyard includes the space required for the male connector
-		//  and its cables. Make sure to leave enough room in front of the connector. The silkscreen
-		//  includes a handy reference for positive and negative terminals that remains visible
-		//  after the connector is soldered, to ensure wire polarity is correct.
-		//
-		// Datasheet:
-		//  https://cdn.shopify.com/s/files/1/0618/5674/3655/files/JST-S2B-PH-K.pdf?v=1670451309
-		//
-		// Params
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    include_traces: default is true
-		//      if true it will include traces that connect the jumper pads to the connector pins
-		//    trace_width: default is 0.250mm
-		//      allows to override the trace width that connects the jumper pads to the connector
-		//      pins. Not recommended to go below 0.25mm.
-		//    silkscreen: default is true
-		//      if true it will include the silkscreen. Recommended to be true to ensure connector
-		//      polarity is not reversed, which can lead to shorting and damage to the MCU
-		//    fabrication: default is true
-		//      if true it will include the outline of the connector in the fabrication layer
-		//    courtyard: default is true
-		//      if true it will include a courtyard outline around the connector and in front of it
-		//      to also account for the male connector plug and the wires. Recommended to be true
-		//      at least once in the development of a board to confirm sufficient clearance for the
-		//      connector and wires.
+	var battery_connector_jst_ph_2 = {
+	    params: {
+	        designator: 'JST',
+	        side: 'F',
+	        reversible: false,
+	        include_traces: true,
+	        trace_width: 0.250,
+	        include_silkscreen: true,
+	        include_fabrication: true,
+	        include_courtyard: true,
+	        BAT_P: { type: 'net', value: 'BAT_P' },
+	        BAT_N: { type: 'net', value: 'GND' },
+	    },
+	    body: p => {
 
-		battery_connector_jst_ph_2 = {
-		    params: {
-		        designator: 'JST',
-		        side: 'F',
-		        reversible: false,
-		        include_traces: true,
-		        trace_width: 0.250,
-		        include_silkscreen: true,
-		        include_fabrication: true,
-		        include_courtyard: true,
-		        BAT_P: { type: 'net', value: 'BAT_P' },
-		        BAT_N: { type: 'net', value: 'GND' },
-		    },
-		    body: p => {
+	        const get_at_coordinates = () => {
+	            const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	            const matches = p.at.match(pattern);
+	            if (matches && matches.length == 4) {
+	                return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	            } else {
+	                return null;
+	            }
+	        };
 
-		        const get_at_coordinates = () => {
-		            const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		            const matches = p.at.match(pattern);
-		            if (matches && matches.length == 4) {
-		                return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		            } else {
-		                return null;
-		            }
-		        };
+	        const adjust_point = (x, y) => {
+	            const at_l = get_at_coordinates();
+	            if (at_l == null) {
+	                throw new Error(
+	                    `Could not get x and y coordinates from p.at: ${p.at}`
+	                );
+	            }
+	            const at_x = at_l[0];
+	            const at_y = at_l[1];
+	            const at_angle = at_l[2];
+	            const adj_x = at_x + x;
+	            const adj_y = at_y + y;
 
-		        const adjust_point = (x, y) => {
-		            const at_l = get_at_coordinates();
-		            if (at_l == null) {
-		                throw new Error(
-		                    `Could not get x and y coordinates from p.at: ${p.at}`
-		                );
-		            }
-		            const at_x = at_l[0];
-		            const at_y = at_l[1];
-		            const at_angle = at_l[2];
-		            const adj_x = at_x + x;
-		            const adj_y = at_y + y;
+	            const radians = (Math.PI / 180) * at_angle,
+	                cos = Math.cos(radians),
+	                sin = Math.sin(radians),
+	                nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	                ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		            const radians = (Math.PI / 180) * at_angle,
-		                cos = Math.cos(radians),
-		                sin = Math.sin(radians),
-		                nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		                ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	            const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
+	            return point_str;
+	        };
 
-		            const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
-		            return point_str;
-		        };
+	        let local_nets = [
+	            p.local_net("1"),
+	            p.local_net("2"),
+	        ];
 
-		        let local_nets = [
-		            p.local_net("1"),
-		            p.local_net("2"),
-		        ];
-
-		        const standard_opening = `
+	        const standard_opening = `
             (module "ceoloide:battery_connector_jst_ph_2" (layer ${p.side}.Cu) (tedit 6135B927)
                 ${p.at /* parametric position */}
 
@@ -3178,7 +3103,7 @@
                     (effects (font (size 1 1) (thickness 0.15)))
                 )
             `;
-		        const front_fabrication = `
+	        const front_fabrication = `
                 (fp_line (start -2.95 -1.35) (end -2.95 6.25) (width 0.1) (layer "F.Fab"))
                 (fp_line (start -2.95 6.25) (end 2.95 6.25) (width 0.1) (layer "F.Fab"))
                 (fp_line (start -2.25 -1.35) (end -2.95 -1.35) (width 0.1) (layer "F.Fab"))
@@ -3188,13 +3113,13 @@
                 (fp_line (start 2.95 -1.35) (end 2.25 -1.35) (width 0.1) (layer "F.Fab"))
                 (fp_line (start 2.95 6.25) (end 2.95 -1.35) (width 0.1) (layer "F.Fab"))
         `;
-		        const front_courtyard = `
+	        const front_courtyard = `
                 (fp_line (start -3.45 -1.85) (end -3.45 10.5) (width 0.05) (layer "F.CrtYd"))
                 (fp_line (start -3.45 10.5) (end 3.45 10.5) (width 0.05) (layer "F.CrtYd"))
                 (fp_line (start 3.45 -1.85) (end -3.45 -1.85) (width 0.05) (layer "F.CrtYd"))
                 (fp_line (start 3.45 10.5) (end 3.45 -1.85) (width 0.05) (layer "F.CrtYd"))
         `;
-		        const front_silkscreen = `
+	        const front_silkscreen = `
                 (fp_line (start -1.5 7.40) (end -0.5 7.40) (width 0.1) (layer "F.SilkS"))
                 (fp_line (start 1.5 7.40) (end 0.5 7.40) (width 0.1) (layer "F.SilkS"))
                 (fp_line (start 1 6.90) (end 1 7.90) (width 0.1) (layer "F.SilkS"))
@@ -3207,7 +3132,7 @@
                 (fp_line (start 2.14 6.36) (end 3.06 6.36) (width 0.12) (layer "F.SilkS"))
                 (fp_line (start 3.06 6.36) (end 3.06 5.36) (width 0.12) (layer "F.SilkS"))
         `;
-		        const back_fabrication = `
+	        const back_fabrication = `
                 (fp_line (start -2.95 -1.35) (end -2.25 -1.35) (width 0.1) (layer "B.Fab"))
                 (fp_line (start -2.95 6.25) (end -2.95 -1.35) (width 0.1) (layer "B.Fab"))
                 (fp_line (start -2.25 -1.35) (end -2.25 0.25) (width 0.1) (layer "B.Fab"))
@@ -3217,13 +3142,13 @@
                 (fp_line (start 2.95 -1.35) (end 2.95 6.25) (width 0.1) (layer "B.Fab"))
                 (fp_line (start 2.95 6.25) (end -2.95 6.25) (width 0.1) (layer "B.Fab"))
         `;
-		        const back_courtyard = `
+	        const back_courtyard = `
                 (fp_line (start -3.45 -1.85) (end -3.45 10.5) (width 0.05) (layer "B.CrtYd"))
                 (fp_line (start -3.45 10.5) (end 3.45 10.5) (width 0.05) (layer "B.CrtYd"))
                 (fp_line (start 3.45 -1.85) (end -3.45 -1.85) (width 0.05) (layer "B.CrtYd"))
                 (fp_line (start 3.45 10.5) (end 3.45 -1.85) (width 0.05) (layer "B.CrtYd"))
         `;
-		        const back_silkscreen = `
+	        const back_silkscreen = `
                 (fp_line (start 1.5 7.40) (end 0.5 7.40) (width 0.1) (layer "B.SilkS"))
                 (fp_line (start -1.5 7.40) (end -0.5 7.40) (width 0.1) (layer "B.SilkS"))
                 (fp_line (start -1 6.90) (end -1 7.90) (width 0.1) (layer "B.SilkS"))
@@ -3236,15 +3161,15 @@
                 (fp_line (start 2.14 6.36) (end 3.06 6.36) (width 0.12) (layer "B.SilkS"))
                 (fp_line (start 3.06 6.36) (end 3.06 5.36) (width 0.12) (layer "B.SilkS"))
         `;
-		        const front_pads = `
+	        const front_pads = `
                 (pad 1 thru_hole roundrect (at -1 0 ${p.rot}) (size 1.2 1.75) (drill 0.75) (layers "*.Cu" "*.Mask") (roundrect_rratio 0.20) ${p.BAT_N.str})
                 (pad 2 thru_hole oval (at 1 0 ${p.rot}) (size 1.2 1.75) (drill 0.75) (layers "*.Cu" "*.Mask") ${p.BAT_P.str})
         `;
-		        const back_pads = `
+	        const back_pads = `
                 (pad 1 thru_hole roundrect (at 1 0 ${p.rot}) (size 1.2 1.75) (drill 0.75) (layers "*.Cu" "*.Mask") (roundrect_rratio 0.20) ${p.BAT_N.str})
                 (pad 2 thru_hole oval (at -1 0 ${p.rot}) (size 1.2 1.75) (drill 0.75) (layers "*.Cu" "*.Mask") ${p.BAT_P.str})
         `;
-		        const reversible_pads = `
+	        const reversible_pads = `
                 (pad 11 thru_hole oval (at -1 0 ${p.rot}) (size 1.2 1.75) (drill 0.75) (layers "*.Cu" "*.Mask") ${local_nets[0].str})
                 (pad 12 thru_hole oval (at 1 0 ${p.rot}) (size 1.2 1.75) (drill 0.75) (layers "*.Cu" "*.Mask") ${local_nets[1].str})
                 (pad 21 smd custom (at -1 1.8 ${180 + p.rot}) (size 0.1 0.1) (layers "F.Cu" "F.Mask")
@@ -3364,132 +3289,124 @@
                         (width 0))
                     ) )
             `;
-		        const standard_closing = `
+	        const standard_closing = `
             )
         `;
 
-		        const reversible_traces = ` 
+	        const reversible_traces = ` 
         (segment (start ${adjust_point(-1, 1.8)}) (end ${adjust_point(-1, 0)}) (width ${p.trace_width}) (layer "F.Cu") (net ${local_nets[0].index}))
         (segment (start ${adjust_point(-1, 1.8)}) (end ${adjust_point(-1, 0)}) (width ${p.trace_width}) (layer "B.Cu") (net ${local_nets[0].index}))
         (segment (start ${adjust_point(1, 1.8)}) (end ${adjust_point(1, 0)}) (width ${p.trace_width}) (layer "F.Cu") (net ${local_nets[1].index}))
         (segment (start ${adjust_point(1, 1.8)}) (end ${adjust_point(1, 0)}) (width ${p.trace_width}) (layer "B.Cu") (net ${local_nets[1].index}))
         `;
 
-		        let final = standard_opening;
+	        let final = standard_opening;
 
-		        if (p.side == "F" || p.reversible) {
-		            if (p.include_fabrication) {
-		                final += front_fabrication;
-		            }
-		            if (p.include_courtyard) {
-		                final += front_courtyard;
-		            }
-		            if (p.include_silkscreen) {
-		                final += front_silkscreen;
-		            }
-		        }
-		        if (p.side == "B" || p.reversible) {
-		            if (p.include_fabrication) {
-		                final += back_fabrication;
-		            }
-		            if (p.include_courtyard) {
-		                final += back_courtyard;
-		            }
-		            if (p.include_silkscreen) {
-		                final += back_silkscreen;
-		            }
-		        }
-		        if (p.reversible) {
-		            final += reversible_pads;
-		        } else if (p.side == "F") {
-		            final += front_pads;
-		        } else if (p.side == "B") {
-		            final += back_pads;
-		        }
-		        final += standard_closing;
-		        if (p.reversible && p.include_traces) {
-		            final += reversible_traces;
-		        }
-		        return final;
-		    }
-		};
-		return battery_connector_jst_ph_2;
-	}
+	        if (p.side == "F" || p.reversible) {
+	            if (p.include_fabrication) {
+	                final += front_fabrication;
+	            }
+	            if (p.include_courtyard) {
+	                final += front_courtyard;
+	            }
+	            if (p.include_silkscreen) {
+	                final += front_silkscreen;
+	            }
+	        }
+	        if (p.side == "B" || p.reversible) {
+	            if (p.include_fabrication) {
+	                final += back_fabrication;
+	            }
+	            if (p.include_courtyard) {
+	                final += back_courtyard;
+	            }
+	            if (p.include_silkscreen) {
+	                final += back_silkscreen;
+	            }
+	        }
+	        if (p.reversible) {
+	            final += reversible_pads;
+	        } else if (p.side == "F") {
+	            final += front_pads;
+	        } else if (p.side == "B") {
+	            final += back_pads;
+	        }
+	        final += standard_closing;
+	        if (p.reversible && p.include_traces) {
+	            final += reversible_traces;
+	        }
+	        return final;
+	    }
+	};
 
-	var diode_tht_sod123;
-	var hasRequiredDiode_tht_sod123;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Authors: @ergogen + @infused-kim improvements + @ceoloide improvements
+	//
+	// Description:
+	//  Combined Thru-Hole and SMD diode footprint for SOD-123 package, like the Semtech 1N4148W
+	//  component sold by Typeractive.xyz or LCSC.
+	//
+	// Datasheet:
+	//  https://cdn.shopify.com/s/files/1/0618/5674/3655/files/Semtech-1N4148W.pdf?v=1670451309
+	//
+	// Params:
+	//    side: default is B for Back
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    include_tht: default is false
+	//      if true it includes through-hole pads alongside SMD ones
+	//    diode_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    diode_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    diode_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    diode_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
+	//
+	// @infused-kim's improvements:
+	//  - Add option to hide thru-holes
+	//  - Add virtual attribute to silence DRC error
+	//
+	// @ceoloide's improvements:
+	//  - Add single side support
+	//
+	// @grazfather's improvements:
+	//  - Add support for switch 3D model
 
-	function requireDiode_tht_sod123 () {
-		if (hasRequiredDiode_tht_sod123) return diode_tht_sod123;
-		hasRequiredDiode_tht_sod123 = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Authors: @ergogen + @infused-kim improvements + @ceoloide improvements
-		//
-		// Description:
-		//  Combined Thru-Hole and SMD diode footprint for SOD-123 package, like the Semtech 1N4148W
-		//  component sold by Typeractive.xyz or LCSC.
-		//
-		// Datasheet:
-		//  https://cdn.shopify.com/s/files/1/0618/5674/3655/files/Semtech-1N4148W.pdf?v=1670451309
-		//
-		// Params:
-		//    side: default is B for Back
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    include_tht: default is false
-		//      if true it includes through-hole pads alongside SMD ones
-		//    diode_3dmodel_filename: default is ''
-		//      Allows you to specify the path to a 3D model STEP or WRL file to be
-		//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
-		//      a KiCad configured path.
-		//    diode_3dmodel_xyz_offset: default is [0, 0, 0]
-		//      xyz offset (in mm), used to adjust the position of the 3d model
-		//      relative the footprint.
-		//    diode_3dmodel_xyz_scale: default is [1, 1, 1]
-		//      xyz scale, used to adjust the size of the 3d model relative to its
-		//      original size.
-		//    diode_3dmodel_xyz_rotation: default is [0, 0, 0]
-		//      xyz rotation (in degrees), used to adjust the orientation of the 3d
-		//      model relative the footprint.
-		//
-		// @infused-kim's improvements:
-		//  - Add option to hide thru-holes
-		//  - Add virtual attribute to silence DRC error
-		//
-		// @ceoloide's improvements:
-		//  - Add single side support
-		//
-		// @grazfather's improvements:
-		//  - Add support for switch 3D model
+	var diode_tht_sod123 = {
+	    params: {
+	        designator: 'D',
+	        side: 'B',
+	        reversible: false,
+	        include_tht: false,
+	        diode_3dmodel_filename: '',
+	        diode_3dmodel_xyz_offset: [0, 0, 0],
+	        diode_3dmodel_xyz_rotation: [0, 0, 0],
+	        diode_3dmodel_xyz_scale: [1, 1, 1],
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => {
 
-		diode_tht_sod123 = {
-		    params: {
-		        designator: 'D',
-		        side: 'B',
-		        reversible: false,
-		        include_tht: false,
-		        diode_3dmodel_filename: '',
-		        diode_3dmodel_xyz_offset: [0, 0, 0],
-		        diode_3dmodel_xyz_rotation: [0, 0, 0],
-		        diode_3dmodel_xyz_scale: [1, 1, 1],
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => {
-
-		        const standard_opening = `
+	        const standard_opening = `
         (module "ceoloide:diode_tht_sod123" (layer ${p.side}.Cu) (tedit 5B24D78E)
             ${p.at /* parametric position */}
             (fp_text reference "${p.ref}" (at 0 0 ${p.rot}) (layer ${p.side}.SilkS) ${p.ref_hide} (effects (font (size 1.27 1.27) (thickness 0.15))))
         `;
-		        const front = `
+	        const front = `
             (fp_line (start 0.25 0) (end 0.75 0) (layer F.SilkS) (width 0.1))
             (fp_line (start 0.25 0.4) (end -0.35 0) (layer F.SilkS) (width 0.1))
             (fp_line (start 0.25 -0.4) (end 0.25 0.4) (layer F.SilkS) (width 0.1))
@@ -3500,7 +3417,7 @@
             (pad 1 smd rect (at -1.65 0 ${p.rot}) (size 0.9 1.2) (layers F.Cu F.Paste F.Mask) ${p.to.str})
             (pad 2 smd rect (at 1.65 0 ${p.rot}) (size 0.9 1.2) (layers F.Cu F.Paste F.Mask) ${p.from.str})
         `;
-		        const back = `
+	        const back = `
             (fp_line (start 0.25 0) (end 0.75 0) (layer B.SilkS) (width 0.1))
             (fp_line (start 0.25 0.4) (end -0.35 0) (layer B.SilkS) (width 0.1))
             (fp_line (start 0.25 -0.4) (end 0.25 0.4) (layer B.SilkS) (width 0.1))
@@ -3512,194 +3429,186 @@
             (pad 1 smd rect (at -1.65 0 ${p.rot}) (size 0.9 1.2) (layers B.Cu B.Paste B.Mask) ${p.to.str})
         `;
 
-		        const tht = `
+	        const tht = `
             (pad 1 thru_hole rect (at -3.81 0 ${p.rot}) (size 1.778 1.778) (drill 0.9906) (layers *.Cu *.Mask) ${p.to.str})
             (pad 2 thru_hole circle (at 3.81 0 ${p.rot}) (size 1.905 1.905) (drill 0.9906) (layers *.Cu *.Mask) ${p.from.str})
         `;
 
-		        const diode_3dmodel = `
+	        const diode_3dmodel = `
             (model ${p.diode_3dmodel_filename}
                 (offset (xyz ${p.diode_3dmodel_xyz_offset[0]} ${p.diode_3dmodel_xyz_offset[1]} ${p.diode_3dmodel_xyz_offset[2]}))
                 (scale (xyz ${p.diode_3dmodel_xyz_scale[0]} ${p.diode_3dmodel_xyz_scale[1]} ${p.diode_3dmodel_xyz_scale[2]}))
                 (rotate (xyz ${p.diode_3dmodel_xyz_rotation[0]} ${p.diode_3dmodel_xyz_rotation[1]} ${p.diode_3dmodel_xyz_rotation[2]})))
         `;
-		        const standard_closing = `
+	        const standard_closing = `
         )
         `;
 
-		        let final = standard_opening;
+	        let final = standard_opening;
 
-		        if (p.side == "F" || p.reversible) {
-		            final += front;
-		        }
-		        if (p.side == "B" || p.reversible) {
-		            final += back;
-		        }
-		        if (p.include_tht) {
-		            final += tht;
-		        }
+	        if (p.side == "F" || p.reversible) {
+	            final += front;
+	        }
+	        if (p.side == "B" || p.reversible) {
+	            final += back;
+	        }
+	        if (p.include_tht) {
+	            final += tht;
+	        }
 
-		        if (p.diode_3dmodel_filename) {
-		            final += diode_3dmodel;
-		        }
+	        if (p.diode_3dmodel_filename) {
+	            final += diode_3dmodel;
+	        }
 
-		        final += standard_closing;
+	        final += standard_closing;
 
-		        return final;
-		    }
-		};
-		return diode_tht_sod123;
-	}
+	        return final;
+	    }
+	};
 
-	var display_nice_view;
-	var hasRequiredDisplay_nice_view;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Author: @infused-kim + @ceoloide improvements
+	//
+	// Description:
+	//  Reversible footprint for nice!view display. Includes an outline of the
+	//  display to make positioning easier.
+	//
+	//  Note that because the center pin is VCC on both sides, there is no associated jumper pad
+	//  in the reversible footprint.
+	//
+	//  In its default configuration, jumper pads are positioned above the pins, when the
+	//  component is oriented verically and pointing upwards, or left of the pins, when oriented
+	//  horizontally and oriented leftward. Jumper pads position can be inverted with a parameter.
+	//
+	// Pinout and schematics:
+	//  https://nicekeyboards.com/docs/nice-view/pinout-schematic
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    include_traces: default is true
+	//      if true it will include traces that connect the jumper pads to the vias
+	//      and the through-holes for the MCU
+	//    gnd_trace_width: default is 0.250mm
+	//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
+	//      min is 0.127mm).
+	//    signal_trace_width: default is 0.250mm
+	//      allows to override the trace width that connects the jumper pads to the MOSI, SCK,
+	//      and CS pins. Not recommended to go below 0.15mm (JLCPC min is 0.127mm).
+	//    invert_jumpers_position default is false
+	//      allows to change the position of the jumper pads, from their default to the opposite
+	//      side of the pins. See the description above for more details.
+	//    include_labels default is true
+	//      if true it will include the pin labels on the Silkscreen layer. The labels will match
+	//      the *opposite* side of the board when the footprint is set to be reversible, since
+	//      they are meant to match the solder jumpers behavior and aid testing.
+	//
+	// @ceoloide's improvements:
+	//  - Added support for traces
 
-	function requireDisplay_nice_view () {
-		if (hasRequiredDisplay_nice_view) return display_nice_view;
-		hasRequiredDisplay_nice_view = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Author: @infused-kim + @ceoloide improvements
-		//
-		// Description:
-		//  Reversible footprint for nice!view display. Includes an outline of the
-		//  display to make positioning easier.
-		//
-		//  Note that because the center pin is VCC on both sides, there is no associated jumper pad
-		//  in the reversible footprint.
-		//
-		//  In its default configuration, jumper pads are positioned above the pins, when the
-		//  component is oriented verically and pointing upwards, or left of the pins, when oriented
-		//  horizontally and oriented leftward. Jumper pads position can be inverted with a parameter.
-		//
-		// Pinout and schematics:
-		//  https://nicekeyboards.com/docs/nice-view/pinout-schematic
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    include_traces: default is true
-		//      if true it will include traces that connect the jumper pads to the vias
-		//      and the through-holes for the MCU
-		//    gnd_trace_width: default is 0.250mm
-		//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
-		//      min is 0.127mm).
-		//    signal_trace_width: default is 0.250mm
-		//      allows to override the trace width that connects the jumper pads to the MOSI, SCK,
-		//      and CS pins. Not recommended to go below 0.15mm (JLCPC min is 0.127mm).
-		//    invert_jumpers_position default is false
-		//      allows to change the position of the jumper pads, from their default to the opposite
-		//      side of the pins. See the description above for more details.
-		//    include_labels default is true
-		//      if true it will include the pin labels on the Silkscreen layer. The labels will match
-		//      the *opposite* side of the board when the footprint is set to be reversible, since
-		//      they are meant to match the solder jumpers behavior and aid testing.
-		//
-		// @ceoloide's improvements:
-		//  - Added support for traces
+	var display_nice_view = {
+	  params: {
+	    designator: 'DISP',
+	    side: 'F',
+	    reversible: false,
+	    include_traces: true,
+	    gnd_trace_width: 0.25,
+	    signal_trace_width: 0.25,
+	    invert_jumpers_position: false,
+	    include_labels: true,
+	    MOSI: { type: 'net', value: 'MOSI' },
+	    SCK: { type: 'net', value: 'SCK' },
+	    VCC: { type: 'net', value: 'VCC' },
+	    GND: { type: 'net', value: 'GND' },
+	    CS: { type: 'net', value: 'CS' },
+	  },
+	  body: p => {
+	    const get_at_coordinates = () => {
+	      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	      const matches = p.at.match(pattern);
+	      if (matches && matches.length == 4) {
+	        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	      } else {
+	        return null;
+	      }
+	    };
 
-		display_nice_view = {
-		  params: {
-		    designator: 'DISP',
-		    side: 'F',
-		    reversible: false,
-		    include_traces: true,
-		    gnd_trace_width: 0.25,
-		    signal_trace_width: 0.25,
-		    invert_jumpers_position: false,
-		    include_labels: true,
-		    MOSI: { type: 'net', value: 'MOSI' },
-		    SCK: { type: 'net', value: 'SCK' },
-		    VCC: { type: 'net', value: 'VCC' },
-		    GND: { type: 'net', value: 'GND' },
-		    CS: { type: 'net', value: 'CS' },
-		  },
-		  body: p => {
-		    const get_at_coordinates = () => {
-		      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		      const matches = p.at.match(pattern);
-		      if (matches && matches.length == 4) {
-		        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		      } else {
-		        return null;
-		      }
-		    };
+	    const adjust_point = (x, y) => {
+	      const at_l = get_at_coordinates();
+	      if (at_l == null) {
+	        throw new Error(
+	          `Could not get x and y coordinates from p.at: ${p.at}`
+	        );
+	      }
+	      const at_x = at_l[0];
+	      const at_y = at_l[1];
+	      const at_angle = at_l[2];
+	      const adj_x = at_x + x;
+	      const adj_y = at_y + y;
 
-		    const adjust_point = (x, y) => {
-		      const at_l = get_at_coordinates();
-		      if (at_l == null) {
-		        throw new Error(
-		          `Could not get x and y coordinates from p.at: ${p.at}`
-		        );
-		      }
-		      const at_x = at_l[0];
-		      const at_y = at_l[1];
-		      const at_angle = at_l[2];
-		      const adj_x = at_x + x;
-		      const adj_y = at_y + y;
+	      const radians = (Math.PI / 180) * at_angle,
+	        cos = Math.cos(radians),
+	        sin = Math.sin(radians),
+	        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		      const radians = (Math.PI / 180) * at_angle,
-		        cos = Math.cos(radians),
-		        sin = Math.sin(radians),
-		        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
+	      return point_str;
+	    };
 
-		      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
-		      return point_str;
-		    };
+	    let dst_nets = [
+	      p.CS,
+	      p.GND,
+	      p.VCC,
+	      p.SCK,
+	      p.MOSI,
+	    ];
 
-		    let dst_nets = [
-		      p.CS,
-		      p.GND,
-		      p.VCC,
-		      p.SCK,
-		      p.MOSI,
-		    ];
+	    local_nets = [
+	      p.local_net("1"),
+	      p.local_net("2"),
+	      p.VCC,
+	      p.local_net("4"),
+	      p.local_net("5"),
+	    ];
 
-		    local_nets = [
-		      p.local_net("1"),
-		      p.local_net("2"),
-		      p.VCC,
-		      p.local_net("4"),
-		      p.local_net("5"),
-		    ];
+	    let socket_nets = dst_nets;
 
-		    let socket_nets = dst_nets;
+	    if (p.reversible) {
+	      socket_nets = local_nets;
+	    } else if (p.side == 'B') {
+	      socket_nets = dst_nets.slice().reverse();
+	    }
 
-		    if (p.reversible) {
-		      socket_nets = local_nets;
-		    } else if (p.side == 'B') {
-		      socket_nets = dst_nets.slice().reverse();
-		    }
+	    let jumpers_offset = 0;
+	    let labels_offset = 0;
+	    let label_vcc_offset = 0;
 
-		    let jumpers_offset = 0;
-		    let labels_offset = 0;
-		    let label_vcc_offset = 0;
+	    let jumpers_front_top = dst_nets;
+	    let jumpers_front_bottom = local_nets;
+	    let jumpers_back_top = dst_nets;
+	    let jumpers_back_bottom = local_nets.slice().reverse();
 
-		    let jumpers_front_top = dst_nets;
-		    let jumpers_front_bottom = local_nets;
-		    let jumpers_back_top = dst_nets;
-		    let jumpers_back_bottom = local_nets.slice().reverse();
+	    if (p.invert_jumpers_position) {
+	      jumpers_offset = 4.4;
+	      labels_offset = jumpers_offset + 2.80 +  0.1;
+	      label_vcc_offset = 4.35;
 
-		    if (p.invert_jumpers_position) {
-		      jumpers_offset = 4.4;
-		      labels_offset = jumpers_offset + 2.80 +  0.1;
-		      label_vcc_offset = 4.35;
+	      jumpers_front_top = local_nets;
+	      jumpers_front_bottom = dst_nets;
+	      jumpers_back_top = local_nets.slice().reverse();
+	      jumpers_back_bottom = dst_nets;
+	    }
 
-		      jumpers_front_top = local_nets;
-		      jumpers_front_bottom = dst_nets;
-		      jumpers_back_top = local_nets.slice().reverse();
-		      jumpers_back_bottom = dst_nets;
-		    }
-
-		    const top = `
+	    const top = `
       (module "ceoloide:display_nice_view" (layer ${p.side}.Cu) (tedit 6448AF5B)
         ${p.at /* parametric position */}
         (attr virtual)
@@ -3710,7 +3619,7 @@
           (effects (font (size 1 1) (thickness 0.15)))
         )
         `;
-		    const front = `
+	    const front = `
         (fp_line (start -6.5 -18) (end 6.5 -18) (layer F.Fab) (width 0.15))
         (fp_line (start 6.5 18) (end -6.5 18) (layer F.Fab) (width 0.15))
         (fp_line (start -7 17.5) (end -7 -17.5) (layer F.Fab) (width 0.15))
@@ -3729,7 +3638,7 @@
         (fp_line (start -6.82 14.9) (end 6.88 14.9) (layer F.CrtYd) (width 0.15))
     `;
 
-		    const front_jumpers = `
+	    const front_jumpers = `
         (fp_line (start 5.93 ${13.5 + jumpers_offset}) (end 5.93 ${15.5 + jumpers_offset}) (layer F.Fab) (width 0.15))
         (fp_line (start -5.93 ${15.5 + jumpers_offset}) (end -5.93 ${13.5 + jumpers_offset}) (layer F.Fab) (width 0.15))
         (fp_line (start -5.93 ${13.5 + jumpers_offset}) (end -4.23 ${13.5 + jumpers_offset}) (layer F.Fab) (width 0.15))
@@ -3758,7 +3667,7 @@
         (pad 13 smd rect (at 5.08 ${14.95 + jumpers_offset} ${90 + p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${jumpers_front_bottom[4].str})
     `;
 
-		    const back = `
+	    const back = `
         (fp_line (start 6.41 15.37) (end 6.41 18.03) (layer B.SilkS) (width 0.12))
         (fp_line (start 6.41 15.37) (end -6.41 15.37) (layer B.SilkS) (width 0.12))
         (fp_line (start 6.41 18.03) (end -6.41 18.03) (layer B.SilkS) (width 0.12))
@@ -3777,7 +3686,7 @@
         (fp_arc (start -6.5 17.5) (end -6.5 18) (angle 90) (layer B.Fab) (width 0.15))
     `;
 
-		    const back_jumpers = `
+	    const back_jumpers = `
         (fp_line (start -5.93 ${13.5 + jumpers_offset}) (end -5.93 ${15.5 + jumpers_offset}) (layer B.Fab) (width 0.15))
         (fp_line (start -5.93 ${15.5 + jumpers_offset}) (end -4.23 ${15.5 + jumpers_offset}) (layer B.Fab) (width 0.15))
         (fp_line (start -4.23 ${13.5 + jumpers_offset}) (end -5.93 ${13.5 + jumpers_offset}) (layer B.Fab) (width 0.15))
@@ -3806,7 +3715,7 @@
         (pad 23 smd rect (at -5.08 ${14.95 + jumpers_offset} ${270 + p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${jumpers_back_bottom[4].str})
     `;
 
-		    const labels = `
+	    const labels = `
         (fp_text user DA (at -5.08 ${13.1 + labels_offset} ${p.rot}) (layer F.SilkS)
           (effects (font (size 1 1) (thickness 0.15)))
         )
@@ -3839,7 +3748,7 @@
         )
     `;
 
-		    const bottom = `
+	    const bottom = `
       (pad 1 thru_hole oval (at -5.08 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${socket_nets[0].str})
       (pad 2 thru_hole oval (at -2.54 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${socket_nets[1].str})
       (pad 3 thru_hole oval (at 0 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${socket_nets[2].str})
@@ -3853,7 +3762,7 @@
     )
     `;
 
-		    const traces_bottom = `
+	    const traces_bottom = `
     (segment (start ${adjust_point(-5.08, 16.7)}) (end ${adjust_point(-5.08, 18.45)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_bottom[0].index}))
     (segment (start ${adjust_point(-2.54, 16.7)}) (end ${adjust_point(-2.54, 18.45)}) (width ${p.gnd_trace_width}) (layer "F.Cu") (net ${jumpers_front_bottom[1].index}))
     (segment (start ${adjust_point(2.54, 16.7)}) (end ${adjust_point(2.54, 18.45)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_bottom[3].index}))
@@ -3864,7 +3773,7 @@
     (segment (start ${adjust_point(5.08, 16.7)}) (end ${adjust_point(5.08, 18.45)}) (width ${p.signal_trace_width}) (layer "B.Cu") (net ${jumpers_back_bottom[4].index}))
     `;
 
-		    const traces_top = `
+	    const traces_top = `
     (segment (start ${adjust_point(-5.08, 16.7)}) (end ${adjust_point(-5.08, 14.95)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_top[0].index}))
     (segment (start ${adjust_point(-2.54, 16.7)}) (end ${adjust_point(-2.54, 14.95)}) (width ${p.gnd_trace_width}) (layer "F.Cu") (net ${jumpers_front_top[1].index}))
     (segment (start ${adjust_point(2.54, 16.7)}) (end ${adjust_point(2.54, 14.95)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_top[3].index}))
@@ -3875,158 +3784,150 @@
     (segment (start ${adjust_point(5.08, 16.7)}) (end ${adjust_point(5.08, 14.95)}) (width ${p.signal_trace_width}) (layer "B.Cu") (net ${jumpers_back_top[4].index}))
     `;
 
-		    let final = top;
+	    let final = top;
 
-		    if (p.side == "F" || p.reversible) {
-		      final += front;
-		    }
-		    if (p.side == "B" || p.reversible) {
-		      final += back;
-		    }
+	    if (p.side == "F" || p.reversible) {
+	      final += front;
+	    }
+	    if (p.side == "B" || p.reversible) {
+	      final += back;
+	    }
 
-		    if (p.reversible) {
-		      final += front_jumpers;
-		      final += back_jumpers;
+	    if (p.reversible) {
+	      final += front_jumpers;
+	      final += back_jumpers;
 
-		      if (p.include_labels) {
-		        final += labels;
-		      }
-		    }
+	      if (p.include_labels) {
+	        final += labels;
+	      }
+	    }
 
-		    final += bottom;
+	    final += bottom;
 
-		    if (p.include_traces && p.reversible) {
-		      if (p.invert_jumpers_position) {
-		        final += traces_bottom;
-		      } else {
-		        final += traces_top;
-		      }
-		    }
+	    if (p.include_traces && p.reversible) {
+	      if (p.invert_jumpers_position) {
+	        final += traces_bottom;
+	      } else {
+	        final += traces_top;
+	      }
+	    }
 
-		    return final;
-		  }
-		};
-		return display_nice_view;
-	}
+	    return final;
+	  }
+	};
 
-	var display_ssd1306_nice_view;
-	var hasRequiredDisplay_ssd1306_nice_view;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Description:
+	//  A combined reversible footprint for either SSD1306 OLED display, nice!view display, or
+	//  both at the same time.
+	//
+	// Pinout and schematics for the nice!view:
+	//  https://nicekeyboards.com/docs/nice-view/pinout-schematic
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B.
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible.
+	//    include_traces: default is true
+	//      if true it will include traces that connect the jumper pads to the through-holes for
+	//      the display.
+	//    gnd_trace_width: default is 0.250mm
+	//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
+	//      min is 0.127mm).
+	//    vcc_trace_width: default is 0.250mm
+	//      allows to override the VCC trace width. Not recommended to go below 0.25mm (JLCPC
+	//      min is 0.127mm).
+	//    signal_trace_width: default is 0.250mm
+	//      allows to override the trace width that connects the jumper pads to the MOSI / SDA,
+	//      SCK / SCL, and CS pins. Not recommended to go below 0.15mm (JLCPC min is 0.127mm).
+	//    display_type: default is 'both'
+	//      allows to chose what display to support in the footprint, and it can either be 'both'
+	//      to have pins for both the nice!view or SSD1306 OLED displays, 'nice_view' to have the
+	//      pins for the nice!view display only, or 'ssd1306' for the SSD1306 OLED display only.
 
-	function requireDisplay_ssd1306_nice_view () {
-		if (hasRequiredDisplay_ssd1306_nice_view) return display_ssd1306_nice_view;
-		hasRequiredDisplay_ssd1306_nice_view = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Description:
-		//  A combined reversible footprint for either SSD1306 OLED display, nice!view display, or
-		//  both at the same time.
-		//
-		// Pinout and schematics for the nice!view:
-		//  https://nicekeyboards.com/docs/nice-view/pinout-schematic
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B.
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible.
-		//    include_traces: default is true
-		//      if true it will include traces that connect the jumper pads to the through-holes for
-		//      the display.
-		//    gnd_trace_width: default is 0.250mm
-		//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
-		//      min is 0.127mm).
-		//    vcc_trace_width: default is 0.250mm
-		//      allows to override the VCC trace width. Not recommended to go below 0.25mm (JLCPC
-		//      min is 0.127mm).
-		//    signal_trace_width: default is 0.250mm
-		//      allows to override the trace width that connects the jumper pads to the MOSI / SDA,
-		//      SCK / SCL, and CS pins. Not recommended to go below 0.15mm (JLCPC min is 0.127mm).
-		//    display_type: default is 'both'
-		//      allows to chose what display to support in the footprint, and it can either be 'both'
-		//      to have pins for both the nice!view or SSD1306 OLED displays, 'nice_view' to have the
-		//      pins for the nice!view display only, or 'ssd1306' for the SSD1306 OLED display only.
+	var display_ssd1306_nice_view = {
+	  params: {
+	    designator: 'DISP',
+	    side: 'F',
+	    reversible: false,
+	    include_traces_vias: true, // Only valid if reversible is True
+	    gnd_trace_width: 0.25,
+	    vcc_trace_width: 0.25,
+	    signal_trace_width: 0.25,
+	    display_type: 'both', // Any of ssd1306, nice_view, both
+	    P1: { type: 'net', value: 'GND' },
+	    P2: { type: 'net', value: 'VCC' },
+	    P3: { type: 'net', value: 'SCL' },  // SCK / SCL
+	    P4: { type: 'net', value: 'SDA' },  // MOSI / SDA
+	    P5: { type: 'net', value: 'CS' },
+	  },
+	  body: p => {
 
-		display_ssd1306_nice_view = {
-		  params: {
-		    designator: 'DISP',
-		    side: 'F',
-		    reversible: false,
-		    include_traces_vias: true, // Only valid if reversible is True
-		    gnd_trace_width: 0.25,
-		    vcc_trace_width: 0.25,
-		    signal_trace_width: 0.25,
-		    display_type: 'both', // Any of ssd1306, nice_view, both
-		    P1: { type: 'net', value: 'GND' },
-		    P2: { type: 'net', value: 'VCC' },
-		    P3: { type: 'net', value: 'SCL' },  // SCK / SCL
-		    P4: { type: 'net', value: 'SDA' },  // MOSI / SDA
-		    P5: { type: 'net', value: 'CS' },
-		  },
-		  body: p => {
+	    const get_at_coordinates = () => {
+	      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	      const matches = p.at.match(pattern);
+	      if (matches && matches.length == 4) {
+	        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	      } else {
+	        return null;
+	      }
+	    };
 
-		    const get_at_coordinates = () => {
-		      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		      const matches = p.at.match(pattern);
-		      if (matches && matches.length == 4) {
-		        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		      } else {
-		        return null;
-		      }
-		    };
+	    const adjust_point = (x, y) => {
+	      const at_l = get_at_coordinates();
+	      if (at_l == null) {
+	        throw new Error(
+	          `Could not get x and y coordinates from p.at: ${p.at}`
+	        );
+	      }
+	      const at_x = at_l[0];
+	      const at_y = at_l[1];
+	      const at_angle = at_l[2];
+	      const adj_x = at_x + x;
+	      const adj_y = at_y + y;
 
-		    const adjust_point = (x, y) => {
-		      const at_l = get_at_coordinates();
-		      if (at_l == null) {
-		        throw new Error(
-		          `Could not get x and y coordinates from p.at: ${p.at}`
-		        );
-		      }
-		      const at_x = at_l[0];
-		      const at_y = at_l[1];
-		      const at_angle = at_l[2];
-		      const adj_x = at_x + x;
-		      const adj_y = at_y + y;
+	      const radians = (Math.PI / 180) * at_angle,
+	        cos = Math.cos(radians),
+	        sin = Math.sin(radians),
+	        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		      const radians = (Math.PI / 180) * at_angle,
-		        cos = Math.cos(radians),
-		        sin = Math.sin(radians),
-		        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
+	      return point_str;
+	    };
 
-		      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
-		      return point_str;
-		    };
+	    let dst_nets = [
+	      p.P1.str, // GND
+	      p.P2.str, // VCC
+	      p.P3.str, // SCL / SCK
+	      p.P4.str, // SDA / MOSI
+	      p.P5.str, // CS
+	    ];
+	    local_nets = [
+	      p.local_net("1").str,
+	      p.local_net("2").str,
+	      p.local_net("3").str,
+	      p.local_net("4").str,
+	      p.local_net("5").str,
+	    ];
 
-		    let dst_nets = [
-		      p.P1.str, // GND
-		      p.P2.str, // VCC
-		      p.P3.str, // SCL / SCK
-		      p.P4.str, // SDA / MOSI
-		      p.P5.str, // CS
-		    ];
-		    local_nets = [
-		      p.local_net("1").str,
-		      p.local_net("2").str,
-		      p.local_net("3").str,
-		      p.local_net("4").str,
-		      p.local_net("5").str,
-		    ];
+	    let socket_nets = dst_nets;
+	    if (p.reversible) {
+	      socket_nets = local_nets;
+	    } else if (p.side == 'B') {
+	      socket_nets = dst_nets.slice().reverse();
+	    }
+	    let jumpers_front_bottom = local_nets;
+	    let jumpers_back_bottom = local_nets.slice().reverse();
 
-		    let socket_nets = dst_nets;
-		    if (p.reversible) {
-		      socket_nets = local_nets;
-		    } else if (p.side == 'B') {
-		      socket_nets = dst_nets.slice().reverse();
-		    }
-		    let jumpers_front_bottom = local_nets;
-		    let jumpers_back_bottom = local_nets.slice().reverse();
-
-		    const standard_opening = `
+	    const standard_opening = `
     (module "ceoloide:display_ssd1306_nice_view" (layer ${p.side}.Cu) (tedit 5B24D78E)
       ${p.at /* parametric position */}
       (descr "Solder-jumper reversible footprint for both nice!view (SPI) and SSD1306 (I2C) displays")
@@ -4034,7 +3935,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       )
     `;
-		    const oled_standard = `
+	    const oled_standard = `
       (fp_line (start -5.99 -34.338) (end 6.01 -34.338)
         (width 0.12) (layer "Dwgs.User"))
       (fp_line (start -5.99 -32.088) (end 6.01 -32.088)
@@ -4056,7 +3957,7 @@
       (fp_line (start 6.01 -34.338) (end 6.01 3.662)
         (width 0.12) (layer "Dwgs.User"))
     `;
-		    const oled_front = `
+	    const oled_front = `
       (fp_text user "VCC" (at 1.27 -4.138 ${90 + p.rot}) (layer "F.SilkS")
           (effects (font (size 1 1) (thickness 0.15)) (justify right))
       )
@@ -4074,7 +3975,7 @@
       (pad 2 thru_hole circle (at 1.27 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P2.str})
       (pad 1 thru_hole circle (at 3.81 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P1.str})
     `;
-		    const oled_back = `
+	    const oled_back = `
       (fp_text user "SCL" (at 1.2 -1.37 ${270 + p.rot}) (layer "B.SilkS")
           (effects (font (size 1 1) (thickness 0.15)) (justify right mirror))
       )
@@ -4092,13 +3993,13 @@
       (pad 3 thru_hole circle (at 1.27 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P3.str})
       (pad 4 thru_hole circle (at 3.81 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P4.str})
     `;
-		    const oled_reversible_pads = `
+	    const oled_reversible_pads = `
       (pad 4 thru_hole circle (at -3.81 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${socket_nets[3]})
       (pad 3 thru_hole circle (at -1.27 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${socket_nets[2]})
       (pad 2 thru_hole circle (at 1.27 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${socket_nets[1]})
       (pad 1 thru_hole circle (at 3.81 2.062 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${socket_nets[0]})
     `;
-		    const oled_reversible_solder_bridges = `
+	    const oled_reversible_solder_bridges = `
       (fp_text user "VCC" (at 1.27 -4.138 ${90 + p.rot}) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)) (justify right))
       )
@@ -4348,9 +4249,9 @@
             (width 0))
         ))
     `;
-		    const nice_view_standard = `
+	    const nice_view_standard = `
     `;
-		    const nice_view_front = `
+	    const nice_view_front = `
       (fp_text user "GND" (at 2.54 -6.24 ${90 + p.rot}) (layer "F.SilkS")
           (effects (font (size 1 1) (thickness 0.15)) (justify right))
       )
@@ -4372,7 +4273,7 @@
       (pad 1 thru_hole circle (at 2.54 0 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P1.str})
       (pad 5 thru_hole circle (at 5.08 0 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P5.str})
     `;
-		    const nice_view_back = `
+	    const nice_view_back = `
       (fp_text user "CS" (at -5.17 -5.14 ${-90 + p.rot}) (layer "B.SilkS")
           (effects (font (size 1 1) (thickness 0.15)) (justify right mirror))
       )
@@ -4394,7 +4295,7 @@
       (pad 3 thru_hole circle (at 2.54 0 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P3.str})
       (pad 4 thru_hole circle (at 5.08 0 ${p.rot}) (size 1.7526 1.7526) (drill 1.0922) (layers "*.Cu" "*.Mask") ${p.P4.str})
     `;
-		    const nice_view_reversible = `
+	    const nice_view_reversible = `
       (fp_text user "CS" (at -5.17 -5.14 ${-90 + p.rot}) (layer "B.SilkS")
           (effects (font (size 1 1) (thickness 0.15)) (justify right mirror))
       )
@@ -4731,7 +4632,7 @@
             (width 0))
         ))
     `;
-		    const both_connections = `
+	    const both_connections = `
       (fp_line (start -5.08 -1.748) (end -5.08 -0.8763)
         (width 0.2) (layer "F.Cu"))
       (fp_line (start -5.08 -1.748) (end -3.7846 -0.4526)
@@ -4785,11 +4686,11 @@
       (fp_line (start 5.08 -1.748) (end 5.08 -0.8763)
         (width 0.2) (layer "B.Cu"))
     `;
-		    const standard_closing = `
+	    const standard_closing = `
     )
     `;
 
-		    const oled_reversible_traces = ` 
+	    const oled_reversible_traces = ` 
     (segment (start ${adjust_point(-3.81, 0.256)}) (end ${adjust_point(-3.81, 2.066)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${p.local_net("4").index}))
     (segment (start ${adjust_point(-1.27, 0.256)}) (end ${adjust_point(-1.27, 2.066)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${p.local_net("3").index}))
     (segment (start ${adjust_point(1.27, 0.256)}) (end ${adjust_point(1.27, 2.066)}) (width ${p.vcc_trace_width}) (layer "F.Cu") (net ${p.local_net("2").index}))
@@ -4800,211 +4701,203 @@
     (segment (start ${adjust_point(3.81, 0.256)}) (end ${adjust_point(3.81, 2.066)}) (width ${p.gnd_trace_width}) (layer "B.Cu") (net ${p.local_net("1").index}))
     `;
 
-		    const nice_view_reversible_traces = ` 
+	    const nice_view_reversible_traces = ` 
     `;
 
-		    const both_reversible_traces = ` 
+	    const both_reversible_traces = ` 
     `;
 
-		    let final = standard_opening;
+	    let final = standard_opening;
 
-		    if (p.display_type == "ssd1306") {
-		      final += oled_standard;
-		      if (p.reversible) {
-		        final += oled_reversible_pads;
-		        final += oled_reversible_solder_bridges;
-		      } else {
-		        if (p.side == "F") {
-		          final += oled_front;
-		        }
-		        if (p.side == "B") {
-		          final += oled_back;
-		        }
-		      }
-		    } else if (p.display_type == "nice_view") {
-		      final += nice_view_standard;
-		      if (p.reversible) {
-		        final += nice_view_reversible;
-		      } else {
-		        if (p.side == "F") {
-		          final += nice_view_front;
-		        }
-		        if (p.side == "B") {
-		          final += nice_view_back;
-		        }
-		      }
-		    } else if (p.display_type == "both") {
-		      final += oled_standard;
-		      final += nice_view_standard;
-		      if (p.reversible) {
-		        final += oled_reversible_pads;
-		        final += nice_view_reversible;
-		        final += both_connections;
-		      } else {
-		        if (p.side == "F") {
-		          final += oled_front;
-		          final += nice_view_front;
-		        }
-		        if (p.side == "B") {
-		          final += oled_back;
-		          final += nice_view_back;
-		        }
-		      }
-		    }
+	    if (p.display_type == "ssd1306") {
+	      final += oled_standard;
+	      if (p.reversible) {
+	        final += oled_reversible_pads;
+	        final += oled_reversible_solder_bridges;
+	      } else {
+	        if (p.side == "F") {
+	          final += oled_front;
+	        }
+	        if (p.side == "B") {
+	          final += oled_back;
+	        }
+	      }
+	    } else if (p.display_type == "nice_view") {
+	      final += nice_view_standard;
+	      if (p.reversible) {
+	        final += nice_view_reversible;
+	      } else {
+	        if (p.side == "F") {
+	          final += nice_view_front;
+	        }
+	        if (p.side == "B") {
+	          final += nice_view_back;
+	        }
+	      }
+	    } else if (p.display_type == "both") {
+	      final += oled_standard;
+	      final += nice_view_standard;
+	      if (p.reversible) {
+	        final += oled_reversible_pads;
+	        final += nice_view_reversible;
+	        final += both_connections;
+	      } else {
+	        if (p.side == "F") {
+	          final += oled_front;
+	          final += nice_view_front;
+	        }
+	        if (p.side == "B") {
+	          final += oled_back;
+	          final += nice_view_back;
+	        }
+	      }
+	    }
 
-		    final += standard_closing;
+	    final += standard_closing;
 
-		    if (p.reversible && p.include_traces) {
-		      if (p.display_type == "ssd1306") {
-		        final += oled_reversible_traces;
-		      } else if (p.display_type == "nice_view") {
-		        final += nice_view_reversible_traces;
-		      } else if (p.display_type == "both") {
-		        final += both_reversible_traces;
-		      }
-		    }
+	    if (p.reversible && p.include_traces) {
+	      if (p.display_type == "ssd1306") {
+	        final += oled_reversible_traces;
+	      } else if (p.display_type == "nice_view") {
+	        final += nice_view_reversible_traces;
+	      } else if (p.display_type == "both") {
+	        final += both_reversible_traces;
+	      }
+	    }
 
-		    return final;
-		  }
-		};
-		return display_ssd1306_nice_view;
-	}
+	    return final;
+	  }
+	};
 
-	var display_ssd1306;
-	var hasRequiredDisplay_ssd1306;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Author: @ceoloide
+	//
+	// Description:
+	//  Reversible footprint for SSD1306 OLED display. Includes an outline of the
+	//  display to make positioning easier.
+	//
+	//  In its default configuration, jumper pads are positioned above the pins, when the
+	//  component is oriented verically and pointing upwards, or left of the pins, when oriented
+	//  horizontally and oriented leftward. Jumper pads position can be inverted with a parameter.
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    include_traces: default is true
+	//      if true it will include traces that connect the jumper pads to the vias
+	//      and the through-holes for the MCU
+	//    gnd_trace_width: default is 0.250mm
+	//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
+	//      min is 0.127mm).
+	//    signal_trace_width: default is 0.250mm
+	//      allows to override the trace width that connects the jumper pads to the SDA, and SCL.
+	//      Not recommended to go below 0.15mm (JLCPC min is 0.127mm).
+	//    invert_jumpers_position default is false
+	//      allows to change the position of the jumper pads, from their default to the opposite
+	//      side of the pins. See the description above for more details.
+	//    include_labels default is true
+	//      if true it will include the pin labels on the Silkscreen layer. The labels will match
+	//      the *opposite* side of the board when the footprint is set to be reversible, since
+	//      they are meant to match the solder jumpers behavior and aid testing.
 
-	function requireDisplay_ssd1306 () {
-		if (hasRequiredDisplay_ssd1306) return display_ssd1306;
-		hasRequiredDisplay_ssd1306 = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Author: @ceoloide
-		//
-		// Description:
-		//  Reversible footprint for SSD1306 OLED display. Includes an outline of the
-		//  display to make positioning easier.
-		//
-		//  In its default configuration, jumper pads are positioned above the pins, when the
-		//  component is oriented verically and pointing upwards, or left of the pins, when oriented
-		//  horizontally and oriented leftward. Jumper pads position can be inverted with a parameter.
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    include_traces: default is true
-		//      if true it will include traces that connect the jumper pads to the vias
-		//      and the through-holes for the MCU
-		//    gnd_trace_width: default is 0.250mm
-		//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
-		//      min is 0.127mm).
-		//    signal_trace_width: default is 0.250mm
-		//      allows to override the trace width that connects the jumper pads to the SDA, and SCL.
-		//      Not recommended to go below 0.15mm (JLCPC min is 0.127mm).
-		//    invert_jumpers_position default is false
-		//      allows to change the position of the jumper pads, from their default to the opposite
-		//      side of the pins. See the description above for more details.
-		//    include_labels default is true
-		//      if true it will include the pin labels on the Silkscreen layer. The labels will match
-		//      the *opposite* side of the board when the footprint is set to be reversible, since
-		//      they are meant to match the solder jumpers behavior and aid testing.
+	var display_ssd1306 = {
+	  params: {
+	    designator: 'DISP',
+	    side: 'F',
+	    reversible: false,
+	    include_traces: true,
+	    gnd_trace_width: 0.25,
+	    signal_trace_width: 0.25,
+	    invert_jumpers_position: false,
+	    include_labels: true,
+	    SDA: { type: 'net', value: 'SDA' },
+	    SCL: { type: 'net', value: 'SCL' },
+	    VCC: { type: 'net', value: 'VCC' },
+	    GND: { type: 'net', value: 'GND' },
+	  },
+	  body: p => {
+	    const get_at_coordinates = () => {
+	      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	      const matches = p.at.match(pattern);
+	      if (matches && matches.length == 4) {
+	        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	      } else {
+	        return null;
+	      }
+	    };
 
-		display_ssd1306 = {
-		  params: {
-		    designator: 'DISP',
-		    side: 'F',
-		    reversible: false,
-		    include_traces: true,
-		    gnd_trace_width: 0.25,
-		    signal_trace_width: 0.25,
-		    invert_jumpers_position: false,
-		    include_labels: true,
-		    SDA: { type: 'net', value: 'SDA' },
-		    SCL: { type: 'net', value: 'SCL' },
-		    VCC: { type: 'net', value: 'VCC' },
-		    GND: { type: 'net', value: 'GND' },
-		  },
-		  body: p => {
-		    const get_at_coordinates = () => {
-		      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		      const matches = p.at.match(pattern);
-		      if (matches && matches.length == 4) {
-		        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		      } else {
-		        return null;
-		      }
-		    };
+	    const adjust_point = (x, y) => {
+	      const at_l = get_at_coordinates();
+	      if (at_l == null) {
+	        throw new Error(
+	          `Could not get x and y coordinates from p.at: ${p.at}`
+	        );
+	      }
+	      const at_x = at_l[0];
+	      const at_y = at_l[1];
+	      const at_angle = at_l[2];
+	      const adj_x = at_x + x;
+	      const adj_y = at_y + y;
 
-		    const adjust_point = (x, y) => {
-		      const at_l = get_at_coordinates();
-		      if (at_l == null) {
-		        throw new Error(
-		          `Could not get x and y coordinates from p.at: ${p.at}`
-		        );
-		      }
-		      const at_x = at_l[0];
-		      const at_y = at_l[1];
-		      const at_angle = at_l[2];
-		      const adj_x = at_x + x;
-		      const adj_y = at_y + y;
+	      const radians = (Math.PI / 180) * at_angle,
+	        cos = Math.cos(radians),
+	        sin = Math.sin(radians),
+	        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		      const radians = (Math.PI / 180) * at_angle,
-		        cos = Math.cos(radians),
-		        sin = Math.sin(radians),
-		        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
+	      return point_str;
+	    };
 
-		      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
-		      return point_str;
-		    };
+	    let dst_nets = [
+	      p.GND,
+	      p.VCC,
+	      p.SCL,
+	      p.SDA,
+	    ];
 
-		    let dst_nets = [
-		      p.GND,
-		      p.VCC,
-		      p.SCL,
-		      p.SDA,
-		    ];
+	    local_nets = [
+	      p.local_net("1"),
+	      p.local_net("2"),
+	      p.local_net("3"),
+	      p.local_net("4"),
+	    ];
 
-		    local_nets = [
-		      p.local_net("1"),
-		      p.local_net("2"),
-		      p.local_net("3"),
-		      p.local_net("4"),
-		    ];
+	    let socket_nets = dst_nets;
 
-		    let socket_nets = dst_nets;
+	    if (p.reversible) {
+	      socket_nets = local_nets;
+	    } else if (p.side == 'B') {
+	      socket_nets = dst_nets.slice().reverse();
+	    }
 
-		    if (p.reversible) {
-		      socket_nets = local_nets;
-		    } else if (p.side == 'B') {
-		      socket_nets = dst_nets.slice().reverse();
-		    }
+	    let jumpers_offset = 0;
+	    let labels_offset = 0;
 
-		    let jumpers_offset = 0;
-		    let labels_offset = 0;
+	    let jumpers_front_top = dst_nets;
+	    let jumpers_front_bottom = local_nets;
+	    let jumpers_back_top = dst_nets;
+	    let jumpers_back_bottom = local_nets.slice().reverse();
 
-		    let jumpers_front_top = dst_nets;
-		    let jumpers_front_bottom = local_nets;
-		    let jumpers_back_top = dst_nets;
-		    let jumpers_back_bottom = local_nets.slice().reverse();
+	    if (p.invert_jumpers_position) {
+	      jumpers_offset = 4.4;
+	      labels_offset = jumpers_offset + 2.80 +  0.1;
 
-		    if (p.invert_jumpers_position) {
-		      jumpers_offset = 4.4;
-		      labels_offset = jumpers_offset + 2.80 +  0.1;
+	      jumpers_front_top = local_nets;
+	      jumpers_front_bottom = dst_nets;
+	      jumpers_back_top = local_nets.slice().reverse();
+	      jumpers_back_bottom = dst_nets;
+	    }
 
-		      jumpers_front_top = local_nets;
-		      jumpers_front_bottom = dst_nets;
-		      jumpers_back_top = local_nets.slice().reverse();
-		      jumpers_back_bottom = dst_nets;
-		    }
-
-		    const top = `
+	    const top = `
       (module "ceoloide:display_ssd1306" (layer ${p.side}.Cu) (tedit 6448AF5B)
         ${p.at /* parametric position */}
         (attr virtual)
@@ -5015,7 +4908,7 @@
           (effects (font (size 1 1) (thickness 0.15)))
         )
         `;
-		    const front = `
+	    const front = `
         (fp_line (start 5.14 15.37) (end 5.14 18.03) (layer F.SilkS) (width 0.12))
         (fp_line (start 5.14 15.37) (end -5.14 15.37) (layer F.SilkS) (width 0.12))
         (fp_line (start 5.14 18.03) (end -5.14 18.03) (layer F.SilkS) (width 0.12))
@@ -5032,7 +4925,7 @@
         (fp_line (start -3.77 11.24) (end 1.75 11.24) (layer F.Fab) (width 0.15))
     `;
 
-		    const front_jumpers = `
+	    const front_jumpers = `
         (pad 14 smd rect (at -3.81 ${14.05 + jumpers_offset} ${90 + p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${jumpers_front_top[0].str})
         (pad 15 smd rect (at -1.27 ${14.05 + jumpers_offset} ${90 + p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${jumpers_front_top[1].str})
         (pad 16 smd rect (at 1.27 ${14.05 + jumpers_offset} ${90 + p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${jumpers_front_top[2].str})
@@ -5044,7 +4937,7 @@
         (pad 13 smd rect (at 3.81 ${14.95 + jumpers_offset} ${90 + p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${jumpers_front_bottom[3].str})
     `;
 
-		    const back = `
+	    const back = `
         (fp_line (start 5.14 15.37) (end 5.14 18.03) (layer B.SilkS) (width 0.12))
         (fp_line (start 5.14 15.37) (end -5.14 15.37) (layer B.SilkS) (width 0.12))
         (fp_line (start 5.14 18.03) (end -5.14 18.03) (layer B.SilkS) (width 0.12))
@@ -5061,7 +4954,7 @@
         (fp_line (start 3.77 11.24) (end -1.75 11.24) (layer B.Fab) (width 0.15))
     `;
 
-		    const back_jumpers = `
+	    const back_jumpers = `
         (pad 24 smd rect (at 3.81 ${14.05 + jumpers_offset} ${270 + p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${jumpers_back_top[0].str})
         (pad 25 smd rect (at 1.27 ${14.05 + jumpers_offset} ${270 + p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${jumpers_back_top[1].str})
         (pad 26 smd rect (at -1.27 ${14.05 + jumpers_offset} ${270 + p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${jumpers_back_top[2].str})
@@ -5073,7 +4966,7 @@
         (pad 23 smd rect (at -3.81 ${14.95 + jumpers_offset} ${270 + p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${jumpers_back_bottom[3].str})
     `;
 
-		    const labels = `
+	    const labels = `
         (fp_text user SDA (at -4.50 ${13.0 + labels_offset} ${p.rot}) (layer F.SilkS)
           (effects (font (size 1 1) (thickness 0.15)))
         )
@@ -5100,7 +4993,7 @@
         )
     `;
 
-		    const bottom = `
+	    const bottom = `
       (pad 1 thru_hole oval (at -3.81 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${socket_nets[0].str})
       (pad 2 thru_hole oval (at -1.27 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${socket_nets[1].str})
       (pad 3 thru_hole oval (at 1.27 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${socket_nets[2].str})
@@ -5115,7 +5008,7 @@
       )
     `;
 
-		    const traces_bottom = `
+	    const traces_bottom = `
     (segment (start ${adjust_point(-3.81, 16.7)}) (end ${adjust_point(-3.81, 18.45)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_bottom[0].index}))
     (segment (start ${adjust_point(-1.27, 16.7)}) (end ${adjust_point(-1.27, 18.45)}) (width ${p.gnd_trace_width}) (layer "F.Cu") (net ${jumpers_front_bottom[1].index}))
     (segment (start ${adjust_point(1.27, 16.7)}) (end ${adjust_point(1.27, 18.45)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_bottom[2].index}))
@@ -5126,7 +5019,7 @@
     (segment (start ${adjust_point(3.81, 16.7)}) (end ${adjust_point(3.81, 18.45)}) (width ${p.signal_trace_width}) (layer "B.Cu") (net ${jumpers_back_bottom[3].index}))
     `;
 
-		    const traces_top = `
+	    const traces_top = `
     (segment (start ${adjust_point(-3.81, 16.7)}) (end ${adjust_point(-3.81, 14.95)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_top[0].index}))
     (segment (start ${adjust_point(-1.27, 16.7)}) (end ${adjust_point(-1.27, 14.95)}) (width ${p.gnd_trace_width}) (layer "F.Cu") (net ${jumpers_front_top[1].index}))
     (segment (start ${adjust_point(1.27, 16.7)}) (end ${adjust_point(1.27, 14.95)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${jumpers_front_top[2].index}))
@@ -5137,176 +5030,168 @@
     (segment (start ${adjust_point(3.81, 16.7)}) (end ${adjust_point(3.81, 14.95)}) (width ${p.signal_trace_width}) (layer "B.Cu") (net ${jumpers_back_top[3].index}))
     `;
 
-		    let final = top;
+	    let final = top;
 
-		    if (p.side == "F" || p.reversible) {
-		      final += front;
-		    }
-		    if (p.side == "B" || p.reversible) {
-		      final += back;
-		    }
+	    if (p.side == "F" || p.reversible) {
+	      final += front;
+	    }
+	    if (p.side == "B" || p.reversible) {
+	      final += back;
+	    }
 
-		    if (p.reversible) {
-		      final += front_jumpers;
-		      final += back_jumpers;
+	    if (p.reversible) {
+	      final += front_jumpers;
+	      final += back_jumpers;
 
-		      if (p.include_labels) {
-		        final += labels;
-		      }
-		    }
+	      if (p.include_labels) {
+	        final += labels;
+	      }
+	    }
 
-		    final += bottom;
+	    final += bottom;
 
-		    if (p.include_traces && p.reversible) {
-		      if (p.invert_jumpers_position) {
-		        final += traces_bottom;
-		      } else {
-		        final += traces_top;
-		      }
-		    }
+	    if (p.include_traces && p.reversible) {
+	      if (p.invert_jumpers_position) {
+	        final += traces_bottom;
+	      } else {
+	        final += traces_top;
+	      }
+	    }
 
-		    return final;
-		  }
-		};
-		return display_ssd1306;
-	}
+	    return final;
+	  }
+	};
 
-	var led_sk6812miniE;
-	var hasRequiredLed_sk6812miniE;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Author: @ceoloide
+	//
+	// Description:
+	//  Reversible footprint for "YS-SK6812mini-e" LEDs, to be used either as per-key lightning or
+	//  underglow. The footprint allows many customizations, including pre-defined traces to
+	//  simplify routing.
+	//
+	//  These LEDs are very tolerant of undervoltage, and are easy to solder thanks to the side
+	//  legs.
+	//
+	// Datasheet:
+	//  https://datasheet.lcsc.com/lcsc/2305101623_OPSCO-Optoelectronics-SK6812MINI-E_C5149201.pdf
+	//
+	// Nets:
+	//    P1: corresponds to VCC pin
+	//    P2: corresponds to Data-Out pin
+	//    P3: corresponds to GND pin
+	//    P4: corresponds to Data-In pin
+	//
+	// Params:
+	//    side: default is B for Back
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    reverse_mount: default is true (per-key LED)
+	//      if true, the pads will be oriented so that the LED shines through ther PCB, i.e.
+	//      when used for per-key LEDs. When set to false, the pads will match the datasheet
+	//      and assume the LED shines away from the PCB, i.e. when used as underglow. Note that
+	//      automated PCB assembly may not support both options depending on the component reel
+	//    include_traces_vias: default is true
+	//      if true it will include traces and vias to simplify routing when the footprint is
+	//      made reversible
+	//    signal_trace_width: default is 0.250mm
+	//      allows to override the trace width that connects the DIN / DOUT pads. Not recommended
+	//      to go below 0.15mm (JLCPC min is 0.127mm)
+	//    gnd_trace_width: default is 0.250mm
+	//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
+	//      min is 0.127mm). Do not exceed 0.8mm to avoid clearance errors
+	//    vcc_trace_width: default is 0.250mm
+	//      allows to override the VCC trace width. Not recommended to go below 0.25mm (JLCPC
+	//      min is 0.127mm). Do not exceed 0.8mm to avoid clearance errors
+	//    via_size: default is 0.8
+	//      allows to define the size of the via. Not recommended below 0.56 (JLCPCB minimum),
+	//      or above 0.8 (KiCad default), to avoid overlap or DRC errors
+	//    via_drill: default is 0.4
+	//      allows to define the size of the drill. Not recommended below 0.3 (JLCPCB minimum),
+	//      or above 0.4 (KiCad default), to avoid overlap or DRC errors 
+	//    include_courtyard: default is true
+	//      if true it will include the part courtyard
+	//    include_keepout: default is false
+	//      if true it will include the part keepout area
+	//    led_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    led_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    led_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    led_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 
-	function requireLed_sk6812miniE () {
-		if (hasRequiredLed_sk6812miniE) return led_sk6812miniE;
-		hasRequiredLed_sk6812miniE = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Author: @ceoloide
-		//
-		// Description:
-		//  Reversible footprint for "YS-SK6812mini-e" LEDs, to be used either as per-key lightning or
-		//  underglow. The footprint allows many customizations, including pre-defined traces to
-		//  simplify routing.
-		//
-		//  These LEDs are very tolerant of undervoltage, and are easy to solder thanks to the side
-		//  legs.
-		//
-		// Datasheet:
-		//  https://datasheet.lcsc.com/lcsc/2305101623_OPSCO-Optoelectronics-SK6812MINI-E_C5149201.pdf
-		//
-		// Nets:
-		//    P1: corresponds to VCC pin
-		//    P2: corresponds to Data-Out pin
-		//    P3: corresponds to GND pin
-		//    P4: corresponds to Data-In pin
-		//
-		// Params:
-		//    side: default is B for Back
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    reverse_mount: default is true (per-key LED)
-		//      if true, the pads will be oriented so that the LED shines through ther PCB, i.e.
-		//      when used for per-key LEDs. When set to false, the pads will match the datasheet
-		//      and assume the LED shines away from the PCB, i.e. when used as underglow. Note that
-		//      automated PCB assembly may not support both options depending on the component reel
-		//    include_traces_vias: default is true
-		//      if true it will include traces and vias to simplify routing when the footprint is
-		//      made reversible
-		//    signal_trace_width: default is 0.250mm
-		//      allows to override the trace width that connects the DIN / DOUT pads. Not recommended
-		//      to go below 0.15mm (JLCPC min is 0.127mm)
-		//    gnd_trace_width: default is 0.250mm
-		//      allows to override the GND trace width. Not recommended to go below 0.25mm (JLCPC
-		//      min is 0.127mm). Do not exceed 0.8mm to avoid clearance errors
-		//    vcc_trace_width: default is 0.250mm
-		//      allows to override the VCC trace width. Not recommended to go below 0.25mm (JLCPC
-		//      min is 0.127mm). Do not exceed 0.8mm to avoid clearance errors
-		//    via_size: default is 0.8
-		//      allows to define the size of the via. Not recommended below 0.56 (JLCPCB minimum),
-		//      or above 0.8 (KiCad default), to avoid overlap or DRC errors
-		//    via_drill: default is 0.4
-		//      allows to define the size of the drill. Not recommended below 0.3 (JLCPCB minimum),
-		//      or above 0.4 (KiCad default), to avoid overlap or DRC errors 
-		//    include_courtyard: default is true
-		//      if true it will include the part courtyard
-		//    include_keepout: default is false
-		//      if true it will include the part keepout area
-		//    led_3dmodel_filename: default is ''
-		//      Allows you to specify the path to a 3D model STEP or WRL file to be
-		//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
-		//      a KiCad configured path.
-		//    led_3dmodel_xyz_offset: default is [0, 0, 0]
-		//      xyz offset (in mm), used to adjust the position of the 3d model
-		//      relative the footprint.
-		//    led_3dmodel_xyz_scale: default is [1, 1, 1]
-		//      xyz scale, used to adjust the size of the 3d model relative to its
-		//      original size.
-		//    led_3dmodel_xyz_rotation: default is [0, 0, 0]
-		//      xyz rotation (in degrees), used to adjust the orientation of the 3d
-		//      model relative the footprint.
+	var led_sk6812miniE = {
+	  params: {
+	    designator: 'LED',
+	    side: 'B',
+	    reversible: false,
+	    reverse_mount: true,
+	    include_traces_vias: true,
+	    signal_trace_width: 0.25,
+	    gnd_trace_width: 0.25,
+	    vcc_trace_width: 0.25,
+	    via_size: 0.8,
+	    via_drill: 0.4,
+	    include_courtyard: true,
+	    include_keepout: false,
+	    led_3dmodel_filename: '',
+	    led_3dmodel_xyz_offset: [0, 0, 0],
+	    led_3dmodel_xyz_rotation: [0, 0, 0],
+	    led_3dmodel_xyz_scale: [1, 1, 1],
+	    P1: { type: 'net', value: 'VCC' },
+	    P2: undefined,
+	    P3: { type: 'net', value: 'GND' },
+	    P4: undefined,
+	  },
+	  body: p => {
+	    const get_at_coordinates = () => {
+	      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	      const matches = p.at.match(pattern);
+	      if (matches && matches.length == 4) {
+	        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	      } else {
+	        return null;
+	      }
+	    };
 
-		led_sk6812miniE = {
-		  params: {
-		    designator: 'LED',
-		    side: 'B',
-		    reversible: false,
-		    reverse_mount: true,
-		    include_traces_vias: true,
-		    signal_trace_width: 0.25,
-		    gnd_trace_width: 0.25,
-		    vcc_trace_width: 0.25,
-		    via_size: 0.8,
-		    via_drill: 0.4,
-		    include_courtyard: true,
-		    include_keepout: false,
-		    led_3dmodel_filename: '',
-		    led_3dmodel_xyz_offset: [0, 0, 0],
-		    led_3dmodel_xyz_rotation: [0, 0, 0],
-		    led_3dmodel_xyz_scale: [1, 1, 1],
-		    P1: { type: 'net', value: 'VCC' },
-		    P2: undefined,
-		    P3: { type: 'net', value: 'GND' },
-		    P4: undefined,
-		  },
-		  body: p => {
-		    const get_at_coordinates = () => {
-		      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		      const matches = p.at.match(pattern);
-		      if (matches && matches.length == 4) {
-		        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		      } else {
-		        return null;
-		      }
-		    };
+	    const adjust_point = (x, y) => {
+	      const at_l = get_at_coordinates();
+	      if (at_l == null) {
+	        throw new Error(
+	          `Could not get x and y coordinates from p.at: ${p.at}`
+	        );
+	      }
+	      const at_x = at_l[0];
+	      const at_y = at_l[1];
+	      const at_angle = at_l[2];
+	      const adj_x = at_x + x;
+	      const adj_y = at_y + y;
 
-		    const adjust_point = (x, y) => {
-		      const at_l = get_at_coordinates();
-		      if (at_l == null) {
-		        throw new Error(
-		          `Could not get x and y coordinates from p.at: ${p.at}`
-		        );
-		      }
-		      const at_x = at_l[0];
-		      const at_y = at_l[1];
-		      const at_angle = at_l[2];
-		      const adj_x = at_x + x;
-		      const adj_y = at_y + y;
+	      const radians = (Math.PI / 180) * at_angle,
+	        cos = Math.cos(radians),
+	        sin = Math.sin(radians),
+	        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		      const radians = (Math.PI / 180) * at_angle,
-		        cos = Math.cos(radians),
-		        sin = Math.sin(radians),
-		        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
+	      return point_str;
+	    };
 
-		      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
-		      return point_str;
-		    };
-
-		    const standard_opening = `
+	    const standard_opening = `
       (module "ceoloide:led_SK6812mini-e (${p.reverse_mount ? "per-key" : "underglow"}${p.reversible ? ", reversible" : "single-side"})" 
         (layer ${p.side}.Cu) (tedit 5F70BC98)
         ${p.at /* parametric position */}
@@ -5332,17 +5217,17 @@
         (fp_line (start 2.94 -1.05) (end 1.6 -1.05) (layer Dwgs.User) (width 0.12))
         (fp_line (start 2.94 -0.37) (end 2.94 -1.05) (layer Dwgs.User) (width 0.12))
     `;
-		    const marks_reversed = `
+	    const marks_reversed = `
     (fp_line (start -0.8 -1.4) (end -0.8 1.4) (layer Dwgs.User) (width 0.12))
     (fp_line (start 0.8 -1.4) (end 0.8 1.4) (layer Dwgs.User) (width 0.12))
     (fp_line (start -1 -1.4) (end -1 1.4) (layer Dwgs.User) (width 0.12))
     (fp_line (start 1 -1.4) (end 1 1.4) (layer Dwgs.User) (width 0.12))
     `;
-		    const marks_straight = `
+	    const marks_straight = `
     (fp_line (start -1.6 -0.7) (end -0.8 -1.4) (layer Dwgs.User) (width 0.12))
 
     `;
-		    const front_reversed = `
+	    const front_reversed = `
         (fp_line (start -3.8 1.6) (end -2.2 1.6) (layer F.SilkS) (width 0.12))
         (fp_line (start -3.8 0) (end -3.8 1.6) (layer F.SilkS) (width 0.12))
         (pad 4 smd rect (at -2.7 -0.7 ${p.rot}) (size 1.4 1) (layers F.Cu F.Paste F.Mask) ${p.P4.str})
@@ -5350,7 +5235,7 @@
         (pad 1 smd rect (at 2.7 -0.7 ${p.rot}) (size 1.4 1) (layers F.Cu F.Paste F.Mask) ${p.P1.str})
         (pad 2 smd rect (at 2.7 0.7 ${p.rot}) (size 1.4 1) (layers F.Cu F.Paste F.Mask) ${p.P2.str})
         `;
-		    const front = `
+	    const front = `
         (fp_line (start -3.8 -1.6) (end -2.2 -1.6) (layer F.SilkS) (width 0.12))
         (fp_line (start -3.8 0) (end -3.8 -1.6) (layer F.SilkS) (width 0.12))
         (pad 4 smd rect (at -2.70 0.7 ${p.rot}) (size 1.4 1) (layers F.Cu F.Paste F.Mask) ${p.P4.str})
@@ -5358,7 +5243,7 @@
         (pad 1 smd rect (at 2.70 0.7 ${p.rot}) (size 1.4 1) (layers F.Cu F.Paste F.Mask) ${p.P1.str})
         (pad 2 smd rect (at 2.70 -0.7 ${p.rot}) (size 1.4 1) (layers F.Cu F.Paste F.Mask) ${p.P2.str})
     `;
-		    const back_reversed = `
+	    const back_reversed = `
         (fp_line (start -3.8 -1.6) (end -2.2 -1.6) (layer B.SilkS) (width 0.12))
         (fp_line (start -3.8 0) (end -3.8 -1.6) (layer B.SilkS) (width 0.12))
         (pad 2 smd rect (at 2.70 -0.7 ${p.rot}) (size 1.4 1) (layers B.Cu B.Paste B.Mask) ${p.P2.str})
@@ -5366,7 +5251,7 @@
         (pad 3 smd rect (at -2.70 -0.7 ${p.rot}) (size 1.4 1) (layers B.Cu B.Paste B.Mask) ${p.P3.str})
         (pad 4 smd rect (at -2.70 0.7 ${p.rot}) (size 1.4 1) (layers B.Cu B.Paste B.Mask) ${p.P4.str})
       `;
-		    const back = `
+	    const back = `
         (fp_line (start -3.8 1.6) (end -2.2 1.6) (layer B.SilkS) (width 0.12))
         (fp_line (start -3.8 0) (end -3.8 1.6) (layer B.SilkS) (width 0.12))
         (pad 2 smd rect (at 2.70 0.7 ${p.rot}) (size 1.4 1) (layers B.Cu B.Paste B.Mask) ${p.P2.str})
@@ -5374,7 +5259,7 @@
         (pad 3 smd rect (at -2.70 0.7 ${p.rot}) (size 1.4 1) (layers B.Cu B.Paste B.Mask) ${p.P3.str})
         (pad 4 smd rect (at -2.70 -0.7 ${p.rot}) (size 1.4 1) (layers B.Cu B.Paste B.Mask) ${p.P4.str})
     `;
-		    const standard_closing = `
+	    const standard_closing = `
         (fp_line (start -1.8 -1.55) (end -1.8 1.55) (layer Edge.Cuts) (width 0.12))
         (fp_line (start -1.8 1.55) (end 1.8 1.55) (layer Edge.Cuts) (width 0.12))
         (fp_line (start 1.8 1.55) (end 1.8 -1.55) (layer Edge.Cuts) (width 0.12))
@@ -5382,7 +5267,7 @@
       )
     `;
 
-		    const traces_vias_reversed = `
+	    const traces_vias_reversed = `
       ${'' /* VCC Trace */}
       (segment (start ${adjust_point(3.4, -0.7)}) (end ${adjust_point(4.06, -0.105916)}) (width ${p.vcc_trace_width}) (layer "F.Cu") (net ${p.P1.index}))
       (segment (start ${adjust_point(4.06, -0.105916)}) (end ${adjust_point(4.06, 0.7)}) (width ${p.vcc_trace_width}) (layer "F.Cu") (net ${p.P1.index}))
@@ -5411,7 +5296,7 @@
       (segment (start ${adjust_point(-4.529, 1.485)}) (end ${adjust_point(-4.95, 1.06)}) (width ${p.signal_trace_width}) (layer "B.Cu") (net ${p.P4.index}))
     `;
 
-		    const traces_vias_straight = `
+	    const traces_vias_straight = `
     ${'' /* VCC Trace */}
     (segment (start ${adjust_point(3.4, -0.7)}) (end ${adjust_point(4.06, -0.105916)}) (width ${p.vcc_trace_width}) (layer "B.Cu") (net ${p.P1.index}))
     (segment (start ${adjust_point(4.06, -0.105916)}) (end ${adjust_point(4.06, 0.7)}) (width ${p.vcc_trace_width}) (layer "B.Cu") (net ${p.P1.index}))
@@ -5440,7 +5325,7 @@
     (segment (start ${adjust_point(-4.529, 1.485)}) (end ${adjust_point(-4.95, 1.06)}) (width ${p.signal_trace_width}) (layer "F.Cu") (net ${p.P4.index}))
     `;
 
-		    const courtyard_front = `
+	    const courtyard_front = `
         (fp_poly
           (pts
             (xy 1.6 -1.05)
@@ -5467,7 +5352,7 @@
           (width 0.1) (layer "B.CrtYd"))
     `;
 
-		    const courtyard_back = `
+	    const courtyard_back = `
         (fp_poly
           (pts
             (xy 1.6 -1.05)
@@ -5494,7 +5379,7 @@
           (width 0.1) (layer "B.CrtYd"))
     `;
 
-		    const keepout = `
+	    const keepout = `
       (zone (net 0) (net_name "") (layers "F&B.Cu") (hatch edge 0.3)
         (connect_pads (clearance 0))
         (min_thickness 0.25)
@@ -5511,290 +5396,282 @@
       )
     `;
 
-		    const led_3dmodel = `
+	    const led_3dmodel = `
       (model ${p.led_3dmodel_filename}
         (offset (xyz ${p.led_3dmodel_xyz_offset[0]} ${p.led_3dmodel_xyz_offset[1]} ${p.led_3dmodel_xyz_offset[2]}))
         (scale (xyz ${p.led_3dmodel_xyz_scale[0]} ${p.led_3dmodel_xyz_scale[1]} ${p.led_3dmodel_xyz_scale[2]}))
         (rotate (xyz ${p.led_3dmodel_xyz_rotation[0]} ${p.led_3dmodel_xyz_rotation[1]} ${p.led_3dmodel_xyz_rotation[2]})))
       `;
 
-		    let final = standard_opening;
+	    let final = standard_opening;
 
-		    if (p.side == "F" || p.reversible) {
-		      if (p.reverse_mount) {
-		        final += marks_reversed;
-		        final += front_reversed;
-		      } else {
-		        final += marks_straight;
-		        final += front;
-		      }
-		      if (p.include_courtyard) {
-		        final += courtyard_front;
-		      }
-		    }
-		    if (p.side == "B" || p.reversible) {
-		      if (p.reverse_mount) {
-		        final += back_reversed;
-		        final += marks_reversed;
-		      } else {
-		        final += marks_straight;
-		        final += back;
-		      }
-		      if (p.include_courtyard) {
-		        final += courtyard_back;
-		      }
-		    }
+	    if (p.side == "F" || p.reversible) {
+	      if (p.reverse_mount) {
+	        final += marks_reversed;
+	        final += front_reversed;
+	      } else {
+	        final += marks_straight;
+	        final += front;
+	      }
+	      if (p.include_courtyard) {
+	        final += courtyard_front;
+	      }
+	    }
+	    if (p.side == "B" || p.reversible) {
+	      if (p.reverse_mount) {
+	        final += back_reversed;
+	        final += marks_reversed;
+	      } else {
+	        final += marks_straight;
+	        final += back;
+	      }
+	      if (p.include_courtyard) {
+	        final += courtyard_back;
+	      }
+	    }
 
-		    if (p.led_3dmodel_filename) {
-		        final += led_3dmodel;
-		    }
+	    if (p.led_3dmodel_filename) {
+	        final += led_3dmodel;
+	    }
 
-		    final += standard_closing;
-		    if (p.include_keepout) {
-		      final += keepout;
-		    }
-		    if (p.reversible && p.include_traces_vias) {
-		      if (p.reverse_mount) {
-		        final += traces_vias_reversed;
-		      } else {
-		        final += traces_vias_straight;
-		      }
-		    }
+	    final += standard_closing;
+	    if (p.include_keepout) {
+	      final += keepout;
+	    }
+	    if (p.reversible && p.include_traces_vias) {
+	      if (p.reverse_mount) {
+	        final += traces_vias_reversed;
+	      } else {
+	        final += traces_vias_straight;
+	      }
+	    }
 
-		    return final;
-		  }
-		};
-		return led_sk6812miniE;
-	}
+	    return final;
+	  }
+	};
 
-	var mcu_nice_nano;
-	var hasRequiredMcu_nice_nano;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Author: @infused-kim + @ceoloide improvements
+	//
+	// Description:
+	//  A single-side or reversible footprint for the nice!nano (or any pro-micro compatible
+	//  controller) that uses jumpers instead of two socket rows to be reversible.
+	//
+	//  Note that the extra pins are *ONLY* compatible with nice!nano boards and not with
+	//  clones like the Supermini, which has pins in a slightly different position.
+	//
+	//  This is a re-implementation of the promicro_pretty footprint made popular
+	//  by @benvallack.
+	//
+	// Pinout and schematics:
+	//  https://nicekeyboards.com/docs/nice-nano/pinout-schematic
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    reverse_mount: default is true (MCU facing the PCB)
+	//      if true, the sockets will be oriented so that the MCU faces the PCB (RAW / B+ is the
+	//      top left pin). This is the most common mounting option for the nice!nano.
+	//      When set to false, the pads will match the datasheet and assume the MCU faces away
+	//      from the PCB (RAW / B+ is the top right pin).
+	//    include_traces: default is true
+	//      if true it will include traces that connect the jumper pads to the vias
+	//      and the through-holes for the MCU
+	//    include_extra_pins: default is false
+	//      if true and if not reversible it will include nice!nano extra pin sockets (P1.01,
+	//      P1.02, P1.07)
+	//    only_required_jumpers: default is false
+	//      if true, it will only place jumpers on the first 4 rows of pins, which can't be
+	//      reversed in firmware, i.e. RAW and P1, GND and P0, GND and RST, GND and VCC.
+	//    use_rectangular_jumpers: default is false
+	//      if true, it will replace chevron-style jumpers with rectangual pads
+	//    via_size: default is 0.8
+	//      allows to define the size of the via. Not recommended below 0.56 (JLCPCB minimum),
+	//      or above 0.8 (KiCad default), to avoid overlap or DRC errors.
+	//    via_drill: default is 0.4
+	//      allows to define the size of the drill. Not recommended below 0.3 (JLCPCB minimum),
+	//      or above 0.4 (KiCad default), to avoid overlap or DRC errors. 
+	//    Pxx_label, VCC_label, RAW_label, GND_label, RST_label: default is ''
+	//      allows to override the label for each pin
+	//
+	// @infused-kim's improvements:
+	//  - Use real traces instead of pads, which gets rid of hundreds of DRC errors.
+	//  - Leave more space between the vias to allow easier routing through the middle
+	//    of the footprint
+	//
+	// @ceoloide's improvements:
+	//  - Move vias closer to the pads to clear up more space for silkscreen
+	//  - Add ability to use rectangular jumpers instead of chevron-style
+	//  - Add ability to control via size, to free up space for routing if needed
+	//  - Add ability to only have required jumpers and let the rest be handled in firmware
+	//  - Add single side (non-reversible) support
+	//  - Add ability to mount with MCU facing towards or away from PCB
+	//  - Add ability to show silkscreen labels on both sides for single side footprint
+	//  - Add extra pins (P1.01, P1.02, P1.07) when footprint is single-side or reversible
+	//    (only required jumpers)
+	//
+	// # Placement and soldering of jumpers
+	//
+	// The reversible footprint is meant to be used with jumpers on the
+	// OPPOSITE side of where the nice!nano (or pro-micro compatible board) is
+	// installed. The silkscreen labels will also match the board when read on
+	// the opposite side. This is to have all jumpers and components to solder on
+	// the same side, and be able to read the correct labels of the MCU to do
+	// tests with a multimeter.
+	//
+	// # Further credits
+	//
+	// The original footprint was created from scratch by @infused-kim, but was based on the ideas from
+	// these other footprints:
+	//
+	// https://github.com/Albert-IV/ergogen-contrib/blob/main/src/footprints/promicro_pretty.js
+	// https://github.com/50an6xy06r6n/keyboard_reversible.pretty
 
-	function requireMcu_nice_nano () {
-		if (hasRequiredMcu_nice_nano) return mcu_nice_nano;
-		hasRequiredMcu_nice_nano = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Author: @infused-kim + @ceoloide improvements
-		//
-		// Description:
-		//  A single-side or reversible footprint for the nice!nano (or any pro-micro compatible
-		//  controller) that uses jumpers instead of two socket rows to be reversible.
-		//
-		//  Note that the extra pins are *ONLY* compatible with nice!nano boards and not with
-		//  clones like the Supermini, which has pins in a slightly different position.
-		//
-		//  This is a re-implementation of the promicro_pretty footprint made popular
-		//  by @benvallack.
-		//
-		// Pinout and schematics:
-		//  https://nicekeyboards.com/docs/nice-nano/pinout-schematic
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    reverse_mount: default is true (MCU facing the PCB)
-		//      if true, the sockets will be oriented so that the MCU faces the PCB (RAW / B+ is the
-		//      top left pin). This is the most common mounting option for the nice!nano.
-		//      When set to false, the pads will match the datasheet and assume the MCU faces away
-		//      from the PCB (RAW / B+ is the top right pin).
-		//    include_traces: default is true
-		//      if true it will include traces that connect the jumper pads to the vias
-		//      and the through-holes for the MCU
-		//    include_extra_pins: default is false
-		//      if true and if not reversible it will include nice!nano extra pin sockets (P1.01,
-		//      P1.02, P1.07)
-		//    only_required_jumpers: default is false
-		//      if true, it will only place jumpers on the first 4 rows of pins, which can't be
-		//      reversed in firmware, i.e. RAW and P1, GND and P0, GND and RST, GND and VCC.
-		//    use_rectangular_jumpers: default is false
-		//      if true, it will replace chevron-style jumpers with rectangual pads
-		//    via_size: default is 0.8
-		//      allows to define the size of the via. Not recommended below 0.56 (JLCPCB minimum),
-		//      or above 0.8 (KiCad default), to avoid overlap or DRC errors.
-		//    via_drill: default is 0.4
-		//      allows to define the size of the drill. Not recommended below 0.3 (JLCPCB minimum),
-		//      or above 0.4 (KiCad default), to avoid overlap or DRC errors. 
-		//    Pxx_label, VCC_label, RAW_label, GND_label, RST_label: default is ''
-		//      allows to override the label for each pin
-		//
-		// @infused-kim's improvements:
-		//  - Use real traces instead of pads, which gets rid of hundreds of DRC errors.
-		//  - Leave more space between the vias to allow easier routing through the middle
-		//    of the footprint
-		//
-		// @ceoloide's improvements:
-		//  - Move vias closer to the pads to clear up more space for silkscreen
-		//  - Add ability to use rectangular jumpers instead of chevron-style
-		//  - Add ability to control via size, to free up space for routing if needed
-		//  - Add ability to only have required jumpers and let the rest be handled in firmware
-		//  - Add single side (non-reversible) support
-		//  - Add ability to mount with MCU facing towards or away from PCB
-		//  - Add ability to show silkscreen labels on both sides for single side footprint
-		//  - Add extra pins (P1.01, P1.02, P1.07) when footprint is single-side or reversible
-		//    (only required jumpers)
-		//
-		// # Placement and soldering of jumpers
-		//
-		// The reversible footprint is meant to be used with jumpers on the
-		// OPPOSITE side of where the nice!nano (or pro-micro compatible board) is
-		// installed. The silkscreen labels will also match the board when read on
-		// the opposite side. This is to have all jumpers and components to solder on
-		// the same side, and be able to read the correct labels of the MCU to do
-		// tests with a multimeter.
-		//
-		// # Further credits
-		//
-		// The original footprint was created from scratch by @infused-kim, but was based on the ideas from
-		// these other footprints:
-		//
-		// https://github.com/Albert-IV/ergogen-contrib/blob/main/src/footprints/promicro_pretty.js
-		// https://github.com/50an6xy06r6n/keyboard_reversible.pretty
+	var mcu_nice_nano = {
+	  params: {
+	    designator: 'MCU',
+	    side: 'F',
+	    reversible: true,
+	    reverse_mount: false,
+	    include_traces: true,
+	    include_extra_pins: false,
+	    invert_jumpers_position: false,
+	    only_required_jumpers: false,
+	    use_rectangular_jumpers: false,
+	    via_size: 0.8, // JLCPC min is 0.56 for 1-2 layer boards, KiCad defaults to 0.8
+	    via_drill: 0.4, // JLCPC min is 0.3 for 1-2 layer boards, KiCad defaults to 0.4
 
-		mcu_nice_nano = {
-		  params: {
-		    designator: 'MCU',
-		    side: 'F',
-		    reversible: true,
-		    reverse_mount: false,
-		    include_traces: true,
-		    include_extra_pins: false,
-		    invert_jumpers_position: false,
-		    only_required_jumpers: false,
-		    use_rectangular_jumpers: false,
-		    via_size: 0.8, // JLCPC min is 0.56 for 1-2 layer boards, KiCad defaults to 0.8
-		    via_drill: 0.4, // JLCPC min is 0.3 for 1-2 layer boards, KiCad defaults to 0.4
+	    show_instructions: true,
+	    show_silk_labels: true,
+	    show_silk_labels_on_both_sides: true,
+	    show_via_labels: true,
 
-		    show_instructions: true,
-		    show_silk_labels: true,
-		    show_silk_labels_on_both_sides: true,
-		    show_via_labels: true,
+	    RAW_label: '',
+	    GND_label: '',
+	    RST_label: '',
+	    VCC_label: '',
+	    P21_label: '',
+	    P20_label: '',
+	    P19_label: '',
+	    P18_label: '',
+	    P15_label: '',
+	    P14_label: '',
+	    P16_label: '',
+	    P10_label: '',
 
-		    RAW_label: '',
-		    GND_label: '',
-		    RST_label: '',
-		    VCC_label: '',
-		    P21_label: '',
-		    P20_label: '',
-		    P19_label: '',
-		    P18_label: '',
-		    P15_label: '',
-		    P14_label: '',
-		    P16_label: '',
-		    P10_label: '',
+	    P1_label: '',
+	    P0_label: '',
+	    P2_label: '',
+	    P3_label: '',
+	    P4_label: '',
+	    P5_label: '',
+	    P6_label: '',
+	    P7_label: '',
+	    P8_label: '',
+	    P9_label: '',
 
-		    P1_label: '',
-		    P0_label: '',
-		    P2_label: '',
-		    P3_label: '',
-		    P4_label: '',
-		    P5_label: '',
-		    P6_label: '',
-		    P7_label: '',
-		    P8_label: '',
-		    P9_label: '',
+	    P101_label: '',
+	    P102_label: '',
+	    P107_label: '',
 
-		    P101_label: '',
-		    P102_label: '',
-		    P107_label: '',
+	    RAW: { type: 'net', value: 'RAW' },
+	    GND: { type: 'net', value: 'GND' },
+	    RST: { type: 'net', value: 'RST' },
+	    VCC: { type: 'net', value: 'VCC' },
+	    P21: { type: 'net', value: 'P21' },
+	    P20: { type: 'net', value: 'P20' },
+	    P19: { type: 'net', value: 'P19' },
+	    P18: { type: 'net', value: 'P18' },
+	    P15: { type: 'net', value: 'P15' },
+	    P14: { type: 'net', value: 'P14' },
+	    P16: { type: 'net', value: 'P16' },
+	    P10: { type: 'net', value: 'P10' },
 
-		    RAW: { type: 'net', value: 'RAW' },
-		    GND: { type: 'net', value: 'GND' },
-		    RST: { type: 'net', value: 'RST' },
-		    VCC: { type: 'net', value: 'VCC' },
-		    P21: { type: 'net', value: 'P21' },
-		    P20: { type: 'net', value: 'P20' },
-		    P19: { type: 'net', value: 'P19' },
-		    P18: { type: 'net', value: 'P18' },
-		    P15: { type: 'net', value: 'P15' },
-		    P14: { type: 'net', value: 'P14' },
-		    P16: { type: 'net', value: 'P16' },
-		    P10: { type: 'net', value: 'P10' },
+	    P1: { type: 'net', value: 'P1' },
+	    P0: { type: 'net', value: 'P0' },
+	    P2: { type: 'net', value: 'P2' },
+	    P3: { type: 'net', value: 'P3' },
+	    P4: { type: 'net', value: 'P4' },
+	    P5: { type: 'net', value: 'P5' },
+	    P6: { type: 'net', value: 'P6' },
+	    P7: { type: 'net', value: 'P7' },
+	    P8: { type: 'net', value: 'P8' },
+	    P9: { type: 'net', value: 'P9' },
 
-		    P1: { type: 'net', value: 'P1' },
-		    P0: { type: 'net', value: 'P0' },
-		    P2: { type: 'net', value: 'P2' },
-		    P3: { type: 'net', value: 'P3' },
-		    P4: { type: 'net', value: 'P4' },
-		    P5: { type: 'net', value: 'P5' },
-		    P6: { type: 'net', value: 'P6' },
-		    P7: { type: 'net', value: 'P7' },
-		    P8: { type: 'net', value: 'P8' },
-		    P9: { type: 'net', value: 'P9' },
+	    P101: { type: 'net', value: 'P101' },
+	    P102: { type: 'net', value: 'P102' },
+	    P107: { type: 'net', value: 'P107' },
+	  },
+	  body: p => {
+	    const get_pin_net_name = (p, pin_name) => {
+	      return p[pin_name].name;
+	    };
 
-		    P101: { type: 'net', value: 'P101' },
-		    P102: { type: 'net', value: 'P102' },
-		    P107: { type: 'net', value: 'P107' },
-		  },
-		  body: p => {
-		    const get_pin_net_name = (p, pin_name) => {
-		      return p[pin_name].name;
-		    };
+	    const get_pin_net_str = (p, pin_name) => {
+	      return p[pin_name].str;
+	    };
 
-		    const get_pin_net_str = (p, pin_name) => {
-		      return p[pin_name].str;
-		    };
+	    const get_pin_label_override = (p, pin_name) => {
+	      prop_name = `${pin_name}_label`;
+	      return p[prop_name];
+	    };
 
-		    const get_pin_label_override = (p, pin_name) => {
-		      prop_name = `${pin_name}_label`;
-		      return p[prop_name];
-		    };
+	    const get_pin_label = (p, pin_name) => {
+	      label = get_pin_label_override(p, pin_name);
+	      if (label == '') {
+	        label = get_pin_net_name(p, pin_name);
+	      }
 
-		    const get_pin_label = (p, pin_name) => {
-		      label = get_pin_label_override(p, pin_name);
-		      if (label == '') {
-		        label = get_pin_net_name(p, pin_name);
-		      }
+	      if (label === undefined) {
+	        label = '""';
+	      }
 
-		      if (label === undefined) {
-		        label = '""';
-		      }
+	      return label;
+	    };
 
-		      return label;
-		    };
+	    const get_at_coordinates = () => {
+	      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	      const matches = p.at.match(pattern);
+	      if (matches && matches.length == 4) {
+	        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	      } else {
+	        return null;
+	      }
+	    };
 
-		    const get_at_coordinates = () => {
-		      const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		      const matches = p.at.match(pattern);
-		      if (matches && matches.length == 4) {
-		        return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		      } else {
-		        return null;
-		      }
-		    };
+	    const adjust_point = (x, y) => {
+	      const at_l = get_at_coordinates();
+	      if (at_l == null) {
+	        throw new Error(
+	          `Could not get x and y coordinates from p.at: ${p.at}`
+	        );
+	      }
+	      const at_x = at_l[0];
+	      const at_y = at_l[1];
+	      const at_angle = at_l[2];
+	      const adj_x = at_x + x;
+	      const adj_y = at_y + y;
 
-		    const adjust_point = (x, y) => {
-		      const at_l = get_at_coordinates();
-		      if (at_l == null) {
-		        throw new Error(
-		          `Could not get x and y coordinates from p.at: ${p.at}`
-		        );
-		      }
-		      const at_x = at_l[0];
-		      const at_y = at_l[1];
-		      const at_angle = at_l[2];
-		      const adj_x = at_x + x;
-		      const adj_y = at_y + y;
+	      const radians = (Math.PI / 180) * at_angle,
+	        cos = Math.cos(radians),
+	        sin = Math.sin(radians),
+	        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		      const radians = (Math.PI / 180) * at_angle,
-		        cos = Math.cos(radians),
-		        sin = Math.sin(radians),
-		        nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		        ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
+	      return point_str;
+	    };
 
-		      const point_str = `${nx.toFixed(3)} ${ny.toFixed(3)}`;
-		      return point_str;
-		    };
-
-		    const gen_traces_row = (row_num) => {
-		      const traces = `
+	    const gen_traces_row = (row_num) => {
+	      const traces = `
           (segment (start ${adjust_point((p.use_rectangular_jumpers ? 4.58 : 4.775), -12.7 + (row_num * 2.54))}) (end ${adjust_point(3.4, -12.7 + (row_num * 2.54))}) (width 0.25) (layer F.Cu) (net 1))
           (segment (start ${adjust_point((p.use_rectangular_jumpers ? -4.58 : -4.775), -12.7 + (row_num * 2.54))}) (end ${adjust_point(-3.4, -12.7 + (row_num * 2.54))}) (width 0.25) (layer F.Cu) (net 13))
           
@@ -5816,56 +5693,56 @@
           (segment (start ${adjust_point(3.099695, -0.725 + (row_num * 2.54) - 12.7)}) (end ${adjust_point(2.594695, -0.22 + (row_num * 2.54) - 12.7)}) (width 0.25) (layer "B.Cu") (net 20))
         `;
 
-		      return traces
-		    };
+	      return traces
+	    };
 
-		    const gen_traces = () => {
-		      let traces = '';
-		      for (let i = 0; i < 12; i++) {
-		        if (i < 4 || !p.only_required_jumpers) {
-		          row_traces = gen_traces_row(i);
-		          traces += row_traces;
-		        }
-		      }
+	    const gen_traces = () => {
+	      let traces = '';
+	      for (let i = 0; i < 12; i++) {
+	        if (i < 4 || !p.only_required_jumpers) {
+	          row_traces = gen_traces_row(i);
+	          traces += row_traces;
+	        }
+	      }
 
-		      return traces
-		    };
+	      return traces
+	    };
 
-		    const invert_pins = (p.side == 'B' && !p.reverse_mount && !p.reversible) || (p.side == 'F' && p.reverse_mount) || (p.reverse_mount && p.reversible);
+	    const invert_pins = (p.side == 'B' && !p.reverse_mount && !p.reversible) || (p.side == 'F' && p.reverse_mount) || (p.reverse_mount && p.reversible);
 
-		    const gen_socket_row = (row_num, pin_name_left, pin_name_right, show_via_labels, show_silk_labels) => {
-		      const row_offset_y = 2.54 * row_num;
+	    const gen_socket_row = (row_num, pin_name_left, pin_name_right, show_via_labels, show_silk_labels) => {
+	      const row_offset_y = 2.54 * row_num;
 
-		      const socket_hole_num_left = 24 - row_num;
-		      const socket_hole_num_right = 1 + row_num;
-		      const via_num_left = 124 - row_num;
-		      const via_num_right = 1 + row_num;
+	      const socket_hole_num_left = 24 - row_num;
+	      const socket_hole_num_right = 1 + row_num;
+	      const via_num_left = 124 - row_num;
+	      const via_num_right = 1 + row_num;
 
-		      const net_left = get_pin_net_str(p, pin_name_left);
-		      const net_right = get_pin_net_str(p, pin_name_right);
-		      const via_label_left = get_pin_label(p, pin_name_left);
-		      const via_label_right = get_pin_label(p, pin_name_right);
+	      const net_left = get_pin_net_str(p, pin_name_left);
+	      const net_right = get_pin_net_str(p, pin_name_right);
+	      const via_label_left = get_pin_label(p, pin_name_left);
+	      const via_label_right = get_pin_label(p, pin_name_right);
 
-		      // These are the silkscreen labels that will be printed on the PCB.
-		      // If the footprint is reversible, they will be aligned with the pins
-		      // on the opposite side of where the MCU board is mounted.
-		      const net_silk_front_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
-		      const net_silk_front_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
-		      const net_silk_back_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
-		      const net_silk_back_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
+	      // These are the silkscreen labels that will be printed on the PCB.
+	      // If the footprint is reversible, they will be aligned with the pins
+	      // on the opposite side of where the MCU board is mounted.
+	      const net_silk_front_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
+	      const net_silk_front_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
+	      const net_silk_back_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
+	      const net_silk_back_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
 
-		      let socket_row_base = `
+	      let socket_row_base = `
         ${''/* Socket Holes */}
         (pad ${socket_hole_num_left} thru_hole circle (at -7.62 ${-12.7 + row_offset_y} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.reversible && (row_num < 4 || !p.only_required_jumpers) ? p.local_net(socket_hole_num_left).str : net_left})
         (pad ${socket_hole_num_right} thru_hole circle (at 7.62 ${-12.7 + row_offset_y} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.reversible && (row_num < 4 || !p.only_required_jumpers) ? p.local_net(socket_hole_num_right).str : net_right})
       `;
-		      let socket_row_vias = `
+	      let socket_row_vias = `
         ${''/* Inside VIAS */}
         (pad ${via_num_right} thru_hole circle (at 3.4 ${-12.7 + row_offset_y} ${p.rot}) (size ${p.via_size} ${p.via_size}) (drill ${p.via_drill}) (layers *.Cu *.Mask) ${p.reverse_mount ? net_right : net_left})
         (pad ${via_num_left} thru_hole circle (at -3.4 ${-12.7 + row_offset_y} ${p.rot}) (size ${p.via_size} ${p.via_size}) (drill ${p.via_drill}) (layers *.Cu *.Mask) ${p.reverse_mount ? net_left : net_right})
       `;
 
-		      let socket_row_rectangular_jumpers = `
+	      let socket_row_rectangular_jumpers = `
         ${''/* Jumper Pads - Front Left */}
         (pad ${socket_hole_num_left} smd rect (at -5.48 ${-12.7 + row_offset_y} ${p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${p.local_net(socket_hole_num_left).str})
         (pad ${via_num_left} smd rect (at -4.58 ${-12.7 + row_offset_y} ${p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${p.reverse_mount ? net_left : net_right})
@@ -5883,7 +5760,7 @@
         (pad ${socket_hole_num_left} smd rect (at 5.48 ${-12.7 + row_offset_y} ${p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${p.local_net(socket_hole_num_right).str})
         `;
 
-		      let socket_row_chevron_jumpers = `
+	      let socket_row_chevron_jumpers = `
           ${''/* Jumper Pads - Front Left */}
           (pad ${socket_hole_num_left} smd custom (at -5.5 ${-12.7 + row_offset_y} ${p.rot}) (size 0.2 0.2) (layers F.Cu F.Mask) ${p.local_net(socket_hole_num_left).str}
             (zone_connect 2)
@@ -5957,54 +5834,54 @@
             ) (width 0))
           ))
         `;
-		      let socket_row = socket_row_base;
-		      if (p.reversible && (row_num < 4 || !p.only_required_jumpers)) {
-		        socket_row += socket_row_vias;
-		        if (p.use_rectangular_jumpers) {
-		          socket_row += socket_row_rectangular_jumpers;
-		        } else {
-		          socket_row += socket_row_chevron_jumpers;
-		        }
-		      }
-		      if (show_silk_labels == true) {
-		        if(p.reversible || p.show_silk_labels_on_both_sides || p.side == 'F') {
-		          // Silkscreen labels - front
-		          if(row_num != 10 || (!p.include_extra_pins && p.reversible) || (invert_pins && !p.reversible)) {
-		            socket_row += `
+	      let socket_row = socket_row_base;
+	      if (p.reversible && (row_num < 4 || !p.only_required_jumpers)) {
+	        socket_row += socket_row_vias;
+	        if (p.use_rectangular_jumpers) {
+	          socket_row += socket_row_rectangular_jumpers;
+	        } else {
+	          socket_row += socket_row_chevron_jumpers;
+	        }
+	      }
+	      if (show_silk_labels == true) {
+	        if(p.reversible || p.show_silk_labels_on_both_sides || p.side == 'F') {
+	          // Silkscreen labels - front
+	          if(row_num != 10 || (!p.include_extra_pins && p.reversible) || (invert_pins && !p.reversible)) {
+	            socket_row += `
                 (fp_text user ${net_silk_front_left} (at -${p.reversible && (row_num < 4 || !p.only_required_jumpers) ? 3 : 6} ${-12.7 + row_offset_y} ${p.rot}) (layer F.SilkS)
                   (effects (font (size 1 1) (thickness 0.15)) (justify left))
                 )
             `;
-		          }
-		          if(row_num != 10 || (!p.include_extra_pins && p.reversible) || (!invert_pins && !p.reversible)) {
-		            socket_row += `
+	          }
+	          if(row_num != 10 || (!p.include_extra_pins && p.reversible) || (!invert_pins && !p.reversible)) {
+	            socket_row += `
                 (fp_text user ${net_silk_front_right} (at ${p.reversible && (row_num < 4 || !p.only_required_jumpers) ? 3 : 6} ${-12.7 + row_offset_y} ${p.rot}) (layer F.SilkS)
                   (effects (font (size 1 1) (thickness 0.15)) (justify right))
                 )
             `;
-		          }
-		        }
-		        if(p.reversible && !p.include_extra_pins || p.show_silk_labels_on_both_sides || p.side == 'B') {
-		          // Silkscreen labels - back
-		          if(!p.include_extra_pins && (p.reversible || row_num != 10 || invert_pins)) {
-		            socket_row += `
+	          }
+	        }
+	        if(p.reversible && !p.include_extra_pins || p.show_silk_labels_on_both_sides || p.side == 'B') {
+	          // Silkscreen labels - back
+	          if(!p.include_extra_pins && (p.reversible || row_num != 10 || invert_pins)) {
+	            socket_row += `
                 (fp_text user ${net_silk_back_left} (at -${p.reversible && (row_num < 4 || !p.only_required_jumpers) ? 3 : 6} ${-12.7 + row_offset_y} ${180 + p.rot}) (layer B.SilkS)
                   (effects (font (size 1 1) (thickness 0.15)) (justify right mirror))
                 )
             `;
-		          }
-		          if(!p.include_extra_pins && (p.reversible || row_num != 10 || !invert_pins)) {
-		            socket_row += `
+	          }
+	          if(!p.include_extra_pins && (p.reversible || row_num != 10 || !invert_pins)) {
+	            socket_row += `
                 (fp_text user ${net_silk_back_right} (at ${p.reversible && (row_num < 4 || !p.only_required_jumpers) ? 3 : 6} ${-12.7 + row_offset_y} ${180 + p.rot}) (layer B.SilkS)
                   (effects (font (size 1 1) (thickness 0.15)) (justify left mirror))
                 )
             `;
-		          }
-		        }
-		      }
+	          }
+	        }
+	      }
 
-		      if (show_via_labels && (p.reversible && (row_num < 4 || !p.only_required_jumpers))) {
-		        socket_row += `
+	      if (show_via_labels && (p.reversible && (row_num < 4 || !p.only_required_jumpers))) {
+	        socket_row += `
             ${''/* Via Labels - Front */}
             (fp_text user ${via_label_left} (at -3.262 ${-13.5 + row_offset_y} ${p.rot}) (layer F.Fab)
               (effects (font (size 0.5 0.5) (thickness 0.08)))
@@ -6021,47 +5898,47 @@
               (effects (font (size 0.5 0.5) (thickness 0.08)) (justify mirror))
             )
           `;
-		      }
+	      }
 
-		      return socket_row
-		    };
-		    const gen_socket_rows = (show_via_labels, show_silk_labels) => {
-		      const pin_names = [
-		        // The pin matrix below assumes PCB is mounted with the MCU
-		        // facing away from the PCB (reverse_mount = false) on the
-		        // Front side. It should be inverted for reverse_mount = true
-		        // or when mounted on teh Back
-		        ['P1', 'RAW'],
-		        ['P0', 'GND'],
-		        ['GND', 'RST'],
-		        ['GND', 'VCC'],
-		        ['P2', 'P21'],
-		        ['P3', 'P20'],
-		        ['P4', 'P19'],
-		        ['P5', 'P18'],
-		        ['P6', 'P15'],
-		        ['P7', 'P14'],
-		        ['P8', 'P16'],
-		        ['P9', 'P10'],
-		      ];
-		      
-		      let socket_rows = '';
-		      for (let i = 0; i < pin_names.length; i++) {
-		        pin_name_left = pin_names[i][invert_pins ? 1 : 0];
-		        pin_name_right = pin_names[i][invert_pins ? 0 : 1];
+	      return socket_row
+	    };
+	    const gen_socket_rows = (show_via_labels, show_silk_labels) => {
+	      const pin_names = [
+	        // The pin matrix below assumes PCB is mounted with the MCU
+	        // facing away from the PCB (reverse_mount = false) on the
+	        // Front side. It should be inverted for reverse_mount = true
+	        // or when mounted on teh Back
+	        ['P1', 'RAW'],
+	        ['P0', 'GND'],
+	        ['GND', 'RST'],
+	        ['GND', 'VCC'],
+	        ['P2', 'P21'],
+	        ['P3', 'P20'],
+	        ['P4', 'P19'],
+	        ['P5', 'P18'],
+	        ['P6', 'P15'],
+	        ['P7', 'P14'],
+	        ['P8', 'P16'],
+	        ['P9', 'P10'],
+	      ];
+	      
+	      let socket_rows = '';
+	      for (let i = 0; i < pin_names.length; i++) {
+	        pin_name_left = pin_names[i][invert_pins ? 1 : 0];
+	        pin_name_right = pin_names[i][invert_pins ? 0 : 1];
 
-		        const socket_row = gen_socket_row(
-		          i, pin_name_left, pin_name_right,
-		          show_via_labels, show_silk_labels
-		        );
+	        const socket_row = gen_socket_row(
+	          i, pin_name_left, pin_name_right,
+	          show_via_labels, show_silk_labels
+	        );
 
-		        socket_rows += socket_row;
-		      }
-		      // Socket silkscreen
-		      // P1 / D1 / P0.06 is marked according to orientation
-		      if (show_silk_labels == true) {
-		        if(p.reversible || p.show_silk_labels_on_both_sides || p.side == 'F') {
-		          socket_rows += `
+	        socket_rows += socket_row;
+	      }
+	      // Socket silkscreen
+	      // P1 / D1 / P0.06 is marked according to orientation
+	      if (show_silk_labels == true) {
+	        if(p.reversible || p.show_silk_labels_on_both_sides || p.side == 'F') {
+	          socket_rows += `
             (fp_line (start 6.29 -14.03) (end 8.95 -14.03) (layer F.SilkS) (width 0.12))
             (fp_line (start 6.29 -14.03) (end 6.29 16.57) (layer F.SilkS) (width 0.12))
             (fp_line (start 6.29 16.57) (end 8.95 16.57) (layer F.SilkS) (width 0.12))
@@ -6072,9 +5949,9 @@
             (fp_line (start -8.95 16.57) (end -6.29 16.57) (layer F.SilkS) (width 0.12))
             (fp_line (start ${invert_pins ? '' : '-'}6.29 -11.43) (end ${invert_pins ? '' : '-'}8.95 -11.43) (layer F.SilkS) (width 0.12))
           `;
-		        }
-		        if(p.reversible || p.show_silk_labels_on_both_sides || p.side == 'B') {
-		          socket_rows += `
+	        }
+	        if(p.reversible || p.show_silk_labels_on_both_sides || p.side == 'B') {
+	          socket_rows += `
             (fp_line (start -6.29 -14.03) (end -8.95 -14.03) (layer B.SilkS) (width 0.12))
             (fp_line (start -6.29 -14.03) (end -6.29 16.57) (layer B.SilkS) (width 0.12))
             (fp_line (start -6.29 16.57) (end -8.95 16.57) (layer B.SilkS) (width 0.12))
@@ -6085,12 +5962,12 @@
             (fp_line (start 6.29 -14.03) (end 6.29 16.57) (layer B.SilkS) (width 0.12))
             (fp_line (start ${invert_pins ? (p.reversible ? '-' : '') : (p.reversible ? '' : '-')}8.95 -11.43) (end ${invert_pins ? (p.reversible ? '-' : '') : (p.reversible ? '' : '-')}6.29 -11.43) (layer B.SilkS) (width 0.12))
           `;
-		        }
-		      }
-		      return socket_rows
-		    };
+	        }
+	      }
+	      return socket_rows
+	    };
 
-		    const common_top = `
+	    const common_top = `
         (module "ceoloide:mcu_nice_nano" (layer F.Cu) (tedit 6451A4F1)
           (attr virtual)
           ${p.at /* parametric position */}
@@ -6111,7 +5988,7 @@
           (fp_line (start -8.89 16.57) (end 8.89 16.57) (layer Dwgs.User) (width 0.15))
       `;
 
-		    const instructions = `
+	    const instructions = `
           (fp_text user "Right Side Jumpers" (at 0 -15.245 ${p.rot}) (layer F.SilkS)
             (effects (font (size 1 1) (thickness 0.15)))
           )
@@ -6120,22 +5997,22 @@
           )
     `;
 
-		    const socket_rows = gen_socket_rows(
-		      p.show_via_labels, p.show_silk_labels
-		    );
-		    const traces = gen_traces();
+	    const socket_rows = gen_socket_rows(
+	      p.show_via_labels, p.show_silk_labels
+	    );
+	    const traces = gen_traces();
 
-		    const extra_pins = `
+	    const extra_pins = `
       (pad 25 thru_hole circle (at ${invert_pins ? '' : '-'}5.08 ${-12.7 + 25.4} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.P101})
       (pad 26 thru_hole circle (at ${invert_pins ? '' : '-'}2.54 ${-12.7 + 25.4} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.P102})
       (pad 27 thru_hole circle (at 0 ${-12.7 + 25.4} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.P107})
     `;
-		    const extra_pins_reversible = `
+	    const extra_pins_reversible = `
       (pad 28 thru_hole circle (at ${invert_pins ? '-' : ''}5.08 ${-12.7 + 25.4} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.P101})
       (pad 29 thru_hole circle (at ${invert_pins ? '-' : ''}2.54 ${-12.7 + 25.4} ${p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.P102})
     `;
 
-		    return `
+	    return `
           ${''/* Controller*/}
           ${common_top}
           ${socket_rows}
@@ -6147,121 +6024,105 @@
         ${''/* Traces */}
         ${p.reversible && p.include_traces ? traces : ''}
     `;
-		  }
-		};
-		return mcu_nice_nano;
-	}
+	  }
+	};
 
-	var mounting_hole_npth;
-	var hasRequiredMounting_hole_npth;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Author: @ceoloide
+	//
+	// Description:
+	//  A non-plated, mechanical through-hole to be used for screws, standoffs or
+	//  other mounting options. Both the drill size and pad size can be independently
+	//  defined.
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the footprint and designator, either F or B
+	//    hole_size: default is 2.2mm for M2 screws
+	//      the size of the pad around the hole
+	//    hole_drill: default is 2.2mm for M2 screws
+	//      the size of the hole to drill
 
-	function requireMounting_hole_npth () {
-		if (hasRequiredMounting_hole_npth) return mounting_hole_npth;
-		hasRequiredMounting_hole_npth = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Author: @ceoloide
-		//
-		// Description:
-		//  A non-plated, mechanical through-hole to be used for screws, standoffs or
-		//  other mounting options. Both the drill size and pad size can be independently
-		//  defined.
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the footprint and designator, either F or B
-		//    hole_size: default is 2.2mm for M2 screws
-		//      the size of the pad around the hole
-		//    hole_drill: default is 2.2mm for M2 screws
-		//      the size of the hole to drill
-
-		mounting_hole_npth = {
-		  params: {
-		    designator: 'MH',
-		    side: 'F',
-		    hole_size: '2.2',
-		    hole_drill: '2.2',
-		  },
-		  body: p => `
+	var mounting_hole_npth = {
+	  params: {
+	    designator: 'MH',
+	    side: 'F',
+	    hole_size: '2.2',
+	    hole_drill: '2.2',
+	  },
+	  body: p => `
   (module "ceoloide:mounting_hole_npth" (layer ${p.side}.Cu) (tedit 5F1B9159)
       ${p.at /* parametric position */}
       (fp_text reference "${p.ref}" (at 0 2.55 ${p.rot}) (layer ${p.side}.SilkS) ${p.ref_hide} (effects (font (size 1 1) (thickness 0.15))))
       (pad "" np_thru_hole circle (at 0 0 ${p.rot}) (size ${p.hole_size} ${p.hole_size}) (drill ${p.hole_drill}) (layers *.Cu *.Mask))
   )
   `
-		};
-		return mounting_hole_npth;
-	}
+	};
 
-	var power_switch_smd_side;
-	var hasRequiredPower_switch_smd_side;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Authors: @infused-kim + @ceoloide improvements
+	//
+	// Description:
+	//  SMD side-operated on-off switch, compatible with Alps SSSS811101 as sold on
+	//  Typeractive.xyz and LCSC. These switches are shorter than the height of hotswap sockets,
+	//  so they can be mounted on the same side.
+	//
+	//  Should be compatible with:
+	//    - G-Switch MK-12C02-G015 (untested)
+	//    - PCM12SMTR (untested)
+	//
+	// Datasheet:
+	//   https://cdn.shopify.com/s/files/1/0618/5674/3655/files/ALPS-SSSS811101.pdf?v=1670451309
+	//
+	// Nets:
+	//    from: corresponds to pin 1 on the Front and 3 on the back
+	//    to: corresponds to pin 2 on both sides
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F (Front)
+	//      or B (Back)
+	//    reversible: default is false
+	//      if true, it will include pads on both Front and Back to make the footprint reversible
+	//    invert_behavior: default is false
+	//      if true, pin 3 will connect to the "from" net, and if false it will connect to pin 1,
+	//      effectively inverting the behavior of the switch.
+	//    include_silkscreen: default is true
+	//      if true it will include silkscreen markings, which is recommended to know which side
+	//      connects Bat+ to RAW.
+	//    include_courtyard: default is false
+	//      if true it will include the courtyard around the component
+	//
+	// @ceoloide's improvements:
+	//  - Add ability to set text on both sides
+	//  - Add ability to adjust font thickness and size
+	//  - Add ability to invert switch behavior / pin connections
+	//  - Invert behavior on opposite layer to maintain consistency
+	//  - Add on/off silkscreen to aid operation
 
-	function requirePower_switch_smd_side () {
-		if (hasRequiredPower_switch_smd_side) return power_switch_smd_side;
-		hasRequiredPower_switch_smd_side = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Authors: @infused-kim + @ceoloide improvements
-		//
-		// Description:
-		//  SMD side-operated on-off switch, compatible with Alps SSSS811101 as sold on
-		//  Typeractive.xyz and LCSC. These switches are shorter than the height of hotswap sockets,
-		//  so they can be mounted on the same side.
-		//
-		//  Should be compatible with:
-		//    - G-Switch MK-12C02-G015 (untested)
-		//    - PCM12SMTR (untested)
-		//
-		// Datasheet:
-		//   https://cdn.shopify.com/s/files/1/0618/5674/3655/files/ALPS-SSSS811101.pdf?v=1670451309
-		//
-		// Nets:
-		//    from: corresponds to pin 1 on the Front and 3 on the back
-		//    to: corresponds to pin 2 on both sides
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F (Front)
-		//      or B (Back)
-		//    reversible: default is false
-		//      if true, it will include pads on both Front and Back to make the footprint reversible
-		//    invert_behavior: default is false
-		//      if true, pin 3 will connect to the "from" net, and if false it will connect to pin 1,
-		//      effectively inverting the behavior of the switch.
-		//    include_silkscreen: default is true
-		//      if true it will include silkscreen markings, which is recommended to know which side
-		//      connects Bat+ to RAW.
-		//    include_courtyard: default is false
-		//      if true it will include the courtyard around the component
-		//
-		// @ceoloide's improvements:
-		//  - Add ability to set text on both sides
-		//  - Add ability to adjust font thickness and size
-		//  - Add ability to invert switch behavior / pin connections
-		//  - Invert behavior on opposite layer to maintain consistency
-		//  - Add on/off silkscreen to aid operation
-
-		power_switch_smd_side = {
-		  params: {
-		    designator: 'PWR',
-		    side: 'F',
-		    reversible: false,
-		    invert_behavior: true,
-		    include_silkscreen: true,
-		    include_courtyard: false,
-		    from: { type: 'net', value: 'BAT_P' },
-		    to: { type: 'net', value: 'RAW' },
-		  },
-		  body: p => {
-		    const common_start = `
+	var power_switch_smd_side = {
+	  params: {
+	    designator: 'PWR',
+	    side: 'F',
+	    reversible: false,
+	    invert_behavior: true,
+	    include_silkscreen: true,
+	    include_courtyard: false,
+	    from: { type: 'net', value: 'BAT_P' },
+	    to: { type: 'net', value: 'RAW' },
+	  },
+	  body: p => {
+	    const common_start = `
       (module "ceoloide:power_switch_smd_side" (layer ${p.side}.Cu) (tedit 64473C6F)
         ${p.at /* parametric position */}
         (attr smd)
@@ -6272,7 +6133,7 @@
           (effects (font (size 1 1) (thickness 0.15)))
         )
     `;
-		    const silkscreen_front = `
+	    const silkscreen_front = `
         (fp_text user "ON" (at 0 ${p.invert_behavior ? '-' : ''}4.5 ${p.rot}) (layer "F.SilkS")
           (effects (font (size 1 1) (thickness 0.15)) (justify ${p.invert_behavior ? 'bottom' : 'top'}))
         )
@@ -6285,7 +6146,7 @@
         (fp_line (start 1.425 2.85) (end 1.425 -2.85) (layer F.SilkS) (width 0.12))
         (fp_line (start -1.425 -1.4) (end -1.425 -1.6) (layer F.SilkS) (width 0.12))
     `;
-		    const silkscreen_back = `
+	    const silkscreen_back = `
         (fp_text user "${p.ref}" (at -3.5 0 ${90 + p.rot}) (layer B.SilkS) ${p.ref_hide}
           (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
         )
@@ -6301,7 +6162,7 @@
         (fp_line (start -1.425 -1.6) (end -1.425 0.1) (layer B.SilkS) (width 0.12))
         (fp_line (start 1.425 -2.85) (end 1.425 2.85) (layer B.SilkS) (width 0.12))
     `;
-		    const courtyard_front = `
+	    const courtyard_front = `
         (fp_line (start 1.795 4.4) (end -2.755 4.4) (layer F.CrtYd) (width 0.05))
         (fp_line (start 1.795 1.65) (end 1.795 4.4) (layer F.CrtYd) (width 0.05))
         (fp_line (start 3.095 1.65) (end 1.795 1.65) (layer F.CrtYd) (width 0.05))
@@ -6311,7 +6172,7 @@
         (fp_line (start -2.755 -4.4) (end 1.795 -4.4) (layer F.CrtYd) (width 0.05))
         (fp_line (start -2.755 4.4) (end -2.755 -4.4) (layer F.CrtYd) (width 0.05))
     `;
-		    const courtyard_back = `
+	    const courtyard_back = `
         (fp_line (start -2.755 -4.4) (end -2.755 4.4) (layer B.CrtYd) (width 0.05))
         (fp_line (start 3.095 1.65) (end 3.095 -1.65) (layer B.CrtYd) (width 0.05))
         (fp_line (start 1.795 1.65) (end 3.095 1.65) (layer B.CrtYd) (width 0.05))
@@ -6322,7 +6183,7 @@
         (fp_line (start -2.755 4.4) (end 1.795 4.4) (layer B.CrtYd) (width 0.05))
     `;
 
-		    const pads_front = `
+	    const pads_front = `
         (fp_line (start -1.305 -3.35) (end -1.305 3.35) (layer F.Fab) (width 0.1))
         (fp_line (start 1.295 -3.35) (end -1.305 -3.35) (layer F.Fab) (width 0.1))
         (fp_line (start 1.295 3.35) (end 1.295 -3.35) (layer F.Fab) (width 0.1))
@@ -6342,7 +6203,7 @@
         (pad 3 smd rect (at -1.735 -2.25 ${90 + p.rot}) (size 0.7 1.5) (layers F.Cu F.Paste F.Mask) ${p.invert_behavior ? p.from.str : ''})
 
     `;
-		    const pads_back = `
+	    const pads_back = `
         (fp_line (start 2.595 -0.1) (end 1.295 -0.1) (layer B.Fab) (width 0.1))
         (fp_line (start -1.305 3.35) (end -1.305 -3.35) (layer B.Fab) (width 0.1))
         (fp_line (start 2.645 -0.15) (end 2.595 -0.1) (layer B.Fab) (width 0.1))
@@ -6361,86 +6222,78 @@
         (pad 2 smd rect (at -1.735 0.75 ${270 + p.rot}) (size 0.7 1.5) (layers B.Cu B.Paste B.Mask) ${p.to.str})
         (pad 3 smd rect (at -1.735 2.25 ${270 + p.rot}) (size 0.7 1.5) (layers B.Cu B.Paste B.Mask) ${p.invert_behavior ? '' : p.from.str})
       `;
-		    const common_end = `
+	    const common_end = `
       (pad "" np_thru_hole circle (at 0.025 -1.5 ${90 + p.rot}) (size 0.9 0.9) (drill 0.9) (layers *.Cu *.Mask))
       (pad "" np_thru_hole circle (at 0.025 1.5 ${90 + p.rot}) (size 0.9 0.9) (drill 0.9) (layers *.Cu *.Mask))
     )
     `;
 
-		    let final = common_start;
-		    if (p.side == "F" || p.reversible) {
-		      final += pads_front;
-		      if (p.include_silkscreen) {
-		        final += silkscreen_front;
-		      }
-		      if (p.include_courtyard) {
-		        final += courtyard_front;
-		      }
-		    }
-		    if (p.side == "B" || p.reversible) {
-		      final += pads_back;
-		      if (p.include_silkscreen) {
-		        final += silkscreen_back;
-		      }
-		      if (p.include_courtyard) {
-		        final += courtyard_back;
-		      }
-		    }
-		    final += common_end;
-		    return final;
-		  }
-		};
-		return power_switch_smd_side;
-	}
+	    let final = common_start;
+	    if (p.side == "F" || p.reversible) {
+	      final += pads_front;
+	      if (p.include_silkscreen) {
+	        final += silkscreen_front;
+	      }
+	      if (p.include_courtyard) {
+	        final += courtyard_front;
+	      }
+	    }
+	    if (p.side == "B" || p.reversible) {
+	      final += pads_back;
+	      if (p.include_silkscreen) {
+	        final += silkscreen_back;
+	      }
+	      if (p.include_courtyard) {
+	        final += courtyard_back;
+	      }
+	    }
+	    final += common_end;
+	    return final;
+	  }
+	};
 
-	var reset_switch_tht_top;
-	var hasRequiredReset_switch_tht_top;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Author: @ceoloide
+	//
+	// Description:
+	//  A through-hole top-actuated momentary switch, the same used by the Corne keyboard and
+	//  compatible with "PTS636 S[L|M]43 LFS" tactile switches sold on LCSC.
+	//
+	// Datasheet:
+	//  https://datasheet.lcsc.com/lcsc/2110271930_C-K-PTS636SM43LFS_C2689636.pdf
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, it will include silkscreen on both Front and Back, if silkscreen is included.
+	//      because the footprint is through-hole and because it's only connecting RST to GND, the
+	//      pads are reversible in any case.
+	//    include_silkscreen: default is true
+	//      if true it will include silkscreen markings
 
-	function requireReset_switch_tht_top () {
-		if (hasRequiredReset_switch_tht_top) return reset_switch_tht_top;
-		hasRequiredReset_switch_tht_top = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Author: @ceoloide
-		//
-		// Description:
-		//  A through-hole top-actuated momentary switch, the same used by the Corne keyboard and
-		//  compatible with "PTS636 S[L|M]43 LFS" tactile switches sold on LCSC.
-		//
-		// Datasheet:
-		//  https://datasheet.lcsc.com/lcsc/2110271930_C-K-PTS636SM43LFS_C2689636.pdf
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, it will include silkscreen on both Front and Back, if silkscreen is included.
-		//      because the footprint is through-hole and because it's only connecting RST to GND, the
-		//      pads are reversible in any case.
-		//    include_silkscreen: default is true
-		//      if true it will include silkscreen markings
-
-		reset_switch_tht_top = {
-		    params: {
-		        designator: 'RST', // for Button
-		        side: 'F',
-		        reversible: false,
-		        include_silkscreen: true,
-		        from: { type: 'net', value: 'GND' },
-		        to: { type: 'net', value: 'RST' },
-		    },
-		    body: p => {
-		        const common_start = `
+	var reset_switch_tht_top = {
+	    params: {
+	        designator: 'RST', // for Button
+	        side: 'F',
+	        reversible: false,
+	        include_silkscreen: true,
+	        from: { type: 'net', value: 'GND' },
+	        to: { type: 'net', value: 'RST' },
+	    },
+	    body: p => {
+	        const common_start = `
             (module "ceoloide:reset_switch_tht_top" (layer ${p.side}.Cu) (tedit 5B9559E6) (tstamp 61905781)
                 ${p.at /* parametric position */}
                 (fp_text value "reset_switch_tht_top" (at 0 -2.55 ${90 + p.rot}) (layer ${p.side}.Fab) (effects (font (size 1 1) (thickness 0.15))))
                 (fp_text reference "${p.ref}" (at 0 2.55 ${90 + p.rot}) (layer ${p.side}.SilkS) ${p.ref_hide} (effects (font (size 1 1) (thickness 0.15))))
             `;
-		        const silkscreen_front = `
+	        const silkscreen_front = `
                 (fp_text user "RST" (at 0 0 ${p.rot}) (layer F.SilkS) (effects (font (size 1 1) (thickness 0.15))))
                 (fp_line (start -3 1.75) (end 3 1.75) (layer F.SilkS) (width 0.15))
                 (fp_line (start 3 1.75) (end 3 1.5) (layer F.SilkS) (width 0.15))
@@ -6449,7 +6302,7 @@
                 (fp_line (start -3 -1.75) (end 3 -1.75) (layer F.SilkS) (width 0.15))
                 (fp_line (start 3 -1.75) (end 3 -1.5) (layer F.SilkS) (width 0.15))
             `;
-		        const silkscreen_back = `
+	        const silkscreen_back = `
                 (fp_text user "RST" (at 0 0 ${p.rot}) (layer B.SilkS) (effects (font (size 1 1) (thickness 0.15)) (justify mirror)))
                 (fp_line (start 3 1.5) (end 3 1.75) (layer B.SilkS) (width 0.15))
                 (fp_line (start 3 1.75) (end -3 1.75) (layer B.SilkS) (width 0.15))
@@ -6458,172 +6311,164 @@
                 (fp_line (start -3 -1.75) (end 3 -1.75) (layer B.SilkS) (width 0.15))
                 (fp_line (start 3 -1.75) (end 3 -1.5) (layer B.SilkS) (width 0.15))
             `;
-		        const common_end = `
+	        const common_end = `
                 (pad 2 thru_hole circle (at -3.25 0 ${p.rot}) (size 2 2) (drill 1.3) (layers *.Cu *.Mask) ${p.from.str})
                 (pad 1 thru_hole circle (at 3.25 0 ${p.rot}) (size 2 2) (drill 1.3) (layers *.Cu *.Mask) ${p.to.str})
             )
         `;
 
-		        let final = common_start;
-		        if (p.side == "F" || p.reversible) {
-		            if (p.include_silkscreen) {
-		                final += silkscreen_front;
-		            }
-		        }
-		        if (p.side == "B" || p.reversible) {
-		            if (p.include_silkscreen) {
-		                final += silkscreen_back;
-		            }
-		        }
-		        final += common_end;
-		        return final;
-		    }
-		};
-		return reset_switch_tht_top;
-	}
+	        let final = common_start;
+	        if (p.side == "F" || p.reversible) {
+	            if (p.include_silkscreen) {
+	                final += silkscreen_front;
+	            }
+	        }
+	        if (p.side == "B" || p.reversible) {
+	            if (p.include_silkscreen) {
+	                final += silkscreen_back;
+	            }
+	        }
+	        final += common_end;
+	        return final;
+	    }
+	};
 
-	var switch_choc_v1_v2;
-	var hasRequiredSwitch_choc_v1_v2;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Authors: @ergogen + @infused-kim improvements + @ceoloide improvements
+	//
+	// Description:
+	//    Kailh Choc PG1350 (v1) + Kailh Choc PG1353 (v2) reversible and hotswappable footprint.
+	//    This includes support for LOFREE low profile POM switches (Ghost, Phantom, Wizard)
+	//
+	//    With the set defaults it will include support for choc v1 and v2 hotswap, single side
+	//    (Back).
+	//
+	// Nets:
+	//    from: corresponds to pin 1
+	//    to: corresponds to pin 2
+	//
+	// Params:
+	//    side: default is B for Back
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    hotswap: default is true
+	//      if true, will include holes and pads for Kailh choc hotswap sockets
+	//    solder: default is false
+	//      if true, will include holes to solder switches (works with hotswap too)
+	//    outer_pad_width_front: default 2.6
+	//    outer_pad_width_back: default 2.6
+	//      Allows you to make the outer hotswap pads smaller to silence DRC
+	//      warnings when the sockets are too close to the edge cuts. It's not
+	//      recommended to go below 1.6mm to ensure the hotswap socket can be
+	//      properly soldered.
+	//    show_keycaps: default is false
+	//      if true, will add mx sized keycap box around the footprint (18mm)
+	//    show_corner_marks: default is false
+	//      if true, will add corner marks to indicate plate hole size and position
+	//    include_stabilizer_pad: default is true
+	//      if true, will add a corner pad for the stabilizer leg present in some
+	//      Choc switches, unless choc_v2_support is false.
+	//    oval_stabilizer_pad: default is false
+	//      if false, will add an oval pad for the stabilizer leg, and a round one
+	//      if true. Note that the datasheet calls for a round one.
+	//    choc_v1_support: default is true
+	//      if true, will add lateral stabilizer holes that are required for
+	//      Choc v1 footprints.
+	//    choc_v2_support: default is true
+	//      if true, will make the central hole bigger to as required for
+	//      Choc v2 footprints. If false it will also disable the corner stabilizer
+	//      pad even if include_stabilizer_pad is true.
+	//    keycaps_x: default is 18
+	//    keycaps_y: default is 18
+	//      Allows you to adjust the width of the keycap outline. For example,
+	//      to show a 1.5u outline for easier aligning.
+	//    switch_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    switch_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    switch_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    switch_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
+	//    hotswap_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model to be used when rendering
+	//      the PCB. Allows for paths using a configured path by using the
+	//      ${VAR_NAME} syntax.
+	//    hotswap_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    hotswap_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative its
+	//      original size.
+	//    hotswap_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
+	//
+	// Notes:
+	// - Hotswap and solder can be used together. The solder holes will then be
+	//   added above the hotswap holes.
+	//
+	// @infused-kim's improvements:
+	//  - Add hotswap socket outlines
+	//  - Move switch corner marks from user layer to silk screen
+	//  - Add option to adjust keycap size outlines (to show 1.5u outline)
+	//  - Add option to add hotswap sockets and direct soldering holes at the
+	//    same time
+	//  - Make hotswap pads not overlap holes to fix DRC errors
+	//  - Fixed DRC errors "Drilled holes co-located"
+	//
+	// @ceoloide's improvements:
+	//  - Adjusted footprint to be Choc PG1353 (v2) compatible
+	//  - Add option to hide corner marks, as they interfere with hotswap silkscreen
+	//  - Add ability to specify board side
+	//  - Add ability to include stabilizer pad
+	//  - Add ability to use an oval stabilizer pad
+	//
+	// @grazfather's improvements:
+	//  - Add support for switch 3D model
 
-	function requireSwitch_choc_v1_v2 () {
-		if (hasRequiredSwitch_choc_v1_v2) return switch_choc_v1_v2;
-		hasRequiredSwitch_choc_v1_v2 = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Authors: @ergogen + @infused-kim improvements + @ceoloide improvements
-		//
-		// Description:
-		//    Kailh Choc PG1350 (v1) + Kailh Choc PG1353 (v2) reversible and hotswappable footprint.
-		//    This includes support for LOFREE low profile POM switches (Ghost, Phantom, Wizard)
-		//
-		//    With the set defaults it will include support for choc v1 and v2 hotswap, single side
-		//    (Back).
-		//
-		// Nets:
-		//    from: corresponds to pin 1
-		//    to: corresponds to pin 2
-		//
-		// Params:
-		//    side: default is B for Back
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    hotswap: default is true
-		//      if true, will include holes and pads for Kailh choc hotswap sockets
-		//    solder: default is false
-		//      if true, will include holes to solder switches (works with hotswap too)
-		//    outer_pad_width_front: default 2.6
-		//    outer_pad_width_back: default 2.6
-		//      Allows you to make the outer hotswap pads smaller to silence DRC
-		//      warnings when the sockets are too close to the edge cuts. It's not
-		//      recommended to go below 1.6mm to ensure the hotswap socket can be
-		//      properly soldered.
-		//    show_keycaps: default is false
-		//      if true, will add mx sized keycap box around the footprint (18mm)
-		//    show_corner_marks: default is false
-		//      if true, will add corner marks to indicate plate hole size and position
-		//    include_stabilizer_pad: default is true
-		//      if true, will add a corner pad for the stabilizer leg present in some
-		//      Choc switches, unless choc_v2_support is false.
-		//    oval_stabilizer_pad: default is false
-		//      if false, will add an oval pad for the stabilizer leg, and a round one
-		//      if true. Note that the datasheet calls for a round one.
-		//    choc_v1_support: default is true
-		//      if true, will add lateral stabilizer holes that are required for
-		//      Choc v1 footprints.
-		//    choc_v2_support: default is true
-		//      if true, will make the central hole bigger to as required for
-		//      Choc v2 footprints. If false it will also disable the corner stabilizer
-		//      pad even if include_stabilizer_pad is true.
-		//    keycaps_x: default is 18
-		//    keycaps_y: default is 18
-		//      Allows you to adjust the width of the keycap outline. For example,
-		//      to show a 1.5u outline for easier aligning.
-		//    switch_3dmodel_filename: default is ''
-		//      Allows you to specify the path to a 3D model STEP or WRL file to be
-		//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
-		//      a KiCad configured path.
-		//    switch_3dmodel_xyz_offset: default is [0, 0, 0]
-		//      xyz offset (in mm), used to adjust the position of the 3d model
-		//      relative the footprint.
-		//    switch_3dmodel_xyz_scale: default is [1, 1, 1]
-		//      xyz scale, used to adjust the size of the 3d model relative to its
-		//      original size.
-		//    switch_3dmodel_xyz_rotation: default is [0, 0, 0]
-		//      xyz rotation (in degrees), used to adjust the orientation of the 3d
-		//      model relative the footprint.
-		//    hotswap_3dmodel_filename: default is ''
-		//      Allows you to specify the path to a 3D model to be used when rendering
-		//      the PCB. Allows for paths using a configured path by using the
-		//      ${VAR_NAME} syntax.
-		//    hotswap_3dmodel_xyz_offset: default is [0, 0, 0]
-		//      xyz offset (in mm), used to adjust the position of the 3d model
-		//      relative the footprint.
-		//    hotswap_3dmodel_xyz_scale: default is [1, 1, 1]
-		//      xyz scale, used to adjust the size of the 3d model relative its
-		//      original size.
-		//    hotswap_3dmodel_xyz_rotation: default is [0, 0, 0]
-		//      xyz rotation (in degrees), used to adjust the orientation of the 3d
-		//      model relative the footprint.
-		//
-		// Notes:
-		// - Hotswap and solder can be used together. The solder holes will then be
-		//   added above the hotswap holes.
-		//
-		// @infused-kim's improvements:
-		//  - Add hotswap socket outlines
-		//  - Move switch corner marks from user layer to silk screen
-		//  - Add option to adjust keycap size outlines (to show 1.5u outline)
-		//  - Add option to add hotswap sockets and direct soldering holes at the
-		//    same time
-		//  - Make hotswap pads not overlap holes to fix DRC errors
-		//  - Fixed DRC errors "Drilled holes co-located"
-		//
-		// @ceoloide's improvements:
-		//  - Adjusted footprint to be Choc PG1353 (v2) compatible
-		//  - Add option to hide corner marks, as they interfere with hotswap silkscreen
-		//  - Add ability to specify board side
-		//  - Add ability to include stabilizer pad
-		//  - Add ability to use an oval stabilizer pad
-		//
-		// @grazfather's improvements:
-		//  - Add support for switch 3D model
-
-		switch_choc_v1_v2 = {
-		    params: {
-		        designator: 'S',
-		        side: 'B',
-		        reversible: false,
-		        hotswap: true,
-		        solder: false,
-		        outer_pad_width_front: 2.6,
-		        outer_pad_width_back: 2.6,
-		        show_keycaps: false,
-		        show_corner_marks: false,
-		        include_stabilizer_pad: true,
-		        oval_stabilizer_pad: false,
-		        choc_v1_support: true,
-		        choc_v2_support: true,
-		        keycaps_x: 18,
-		        keycaps_y: 18,
-		        switch_3dmodel_filename: '',
-		        switch_3dmodel_xyz_offset: [0, 0, 0],
-		        switch_3dmodel_xyz_rotation: [0, 0, 0],
-		        switch_3dmodel_xyz_scale: [1, 1, 1],
-		        hotswap_3dmodel_filename: '',
-		        hotswap_3dmodel_xyz_offset: [0, 0, 0],
-		        hotswap_3dmodel_xyz_rotation: [0, 0, 0],
-		        hotswap_3dmodel_xyz_scale: [1, 1, 1],
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => {
-		        const common_top = `
+	var switch_choc_v1_v2 = {
+	    params: {
+	        designator: 'S',
+	        side: 'B',
+	        reversible: false,
+	        hotswap: true,
+	        solder: false,
+	        outer_pad_width_front: 2.6,
+	        outer_pad_width_back: 2.6,
+	        show_keycaps: false,
+	        show_corner_marks: false,
+	        include_stabilizer_pad: true,
+	        oval_stabilizer_pad: false,
+	        choc_v1_support: true,
+	        choc_v2_support: true,
+	        keycaps_x: 18,
+	        keycaps_y: 18,
+	        switch_3dmodel_filename: '',
+	        switch_3dmodel_xyz_offset: [0, 0, 0],
+	        switch_3dmodel_xyz_rotation: [0, 0, 0],
+	        switch_3dmodel_xyz_scale: [1, 1, 1],
+	        hotswap_3dmodel_filename: '',
+	        hotswap_3dmodel_xyz_offset: [0, 0, 0],
+	        hotswap_3dmodel_xyz_rotation: [0, 0, 0],
+	        hotswap_3dmodel_xyz_scale: [1, 1, 1],
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => {
+	        const common_top = `
         (module "ceoloide:switch_choc_v1_v2" (layer ${p.side}.Cu) (tedit 5DD50112)
             ${p.at /* parametric position */}
             (attr virtual)
@@ -6636,12 +6481,12 @@
                 (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers *.Cu))
         `;
 
-		        const choc_v1_stabilizers = `
+	        const choc_v1_stabilizers = `
             (pad "" np_thru_hole circle (at 5.5 0 ${p.rot}) (size 1.9 1.9) (drill 1.9) (layers *.Cu))
             (pad "" np_thru_hole circle (at -5.5 0 ${p.rot}) (size 1.9 1.9) (drill 1.9) (layers *.Cu))
         `;
 
-		        const corner_marks_front = `
+	        const corner_marks_front = `
             ${''/* corner marks - front */}
             (fp_line (start -7 -6) (end -7 -7) (layer F.SilkS) (width 0.15))
             (fp_line (start -7 7) (end -6 7) (layer F.SilkS) (width 0.15))
@@ -6653,7 +6498,7 @@
             (fp_line (start 7 -7) (end 7 -6) (layer F.SilkS) (width 0.15))
         `;
 
-		        const corner_marks_back = `
+	        const corner_marks_back = `
             ${''/* corner marks - back */}
             (fp_line (start -7 -6) (end -7 -7) (layer B.SilkS) (width 0.15))
             (fp_line (start -7 7) (end -6 7) (layer B.SilkS) (width 0.15))
@@ -6665,9 +6510,9 @@
             (fp_line (start 7 -7) (end 7 -6) (layer B.SilkS) (width 0.15))
         `;
 
-		        const keycap_xo = 0.5 * p.keycaps_x;
-		        const keycap_yo = 0.5 * p.keycaps_y;
-		        const keycap_marks = `
+	        const keycap_xo = 0.5 * p.keycaps_x;
+	        const keycap_yo = 0.5 * p.keycaps_y;
+	        const keycap_marks = `
             ${'' /* keycap marks - 1u */}
             (fp_line (start ${-keycap_xo} ${-keycap_yo}) (end ${keycap_xo} ${-keycap_yo}) (layer Dwgs.User) (width 0.15))
             (fp_line (start ${keycap_xo} ${-keycap_yo}) (end ${keycap_xo} ${keycap_yo}) (layer Dwgs.User) (width 0.15))
@@ -6675,12 +6520,12 @@
             (fp_line (start ${-keycap_xo} ${keycap_yo}) (end ${-keycap_xo} ${-keycap_yo}) (layer Dwgs.User) (width 0.15))
         `;
 
-		        const hotswap_common = `
+	        const hotswap_common = `
             ${'' /* Middle Hole */}
             (pad "" np_thru_hole circle (at 0 -5.95 ${p.rot}) (size 3 3) (drill 3) (layers *.Cu *.Mask))
         `;
 
-		        const hotswap_front_pad_cutoff = `
+	        const hotswap_front_pad_cutoff = `
             (pad 1 connect custom (at 3.275 -5.95 ${p.rot}) (size 0.5 0.5) (layers F.Cu F.Mask)
                 (zone_connect 0)
                 (options (clearance outline) (anchor rect))
@@ -6691,11 +6536,11 @@
             ) ${p.from.str})
         `;
 
-		        const hotswap_front_pad_full = `
+	        const hotswap_front_pad_full = `
             (pad 1 smd rect (at 3.275 -5.95 ${p.rot}) (size 2.6 2.6) (layers F.Cu F.Paste F.Mask)  ${p.from.str})
         `;
 
-		        const hotswap_back_pad_cutoff = `
+	        const hotswap_back_pad_cutoff = `
             (pad 1 smd custom (at -3.275 -5.95 ${p.rot}) (size 1 1) (layers B.Cu B.Paste B.Mask)
                 (zone_connect 0)
                 (options (clearance outline) (anchor rect))
@@ -6706,11 +6551,11 @@
             ) ${p.from.str})
         `;
 
-		        const hotswap_back_pad_full = `
+	        const hotswap_back_pad_full = `
             (pad 1 smd rect (at -3.275 -5.95 ${p.rot}) (size 2.6 2.6) (layers B.Cu B.Paste B.Mask)  ${p.from.str})
         `;
 
-		        const hotswap_back = `
+	        const hotswap_back = `
             ${'' /* Silkscreen outline */}
             (fp_line (start 1.5 -8.2) (end 2 -7.7) (layer B.SilkS) (width 0.15))
             (fp_line (start 7 -1.5) (end 7 -2) (layer B.SilkS) (width 0.15))
@@ -6736,7 +6581,7 @@
             (pad "" np_thru_hole circle (at 5 -3.75 ${195 + p.rot}) (size 3 3) (drill 3) (layers *.Cu *.Mask))            
         `;
 
-		        const hotswap_front = `
+	        const hotswap_front = `
             ${'' /* Silkscreen outline */}
             (fp_line (start 2 -4.2) (end 1.5 -3.7) (layer F.SilkS) (width 0.15))
             (fp_line (start 2 -7.7) (end 1.5 -8.2) (layer F.SilkS) (width 0.15))
@@ -6762,220 +6607,212 @@
             (pad "" np_thru_hole circle (at -5 -3.75 ${195 + p.rot}) (size 3 3) (drill 3) (layers *.Cu *.Mask))
         `;
 
-		        // If both hotswap and solder are enabled, move the solder holes
-		        // "down" to the opposite side of the switch.
-		        // Since switches can be rotated by 90 degrees, this won't be a
-		        // problem as long as we switch the side the holes are on.
-		        let solder_offset_x_front = '-';
-		        let solder_offset_x_back = '';
-		        let solder_offset_y = '-';
-		        let stab_offset_x_front = '';
-		        let stab_offset_x_back = '-';
-		        let stab_offset_y = '';
-		        if (p.hotswap && p.solder) {
-		            solder_offset_x_front = '';
-		            solder_offset_x_back = '-';
-		            solder_offset_y = '';
-		            stab_offset_x_front = '-';
-		            stab_offset_x_back = '';
-		            stab_offset_y = '';
-		        }
-		        const solder_common = `
+	        // If both hotswap and solder are enabled, move the solder holes
+	        // "down" to the opposite side of the switch.
+	        // Since switches can be rotated by 90 degrees, this won't be a
+	        // problem as long as we switch the side the holes are on.
+	        let solder_offset_x_front = '-';
+	        let solder_offset_x_back = '';
+	        let solder_offset_y = '-';
+	        let stab_offset_x_front = '';
+	        let stab_offset_x_back = '-';
+	        let stab_offset_y = '';
+	        if (p.hotswap && p.solder) {
+	            solder_offset_x_front = '';
+	            solder_offset_x_back = '-';
+	            solder_offset_y = '';
+	            stab_offset_x_front = '-';
+	            stab_offset_x_back = '';
+	            stab_offset_y = '';
+	        }
+	        const solder_common = `
             (pad 2 thru_hole circle (at 0 ${solder_offset_y}5.9 ${195 + p.rot}) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.from.str})
         `;
 
-		        const solder_front = `
+	        const solder_front = `
             (pad 1 thru_hole circle (at ${solder_offset_x_front}5 ${solder_offset_y}3.8 ${195 + p.rot}) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.to.str})
         `;
-		        const solder_back = `
+	        const solder_back = `
             (pad 1 thru_hole circle (at ${solder_offset_x_back}5 ${solder_offset_y}3.8 ${195 + p.rot}) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.to.str})  
         `;
-		        const oval_corner_stab_front = `
+	        const oval_corner_stab_front = `
             (pad "" thru_hole oval (at ${stab_offset_x_front}5 ${stab_offset_y}5.15 ${p.rot}) (size 2.4 1.2) (drill oval 1.6 0.4) (layers *.Cu *.Mask) ${p.solder && p.hotswap ? p.to.str : ''})
         `;
-		        const oval_corner_stab_back = `
+	        const oval_corner_stab_back = `
             (pad "" thru_hole oval (at ${stab_offset_x_back}5 ${stab_offset_y}5.15 ${p.rot}) (size 2.4 1.2) (drill oval 1.6 0.4) (layers *.Cu *.Mask) ${p.solder && p.hotswap ? p.to.str : ''})
         `;
-		        const round_corner_stab_front = `
+	        const round_corner_stab_front = `
             (pad "" np_thru_hole circle (at ${stab_offset_x_front}5.00 ${stab_offset_y}5.15 ${p.rot}) (size 1.6 1.6) (drill 1.6) (layers *.Cu *.Mask) ${p.solder && p.hotswap ? p.to.str : ''})
         `;
-		        const round_corner_stab_back = `
+	        const round_corner_stab_back = `
             (pad "" np_thru_hole circle (at ${stab_offset_x_back}5.00 ${stab_offset_y}5.15 ${p.rot}) (size 1.6 1.6) (drill 1.6) (layers *.Cu *.Mask) ${p.solder && p.hotswap ? p.to.str : ''})
         `;
-		        const switch_3dmodel = `
+	        const switch_3dmodel = `
             (model ${p.switch_3dmodel_filename}
               (offset (xyz ${p.switch_3dmodel_xyz_offset[0]} ${p.switch_3dmodel_xyz_offset[1]} ${p.switch_3dmodel_xyz_offset[2]}))
               (scale (xyz ${p.switch_3dmodel_xyz_scale[0]} ${p.switch_3dmodel_xyz_scale[1]} ${p.switch_3dmodel_xyz_scale[2]}))
               (rotate (xyz ${p.switch_3dmodel_xyz_rotation[0]} ${p.switch_3dmodel_xyz_rotation[1]} ${p.switch_3dmodel_xyz_rotation[2]})))
 	    `;
 
-			const hotswap_3dmodel = `
+		const hotswap_3dmodel = `
             (model ${p.hotswap_3dmodel_filename}
               (offset (xyz ${p.hotswap_3dmodel_xyz_offset[0]} ${p.hotswap_3dmodel_xyz_offset[1]} ${p.hotswap_3dmodel_xyz_offset[2]}))
               (scale (xyz ${p.hotswap_3dmodel_xyz_scale[0]} ${p.hotswap_3dmodel_xyz_scale[1]} ${p.hotswap_3dmodel_xyz_scale[2]}))
               (rotate (xyz ${p.hotswap_3dmodel_xyz_rotation[0]} ${p.hotswap_3dmodel_xyz_rotation[1]} ${p.hotswap_3dmodel_xyz_rotation[2]})))
 	`;
 
-		        const common_bottom = `
+	        const common_bottom = `
         )
         `;
 
-		        let final = common_top;
-		        if (p.choc_v1_support) {
-		            final += choc_v1_stabilizers;
-		        }
-		        if (p.show_corner_marks) {
-		            if (p.reversible || p.side == "F") {
-		                final += corner_marks_front;
-		            }
-		            if (p.reversible || p.side == "B") {
-		                final += corner_marks_back;
-		            }
-		        }
-		        if (p.show_keycaps) {
-		            final += keycap_marks;
-		        }
-		        if (p.include_stabilizer_pad && p.choc_v2_support) {
-		            if (p.reversible || p.side == "F") {
-		                if (p.oval_stabilizer_pad) {
-		                    final += oval_corner_stab_front;
-		                } else {
-		                    final += round_corner_stab_front;
-		                }
-		            }
-		            if (p.reversible || p.side == "B") {
-		                if (p.oval_stabilizer_pad) {
-		                    final += oval_corner_stab_back;
-		                } else {
-		                    final += round_corner_stab_back;
-		                }
-		            }
-		        }
-		        if (p.hotswap) {
-		            final += hotswap_common;
-		            if (p.reversible || p.side == "F") {
-		                final += hotswap_front;
-		            }
-		            if (p.reversible || p.side == "B") {
-		                final += hotswap_back;
-		            }
-		            if (p.hotswap_3dmodel_filename) {
-		                final += hotswap_3dmodel;
-		            }
-		        }
-		        if (p.solder) {
-		            final += solder_common;
-		            if (p.reversible || p.side == "F") {
-		                final += solder_front;
-		            }
-		            if (p.reversible || p.side == "B") {
-		                final += solder_back;
-		            }
-		        }
+	        let final = common_top;
+	        if (p.choc_v1_support) {
+	            final += choc_v1_stabilizers;
+	        }
+	        if (p.show_corner_marks) {
+	            if (p.reversible || p.side == "F") {
+	                final += corner_marks_front;
+	            }
+	            if (p.reversible || p.side == "B") {
+	                final += corner_marks_back;
+	            }
+	        }
+	        if (p.show_keycaps) {
+	            final += keycap_marks;
+	        }
+	        if (p.include_stabilizer_pad && p.choc_v2_support) {
+	            if (p.reversible || p.side == "F") {
+	                if (p.oval_stabilizer_pad) {
+	                    final += oval_corner_stab_front;
+	                } else {
+	                    final += round_corner_stab_front;
+	                }
+	            }
+	            if (p.reversible || p.side == "B") {
+	                if (p.oval_stabilizer_pad) {
+	                    final += oval_corner_stab_back;
+	                } else {
+	                    final += round_corner_stab_back;
+	                }
+	            }
+	        }
+	        if (p.hotswap) {
+	            final += hotswap_common;
+	            if (p.reversible || p.side == "F") {
+	                final += hotswap_front;
+	            }
+	            if (p.reversible || p.side == "B") {
+	                final += hotswap_back;
+	            }
+	            if (p.hotswap_3dmodel_filename) {
+	                final += hotswap_3dmodel;
+	            }
+	        }
+	        if (p.solder) {
+	            final += solder_common;
+	            if (p.reversible || p.side == "F") {
+	                final += solder_front;
+	            }
+	            if (p.reversible || p.side == "B") {
+	                final += solder_back;
+	            }
+	        }
 
-		        if (p.switch_3dmodel_filename) {
-		            final += switch_3dmodel;
-		        }
-		        final += common_bottom;
+	        if (p.switch_3dmodel_filename) {
+	            final += switch_3dmodel;
+	        }
+	        final += common_bottom;
 
-		        return final
-		    }
-		};
-		return switch_choc_v1_v2;
-	}
+	        return final
+	    }
+	};
 
-	var trrs_pj320a;
-	var hasRequiredTrrs_pj320a;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Authors: @ergogen + @ceoloide improvements
+	//
+	// Description:
+	//  A reversible "PJ-320A" TRRS footprint similar to the one used on
+	//  the Corne keyboard, and available at LCSC. The footprint offers many
+	//  customization options.
+	//
+	//  Normal / single side
+	//     ____________________
+	//    |   (TP)   (R2) (SL)|_
+	//    |                   | |
+	//    | (R1)              |_|
+	//    |___________________|
+	// 
+	//  Reversible
+	//     ____________________
+	//    |   (TP)   (R2) (SL)|_
+	//    | (R1)              | |
+	//    | (R1)              |_|
+	//    |___(TP)___(R2)_(SL)|
+	//
+	// Reversible & symmetrical
+	//     ___________________
+	//    | ( TP) (R2)   (SL)|_
+	//    |                  |_|
+	//    |_( TP)_(R2)___(SL)|
+	//
+	// Datasheet:
+	//  https://datasheet.lcsc.com/lcsc/2311241628_Hong-Cheng-HC-PJ-320A_C7501806.pdf
+	//
+	// Nets:
+	//    SL: corresponds to pin 2 (Sleeve)
+	//    R2: corresponds to pin 3 (Ring 2)
+	//    R1: corresponds to pin 1 (Ring 1)
+	//    TP: corresponds to pin 4 (Tip)
+	//
+	// Warning:
+	//    TRRS cables should never be hotswapped (removed or inserted when the MCU is turned on).
+	//    To minimize the chance of damaging the MCU, connect VCC to the tip (TP) and GND on the
+	//    sleeve (SL).
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    reversible: default is false
+	//      if true, the footprint will be placed on both sides so that the PCB can be
+	//      reversible
+	//    symmetric: default is false
+	//      if true, it will only work if reversible is also true. This will cause the
+	//      footprint to be symmetrical on each half, however reducing the footprint
+	//      to three pins: TP, R2, and SL
+	//
+	// @ceoloide's improvements:
+	//  - Add oval pad when symmetrical
+	//  - Adjust positioning to be symmetrical
+	//  - Revamp pinout and nets
 
-	function requireTrrs_pj320a () {
-		if (hasRequiredTrrs_pj320a) return trrs_pj320a;
-		hasRequiredTrrs_pj320a = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Authors: @ergogen + @ceoloide improvements
-		//
-		// Description:
-		//  A reversible "PJ-320A" TRRS footprint similar to the one used on
-		//  the Corne keyboard, and available at LCSC. The footprint offers many
-		//  customization options.
-		//
-		//  Normal / single side
-		//     ____________________
-		//    |   (TP)   (R2) (SL)|_
-		//    |                   | |
-		//    | (R1)              |_|
-		//    |___________________|
-		// 
-		//  Reversible
-		//     ____________________
-		//    |   (TP)   (R2) (SL)|_
-		//    | (R1)              | |
-		//    | (R1)              |_|
-		//    |___(TP)___(R2)_(SL)|
-		//
-		// Reversible & symmetrical
-		//     ___________________
-		//    | ( TP) (R2)   (SL)|_
-		//    |                  |_|
-		//    |_( TP)_(R2)___(SL)|
-		//
-		// Datasheet:
-		//  https://datasheet.lcsc.com/lcsc/2311241628_Hong-Cheng-HC-PJ-320A_C7501806.pdf
-		//
-		// Nets:
-		//    SL: corresponds to pin 2 (Sleeve)
-		//    R2: corresponds to pin 3 (Ring 2)
-		//    R1: corresponds to pin 1 (Ring 1)
-		//    TP: corresponds to pin 4 (Tip)
-		//
-		// Warning:
-		//    TRRS cables should never be hotswapped (removed or inserted when the MCU is turned on).
-		//    To minimize the chance of damaging the MCU, connect VCC to the tip (TP) and GND on the
-		//    sleeve (SL).
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    reversible: default is false
-		//      if true, the footprint will be placed on both sides so that the PCB can be
-		//      reversible
-		//    symmetric: default is false
-		//      if true, it will only work if reversible is also true. This will cause the
-		//      footprint to be symmetrical on each half, however reducing the footprint
-		//      to three pins: TP, R2, and SL
-		//
-		// @ceoloide's improvements:
-		//  - Add oval pad when symmetrical
-		//  - Adjust positioning to be symmetrical
-		//  - Revamp pinout and nets
+	var trrs_pj320a = {
+	  params: {
+	    designator: 'TRRS',
+	    side: 'F',
+	    reversible: false,
+	    symmetric: false,
+	    TP: { type: 'net', value: 'TP' },
+	    R1: { type: 'net', value: 'R1' },
+	    R2: { type: 'net', value: 'R2' },
+	    SL: { type: 'net', value: 'SL' },
+	  },
+	  body: p => {
 
-		trrs_pj320a = {
-		  params: {
-		    designator: 'TRRS',
-		    side: 'F',
-		    reversible: false,
-		    symmetric: false,
-		    TP: { type: 'net', value: 'TP' },
-		    R1: { type: 'net', value: 'R1' },
-		    R2: { type: 'net', value: 'R2' },
-		    SL: { type: 'net', value: 'SL' },
-		  },
-		  body: p => {
+	    let footprint_name = "trrs_pj320a";
+	    if (p.reversible) {
+	      if (p.symmetric) {
+	        footprint_name += " (reversible, symmetric)";
+	      } else {
+	        footprint_name += " (reversible)";
+	      }
+	    }
 
-		    let footprint_name = "trrs_pj320a";
-		    if (p.reversible) {
-		      if (p.symmetric) {
-		        footprint_name += " (reversible, symmetric)";
-		      } else {
-		        footprint_name += " (reversible)";
-		      }
-		    }
-
-		    const standard_opening = `
+	    const standard_opening = `
       (module "ceoloide:${footprint_name}" (layer ${p.side}.Cu) (tedit 5970F8E5)
 
       ${p.at /* parametric position */}   
@@ -6984,8 +6821,8 @@
       (fp_text reference "${p.ref}" (at 0 14.2 ${p.rot}) (layer ${p.side}.SilkS) ${p.ref_hide} (effects (font (size 1 1) (thickness 0.153))))
       (fp_text value TRRS-PJ-320A-dual (at 0 -5.6 ${p.rot}) (layer ${p.side}.Fab) (effects (font (size 1 1) (thickness 0.153))))
       `;
-		    function corner_marks(offset_x) {
-		      return `
+	    function corner_marks(offset_x) {
+	      return `
         (fp_line (start ${2.8 + offset_x} -2) (end ${-2.8 + offset_x} -2) (layer Dwgs.User) (width 0.15))
         (fp_line (start ${-2.8 + offset_x} 0) (end ${-2.8 + offset_x} -2) (layer Dwgs.User) (width 0.15))
         (fp_line (start ${2.8 + offset_x} 0) (end ${2.8 + offset_x} -2) (layer Dwgs.User) (width 0.15))
@@ -6995,31 +6832,31 @@
         (fp_line (start ${3.05 + offset_x} 0) (end ${-3.05 + offset_x} 0) (layer Dwgs.User) (width 0.15))
       `
 
-		    }
-		    function stabilizers(def_pos) {
-		      return `
+	    }
+	    function stabilizers(def_pos) {
+	      return `
         (pad "" np_thru_hole circle (at ${def_pos} 8.6 ${p.rot}) (size 1.5 1.5) (drill 1.5) (layers *.Cu *.Mask))
         (pad "" np_thru_hole circle (at ${def_pos} 1.6 ${p.rot}) (size 1.5 1.5) (drill 1.5) (layers *.Cu *.Mask))
       `
-		    }
-		    function pins(def_neg, def_pos) {
-		      if (p.symmetric && p.reversible) {
-		        return `
+	    }
+	    function pins(def_neg, def_pos) {
+	      if (p.symmetric && p.reversible) {
+	        return `
           (pad 2 thru_hole oval (at ${def_pos} 3.2 ${p.rot}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.SL.str})
           (pad 3 thru_hole oval (at ${def_pos} 6.2 ${p.rot}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.R2.str})
           (pad 4 thru_hole oval (at ${def_pos} 10.75 ${p.rot}) (size 1.6 3.3) (drill oval 0.9 2.6) (layers *.Cu *.Mask) ${p.TP.str})
         `
-		      } else {
-		        return `
+	      } else {
+	        return `
           (pad 2 thru_hole oval (at ${def_pos} 3.2 ${p.rot}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.SL.str})
           (pad 3 thru_hole oval (at ${def_pos} 6.2 ${p.rot}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.R2.str})
           (pad 4 thru_hole oval (at ${def_pos} 10.2 ${p.rot}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.TP.str})
           (pad 5 thru_hole oval (at ${def_neg} 11.3 ${p.rot}) (size 1.6 2.2) (drill oval 0.9 1.5) (layers *.Cu *.Mask) ${p.R1.str})
         `
-		      }
-		    }
-		    if (p.reversible & p.symmetric) {
-		      return `
+	      }
+	    }
+	    if (p.reversible & p.symmetric) {
+	      return `
         ${standard_opening}
         ${corner_marks(0)}
         ${stabilizers(0)}
@@ -7027,8 +6864,8 @@
         ${pins(-2.3, 2.3)}
         )
       `
-		    } else if (p.reversible) {
-		      return `
+	    } else if (p.reversible) {
+	      return `
         ${standard_opening}
         ${corner_marks(1.15)}
         ${stabilizers(-1.15)}
@@ -7037,74 +6874,66 @@
         ${pins(1.15, -3.45)}
         )
       `
-		    } else {
-		      return `
+	    } else {
+	      return `
         ${standard_opening}
         ${corner_marks(0)}
         ${stabilizers(0)}
         ${pins(-2.3, 2.3)}
       )
     `
-		    }
-		  }
-		};
-		return trrs_pj320a;
-	}
+	    }
+	  }
+	};
 
-	var utility_ergogen_logo;
-	var hasRequiredUtility_ergogen_logo;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Author: @dieseltravis + @ceoloide improvements
+	//
+	// Description:
+	//  A 5mm x 5mmm Ergogen logo that can be scaled and assigned to any layer of your board.
+	//  Make sure to add it to your board and spread the love <3
+	//
+	//  Note that some fine details may be lost depending on scale and fab capabilities.
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the logo. When the backside is selected, the logo will
+	//      be mirrored automatically
+	//    layer: default is 'SilkS' (Silkscreen layer)
+	//      the layer where the logo will be placed, useful to have copper + soldermask texts
+	//    scale: default is 1.0 (100%)
+	//      the scale ratio to apply to the logo, to make it bigger or smaller
+	//    reversible: default is false
+	//      adds the logo on both sides, taking care of mirroring the backside
+	//
+	// @ceoloide's improvements:
+	//  - Mirror the logo when added to the back layer
+	//  - Add reversible option to add the logo on both layers
+	//  - Ensure numbers have at most 6 decimals (KiCad max precision)
 
-	function requireUtility_ergogen_logo () {
-		if (hasRequiredUtility_ergogen_logo) return utility_ergogen_logo;
-		hasRequiredUtility_ergogen_logo = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Author: @dieseltravis + @ceoloide improvements
-		//
-		// Description:
-		//  A 5mm x 5mmm Ergogen logo that can be scaled and assigned to any layer of your board.
-		//  Make sure to add it to your board and spread the love <3
-		//
-		//  Note that some fine details may be lost depending on scale and fab capabilities.
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the logo. When the backside is selected, the logo will
-		//      be mirrored automatically
-		//    layer: default is 'SilkS' (Silkscreen layer)
-		//      the layer where the logo will be placed, useful to have copper + soldermask texts
-		//    scale: default is 1.0 (100%)
-		//      the scale ratio to apply to the logo, to make it bigger or smaller
-		//    reversible: default is false
-		//      adds the logo on both sides, taking care of mirroring the backside
-		//
-		// @ceoloide's improvements:
-		//  - Mirror the logo when added to the back layer
-		//  - Add reversible option to add the logo on both layers
-		//  - Ensure numbers have at most 6 decimals (KiCad max precision)
-
-		utility_ergogen_logo = {
-		  params: {
-		    designator: 'LOGO',
-		    side: 'F',
-		    layer: 'SilkS',
-		    reversible: false,
-		    scale: 1.0,
-		  },
-		  body: p => {
-		    const scaled_point = (x, y, scale, mirrored) => {
-		      let scaled_x = x * scale * (mirrored ? -1.0 : 1.0);
-		      let scaled_y = y * scale;
-		      return `(xy ${scaled_x.toFixed(6)} ${scaled_y.toFixed(6)})`
-		    };
-		    const fp_poly = (side, layer, scale, mirrored) => {
-		      const s = scale;
-		      const m = mirrored;
-		      return `
+	var utility_ergogen_logo = {
+	  params: {
+	    designator: 'LOGO',
+	    side: 'F',
+	    layer: 'SilkS',
+	    reversible: false,
+	    scale: 1.0,
+	  },
+	  body: p => {
+	    const scaled_point = (x, y, scale, mirrored) => {
+	      let scaled_x = x * scale * (mirrored ? -1.0 : 1.0);
+	      let scaled_y = y * scale;
+	      return `(xy ${scaled_x.toFixed(6)} ${scaled_y.toFixed(6)})`
+	    };
+	    const fp_poly = (side, layer, scale, mirrored) => {
+	      const s = scale;
+	      const m = mirrored;
+	      return `
         (fp_poly 
           (pts
               ${scaled_point(2.501231, 0, s, m)} ${scaled_point(2.501231, 2.501231, s, m)} ${scaled_point(0, 2.501231, s, m)} ${scaled_point(-2.50123, 2.501231, s, m)} ${scaled_point(-2.50123, 1.013088, s, m)}
@@ -7123,8 +6952,8 @@
           (layer "${side}.${layer}") (width 0.01)
         )
       `
-		    };
-		    const common_top = `
+	    };
+	    const common_top = `
       (module "ceoloide:ergogen_logo" (layer "${p.side}.Cu")
         ${p.at /* parametric position */}
         (attr virtual)
@@ -7132,130 +6961,122 @@
           (effects (font (size 1 1) (thickness 0.1)))
         )
     `;
-		    const common_bottom = `
+	    const common_bottom = `
       )
     `;
-		    let ergogen_log_fp = common_top;
-		    if (p.reversible) {
-		      ergogen_log_fp += fp_poly('F', p.layer, p.scale, false);
-		      ergogen_log_fp += fp_poly('B', p.layer, p.scale, true);
-		    } else {
-		      ergogen_log_fp += fp_poly(p.side, p.layer, p.scale, p.side == 'B');
-		    }
-		    ergogen_log_fp += common_bottom;
-		    return ergogen_log_fp
-		  }
-		};
-		return utility_ergogen_logo;
-	}
+	    let ergogen_log_fp = common_top;
+	    if (p.reversible) {
+	      ergogen_log_fp += fp_poly('F', p.layer, p.scale, false);
+	      ergogen_log_fp += fp_poly('B', p.layer, p.scale, true);
+	    } else {
+	      ergogen_log_fp += fp_poly(p.side, p.layer, p.scale, p.side == 'B');
+	    }
+	    ergogen_log_fp += common_bottom;
+	    return ergogen_log_fp
+	  }
+	};
 
-	var utility_filled_zone;
-	var hasRequiredUtility_filled_zone;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: MIT
+	//
+	// To view a copy of this license, visit https://opensource.org/license/mit/
+	//
+	// Author: @ceoloide
+	//
+	// Description:
+	//  A KiCad native filled zone, for example a copper fill or hatch pattern.
+	//
+	// NOTE: Filled zones need to be calculated at least once or they'll result
+	//       empty.
+	//
+	// Params:
+	//    side: default is 'F&B' for both Front and Back
+	//      the side on which to place the filled zone, either 'F' for Front, 'B'
+	//      for Back, or 'F&B' for both.
+	//    name: default is '' (no name)
+	//      an optional name to give to the zone.
+	//    priority: default is 0
+	//      an optional priority to give to the zone
+	//    locked: default is false
+	//      if true it will lock the resulting fill.
+	//    corner_smoothing: default is chamfer
+	//      allows to specify the type of corner smoothing ('none', 'chamfer',
+	//      'fillet').
+	//    smoothing_radius: default is 0.5
+	//      the radius of the corner smoothing, valid when 'chamfer' or
+	//      'fillet' are selected.
+	//    net: default is GND
+	//      the net connected to this filled zone, for example GND
+	//    pad_clearance: default is 0.508
+	//      the electrical clearance to be applied (in mm). KiCad default
+	//      is 0.508.
+	//    min_thickness: default is 0.25
+	//      the minimum thickness of the zone areas (in mm). KiCad default
+	//      is 0.25 to match default net properties. It shouldn't be lowered
+	//      below 0.127 (the min width JLCPCB handles).
+	//    connect_pads: default is ''
+	//      whether pads should be connected, one of '' (thermal reliefs), 
+	//      'yes' (solid connection), 'thru_hole_only', or 'no'.
+	//    thermal_gap: default is 0.5
+	//      the thermal relief gap (in mm), with KiCad default being 0.5
+	//    thermal_bridge_width: default is 0.5
+	//      the thermal relief spoke width (in mm), with KiCad default being 0.5
+	//    remove_islands: default is 'never'
+	//      whether to remove islands, one of 'never', 'always', or 'below_area_limit'
+	//    min_island_size: default is 5
+	//      the min island size in mm^2 to be kept if island should be removed below
+	//      a given area limit.
+	//    fill_type: default is 'solid'
+	//      the type of fill, either 'solid' or 'hatch'
+	//    hatch_thickness: default is 1
+	//      the thickness of the hatch pattern (in mm)
+	//    hatch_gap: default is 1.5
+	//      the hatch gap size (in mm)
+	//    hatch_orientation: default is 0
+	//      the orientation of the htach pattern (in degrees)
+	//    hatch_smoothing_level: default is 0
+	//      the level of smoothing to apply to the hatch pattern algorithm,
+	//      between 0 and 3
+	//    hatch_smoothing_value: default is 0.1
+	//      the smoothing value used by the hatch smoothing algorithm,
+	//      bertween 0.0 and 1.0
+	//    points: default is [[0,0],[420,0],[420,297],[0,297]]
+	//      an array containing the polygon points of the filled area, in
+	//      xy coordinates relative to the PCB. The default is a square area of
+	//      420x297mm^2 located at (0,0) xy coordinates, essentially filling the
+	//      entire "PCB sheet" area.
 
-	function requireUtility_filled_zone () {
-		if (hasRequiredUtility_filled_zone) return utility_filled_zone;
-		hasRequiredUtility_filled_zone = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: MIT
-		//
-		// To view a copy of this license, visit https://opensource.org/license/mit/
-		//
-		// Author: @ceoloide
-		//
-		// Description:
-		//  A KiCad native filled zone, for example a copper fill or hatch pattern.
-		//
-		// NOTE: Filled zones need to be calculated at least once or they'll result
-		//       empty.
-		//
-		// Params:
-		//    side: default is 'F&B' for both Front and Back
-		//      the side on which to place the filled zone, either 'F' for Front, 'B'
-		//      for Back, or 'F&B' for both.
-		//    name: default is '' (no name)
-		//      an optional name to give to the zone.
-		//    priority: default is 0
-		//      an optional priority to give to the zone
-		//    locked: default is false
-		//      if true it will lock the resulting fill.
-		//    corner_smoothing: default is chamfer
-		//      allows to specify the type of corner smoothing ('none', 'chamfer',
-		//      'fillet').
-		//    smoothing_radius: default is 0.5
-		//      the radius of the corner smoothing, valid when 'chamfer' or
-		//      'fillet' are selected.
-		//    net: default is GND
-		//      the net connected to this filled zone, for example GND
-		//    pad_clearance: default is 0.508
-		//      the electrical clearance to be applied (in mm). KiCad default
-		//      is 0.508.
-		//    min_thickness: default is 0.25
-		//      the minimum thickness of the zone areas (in mm). KiCad default
-		//      is 0.25 to match default net properties. It shouldn't be lowered
-		//      below 0.127 (the min width JLCPCB handles).
-		//    connect_pads: default is ''
-		//      whether pads should be connected, one of '' (thermal reliefs), 
-		//      'yes' (solid connection), 'thru_hole_only', or 'no'.
-		//    thermal_gap: default is 0.5
-		//      the thermal relief gap (in mm), with KiCad default being 0.5
-		//    thermal_bridge_width: default is 0.5
-		//      the thermal relief spoke width (in mm), with KiCad default being 0.5
-		//    remove_islands: default is 'never'
-		//      whether to remove islands, one of 'never', 'always', or 'below_area_limit'
-		//    min_island_size: default is 5
-		//      the min island size in mm^2 to be kept if island should be removed below
-		//      a given area limit.
-		//    fill_type: default is 'solid'
-		//      the type of fill, either 'solid' or 'hatch'
-		//    hatch_thickness: default is 1
-		//      the thickness of the hatch pattern (in mm)
-		//    hatch_gap: default is 1.5
-		//      the hatch gap size (in mm)
-		//    hatch_orientation: default is 0
-		//      the orientation of the htach pattern (in degrees)
-		//    hatch_smoothing_level: default is 0
-		//      the level of smoothing to apply to the hatch pattern algorithm,
-		//      between 0 and 3
-		//    hatch_smoothing_value: default is 0.1
-		//      the smoothing value used by the hatch smoothing algorithm,
-		//      bertween 0.0 and 1.0
-		//    points: default is [[0,0],[420,0],[420,297],[0,297]]
-		//      an array containing the polygon points of the filled area, in
-		//      xy coordinates relative to the PCB. The default is a square area of
-		//      420x297mm^2 located at (0,0) xy coordinates, essentially filling the
-		//      entire "PCB sheet" area.
-
-		utility_filled_zone = {
-		  params: {
-		    side: 'F',
-		    net: { type: 'net', value: 'GND' },
-		    name: '',
-		    priority: 0,
-		    locked: false,
-		    corner_smoothing: 'chamfer',
-		    smoothing_radius: 0.5,
-		    connect_pads: '',
-		    pad_clearance: 0.508,
-		    min_thickness: 0.25,
-		    thermal_gap: 0.5,
-		    thermal_bridge_width: 0.5,
-		    remove_islands: 'never',
-		    min_island_size: 5,
-		    fill_type: 'solid',
-		    hatch_thickness: 1,
-		    hatch_gap: 1.5,
-		    hatch_orientation: 0,
-		    hatch_smoothing_level: 0,
-		    hatch_smoothing_value: 0.1,
-		    points: [[0,0],[420,0],[420,297],[0,297]],
-		  },
-		  body: p => {
-		    let polygon_pts = '';
-		    for (let i = 0; i < p.points.length; i++) {
-		      polygon_pts += `(xy ${p.points[i][0]} ${p.points[i][1]}) `;
-		    }
-		    return `
+	var utility_filled_zone = {
+	  params: {
+	    side: 'F',
+	    net: { type: 'net', value: 'GND' },
+	    name: '',
+	    priority: 0,
+	    locked: false,
+	    corner_smoothing: 'chamfer',
+	    smoothing_radius: 0.5,
+	    connect_pads: '',
+	    pad_clearance: 0.508,
+	    min_thickness: 0.25,
+	    thermal_gap: 0.5,
+	    thermal_bridge_width: 0.5,
+	    remove_islands: 'never',
+	    min_island_size: 5,
+	    fill_type: 'solid',
+	    hatch_thickness: 1,
+	    hatch_gap: 1.5,
+	    hatch_orientation: 0,
+	    hatch_smoothing_level: 0,
+	    hatch_smoothing_value: 0.1,
+	    points: [[0,0],[420,0],[420,297],[0,297]],
+	  },
+	  body: p => {
+	    let polygon_pts = '';
+	    for (let i = 0; i < p.points.length; i++) {
+	      polygon_pts += `(xy ${p.points[i][0]} ${p.points[i][1]}) `;
+	    }
+	    return `
     (zone
       (net ${p.net.index})
       (net_name "${p.net.name}")
@@ -7291,90 +7112,82 @@
       )
     )
     `
-		  }
-		};
-		return utility_filled_zone;
-	}
+	  }
+	};
 
-	var utility_text;
-	var hasRequiredUtility_text;
+	// Copyright (c) 2023 Marco Massarelli
+	//
+	// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+	//
+	// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
+	//
+	// Authors: @infused-kim + @ceoloide & @dieseltravis improvements
+	//
+	// Description:
+	//  Allows you to place text on the PCB's Silkscreen
+	//  layer, and optionally make it reversible on the
+	//  opposite side.
+	//
+	// Params:
+	//    side: default is F for Front
+	//      the side on which to place the single-side footprint and designator, either F or B
+	//    layer: default is 'SilkS' (Silkscreen layer)
+	//      the layer where the text will be placed, useful to have copper + soldermask texts
+	//    reversible: default is false
+	//      adds a mirrored text on the opposite side of the board with the same style and text
+	//    thickness: default is 0.15
+	//      set the thickness of the stroke for the text (only applicable to the default font)
+	//    width: default is 1
+	//      set the text width
+	//    height: default is 1
+	//      set the text height
+	//    mirrored: default is false
+	//      mirror the text, useful when text is added to the back. A reversible text is mirrored
+	//      by default on the backside.
+	//    knockout: default is false
+	//      add the knockout effect to the text
+	//    bold: default is false
+	//      adds bold effect to the text
+	//    italic: default is false
+	//      adds italics effect to the text
+	//    align: default is ''
+	//      control the alignment of the text (e.g. top left)
+	//    face: default is '' (KiCad Default)
+	//      control the font face applied to the text
+	//    text:
+	//      The text to display
+	//
+	// @ceoloide's improvements:
+	//  - Add ability to set text on both sides
+	//  - Add ability to adjust font thickness and size
+	//  - Add mirrored and knockout effects
+	//
+	// @diseltravis's improvements:
+	//  - Add option to customizer the font face
+	//  - Add option to set bold, italic font styles
+	//  - Add option to chose the layer where the text is added to
 
-	function requireUtility_text () {
-		if (hasRequiredUtility_text) return utility_text;
-		hasRequiredUtility_text = 1;
-		// Copyright (c) 2023 Marco Massarelli
-		//
-		// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-		//
-		// To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-		//
-		// Authors: @infused-kim + @ceoloide & @dieseltravis improvements
-		//
-		// Description:
-		//  Allows you to place text on the PCB's Silkscreen
-		//  layer, and optionally make it reversible on the
-		//  opposite side.
-		//
-		// Params:
-		//    side: default is F for Front
-		//      the side on which to place the single-side footprint and designator, either F or B
-		//    layer: default is 'SilkS' (Silkscreen layer)
-		//      the layer where the text will be placed, useful to have copper + soldermask texts
-		//    reversible: default is false
-		//      adds a mirrored text on the opposite side of the board with the same style and text
-		//    thickness: default is 0.15
-		//      set the thickness of the stroke for the text (only applicable to the default font)
-		//    width: default is 1
-		//      set the text width
-		//    height: default is 1
-		//      set the text height
-		//    mirrored: default is false
-		//      mirror the text, useful when text is added to the back. A reversible text is mirrored
-		//      by default on the backside.
-		//    knockout: default is false
-		//      add the knockout effect to the text
-		//    bold: default is false
-		//      adds bold effect to the text
-		//    italic: default is false
-		//      adds italics effect to the text
-		//    align: default is ''
-		//      control the alignment of the text (e.g. top left)
-		//    face: default is '' (KiCad Default)
-		//      control the font face applied to the text
-		//    text:
-		//      The text to display
-		//
-		// @ceoloide's improvements:
-		//  - Add ability to set text on both sides
-		//  - Add ability to adjust font thickness and size
-		//  - Add mirrored and knockout effects
-		//
-		// @diseltravis's improvements:
-		//  - Add option to customizer the font face
-		//  - Add option to set bold, italic font styles
-		//  - Add option to chose the layer where the text is added to
-
-		utility_text = {
-		  params: {
-		    designator: 'TXT',
-		    side: 'F',
-		    layer: 'SilkS',
-		    reversible: false,
-		    thickness: 0.15,
-		    height: 1,
-		    width: 1,
-		    mirrored: false,
-		    knockout: false,
-		    bold: false,
-		    italic: false,
-		    align: '',
-		    face: '',
-		    text: ''
-		  },
-		  body: p => {
-		    const generate_text = (side, layer, align, mirrored, thickness, height, width, text, face, bold, italic, knockout) => {
-		      let justify = `(justify ${align}${mirrored ? ' mirror' : ''})`;
-		      const gr_text = `
+	var utility_text = {
+	  params: {
+	    designator: 'TXT',
+	    side: 'F',
+	    layer: 'SilkS',
+	    reversible: false,
+	    thickness: 0.15,
+	    height: 1,
+	    width: 1,
+	    mirrored: false,
+	    knockout: false,
+	    bold: false,
+	    italic: false,
+	    align: '',
+	    face: '',
+	    text: ''
+	  },
+	  body: p => {
+	    const generate_text = (side, layer, align, mirrored, thickness, height, width, text, face, bold, italic, knockout) => {
+	      let justify = `(justify ${align}${mirrored ? ' mirror' : ''})`;
+	      const gr_text = `
       (gr_text "${text}"
         ${p.at}
         (layer ${side}.${layer}${knockout ? ' knockout' : ''})
@@ -7387,81 +7200,73 @@
             ${align != '' || mirrored ? justify : ''}
           )
       )`;
-		      return gr_text;
-		    };
+	      return gr_text;
+	    };
 
-		    let final = '';
-		    if (p.reversible) {
-		      final += generate_text('F', p.layer, p.align, false, p.thickness, p.height, p.width, p.text, p.face, p.bold, p.italic, p.knockout);
-		      final += generate_text('B', p.layer, p.align, true, p.thickness, p.height, p.width, p.text, p.face, p.bold, p.italic, p.knockout);
-		    } else {
-		      final += generate_text(p.side, p.layer, p.align, p.mirrored, p.thickness, p.height, p.width, p.text, p.face, p.bold, p.italic, p.knockout);
-		    }
-		    return final;
-		  }
-		};
-		return utility_text;
-	}
+	    let final = '';
+	    if (p.reversible) {
+	      final += generate_text('F', p.layer, p.align, false, p.thickness, p.height, p.width, p.text, p.face, p.bold, p.italic, p.knockout);
+	      final += generate_text('B', p.layer, p.align, true, p.thickness, p.height, p.width, p.text, p.face, p.bold, p.italic, p.knockout);
+	    } else {
+	      final += generate_text(p.side, p.layer, p.align, p.mirrored, p.thickness, p.height, p.width, p.text, p.face, p.bold, p.italic, p.knockout);
+	    }
+	    return final;
+	  }
+	};
 
-	var choc;
-	var hasRequiredChoc;
+	// Author: Ergogen + @infused-kim improvements
+	//
+	// Kailh Choc PG1350
+	// Nets
+	//    from: corresponds to pin 1
+	//    to: corresponds to pin 2
+	// Params
+	//    reverse: default is false
+	//      if true, will flip the footprint such that the pcb can be reversible
+	//    hotswap: default is true
+	//      if true, will include holes and pads for Kailh choc hotswap sockets
+	//    solder: default is false
+	//      if true, will include holes to solder switches (works with hotswap too)
+	//    outer_pad_width_front: default 2.6
+	//    outer_pad_width_back: default 2.6
+	//      Allow you to make the outer hotswap pads smaller to silence DRC
+	//      warnings when the sockets are to close to the edge cuts.
+	//    show_keycaps: default is true
+	//      if true, will add choc sized keycap box around the footprint
+	//    keycaps_x: default is 18
+	//    keycaps_y: default is 17
+	//      Allows you to adjust the width of the keycap outline. For example,
+	//      to show a 1.5u outline for easier aligning.
+	//
+	// notes:
+	// - hotswap and solder can be used together. The solder holes will then be
+	// - added above the hotswap holes.
+	//
+	// @infused-kim's improvements:
+	//  - Added hotswap socket outlines
+	//  - Moved switch corner marks from user layer to silk screen
+	//  - Added option to adjust keycap size outlines (to show 1.5u outline)
+	//  - Added option to add hotswap sockets and direct soldering holes at the
+	//    same time
+	//  - Made hotswap pads not overlap holes to fix DRC errors
+	//  - Fixed DRC errors "Drilled holes co-located"
 
-	function requireChoc () {
-		if (hasRequiredChoc) return choc;
-		hasRequiredChoc = 1;
-		// Author: Ergogen + @infused-kim improvements
-		//
-		// Kailh Choc PG1350
-		// Nets
-		//    from: corresponds to pin 1
-		//    to: corresponds to pin 2
-		// Params
-		//    reverse: default is false
-		//      if true, will flip the footprint such that the pcb can be reversible
-		//    hotswap: default is true
-		//      if true, will include holes and pads for Kailh choc hotswap sockets
-		//    solder: default is false
-		//      if true, will include holes to solder switches (works with hotswap too)
-		//    outer_pad_width_front: default 2.6
-		//    outer_pad_width_back: default 2.6
-		//      Allow you to make the outer hotswap pads smaller to silence DRC
-		//      warnings when the sockets are to close to the edge cuts.
-		//    show_keycaps: default is true
-		//      if true, will add choc sized keycap box around the footprint
-		//    keycaps_x: default is 18
-		//    keycaps_y: default is 17
-		//      Allows you to adjust the width of the keycap outline. For example,
-		//      to show a 1.5u outline for easier aligning.
-		//
-		// notes:
-		// - hotswap and solder can be used together. The solder holes will then be
-		// - added above the hotswap holes.
-		//
-		// @infused-kim's improvements:
-		//  - Added hotswap socket outlines
-		//  - Moved switch corner marks from user layer to silk screen
-		//  - Added option to adjust keycap size outlines (to show 1.5u outline)
-		//  - Added option to add hotswap sockets and direct soldering holes at the
-		//    same time
-		//  - Made hotswap pads not overlap holes to fix DRC errors
-		//  - Fixed DRC errors "Drilled holes co-located"
-
-		choc = {
-		    params: {
-		        designator: 'S',
-		        reverse: false,
-		        hotswap: true,
-		        solder: false,
-		        outer_pad_width_front: 2.6,
-		        outer_pad_width_back: 2.6,
-		        show_keycaps: true,
-		        keycaps_x: 18,
-		        keycaps_y: 17,
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => {
-		        const common_top = `
+	var choc = {
+	    params: {
+	        designator: 'S',
+	        reverse: false,
+	        hotswap: true,
+	        solder: false,
+	        outer_pad_width_front: 2.6,
+	        outer_pad_width_back: 2.6,
+	        show_keycaps: true,
+	        keycaps_x: 18,
+	        keycaps_y: 17,
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => {
+	        const common_top = `
             (module PG1350 (layer F.Cu) (tedit 5DD50112)
             ${p.at /* parametric position */}
             (attr virtual)
@@ -7497,9 +7302,9 @@
             (fp_line (start 7 -7) (end 7 -6) (layer B.SilkS) (width 0.15))
         `;
 
-		        const keycap_xo = 0.5 * p.keycaps_x;
-		        const keycap_yo = 0.5 * p.keycaps_y;
-		        const keycap_marks = `
+	        const keycap_xo = 0.5 * p.keycaps_x;
+	        const keycap_yo = 0.5 * p.keycaps_y;
+	        const keycap_marks = `
             ${'' /* keycap marks - 1u */}
             (fp_line (start ${ -keycap_xo } ${ -keycap_yo }) (end ${ keycap_xo } ${ -keycap_yo }) (layer Dwgs.User) (width 0.15))
             (fp_line (start ${ keycap_xo } ${ -keycap_yo }) (end ${ keycap_xo } ${ keycap_yo }) (layer Dwgs.User) (width 0.15))
@@ -7507,13 +7312,13 @@
             (fp_line (start ${ -keycap_xo } ${ keycap_yo }) (end ${ -keycap_xo } ${ -keycap_yo }) (layer Dwgs.User) (width 0.15))
         `;
 
-		        const hotswap_common = `
+	        const hotswap_common = `
             ${'' /* Middle Hole */}
             (pad "" np_thru_hole circle (at 0 -5.95) (size 3 3) (drill 3) (layers *.Cu *.Mask))
 
         `;
 
-		        const hotswap_front_pad_cutoff = `
+	        const hotswap_front_pad_cutoff = `
             (pad 1 smd custom (at -3.275 -5.95 ${p.rot}) (size 1 1) (layers B.Cu B.Paste B.Mask)
                 (zone_connect 0)
                 (options (clearance outline) (anchor rect))
@@ -7524,11 +7329,11 @@
             ) ${p.from.str})
         `;
 
-		        const hotswap_front_pad_full = `
+	        const hotswap_front_pad_full = `
             (pad 1 smd rect (at -3.275 -5.95 ${p.rot}) (size 2.6 2.6) (layers B.Cu B.Paste B.Mask)  ${p.from.str})
         `;
 
-		        const hotswap_front = `
+	        const hotswap_front = `
             ${'' /* Silkscreen outline */}
             (fp_line (start 7 -7) (end 7 -6) (layer B.SilkS) (width 0.15))
             (fp_line (start 1.5 -8.2) (end 2 -7.7) (layer B.SilkS) (width 0.15))
@@ -7557,7 +7362,7 @@
             (pad "" np_thru_hole circle (at 5 -3.75 195) (size 3 3) (drill 3) (layers *.Cu *.Mask))
         `;
 
-		        const hotswap_back = `
+	        const hotswap_back = `
             ${'' /* Silkscreen outline */}
             (fp_line (start 2 -4.2) (end 1.5 -3.7) (layer F.SilkS) (width 0.15))
             (fp_line (start 2 -7.7) (end 1.5 -8.2) (layer F.SilkS) (width 0.15))
@@ -7590,35 +7395,35 @@
             (pad "" np_thru_hole circle (at -5 -3.75 195) (size 3 3) (drill 3) (layers *.Cu *.Mask))
         `;
 
-		        // If both hotswap and solder are enabled, move the solder holes
-		        // "down" to the opposite side of the switch.
-		        // Since switches can be rotated by 90 degrees, this won't be a
-		        // problem as long as we switch the side the holes are on.
-		        let solder_offset_x_front = '';
-		        let solder_offset_x_back = '-';
-		        let solder_offset_y = '-';
-		        if(p.hotswap == true && p.solder == true) {
-		            solder_offset_x_front = '-';
-		            solder_offset_x_back = '';
-		            solder_offset_y = '';
-		        }
-		        const solder_common = `
+	        // If both hotswap and solder are enabled, move the solder holes
+	        // "down" to the opposite side of the switch.
+	        // Since switches can be rotated by 90 degrees, this won't be a
+	        // problem as long as we switch the side the holes are on.
+	        let solder_offset_x_front = '';
+	        let solder_offset_x_back = '-';
+	        let solder_offset_y = '-';
+	        if(p.hotswap == true && p.solder == true) {
+	            solder_offset_x_front = '-';
+	            solder_offset_x_back = '';
+	            solder_offset_y = '';
+	        }
+	        const solder_common = `
             (pad 2 thru_hole circle (at 0 ${solder_offset_y}5.9 195) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.to.str})
         `;
 
-		        const solder_front = `
+	        const solder_front = `
             (pad 1 thru_hole circle (at ${solder_offset_x_front}5 ${solder_offset_y}3.8 195) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.from.str})
         `;
 
-		        const solder_back = `
+	        const solder_back = `
             (pad 1 thru_hole circle (at ${solder_offset_x_back}5 ${solder_offset_y}3.8 195) (size 2.032 2.032) (drill 1.27) (layers *.Cu *.Mask) ${p.from.str})
         `;
 
-		        const common_bottom = `
+	        const common_bottom = `
         )
         `;
 
-		        const final = `
+	        const final = `
             ${common_top}
 
             ${p.show_keycaps ? keycap_marks : ''}
@@ -7634,55 +7439,47 @@
             ${common_bottom}
         `;
 
-		        return final
-		    }
-		};
-		return choc;
-	}
+	        return final
+	    }
+	};
 
-	var conn_molex_pico_ezmate_1x02;
-	var hasRequiredConn_molex_pico_ezmate_1x02;
+	// Author: @infused-kim
+	//
+	// Description:
+	// PCB footprint for for molex pico ezmate connector with 2 pins. Ideal for
+	// battery connections.
+	//
+	// This connector was chosen over the more common JST connector, because it
+	// has a mated profile height of only 1.65 mm. This is lower than the Kailh
+	// Choc hotswap sockets.
+	//
+	// It should also be compatible with the JST ACH connector (which is almost the
+	// same).
+	//
+	// One downside is that there are almost no batteries that ship with this
+	// connector. The one exception is the Nintendo Joycon 500 mAh battery.
+	//
+	// If you want to use the common 301230 battery, you will either need to crimp
+	// the connector yourself or buy a pre-crimped connector that you attach to
+	// the battery wires (available on digikey).
 
-	function requireConn_molex_pico_ezmate_1x02 () {
-		if (hasRequiredConn_molex_pico_ezmate_1x02) return conn_molex_pico_ezmate_1x02;
-		hasRequiredConn_molex_pico_ezmate_1x02 = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// PCB footprint for for molex pico ezmate connector with 2 pins. Ideal for
-		// battery connections.
-		//
-		// This connector was chosen over the more common JST connector, because it
-		// has a mated profile height of only 1.65 mm. This is lower than the Kailh
-		// Choc hotswap sockets.
-		//
-		// It should also be compatible with the JST ACH connector (which is almost the
-		// same).
-		//
-		// One downside is that there are almost no batteries that ship with this
-		// connector. The one exception is the Nintendo Joycon 500 mAh battery.
-		//
-		// If you want to use the common 301230 battery, you will either need to crimp
-		// the connector yourself or buy a pre-crimped connector that you attach to
-		// the battery wires (available on digikey).
-
-		conn_molex_pico_ezmate_1x02 = {
-		    params: {
-		      designator: 'CONN',
-		      side: 'F',
-		      reverse: false,
-		      pad_1: {type: 'net', value: 'RAW'},
-		      pad_2: {type: 'net', value: 'GND'},
-		    },
-		    body: p => {
-		      const top = `
+	var conn_molex_pico_ezmate_1x02 = {
+	    params: {
+	      designator: 'CONN',
+	      side: 'F',
+	      reverse: false,
+	      pad_1: {type: 'net', value: 'RAW'},
+	      pad_2: {type: 'net', value: 'GND'},
+	    },
+	    body: p => {
+	      const top = `
         (module conn_molex_pico_ezmate_1x02 (layer F.Cu) (tedit 6445F610)
           ${p.at /* parametric position */}
           (attr smd)
 
       `;
 
-		      const front = `
+	      const front = `
         (fp_text reference ${p.ref} (at 0.1 3.9 ${p.rot}) (layer F.SilkS) ${p.ref_hide}
           (effects (font (size 1 1) (thickness 0.15)))
         )
@@ -7715,7 +7512,7 @@
         (pad 2 smd roundrect (at 0.6 -1.875 ${p.rot}) (size 0.6 0.85) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.25) ${p.pad_2.str})
         (pad 1 smd roundrect (at -0.6 -1.875 ${p.rot}) (size 0.6 0.85) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.25) ${p.pad_1.str})
       `;
-		      const back = `
+	      const back = `
         (fp_line (start -0.34 2.13) (end -0.64 2.63) (layer B.SilkS) (width 0.12))
         (fp_line (start -2.6 3.02) (end -2.6 -2.8) (layer B.CrtYd) (width 0.05))
         (fp_line (start 2.6 3.02) (end -2.6 3.02) (layer B.CrtYd) (width 0.05))
@@ -7746,66 +7543,58 @@
         (pad MP smd roundrect (at -1.75 1.9 ${180 + p.rot}) (size 0.7 0.8) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25))
       `;
 
-		      const bottom = `
+	      const bottom = `
       )
       `;
 
-		      let final = top;
+	      let final = top;
 
-		      if(p.side == "F" || p.reverse) {
-		        final += front;
-		      }
-		      if(p.side == "B" || p.reverse) {
-		        final += back;
-		      }
+	      if(p.side == "F" || p.reverse) {
+	        final += front;
+	      }
+	      if(p.side == "B" || p.reverse) {
+	        final += back;
+	      }
 
-		      final += bottom;
+	      final += bottom;
 
-		      return final;
-		    }
-		};
-		return conn_molex_pico_ezmate_1x02;
-	}
+	      return final;
+	    }
+	};
 
-	var conn_molex_pico_ezmate_1x05;
-	var hasRequiredConn_molex_pico_ezmate_1x05;
+	// Author: @infused-kim
+	//
+	// Description:
+	// PCB footprint for for molex pico ezmate connector with 5 pins. Used to
+	// connect a trackpoint to the PCB on my keyboards.
+	//
+	// This connector was chosen over the more common JST connector, because it
+	// has a mated profile height of only 1.65 mm. This is lower than the Kailh
+	// Choc hotswap sockets.
+	//
+	// It should also be compatible with the JST ACH connector (which is almost the
+	// same).
 
-	function requireConn_molex_pico_ezmate_1x05 () {
-		if (hasRequiredConn_molex_pico_ezmate_1x05) return conn_molex_pico_ezmate_1x05;
-		hasRequiredConn_molex_pico_ezmate_1x05 = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// PCB footprint for for molex pico ezmate connector with 5 pins. Used to
-		// connect a trackpoint to the PCB on my keyboards.
-		//
-		// This connector was chosen over the more common JST connector, because it
-		// has a mated profile height of only 1.65 mm. This is lower than the Kailh
-		// Choc hotswap sockets.
-		//
-		// It should also be compatible with the JST ACH connector (which is almost the
-		// same).
-
-		conn_molex_pico_ezmate_1x05 = {
-		    params: {
-		      designator: 'CONN',
-		      side: 'F',
-		      reverse: false,
-		      pad_1: {type: 'net', value: 'CONN_1'},
-		      pad_2: {type: 'net', value: 'CONN_2'},
-		      pad_3: {type: 'net', value: 'CONN_3'},
-		      pad_4: {type: 'net', value: 'CONN_4'},
-		      pad_5: {type: 'net', value: 'CONN_5'},
-		    },
-		    body: p => {
-		      const top = `
+	var conn_molex_pico_ezmate_1x05 = {
+	    params: {
+	      designator: 'CONN',
+	      side: 'F',
+	      reverse: false,
+	      pad_1: {type: 'net', value: 'CONN_1'},
+	      pad_2: {type: 'net', value: 'CONN_2'},
+	      pad_3: {type: 'net', value: 'CONN_3'},
+	      pad_4: {type: 'net', value: 'CONN_4'},
+	      pad_5: {type: 'net', value: 'CONN_5'},
+	    },
+	    body: p => {
+	      const top = `
       (module conn_molex_pico_ezmate_1x05 (layer F.Cu) (tedit 644602FB)
         ${p.at /* parametric position */}
         (attr smd)
 
       `;
 
-		      const front = `
+	      const front = `
         (fp_text reference "${p.ref}" (at 0 0.25 ${p.rot}) (layer F.SilkS) ${p.ref_hide}
           (effects (font (size 1 1) (thickness 0.15)))
         )
@@ -7844,7 +7633,7 @@
         (pad 5 smd roundrect (at 2.4 -1.875 ${p.rot}) (size 0.6 0.85) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.25) ${p.pad_5.str})
         (pad 3 smd roundrect (at 0 -1.875 ${p.rot}) (size 0.6 0.85) (layers F.Cu F.Paste F.Mask) (roundrect_rratio 0.25) ${p.pad_3.str})
       `;
-		      const back = `
+	      const back = `
         (fp_text user %R (at 0 0.27 ${180 + p.rot}) (layer B.Fab)
           (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
         )
@@ -7881,54 +7670,46 @@
         (pad MP smd roundrect (at -3.55 1.9 ${180 + p.rot}) (size 0.7 0.8) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25))
       `;
 
-		      const bottom = `
+	      const bottom = `
       )
       `;
 
-		      let final = top;
+	      let final = top;
 
-		      if(p.side == "F" || p.reverse) {
-		        final += front;
-		      }
-		      if(p.side == "B" || p.reverse) {
-		        final += back;
-		      }
+	      if(p.side == "F" || p.reverse) {
+	        final += front;
+	      }
+	      if(p.side == "B" || p.reverse) {
+	        final += back;
+	      }
 
-		      final += bottom;
+	      final += bottom;
 
-		      return final;
-		    }
-		};
-		return conn_molex_pico_ezmate_1x05;
-	}
+	      return final;
+	    }
+	};
 
-	var diode;
-	var hasRequiredDiode;
+	// Author: Ergogen + @infused-kim improvements
+	//
+	// @infused-kim's improvements:
+	//  - Added option to hide thru-holes
+	//  - Added virtual attribute to silence DRC error
 
-	function requireDiode () {
-		if (hasRequiredDiode) return diode;
-		hasRequiredDiode = 1;
-		// Author: Ergogen + @infused-kim improvements
-		//
-		// @infused-kim's improvements:
-		//  - Added option to hide thru-holes
-		//  - Added virtual attribute to silence DRC error
+	var diode = {
+	    params: {
+	        designator: 'D',
+	        include_tht: true,
+	        from: undefined,
+	        to: undefined
+	    },
+	    body: p => {
 
-		diode = {
-		    params: {
-		        designator: 'D',
-		        include_tht: true,
-		        from: undefined,
-		        to: undefined
-		    },
-		    body: p => {
-
-		        const tht = `
+	        const tht = `
         (pad 1 thru_hole rect (at -3.81 0 ${p.rot}) (size 1.778 1.778) (drill 0.9906) (layers *.Cu *.Mask) ${p.to.str})
         (pad 2 thru_hole circle (at 3.81 0 ${p.rot}) (size 1.905 1.905) (drill 0.9906) (layers *.Cu *.Mask) ${p.from.str})
         `;
 
-		        const footprint = `
+	        const footprint = `
     (module ComboDiode (layer F.Cu) (tedit 5B24D78E)
         ${p.at /* parametric position */}
         (attr virtual)
@@ -7964,41 +7745,33 @@
     )
     `;
 
-		    return footprint;
-		    }
-		};
-		return diode;
-	}
+	    return footprint;
+	    }
+	};
 
-	var icon_bat;
-	var hasRequiredIcon_bat;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Shows battery icons on the PCB silkscreen.
 
-	function requireIcon_bat () {
-		if (hasRequiredIcon_bat) return icon_bat;
-		hasRequiredIcon_bat = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Shows battery icons on the PCB silkscreen.
+	var icon_bat = {
+	    params: {
+	      designator: 'ICON',
+	      side: 'F',
+	      reverse: false,
+	      spacing: 1
+	    },
+	    body: p => {
+	      const spacing_adj = p.spacing / 2;
 
-		icon_bat = {
-		    params: {
-		      designator: 'ICON',
-		      side: 'F',
-		      reverse: false,
-		      spacing: 1
-		    },
-		    body: p => {
-		      const spacing_adj = p.spacing / 2;
-
-		      const top = `
+	      const top = `
         (module icon_bat (layer F.Cu) (tedit 64461058)
           ${p.at /* parametric position */}
           (attr virtual)
 
       `;
 
-		      const front = `
+	      const front = `
           (fp_text reference "${p.ref}" (at 0 3 ${p.rot}) (layer F.SilkS) ${p.ref_hide}
             (effects (font (size 1 1) (thickness 0.15)))
           )
@@ -8010,7 +7783,7 @@
           (fp_line (start ${0.25 + spacing_adj} 0) (end ${0.85 + spacing_adj} 0) (layer F.SilkS) (width 0.1))
       `;
 
-		      const back = `
+	      const back = `
           (fp_circle (center ${-0.55 - spacing_adj} 0) (end ${-1.05 - spacing_adj}  0) (layer B.SilkS) (width 0.1))
           (fp_line (start ${-0.25 - spacing_adj} 0) (end ${-0.85 - spacing_adj} 0) (layer B.SilkS) (width 0.1))
 
@@ -8019,63 +7792,55 @@
           (fp_line (start ${0.85 + spacing_adj} 0) (end ${0.25 + spacing_adj} 0) (layer B.SilkS) (width 0.1))
       `;
 
-		      const bottom = `
+	      const bottom = `
       )
       `;
 
-		      let final = top;
+	      let final = top;
 
-		      if(p.side == "F" || p.reverse) {
-		        final += front;
-		      }
-		      if(p.side == "B" || p.reverse) {
-		        final += back;
-		      }
+	      if(p.side == "F" || p.reverse) {
+	        final += front;
+	      }
+	      if(p.side == "B" || p.reverse) {
+	        final += back;
+	      }
 
-		      final += bottom;
+	      final += bottom;
 
-		      return final;
-		    }
-		};
-		return icon_bat;
-	}
+	      return final;
+	    }
+	};
 
-	var mounting_hole;
-	var hasRequiredMounting_hole;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Simple mounting hole with gold rim.
+	//
+	// Parameters:
+	//   - outline: The width of the gold rim around the hole (Default: 0.8mm)
+	//   - drill: The actual size for the hole (Default 2.2mm - for m2 screws)
+	//   - drill_y: The height if you want an oval hole (Default: off)
 
-	function requireMounting_hole () {
-		if (hasRequiredMounting_hole) return mounting_hole;
-		hasRequiredMounting_hole = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Simple mounting hole with gold rim.
-		//
-		// Parameters:
-		//   - outline: The width of the gold rim around the hole (Default: 0.8mm)
-		//   - drill: The actual size for the hole (Default 2.2mm - for m2 screws)
-		//   - drill_y: The height if you want an oval hole (Default: off)
+	var mounting_hole = {
+	    params: {
+	      designator: 'H',
+	      outline: 0.8,
+	      drill: 2.2,
+	      drill_y: 0,
+	    },
+	    body: p => {
+	        if(p.drill_y == 0) {
+	            p.drill_y = p.drill;
+	        }
 
-		mounting_hole = {
-		    params: {
-		      designator: 'H',
-		      outline: 0.8,
-		      drill: 2.2,
-		      drill_y: 0,
-		    },
-		    body: p => {
-		        if(p.drill_y == 0) {
-		            p.drill_y = p.drill;
-		        }
+	        const size_x = p.drill + p.outline * 2;
+	        const size_y = p.drill_y + p.outline * 2;
 
-		        const size_x = p.drill + p.outline * 2;
-		        const size_y = p.drill_y + p.outline * 2;
+	        const courtyard_offset = 0.25;
+	        const courtyard_x = size_x / 2 + courtyard_offset;
+	        const courtyard_y = size_y / 2 + courtyard_offset;
 
-		        const courtyard_offset = 0.25;
-		        const courtyard_x = size_x / 2 + courtyard_offset;
-		        const courtyard_y = size_y / 2 + courtyard_offset;
-
-		        const top = `
+	        const top = `
             (module mounting_hole (layer F.Cu) (tedit 64B5A986)
                 ${p.at /* parametric position */}
                 (fp_text reference "${p.ref}" (at 0 3) (layer F.SilkS) ${p.ref_hide}
@@ -8083,17 +7848,17 @@
                 )
         `;
 
-		        const pad_circle = `
+	        const pad_circle = `
                 (pad "" thru_hole circle (at 0 0 180) (size ${size_x} ${size_y}) (drill ${p.drill}) (layers *.Cu *.Mask))
         `;
-		        const courtyard_circle = `
+	        const courtyard_circle = `
                 (fp_circle (center 0 0) (end -${courtyard_x} 0) (layer F.CrtYd) (width 0.05))
                 (fp_circle (center 0 0) (end -${courtyard_x} 0) (layer B.CrtYd) (width 0.05))
         `;
-		        const pad_oval = `
+	        const pad_oval = `
                 (pad "" thru_hole oval (at 0 0 180) (size ${size_x} ${size_y}) (drill oval ${p.drill} ${p.drill_y}) (layers *.Cu *.Mask))
         `;
-		        const courtyard_oval = `
+	        const courtyard_oval = `
                 (fp_line (start ${courtyard_x} -${courtyard_y}) (end ${courtyard_x} ${courtyard_y}) (layer F.CrtYd) (width 0.05))
                 (fp_line (start -${courtyard_x} -${courtyard_y}) (end -${courtyard_x} ${courtyard_y}) (layer F.CrtYd) (width 0.05))
                 (fp_line (start -${courtyard_x} ${courtyard_y}) (end ${courtyard_x} ${courtyard_y}) (layer F.CrtYd) (width 0.05))
@@ -8104,191 +7869,183 @@
                 (fp_line (start ${courtyard_x} ${courtyard_y}) (end ${courtyard_x} -${courtyard_y}) (layer B.CrtYd) (width 0.05))
         `;
 
-		        const bottom = `
+	        const bottom = `
             )
         `;
 
-		        let final = top;
-		        if(size_x == size_y) {
-		            final += pad_circle;
-		            final += courtyard_circle;
-		        } else {
-		            final += pad_oval;
-		            final += courtyard_oval;
-		        }
+	        let final = top;
+	        if(size_x == size_y) {
+	            final += pad_circle;
+	            final += courtyard_circle;
+	        } else {
+	            final += pad_oval;
+	            final += courtyard_oval;
+	        }
 
-		        final += bottom;
+	        final += bottom;
 
-		        return final
-		    }
-		};
-		return mounting_hole;
-	}
+	        return final
+	    }
+	};
 
-	var nice_nano_pretty;
-	var hasRequiredNice_nano_pretty;
+	// Author: @infused-kim
+	//
+	// A reversible footprint for the nice!nano (or any pro-micro compatible
+	// controller) that uses jumpers instead of two rows socket rows to achieve
+	// reversablity.
+	//
+	// This is a re-implementation of the promicro_pretty footprint made popular
+	// by @benvallack.
+	//
+	// The following improvements have been made:
+	//    1. It uses real traces instead of pads, which gets rid of hundreds of
+	//       DRC errors.
+	//    2. It leaves more space between the vias to allow easier routing through
+	//       the middle of the footprint
+	//
+	//
+	// # Placement and jumper soldering:
+	// The footprint is meant to be used with a nice!nano (or any other pro micro
+	// compatible board) that is placed on the top side of the PCB with the
+	// components facing down.
+	//
+	// This means when you look down at it, the RAW pin is in the upper left
+	// corner and the 006 pin in the upper right corner.
+	//
+	// To make it work in this configuration, you solder the jumpers on the
+	// OPPOSITE side.
+	//
+	// Due to the way how this footprint works, you can also place it with the
+	// components facing up or even at the bottom. You just need to make sure you
+	// solder the jumpers on the correct side.
+	//
+	// Regardless, the silkscreen labels are displayed in location that match when
+	// the controller is placed with the components facing down.
+	//
+	// # Credits
+	// This footprint was created from scratch, but is based on the ideas from
+	// these footprints:
+	// https://github.com/Albert-IV/ergogen-contrib/blob/main/src/footprints/promicro_pretty.js
+	// https://github.com/50an6xy06r6n/keyboard_reversible.pretty
 
-	function requireNice_nano_pretty () {
-		if (hasRequiredNice_nano_pretty) return nice_nano_pretty;
-		hasRequiredNice_nano_pretty = 1;
-		// Author: @infused-kim
-		//
-		// A reversible footprint for the nice!nano (or any pro-micro compatible
-		// controller) that uses jumpers instead of two rows socket rows to achieve
-		// reversablity.
-		//
-		// This is a re-implementation of the promicro_pretty footprint made popular
-		// by @benvallack.
-		//
-		// The following improvements have been made:
-		//    1. It uses real traces instead of pads, which gets rid of hundreds of
-		//       DRC errors.
-		//    2. It leaves more space between the vias to allow easier routing through
-		//       the middle of the footprint
-		//
-		//
-		// # Placement and jumper soldering:
-		// The footprint is meant to be used with a nice!nano (or any other pro micro
-		// compatible board) that is placed on the top side of the PCB with the
-		// components facing down.
-		//
-		// This means when you look down at it, the RAW pin is in the upper left
-		// corner and the 006 pin in the upper right corner.
-		//
-		// To make it work in this configuration, you solder the jumpers on the
-		// OPPOSITE side.
-		//
-		// Due to the way how this footprint works, you can also place it with the
-		// components facing up or even at the bottom. You just need to make sure you
-		// solder the jumpers on the correct side.
-		//
-		// Regardless, the silkscreen labels are displayed in location that match when
-		// the controller is placed with the components facing down.
-		//
-		// # Credits
-		// This footprint was created from scratch, but is based on the ideas from
-		// these footprints:
-		// https://github.com/Albert-IV/ergogen-contrib/blob/main/src/footprints/promicro_pretty.js
-		// https://github.com/50an6xy06r6n/keyboard_reversible.pretty
+	var nice_nano_pretty =  {
+	    params: {
+	      designator: 'MCU',
+	      traces: true,
+	      RAW: {type: 'net', value: 'RAW'},
+	      GND: {type: 'net', value: 'GND'},
+	      RST: {type: 'net', value: 'RST'},
+	      VCC: {type: 'net', value: 'VCC'},
+	      P21: {type: 'net', value: 'P21'},
+	      P20: {type: 'net', value: 'P20'},
+	      P19: {type: 'net', value: 'P19'},
+	      P18: {type: 'net', value: 'P18'},
+	      P15: {type: 'net', value: 'P15'},
+	      P14: {type: 'net', value: 'P14'},
+	      P16: {type: 'net', value: 'P16'},
+	      P10: {type: 'net', value: 'P10'},
 
-		nice_nano_pretty =  {
-		    params: {
-		      designator: 'MCU',
-		      traces: true,
-		      RAW: {type: 'net', value: 'RAW'},
-		      GND: {type: 'net', value: 'GND'},
-		      RST: {type: 'net', value: 'RST'},
-		      VCC: {type: 'net', value: 'VCC'},
-		      P21: {type: 'net', value: 'P21'},
-		      P20: {type: 'net', value: 'P20'},
-		      P19: {type: 'net', value: 'P19'},
-		      P18: {type: 'net', value: 'P18'},
-		      P15: {type: 'net', value: 'P15'},
-		      P14: {type: 'net', value: 'P14'},
-		      P16: {type: 'net', value: 'P16'},
-		      P10: {type: 'net', value: 'P10'},
+	      P1: {type: 'net', value: 'P1'},
+	      P0: {type: 'net', value: 'P0'},
+	      P2: {type: 'net', value: 'P2'},
+	      P3: {type: 'net', value: 'P3'},
+	      P4: {type: 'net', value: 'P4'},
+	      P5: {type: 'net', value: 'P5'},
+	      P6: {type: 'net', value: 'P6'},
+	      P7: {type: 'net', value: 'P7'},
+	      P8: {type: 'net', value: 'P8'},
+	      P9: {type: 'net', value: 'P9'},
 
-		      P1: {type: 'net', value: 'P1'},
-		      P0: {type: 'net', value: 'P0'},
-		      P2: {type: 'net', value: 'P2'},
-		      P3: {type: 'net', value: 'P3'},
-		      P4: {type: 'net', value: 'P4'},
-		      P5: {type: 'net', value: 'P5'},
-		      P6: {type: 'net', value: 'P6'},
-		      P7: {type: 'net', value: 'P7'},
-		      P8: {type: 'net', value: 'P8'},
-		      P9: {type: 'net', value: 'P9'},
+	      show_instructions: true,
+	      show_silk_labels: true,
+	      show_via_labels: true,
 
-		      show_instructions: true,
-		      show_silk_labels: true,
-		      show_via_labels: true,
+	      RAW_label: '',
+	      GND_label: '',
+	      RST_label: '',
+	      VCC_label: '',
+	      P21_label: '',
+	      P20_label: '',
+	      P19_label: '',
+	      P18_label: '',
+	      P15_label: '',
+	      P14_label: '',
+	      P16_label: '',
+	      P10_label: '',
 
-		      RAW_label: '',
-		      GND_label: '',
-		      RST_label: '',
-		      VCC_label: '',
-		      P21_label: '',
-		      P20_label: '',
-		      P19_label: '',
-		      P18_label: '',
-		      P15_label: '',
-		      P14_label: '',
-		      P16_label: '',
-		      P10_label: '',
+	      P1_label: '',
+	      P0_label: '',
+	      P2_label: '',
+	      P3_label: '',
+	      P4_label: '',
+	      P5_label: '',
+	      P6_label: '',
+	      P7_label: '',
+	      P8_label: '',
+	      P9_label: '',
+	    },
+	    body: p => {
+	      const get_pin_net_name = (p, pin_name) => {
+	        return p[pin_name].name;
+	      };
 
-		      P1_label: '',
-		      P0_label: '',
-		      P2_label: '',
-		      P3_label: '',
-		      P4_label: '',
-		      P5_label: '',
-		      P6_label: '',
-		      P7_label: '',
-		      P8_label: '',
-		      P9_label: '',
-		    },
-		    body: p => {
-		      const get_pin_net_name = (p, pin_name) => {
-		        return p[pin_name].name;
-		      };
+	      const get_pin_net_str = (p, pin_name) => {
+	        return p[pin_name].str;
+	      };
 
-		      const get_pin_net_str = (p, pin_name) => {
-		        return p[pin_name].str;
-		      };
+	      const get_pin_label_override = (p, pin_name) => {
+	        prop_name = `${pin_name}_label`;
+	        return p[prop_name];
+	      };
 
-		      const get_pin_label_override = (p, pin_name) => {
-		        prop_name = `${pin_name}_label`;
-		        return p[prop_name];
-		      };
+	      const get_pin_label = (p, pin_name) => {
+	        label = get_pin_label_override(p, pin_name);
+	        if(label == '') {
+	          label = get_pin_net_name(p, pin_name);
+	        }
 
-		      const get_pin_label = (p, pin_name) => {
-		        label = get_pin_label_override(p, pin_name);
-		        if(label == '') {
-		          label = get_pin_net_name(p, pin_name);
-		        }
+	        if(label === undefined) {
+	          label = '""';
+	        }
 
-		        if(label === undefined) {
-		          label = '""';
-		        }
+	        return label;
+	      };
 
-		        return label;
-		      };
+	      const get_at_coordinates = () => {
+	        const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
+	        const matches = p.at.match(pattern);
+	        if (matches && matches.length == 4) {
+	          return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
+	        } else {
+	          return null;
+	        }
+	      };
 
-		      const get_at_coordinates = () => {
-		        const pattern = /\(at (-?[\d\.]*) (-?[\d\.]*) (-?[\d\.]*)\)/;
-		        const matches = p.at.match(pattern);
-		        if (matches && matches.length == 4) {
-		          return [parseFloat(matches[1]), parseFloat(matches[2]), parseFloat(matches[3])];
-		        } else {
-		          return null;
-		        }
-		      };
+	      const adjust_point = (x, y) => {
+	        const at_l = get_at_coordinates();
+	        if(at_l == null) {
+	          throw new Error(
+	            `Could not get x and y coordinates from p.at: ${p.at}`
+	          );
+	        }
+	        const at_x = at_l[0];
+	        const at_y = at_l[1];
+	        const at_angle = at_l[2];
+	        const adj_x = at_x + x;
+	        const adj_y = at_y + y;
 
-		      const adjust_point = (x, y) => {
-		        const at_l = get_at_coordinates();
-		        if(at_l == null) {
-		          throw new Error(
-		            `Could not get x and y coordinates from p.at: ${p.at}`
-		          );
-		        }
-		        const at_x = at_l[0];
-		        const at_y = at_l[1];
-		        const at_angle = at_l[2];
-		        const adj_x = at_x + x;
-		        const adj_y = at_y + y;
+	        const radians = (Math.PI / 180) * at_angle,
+	          cos = Math.cos(radians),
+	          sin = Math.sin(radians),
+	          nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
+	          ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
 
-		        const radians = (Math.PI / 180) * at_angle,
-		          cos = Math.cos(radians),
-		          sin = Math.sin(radians),
-		          nx = (cos * (adj_x - at_x)) + (sin * (adj_y - at_y)) + at_x,
-		          ny = (cos * (adj_y - at_y)) - (sin * (adj_x - at_x)) + at_y;
+	        const point_str = `${nx.toFixed(2)} ${ny.toFixed(2)}`;
+	        return point_str;
+	      };
 
-		        const point_str = `${nx.toFixed(2)} ${ny.toFixed(2)}`;
-		        return point_str;
-		      };
-
-		      const gen_traces_row = (row_num) => {
-		        const traces = `
+	      const gen_traces_row = (row_num) => {
+	        const traces = `
           (segment (start ${ adjust_point(4.775, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(3.262, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer F.Cu) (net 1))
           (segment (start ${ adjust_point(-4.335002, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(-3.610001, -11.974999 + (row_num * 2.54)) }) (width 0.25) (layer B.Cu) (net 1))
           (segment (start ${ adjust_point(-4.775, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(-4.335002, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer B.Cu) (net 1))
@@ -8311,42 +8068,42 @@
           (segment (start ${ adjust_point(7.62, -12.7 + (row_num * 2.54)) }) (end ${ adjust_point(5.5, -12.7 + (row_num * 2.54)) }) (width 0.25) (layer B.Cu) (net 24))
         `;
 
-		        return traces
-		      };
+	        return traces
+	      };
 
-		      const gen_traces = () => {
-		        let traces = '';
-		        for (let i = 0; i < 12; i++) {
-		          row_traces = gen_traces_row(i);
-		          traces += row_traces;
-		        }
+	      const gen_traces = () => {
+	        let traces = '';
+	        for (let i = 0; i < 12; i++) {
+	          row_traces = gen_traces_row(i);
+	          traces += row_traces;
+	        }
 
-		        return traces
-		      };
+	        return traces
+	      };
 
-		      const gen_socket_row = (row_num, pin_name_left, pin_name_right, show_via_labels, show_silk_labels) => {
-		        const row_offset_y = 2.54 * row_num;
+	      const gen_socket_row = (row_num, pin_name_left, pin_name_right, show_via_labels, show_silk_labels) => {
+	        const row_offset_y = 2.54 * row_num;
 
-		        const socket_hole_num_left = 24 - row_num;
-		        const socket_hole_num_right = 1 + row_num;
-		        const via_num_left = 124 - row_num;
-		        const via_num_right = 1 + row_num;
+	        const socket_hole_num_left = 24 - row_num;
+	        const socket_hole_num_right = 1 + row_num;
+	        const via_num_left = 124 - row_num;
+	        const via_num_right = 1 + row_num;
 
-		        const net_left = get_pin_net_str(p, pin_name_left);
-		        const net_right = get_pin_net_str(p, pin_name_right);
-		        const via_label_left = get_pin_label(p, pin_name_left);
-		        const via_label_right = get_pin_label(p, pin_name_right);
+	        const net_left = get_pin_net_str(p, pin_name_left);
+	        const net_right = get_pin_net_str(p, pin_name_right);
+	        const via_label_left = get_pin_label(p, pin_name_left);
+	        const via_label_right = get_pin_label(p, pin_name_right);
 
-		        // These are the silkscreen labels that will be printed on the PCB.
-		        // They tell us the orientation if the controller is placed with
-		        // the components down, on top of the PCB and the jumpers are
-		        // soldered on the opposite side than the controller.
-		        const net_silk_front_left = via_label_right;
-		        const net_silk_front_right = via_label_left;
-		        const net_silk_back_left = via_label_left;
-		        const net_silk_back_right = via_label_right;
+	        // These are the silkscreen labels that will be printed on the PCB.
+	        // They tell us the orientation if the controller is placed with
+	        // the components down, on top of the PCB and the jumpers are
+	        // soldered on the opposite side than the controller.
+	        const net_silk_front_left = via_label_right;
+	        const net_silk_front_right = via_label_left;
+	        const net_silk_back_left = via_label_left;
+	        const net_silk_back_right = via_label_right;
 
-		        let socket_row = `
+	        let socket_row = `
           ${''/* Socket Holes */}
           (pad ${socket_hole_num_left} thru_hole circle (at -7.62 ${-12.7 + row_offset_y}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.local_net(socket_hole_num_left).str})
           (pad ${socket_hole_num_right} thru_hole circle (at 7.62 ${-12.7 + row_offset_y}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${p.local_net(socket_hole_num_right).str})
@@ -8429,8 +8186,8 @@
           ))
         `;
 
-		        if(show_silk_labels == true) {
-		          socket_row += `
+	        if(show_silk_labels == true) {
+	          socket_row += `
 
             ${''/* Silkscreen Labels - Front */}
             (fp_text user ${net_silk_front_left} (at -3 ${-12.7 + row_offset_y}) (layer F.SilkS)
@@ -8448,10 +8205,10 @@
               (effects (font (size 1 1) (thickness 0.15)) (justify left mirror))
             )
           `;
-		        }
+	        }
 
-		        if(show_via_labels == true) {
-		          socket_row += `
+	        if(show_via_labels == true) {
+	          socket_row += `
             ${''/* Via Labels - Front */}
             (fp_text user ${via_label_left} (at -3.262 ${-13.5 + row_offset_y}) (layer F.Fab)
               (effects (font (size 0.5 0.5) (thickness 0.08)))
@@ -8468,43 +8225,43 @@
               (effects (font (size 0.5 0.5) (thickness 0.08)) (justify mirror))
             )
           `;
-		        }
+	        }
 
-		        return socket_row
-		      };
+	        return socket_row
+	      };
 
-		      const gen_socket_rows = (show_via_labels, show_silk_labels) => {
-		        const pin_names = [
-		          ['P1', 'RAW'],
-		          ['P0', 'GND'],
-		          ['GND', 'RST'],
-		          ['GND', 'VCC'],
-		          ['P2', 'P21'],
-		          ['P3', 'P20'],
-		          ['P4', 'P19'],
-		          ['P5', 'P18'],
-		          ['P6', 'P15'],
-		          ['P7', 'P14'],
-		          ['P8', 'P16'],
-		          ['P9', 'P10'],
-		        ];
-		        let socket_rows = '';
-		        for (let i = 0; i < pin_names.length; i++) {
-		          pin_name_left = pin_names[i][0];
-		          pin_name_right = pin_names[i][1];
+	      const gen_socket_rows = (show_via_labels, show_silk_labels) => {
+	        const pin_names = [
+	          ['P1', 'RAW'],
+	          ['P0', 'GND'],
+	          ['GND', 'RST'],
+	          ['GND', 'VCC'],
+	          ['P2', 'P21'],
+	          ['P3', 'P20'],
+	          ['P4', 'P19'],
+	          ['P5', 'P18'],
+	          ['P6', 'P15'],
+	          ['P7', 'P14'],
+	          ['P8', 'P16'],
+	          ['P9', 'P10'],
+	        ];
+	        let socket_rows = '';
+	        for (let i = 0; i < pin_names.length; i++) {
+	          pin_name_left = pin_names[i][0];
+	          pin_name_right = pin_names[i][1];
 
-		          const socket_row = gen_socket_row(
-		            i, pin_name_left, pin_name_right,
-		            show_via_labels, show_silk_labels
-		          );
+	          const socket_row = gen_socket_row(
+	            i, pin_name_left, pin_name_right,
+	            show_via_labels, show_silk_labels
+	          );
 
-		          socket_rows += socket_row;
-		        }
+	          socket_rows += socket_row;
+	        }
 
-		        return socket_rows
-		      };
+	        return socket_rows
+	      };
 
-		      const common_top = `
+	      const common_top = `
         (module nice_nano (layer F.Cu) (tedit 6451A4F1)
           (attr virtual)
           ${p.at /* parametric position */}
@@ -8557,7 +8314,7 @@
           (fp_line (start 6.29 -14.03) (end 6.29 16.57) (layer B.SilkS) (width 0.12))
       `;
 
-		      const instructions = `
+	      const instructions = `
           (fp_text user "R. Side - Jumper Here" (at 0 -15.245) (layer F.SilkS)
             (effects (font (size 1 1) (thickness 0.15)))
           )
@@ -8566,13 +8323,13 @@
           )
     `;
 
-		      const socket_rows = gen_socket_rows(
-		        p.show_via_labels, p.show_silk_labels
-		      );
-		      const traces = gen_traces();
+	      const socket_rows = gen_socket_rows(
+	        p.show_via_labels, p.show_silk_labels
+	      );
+	      const traces = gen_traces();
 
 
-		      return `
+	      return `
           ${''/* Controller*/}
           ${ common_top }
           ${ socket_rows }
@@ -8582,80 +8339,72 @@
         ${''/* Traces */}
         ${ p.traces ? traces : ''}
     `;
-		    }
-		  };
-		return nice_nano_pretty;
-	}
+	    }
+	  };
 
-	var nice_view;
-	var hasRequiredNice_view;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Reversible footprint for nice!view display. Includes an outline of the
+	// display to make positioning easier.
 
-	function requireNice_view () {
-		if (hasRequiredNice_view) return nice_view;
-		hasRequiredNice_view = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Reversible footprint for nice!view display. Includes an outline of the
-		// display to make positioning easier.
+	var nice_view = {
+	  params: {
+	    designator: 'DISP',
+	    side: 'F',
+	    reverse: false,
+	    MOSI: {type: 'net', value: 'MOSI'},
+	    SCK: {type: 'net', value: 'SCK'},
+	    VCC: {type: 'net', value: 'VCC'},
+	    GND: {type: 'net', value: 'GND'},
+	    CS: {type: 'net', value: 'CS'},
+	    show_labels: {type: 'boolean', value: true},
+	    jumpers_at_bottom: false,
+	  },
+	  body: p => {
 
-		nice_view = {
-		  params: {
-		    designator: 'DISP',
-		    side: 'F',
-		    reverse: false,
-		    MOSI: {type: 'net', value: 'MOSI'},
-		    SCK: {type: 'net', value: 'SCK'},
-		    VCC: {type: 'net', value: 'VCC'},
-		    GND: {type: 'net', value: 'GND'},
-		    CS: {type: 'net', value: 'CS'},
-		    show_labels: {type: 'boolean', value: true},
-		    jumpers_at_bottom: false,
-		  },
-		  body: p => {
+	    let dst_nets = [
+	      p.MOSI.str,
+	      p.SCK.str,
+	      p.VCC.str,
+	      p.GND.str,
+	      p.CS.str,
+	    ];
+	    local_nets = [
+	      p.local_net("1").str,
+	      p.local_net("2").str,
+	      p.VCC.str,
+	      p.local_net("4").str,
+	      p.local_net("5").str,
+	    ];
 
-		    let dst_nets = [
-		      p.MOSI.str,
-		      p.SCK.str,
-		      p.VCC.str,
-		      p.GND.str,
-		      p.CS.str,
-		    ];
-		    local_nets = [
-		      p.local_net("1").str,
-		      p.local_net("2").str,
-		      p.VCC.str,
-		      p.local_net("4").str,
-		      p.local_net("5").str,
-		    ];
+	    let socket_nets = dst_nets;
+	    if(p.reverse) {
+	      socket_nets = local_nets;
+	    } else if(p.side == 'B') {
+	      socket_nets = dst_nets.slice().reverse();
+	    }
 
-		    let socket_nets = dst_nets;
-		    if(p.reverse) {
-		      socket_nets = local_nets;
-		    } else if(p.side == 'B') {
-		      socket_nets = dst_nets.slice().reverse();
-		    }
+	    let jumpers_offset = 0;
+	    let labels_offset = 0;
+	    let label_vcc_offset = 0;
 
-		    let jumpers_offset = 0;
-		    let labels_offset = 0;
-		    let label_vcc_offset = 0;
+	    let jumpers_front_top = dst_nets;
+	    let jumpers_front_bottom = local_nets;
+	    let jumpers_back_top = dst_nets;
+	    let jumpers_back_bottom = local_nets.slice().reverse();
+	    if(p.jumpers_at_bottom) {
+	      jumpers_offset = 5.7;
+	      labels_offset = jumpers_offset + 2 + 1 + 0.1;
+	      label_vcc_offset = 4.85;
 
-		    let jumpers_front_top = dst_nets;
-		    let jumpers_front_bottom = local_nets;
-		    let jumpers_back_top = dst_nets;
-		    let jumpers_back_bottom = local_nets.slice().reverse();
-		    if(p.jumpers_at_bottom) {
-		      jumpers_offset = 5.7;
-		      labels_offset = jumpers_offset + 2 + 1 + 0.1;
-		      label_vcc_offset = 4.85;
+	      jumpers_front_top = local_nets;
+	      jumpers_front_bottom = dst_nets;
+	      jumpers_back_top = local_nets.slice().reverse();
+	      jumpers_back_bottom = dst_nets;
+	    }
 
-		      jumpers_front_top = local_nets;
-		      jumpers_front_bottom = dst_nets;
-		      jumpers_back_top = local_nets.slice().reverse();
-		      jumpers_back_bottom = dst_nets;
-		    }
-
-		    const top = `
+	    const top = `
       (module nice!view (layer F.Cu) (tedit 6448AF5B)
         ${p.at /* parametric position */}
         (attr virtual)
@@ -8663,7 +8412,7 @@
           (effects (font (size 1 1) (thickness 0.15)))
         )
         `;
-		    const front = `
+	    const front = `
         (fp_line (start -6.5 -18) (end 6.5 -18) (layer F.Fab) (width 0.15))
         (fp_line (start 6.5 18) (end -6.5 18) (layer F.Fab) (width 0.15))
         (fp_line (start -7 17.5) (end -7 -17.5) (layer F.Fab) (width 0.15))
@@ -8686,7 +8435,7 @@
 
     `;
 
-		    const front_jumpers = `
+	    const front_jumpers = `
         (fp_line (start 5.93 ${12.9 + jumpers_offset}) (end 5.93 ${14.9 + jumpers_offset}) (layer F.Fab) (width 0.15))
         (fp_line (start -5.93 ${14.9 + jumpers_offset}) (end -5.93 ${12.9 + jumpers_offset}) (layer F.Fab) (width 0.15))
         (fp_line (start -5.93 ${12.9 + jumpers_offset}) (end -4.23 ${12.9 + jumpers_offset}) (layer F.Fab) (width 0.15))
@@ -8715,7 +8464,7 @@
         (pad 13 smd rect (at 5.08 ${14.35 + jumpers_offset} ${90 + p.rot}) (size 0.6 1.2) (layers F.Cu F.Mask) ${ jumpers_front_bottom[4] })
     `;
 
-		    const back = `
+	    const back = `
         (fp_line (start 6.41 15.37) (end 6.41 18.03) (layer B.SilkS) (width 0.12))
         (fp_line (start 6.41 15.37) (end -6.41 15.37) (layer B.SilkS) (width 0.12))
         (fp_line (start 6.41 18.03) (end -6.41 18.03) (layer B.SilkS) (width 0.12))
@@ -8734,7 +8483,7 @@
         (fp_arc (start -6.5 17.5) (end -6.5 18) (angle 90) (layer B.Fab) (width 0.15))
     `;
 
-		    const back_jumpers = `
+	    const back_jumpers = `
         (fp_line (start -5.93 ${12.9 + jumpers_offset}) (end -5.93 ${14.9 + jumpers_offset}) (layer B.Fab) (width 0.15))
         (fp_line (start -5.93 ${14.9 + jumpers_offset}) (end -4.23 ${14.9 + jumpers_offset}) (layer B.Fab) (width 0.15))
         (fp_line (start -4.23 ${12.9 + jumpers_offset}) (end -5.93 ${12.9 + jumpers_offset}) (layer B.Fab) (width 0.15))
@@ -8763,7 +8512,7 @@
         (pad 23 smd rect (at -5.08 ${14.35 + jumpers_offset} ${270 + p.rot}) (size 0.6 1.2) (layers B.Cu B.Mask) ${ jumpers_back_bottom[4] })
     `;
 
-		    const labels = `
+	    const labels = `
         (fp_text user DA (at -5.08 ${12.5 + labels_offset} ${p.rot}) (layer F.SilkS)
           (effects (font (size 1 0.7) (thickness 0.1)))
         )
@@ -8796,7 +8545,7 @@
         )
     `;
 
-		    const bottom = `
+	    const bottom = `
       (pad 1 thru_hole oval (at -5.08 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${ socket_nets[0] })
       (pad 2 thru_hole oval (at -2.54 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${ socket_nets[1] })
       (pad 3 thru_hole oval (at 0 16.7 ${270 + p.rot}) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask) ${ socket_nets[2] })
@@ -8810,207 +8559,199 @@
     )
     `;
 
-		    let final = top;
+	    let final = top;
 
-		    if(p.side == "F" || p.reverse) {
-		      final += front;
-		    }
-		    if(p.side == "B" || p.reverse) {
-		      final += back;
-		    }
+	    if(p.side == "F" || p.reverse) {
+	      final += front;
+	    }
+	    if(p.side == "B" || p.reverse) {
+	      final += back;
+	    }
 
-		    if(p.reverse) {
-		      final += front_jumpers;
-		      final += back_jumpers;
+	    if(p.reverse) {
+	      final += front_jumpers;
+	      final += back_jumpers;
 
-		      if(p.show_labels) {
-		        final += labels;
-		      }
-		    }
+	      if(p.show_labels) {
+	        final += labels;
+	      }
+	    }
 
-		    final += bottom;
+	    final += bottom;
 
-		    return final;
-		  }
-		};
-		return nice_view;
-	}
+	    return final;
+	  }
+	};
 
-	var pads;
-	var hasRequiredPads;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Let's you place solder pads on the PCB that can be used instead of
+	// connectors. Useful for batteries and other peripherals in case the end-user
+	// does not have the right cable connector.
+	//
+	// Fully reversible and pads are mirrored on the back side.
 
-	function requirePads () {
-		if (hasRequiredPads) return pads;
-		hasRequiredPads = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Let's you place solder pads on the PCB that can be used instead of
-		// connectors. Useful for batteries and other peripherals in case the end-user
-		// does not have the right cable connector.
-		//
-		// Fully reversible and pads are mirrored on the back side.
+	var pads = {
+	    params: {
+	        designator: 'PAD',
+	        side: 'F',
+	        reverse: true,
+	        width: 1.25,
+	        height: 2.5,
+	        space: 2,
+	        mirror: true,
+	        pads: 2,
+	        net_1: {type: 'net', value: 'PAD_1'},
+	        net_2: {type: 'net', value: 'PAD_2'},
+	        net_3: {type: 'net', value: 'PAD_3'},
+	        net_4: {type: 'net', value: 'PAD_4'},
+	        net_5: {type: 'net', value: 'PAD_5'},
+	        net_6: {type: 'net', value: 'PAD_5'},
+	        label_1: '',
+	        label_2: '',
+	        label_3: '',
+	        label_4: '',
+	        label_5: '',
+	        label_6: '',
+	        label_at_bottom: false,
+	      },
+	    body: p => {
 
-		pads = {
-		    params: {
-		        designator: 'PAD',
-		        side: 'F',
-		        reverse: true,
-		        width: 1.25,
-		        height: 2.5,
-		        space: 2,
-		        mirror: true,
-		        pads: 2,
-		        net_1: {type: 'net', value: 'PAD_1'},
-		        net_2: {type: 'net', value: 'PAD_2'},
-		        net_3: {type: 'net', value: 'PAD_3'},
-		        net_4: {type: 'net', value: 'PAD_4'},
-		        net_5: {type: 'net', value: 'PAD_5'},
-		        net_6: {type: 'net', value: 'PAD_5'},
-		        label_1: '',
-		        label_2: '',
-		        label_3: '',
-		        label_4: '',
-		        label_5: '',
-		        label_6: '',
-		        label_at_bottom: false,
-		      },
-		    body: p => {
+	        const gen_nets = (p) => {
+	          const all_nets = [
+	            p.net_1.str, p.net_2.str, p.net_3.str,
+	            p.net_4.str, p.net_5.str, p.net_6.str,
+	          ];
+	          const all_labels = [
+	            p.label_1, p.label_2, p.label_3,
+	            p.label_4, p.label_5, p.label_6,
+	          ];
 
-		        const gen_nets = (p) => {
-		          const all_nets = [
-		            p.net_1.str, p.net_2.str, p.net_3.str,
-		            p.net_4.str, p.net_5.str, p.net_6.str,
-		          ];
-		          const all_labels = [
-		            p.label_1, p.label_2, p.label_3,
-		            p.label_4, p.label_5, p.label_6,
-		          ];
+	          pad_cnt = p.pads;
+	          if(pad_cnt > all_nets.length || pad_cnt > all_labels.length) {
+	            pad_cnt = Math.min(all_nets.length, all_labels.length);
+	          }
 
-		          pad_cnt = p.pads;
-		          if(pad_cnt > all_nets.length || pad_cnt > all_labels.length) {
-		            pad_cnt = Math.min(all_nets.length, all_labels.length);
-		          }
+	          let nets = [];
+	          for(let i = 0; i < pad_cnt; i++) {
+	            let net = [
+	              all_nets[i],
+	              all_labels[i],
+	            ];
+	            nets.push(net);
+	          }
 
-		          let nets = [];
-		          for(let i = 0; i < pad_cnt; i++) {
-		            let net = [
-		              all_nets[i],
-		              all_labels[i],
-		            ];
-		            nets.push(net);
-		          }
+	          return nets;
+	        };
 
-		          return nets;
-		        };
+	        const gen_pad = (pad_idx, pad_cnt, net_str, net_label, width, height, space, rot, layer, label_at_bottom) =>
+	        {
+	            // Calculate the pad position from center
+	            const pos_x_raw = (width + space) * pad_idx;
 
-		        const gen_pad = (pad_idx, pad_cnt, net_str, net_label, width, height, space, rot, layer, label_at_bottom) =>
-		        {
-		            // Calculate the pad position from center
-		            const pos_x_raw = (width + space) * pad_idx;
+	            // Adjust it so that the pads are centered in the middle
+	            const pos_x = (
+	              pos_x_raw - (width + space) * (pad_cnt - 1) / 2
+	            );
 
-		            // Adjust it so that the pads are centered in the middle
-		            const pos_x = (
-		              pos_x_raw - (width + space) * (pad_cnt - 1) / 2
-		            );
+	            let label_pos_y = -1 * (height / 2 + 0.2);
+	            let label_justify_direction = "left";
+	            if(label_at_bottom) {
+	              label_pos_y = label_pos_y * -1;
+	              label_justify_direction = "right";
+	            }
 
-		            let label_pos_y = -1 * (height / 2 + 0.2);
-		            let label_justify_direction = "left";
-		            if(label_at_bottom) {
-		              label_pos_y = label_pos_y * -1;
-		              label_justify_direction = "right";
-		            }
+	            if(label_at_bottom == false || layer == 'B') {
+	              if((rot > 0 && rot <= 180) || (rot <= -180)) {
+	                label_justify_direction = "right";
+	              } else {
+	                label_justify_direction = "left";
+	              }
+	            } else {
+	              if((rot > 0 && rot <= 180) || (rot <= -180)) {
+	                label_justify_direction = "left";
+	              } else {
+	                label_justify_direction = "right";
+	              }
+	            }
 
-		            if(label_at_bottom == false || layer == 'B') {
-		              if((rot > 0 && rot <= 180) || (rot <= -180)) {
-		                label_justify_direction = "right";
-		              } else {
-		                label_justify_direction = "left";
-		              }
-		            } else {
-		              if((rot > 0 && rot <= 180) || (rot <= -180)) {
-		                label_justify_direction = "left";
-		              } else {
-		                label_justify_direction = "right";
-		              }
-		            }
+	            let justify_mirror = '';
+	            if(layer == 'B') {
+	              justify_mirror = 'mirror';
+	            }
 
-		            let justify_mirror = '';
-		            if(layer == 'B') {
-		              justify_mirror = 'mirror';
-		            }
+	            let label_justify = '';
+	            if(justify_mirror != '' || label_justify_direction != '') {
+	              label_justify = `(justify ${label_justify_direction} ${justify_mirror})`;
+	            }
 
-		            let label_justify = '';
-		            if(justify_mirror != '' || label_justify_direction != '') {
-		              label_justify = `(justify ${label_justify_direction} ${justify_mirror})`;
-		            }
-
-		            let pad = `
+	            let pad = `
                 (pad ${pad_idx + 1} smd rect (at ${pos_x} 0 ${rot}) (size ${width} ${height}) (layers ${layer}.Cu ${layer}.Paste ${layer}.Mask) ${net_str})
             `;
 
-		            if(net_label) {
-		              pad += `
+	            if(net_label) {
+	              pad += `
                 (fp_text user "${net_label}" (at ${pos_x} ${label_pos_y} ${90 + rot}) (layer ${layer}.SilkS)
                   (effects (font (size 1 1) (thickness 0.1)) ${label_justify})
                 )
               `;
-		            }
+	            }
 
-		            return pad;
-		        };
+	            return pad;
+	        };
 
-		        const gen_pads = (nets, width, height, space, rot, layer, label_at_bottom, mirror) => {
+	        const gen_pads = (nets, width, height, space, rot, layer, label_at_bottom, mirror) => {
 
-		            if(mirror) {
-		                nets = nets.slice().reverse();
-		            }
+	            if(mirror) {
+	                nets = nets.slice().reverse();
+	            }
 
-		            let pads = '';
-		            for (let [net_idx, net] of nets.entries()) {
+	            let pads = '';
+	            for (let [net_idx, net] of nets.entries()) {
 
-		                const net_str = net[0];
-		                const net_label = net[1];
+	                const net_str = net[0];
+	                const net_label = net[1];
 
-		                const pad = gen_pad(
-		                  net_idx,
-		                  nets.length,
-		                  net_str,
-		                  net_label,
-		                  width,
-		                  height,
-		                  space,
-		                  rot,
-		                  layer,
-		                  label_at_bottom,
-		                );
+	                const pad = gen_pad(
+	                  net_idx,
+	                  nets.length,
+	                  net_str,
+	                  net_label,
+	                  width,
+	                  height,
+	                  space,
+	                  rot,
+	                  layer,
+	                  label_at_bottom,
+	                );
 
-		                pads += pad;
-		            }
+	                pads += pad;
+	            }
 
-		            return pads;
-		        };
+	            return pads;
+	        };
 
-		        const nets = gen_nets(p);
+	        const nets = gen_nets(p);
 
-		        let pads_front = '';
-		        if(p.side == 'F' || p.reverse) {
-		          pads_front = gen_pads(
-		            nets,
-		            p.width, p.height, p.space, p.rot, "F",
-		            p.label_at_bottom, false,
-		          );
-		        }
+	        let pads_front = '';
+	        if(p.side == 'F' || p.reverse) {
+	          pads_front = gen_pads(
+	            nets,
+	            p.width, p.height, p.space, p.rot, "F",
+	            p.label_at_bottom, false,
+	          );
+	        }
 
-		        let pads_back = '';
-		        if(p.side == 'B' || p.reverse) {
-		          pads_back = gen_pads(
-		            nets,
-		            p.width, p.height, p.space, p.rot, "B",
-		            p.label_at_bottom, p.mirror,
-		          );
-		        }
-		        const fp = `
+	        let pads_back = '';
+	        if(p.side == 'B' || p.reverse) {
+	          pads_back = gen_pads(
+	            nets,
+	            p.width, p.height, p.space, p.rot, "B",
+	            p.label_at_bottom, p.mirror,
+	          );
+	        }
+	        const fp = `
           (module pads (layer F.Cu) (tedit 6446BF3D)
             ${p.at /* parametric position */}
             (attr smd)
@@ -9023,64 +8764,56 @@
           )
         `;
 
-		        return fp;
-		    }
-		};
-		return pads;
-	}
+	        return fp;
+	    }
+	};
 
-	var point_debugger;
-	var hasRequiredPoint_debugger;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Adds tiny x and y arrows at the origin of points to help with the debugging
+	// of complex layouts.
+	//
+	// This will only show arrows for actual points you define. So if you draw an
+	// outline without defining points, then they won't show up.
+	//
+	// Usage:
+	// You can make enabling and disabling easy with ergogen's preprocessor:
+	//
+	// ```js
+	// settings:
+	//   point_debugger:
+	//     enabled: false
+	// [...]
+	// pcbs:
+	//   your_keyboard:
+	//     footprints:
+	//       point_debugger:
+	//         what: infused-kim/point_debugger
+	//         where: true
+	//         params:
+	//           $extends: settings.point_debugger
+	// ```
+	//
+	// Showing the point name:
+	// The footprint supports showing the name of the point when you zoom in, but
+	// the latest version of ergogen (4.0.4) does not make the name available to
+	// the footprint.
+	//
+	// Until this gets merged, you can use the ergogen fork from this PR:
+	// https://github.com/ergogen/ergogen/pull/103
 
-	function requirePoint_debugger () {
-		if (hasRequiredPoint_debugger) return point_debugger;
-		hasRequiredPoint_debugger = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Adds tiny x and y arrows at the origin of points to help with the debugging
-		// of complex layouts.
-		//
-		// This will only show arrows for actual points you define. So if you draw an
-		// outline without defining points, then they won't show up.
-		//
-		// Usage:
-		// You can make enabling and disabling easy with ergogen's preprocessor:
-		//
-		// ```js
-		// settings:
-		//   point_debugger:
-		//     enabled: false
-		// [...]
-		// pcbs:
-		//   your_keyboard:
-		//     footprints:
-		//       point_debugger:
-		//         what: infused-kim/point_debugger
-		//         where: true
-		//         params:
-		//           $extends: settings.point_debugger
-		// ```
-		//
-		// Showing the point name:
-		// The footprint supports showing the name of the point when you zoom in, but
-		// the latest version of ergogen (4.0.4) does not make the name available to
-		// the footprint.
-		//
-		// Until this gets merged, you can use the ergogen fork from this PR:
-		// https://github.com/ergogen/ergogen/pull/103
+	var point_debugger = {
+	    params: {
+	      designator: 'P',
+	      enabled: true,
+	    },
+	    body: p => {
+	        if(p.enabled == false) {
+	            return '';
+	        }
 
-		point_debugger = {
-		    params: {
-		      designator: 'P',
-		      enabled: true,
-		    },
-		    body: p => {
-		        if(p.enabled == false) {
-		            return '';
-		        }
-
-		        const top = `
+	        const top = `
             (module point_debugger (layer F.Cu) (tedit 64B42FA5)
                 ${p.at /* parametric position */}
                 (fp_text reference ${p.ref}"(at 0 2) (layer F.SilkS) ${p.ref_hide}
@@ -9094,162 +8827,154 @@
                 (fp_line (start 0 -0.6) (end -0.1 -0.5) (layer Dwgs.User) (width 0.05))
         `;
 
-		        const bottom = `
+	        const bottom = `
             )
         `;
 
-		        let final = top;
+	        let final = top;
 
-		        // point is a property that is not available to footprints as of
-		        // ergogen 4.0.4. I have submitted a PR to add it and until then
-		        // my custom fork needs to be used if you want to see it.
-		        if('point' in p) {
-		            final += `
+	        // point is a property that is not available to footprints as of
+	        // ergogen 4.0.4. I have submitted a PR to add it and until then
+	        // my custom fork needs to be used if you want to see it.
+	        if('point' in p) {
+	            final += `
                     (fp_text user ${p.point.meta.name} (at -0.3 -0.05 ${p.rot}) (layer Dwgs.User)
                         (effects (font (size 0.0254 0.0254) (thickness 0.001)))
                     )
             `;
-		        }
+	        }
 
-		        final += bottom;
+	        final += bottom;
 
-		        return final;
-		    }
-		};
-		return point_debugger;
-	}
+	        return final;
+	    }
+	};
 
-	var smd_0805;
-	var hasRequiredSmd_0805;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Let's you place multiple SMD 0805 components, such as resistors and
+	// capacitors.
+	//
+	// Fully reversible and component order is mirrored on the back.
 
-	function requireSmd_0805 () {
-		if (hasRequiredSmd_0805) return smd_0805;
-		hasRequiredSmd_0805 = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Let's you place multiple SMD 0805 components, such as resistors and
-		// capacitors.
-		//
-		// Fully reversible and component order is mirrored on the back.
+	var smd_0805 = {
+	    params: {
+	        designator: 'SMD',
+	        side: 'F',
+	        reverse: true,
+	        space: 2,
+	        mirror: true,
+	        swap_pad_direction: false,
+	        components: 2,
+	        net_1_from: {type: 'net', value: 'SMD_1_F'},
+	        net_1_to: {type: 'net', value: 'SMD_1_T'},
+	        net_2_from: {type: 'net', value: 'SMD_2_F'},
+	        net_2_to: {type: 'net', value: 'SMD_2_T'},
+	        net_3_from: {type: 'net', value: 'SMD_3_F'},
+	        net_3_to: {type: 'net', value: 'SMD_3_T'},
+	        net_4_from: {type: 'net', value: 'SMD_4_F'},
+	        net_4_to: {type: 'net', value: 'SMD_4_T'},
+	        net_5_from: {type: 'net', value: 'SMD_5_F'},
+	        net_5_to: {type: 'net', value: 'SMD_5_T'},
+	        net_6_from: {type: 'net', value: 'SMD_6_F'},
+	        net_6_to: {type: 'net', value: 'SMD_6_T'},
+	        label_1: '',
+	        label_2: '',
+	        label_3: '',
+	        label_4: '',
+	        label_5: '',
+	        label_6: '',
+	        label_at_bottom: false,
+	      },
+	    body: p => {
 
-		smd_0805 = {
-		    params: {
-		        designator: 'SMD',
-		        side: 'F',
-		        reverse: true,
-		        space: 2,
-		        mirror: true,
-		        swap_pad_direction: false,
-		        components: 2,
-		        net_1_from: {type: 'net', value: 'SMD_1_F'},
-		        net_1_to: {type: 'net', value: 'SMD_1_T'},
-		        net_2_from: {type: 'net', value: 'SMD_2_F'},
-		        net_2_to: {type: 'net', value: 'SMD_2_T'},
-		        net_3_from: {type: 'net', value: 'SMD_3_F'},
-		        net_3_to: {type: 'net', value: 'SMD_3_T'},
-		        net_4_from: {type: 'net', value: 'SMD_4_F'},
-		        net_4_to: {type: 'net', value: 'SMD_4_T'},
-		        net_5_from: {type: 'net', value: 'SMD_5_F'},
-		        net_5_to: {type: 'net', value: 'SMD_5_T'},
-		        net_6_from: {type: 'net', value: 'SMD_6_F'},
-		        net_6_to: {type: 'net', value: 'SMD_6_T'},
-		        label_1: '',
-		        label_2: '',
-		        label_3: '',
-		        label_4: '',
-		        label_5: '',
-		        label_6: '',
-		        label_at_bottom: false,
-		      },
-		    body: p => {
+	        const gen_nets = (p) => {
+	          const all_nets_from = [
+	            p.net_1_from.str, p.net_2_from.str, p.net_3_from.str,
+	            p.net_4_from.str, p.net_5_from.str, p.net_6_from.str,
+	          ];
+	          const all_nets_to = [
+	            p.net_1_to.str, p.net_2_to.str, p.net_3_to.str,
+	            p.net_4_to.str, p.net_5_to.str, p.net_6_to.str,
+	          ];
+	          const all_labels = [
+	            p.label_1, p.label_2, p.label_3,
+	            p.label_4, p.label_5, p.label_6,
+	          ];
 
-		        const gen_nets = (p) => {
-		          const all_nets_from = [
-		            p.net_1_from.str, p.net_2_from.str, p.net_3_from.str,
-		            p.net_4_from.str, p.net_5_from.str, p.net_6_from.str,
-		          ];
-		          const all_nets_to = [
-		            p.net_1_to.str, p.net_2_to.str, p.net_3_to.str,
-		            p.net_4_to.str, p.net_5_to.str, p.net_6_to.str,
-		          ];
-		          const all_labels = [
-		            p.label_1, p.label_2, p.label_3,
-		            p.label_4, p.label_5, p.label_6,
-		          ];
+	          pad_cnt = p.components;
+	          if(pad_cnt > all_nets_from.length || pad_cnt > all_nets_to.length ||
+	             pad_cnt > all_labels.length) {
+	            pad_cnt = Math.min(
+	              all_nets_from.length, all_nets_to.length, all_labels.length
+	            );
+	          }
 
-		          pad_cnt = p.components;
-		          if(pad_cnt > all_nets_from.length || pad_cnt > all_nets_to.length ||
-		             pad_cnt > all_labels.length) {
-		            pad_cnt = Math.min(
-		              all_nets_from.length, all_nets_to.length, all_labels.length
-		            );
-		          }
+	          let nets = [];
+	          for(let i = 0; i < pad_cnt; i++) {
+	            let net = [
+	              all_nets_from[i],
+	              all_nets_to[i],
+	              all_labels[i],
+	            ];
+	            nets.push(net);
+	          }
 
-		          let nets = [];
-		          for(let i = 0; i < pad_cnt; i++) {
-		            let net = [
-		              all_nets_from[i],
-		              all_nets_to[i],
-		              all_labels[i],
-		            ];
-		            nets.push(net);
-		          }
+	          return nets;
+	        };
 
-		          return nets;
-		        };
+	        const gen_pad = (pad_idx, pad_cnt, net_from, net_to, net_label, space, rot, layer, label_at_bottom) =>
+	        {
+	            const width = 1.025;
+	            const height= 3.36;
 
-		        const gen_pad = (pad_idx, pad_cnt, net_from, net_to, net_label, space, rot, layer, label_at_bottom) =>
-		        {
-		            const width = 1.025;
-		            const height= 3.36;
+	            // Calculate the pad position from center
+	            const pos_x_raw = (width + space) * pad_idx;
 
-		            // Calculate the pad position from center
-		            const pos_x_raw = (width + space) * pad_idx;
+	            // Adjust it so that the pads are centered in the middle
+	            const pos_x = (
+	              pos_x_raw - (width + space) * (pad_cnt - 1) / 2
+	            );
 
-		            // Adjust it so that the pads are centered in the middle
-		            const pos_x = (
-		              pos_x_raw - (width + space) * (pad_cnt - 1) / 2
-		            );
+	            let label_pos_y = -1 * (height / 2 + 0.2);
+	            let label_justify_direction = "left";
+	            if(label_at_bottom) {
+	              label_pos_y = label_pos_y * -1;
+	              label_justify_direction = "right";
+	            }
 
-		            let label_pos_y = -1 * (height / 2 + 0.2);
-		            let label_justify_direction = "left";
-		            if(label_at_bottom) {
-		              label_pos_y = label_pos_y * -1;
-		              label_justify_direction = "right";
-		            }
+	            if(label_at_bottom == false || layer == 'B') {
+	              if((rot > 0 && rot <= 180) || (rot <= -180)) {
+	                label_justify_direction = "right";
+	              } else {
+	                label_justify_direction = "left";
+	              }
+	            } else {
+	              if((rot > 0 && rot <= 180) || (rot <= -180)) {
+	                label_justify_direction = "left";
+	              } else {
+	                label_justify_direction = "right";
+	              }
+	            }
 
-		            if(label_at_bottom == false || layer == 'B') {
-		              if((rot > 0 && rot <= 180) || (rot <= -180)) {
-		                label_justify_direction = "right";
-		              } else {
-		                label_justify_direction = "left";
-		              }
-		            } else {
-		              if((rot > 0 && rot <= 180) || (rot <= -180)) {
-		                label_justify_direction = "left";
-		              } else {
-		                label_justify_direction = "right";
-		              }
-		            }
+	            let justify_mirror = '';
+	            if(layer == 'B') {
+	              justify_mirror = 'mirror';
+	            }
 
-		            let justify_mirror = '';
-		            if(layer == 'B') {
-		              justify_mirror = 'mirror';
-		            }
+	            let label_justify = '';
+	            if(justify_mirror != '' || label_justify_direction != '') {
+	              label_justify = `(justify ${label_justify_direction} ${justify_mirror})`;
+	            }
 
-		            let label_justify = '';
-		            if(justify_mirror != '' || label_justify_direction != '') {
-		              label_justify = `(justify ${label_justify_direction} ${justify_mirror})`;
-		            }
+	            let label_fab_justify = '';
+	            if(justify_mirror) {
+	              label_fab_justify = `(justify ${justify_mirror})`;
+	            }
 
-		            let label_fab_justify = '';
-		            if(justify_mirror) {
-		              label_fab_justify = `(justify ${justify_mirror})`;
-		            }
-
-		            const pad_num = pad_idx*2+1;
-		            let pad = `
+	            const pad_num = pad_idx*2+1;
+	            let pad = `
                 (fp_line (start ${0.625 + pos_x} -1) (end ${0.625 + pos_x} 1) (layer ${layer}.Fab) (width 0.1))
                 (fp_line (start ${-0.625 + pos_x} -1) (end ${0.625 + pos_x} -1) (layer ${layer}.Fab) (width 0.1))
                 (fp_line (start ${-0.625 + pos_x} 1) (end ${-0.625 + pos_x} -1) (layer ${layer}.Fab) (width 0.1))
@@ -9267,8 +8992,8 @@
                 (pad ${pad_num + 1} smd roundrect (at ${0 + pos_x} -0.9125 ${90 + rot}) (size 1.025 1.4) (layers ${layer}.Cu ${layer}.Paste ${layer}.Mask) (roundrect_rratio 0.243902) ${net_to})
             `;
 
-		            if(net_label) {
-		              pad += `
+	            if(net_label) {
+	              pad += `
               (fp_text user "${net_label}" (at ${0 + pos_x} 0 ${90 + rot}) (layer ${layer}.Fab)
                 (effects (font (size 0.5 0.5) (thickness 0.08)) ${label_fab_justify})
               )
@@ -9276,66 +9001,66 @@
                   (effects (font (size 1 1) (thickness 0.1)) ${label_justify})
                 )
               `;
-		            }
+	            }
 
-		            return pad;
-		        };
+	            return pad;
+	        };
 
-		        const gen_pads = (nets, space, rot, layer, label_at_bottom, mirror, swap_pad_direction) => {
+	        const gen_pads = (nets, space, rot, layer, label_at_bottom, mirror, swap_pad_direction) => {
 
-		            if(mirror) {
-		                nets = nets.slice().reverse();
-		            }
+	            if(mirror) {
+	                nets = nets.slice().reverse();
+	            }
 
-		            let pads = '';
-		            for (let [net_idx, net] of nets.entries()) {
+	            let pads = '';
+	            for (let [net_idx, net] of nets.entries()) {
 
-		                let net_from = net[0];
-		                let net_to = net[1];
-		                const net_label = net[2];
+	                let net_from = net[0];
+	                let net_to = net[1];
+	                const net_label = net[2];
 
-		                if(swap_pad_direction) {
-		                  net_from = net[1];
-		                  net_to = net[0];
-		                }
+	                if(swap_pad_direction) {
+	                  net_from = net[1];
+	                  net_to = net[0];
+	                }
 
-		                const pad = gen_pad(
-		                  net_idx,
-		                  nets.length,
-		                  net_from,
-		                  net_to,
-		                  net_label,
-		                  space,
-		                  rot,
-		                  layer,
-		                  label_at_bottom);
+	                const pad = gen_pad(
+	                  net_idx,
+	                  nets.length,
+	                  net_from,
+	                  net_to,
+	                  net_label,
+	                  space,
+	                  rot,
+	                  layer,
+	                  label_at_bottom);
 
-		                pads += pad;
-		            }
+	                pads += pad;
+	            }
 
-		            return pads;
-		        };
+	            return pads;
+	        };
 
-		        const nets = gen_nets(p);
+	        const nets = gen_nets(p);
 
-		        let pads_front = '';
-		        if(p.side == 'F' || p.reverse) {
-		          pads_front = gen_pads(
-		            nets,
-		            p.space, p.rot, "F",
-		            p.label_at_bottom, false, p.swap_pad_direction,
-		          );
-		        }
+	        let pads_front = '';
+	        if(p.side == 'F' || p.reverse) {
+	          pads_front = gen_pads(
+	            nets,
+	            p.space, p.rot, "F",
+	            p.label_at_bottom, false, p.swap_pad_direction,
+	          );
+	        }
 
-		        let pads_back = '';
-		        if(p.side == 'B' || p.reverse) {
-		          pads_back = gen_pads(
-		            nets,
-		            p.space, p.rot, "B",
-		            p.label_at_bottom, p.mirror, p.swap_pad_direction,
-		          );
-		        }
-		        const fp = `
+	        let pads_back = '';
+	        if(p.side == 'B' || p.reverse) {
+	          pads_back = gen_pads(
+	            nets,
+	            p.space, p.rot, "B",
+	            p.label_at_bottom, p.mirror, p.swap_pad_direction,
+	          );
+	        }
+	        const fp = `
           (module smd_805 (layer F.Cu) (tedit 6446BF3D)
             ${p.at /* parametric position */}
             (attr smd)
@@ -9348,45 +9073,37 @@
           )
         `;
 
-		        return fp;
-		    }
-		};
-		return smd_0805;
-	}
+	        return fp;
+	    }
+	};
 
-	var switch_power;
-	var hasRequiredSwitch_power;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Power switch for wireless boards.
+	//
+	// Should be compatible with:
+	//  - G-Switch MK-12C02-G015
+	//  - Alps SSSS811101
+	//  - PCM12SMTR
 
-	function requireSwitch_power () {
-		if (hasRequiredSwitch_power) return switch_power;
-		hasRequiredSwitch_power = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Power switch for wireless boards.
-		//
-		// Should be compatible with:
-		//  - G-Switch MK-12C02-G015
-		//  - Alps SSSS811101
-		//  - PCM12SMTR
-
-		switch_power = {
-		    params: {
-		      designator: 'SW',
-		      side: 'F',
-		      from: {type: 'net', value: 'BAT_P'},
-		      to: {type: 'net', value: 'RAW'},
-		      reverse: false,
-		    },
-		    body: p => {
-		      const shared_1 = `
+	var switch_power = {
+	    params: {
+	      designator: 'SW',
+	      side: 'F',
+	      from: {type: 'net', value: 'BAT_P'},
+	      to: {type: 'net', value: 'RAW'},
+	      reverse: false,
+	    },
+	    body: p => {
+	      const shared_1 = `
         (module power_switch (layer F.Cu) (tedit 644556E6)
           ${p.at /* parametric position */}
           (attr smd)
 
       `;
 
-		      const front_switch = `
+	      const front_switch = `
           (fp_text reference "${p.ref}" (at -3.6 0 ${-90 + p.rot}) (layer F.SilkS) ${p.ref_hide}
             (effects (font (size 1 1) (thickness 0.15)))
           )
@@ -9424,7 +9141,7 @@
           (pad "" smd rect (at 1.125 3.65 ${90 + p.rot}) (size 1 0.8) (layers F.Cu F.Paste F.Mask))
 
       `;
-		      const back_switch = `
+	      const back_switch = `
         ${'' /* Add the optional parts here */}
         (fp_text user "${p.ref}" (at -3.5 0 ${90 + p.rot}) (layer B.SilkS) ${p.ref_hide}
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
@@ -9461,56 +9178,48 @@
         (pad "" smd rect (at 1.125 3.65 ${270 + p.rot}) (size 1 0.8) (layers B.Cu B.Paste B.Mask))
         `;
 
-		        const shared_2 = `
+	        const shared_2 = `
           (pad "" np_thru_hole circle (at 0.025 -1.5 ${90 + p.rot}) (size 0.9 0.9) (drill 0.9) (layers *.Cu *.Mask))
           (pad "" np_thru_hole circle (at 0.025 1.5 ${90 + p.rot}) (size 0.9 0.9) (drill 0.9) (layers *.Cu *.Mask))
         )
         `;
 
-		        let final = shared_1;
+	        let final = shared_1;
 
-		        if(p.side == "F" || p.reverse) {
-		          final += front_switch;
-		        }
-		        if(p.side == "B" || p.reverse) {
-		          final += back_switch;
-		        }
+	        if(p.side == "F" || p.reverse) {
+	          final += front_switch;
+	        }
+	        if(p.side == "B" || p.reverse) {
+	          final += back_switch;
+	        }
 
-		        final += shared_2;
+	        final += shared_2;
 
-		        return final;
-		    }
-		  };
-		return switch_power;
-	}
+	        return final;
+	    }
+	  };
 
-	var switch_reset;
-	var hasRequiredSwitch_reset;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Reversible footprint for nice nano
 
-	function requireSwitch_reset () {
-		if (hasRequiredSwitch_reset) return switch_reset;
-		hasRequiredSwitch_reset = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Reversible footprint for nice nano
+	// Should be compatible with:
+	// EVQ-P7A01P
+	//
+	// WARNING: This is not the same reset switch commonly used in the keyboard
+	// community. This switch faces sideways and is lower profile.
 
-		// Should be compatible with:
-		// EVQ-P7A01P
-		//
-		// WARNING: This is not the same reset switch commonly used in the keyboard
-		// community. This switch faces sideways and is lower profile.
-
-		switch_reset = {
-		    params: {
-		      designator: 'SW',
-		      side: 'F',
-		      reverse: false,
-		      from: {type: 'net', value: 'GND'},
-		      to: {type: 'net', value: 'RST'},
-		    },
-		    body: p => {
-		      const top = `
+	var switch_reset = {
+	    params: {
+	      designator: 'SW',
+	      side: 'F',
+	      reverse: false,
+	      from: {type: 'net', value: 'GND'},
+	      to: {type: 'net', value: 'RST'},
+	    },
+	    body: p => {
+	      const top = `
         (module sw_reset_side (layer F.Cu) (tedit 64473C6F)
           ${p.at /* parametric position */}
           (attr smd)
@@ -9519,7 +9228,7 @@
             (effects (font (size 1 1) (thickness 0.15)))
           )
       `;
-		      const front = `
+	      const front = `
           (fp_line (start 1.7 2.75) (end -1.7 2.75) (layer F.CrtYd) (width 0.05))
           (fp_line (start -1.7 2.75) (end -1.7 -2.75) (layer F.CrtYd) (width 0.05))
           (fp_line (start 2.1 0.85) (end 2.1 -0.85) (layer F.Fab) (width 0.1))
@@ -9544,7 +9253,7 @@
           (pad 2 smd rect (at 0.72 -1.8 ${90 + p.rot}) (size 1.4 1.05) (layers F.Cu F.Paste F.Mask) ${p.to.str})
           (pad 2 smd rect (at 0.72 1.8 ${90 + p.rot}) (size 1.4 1.05) (layers F.Cu F.Paste F.Mask) ${p.to.str})
       `;
-		      const back = `
+	      const back = `
       (fp_line (start -1.45 1.75) (end 1.45 1.75) (layer B.Fab) (width 0.1))
       (fp_line (start 1.45 1.75) (end 1.45 -1.75) (layer B.Fab) (width 0.1))
       (fp_line (start 1.7 -1.1) (end 1.7 -2.75) (layer B.CrtYd) (width 0.05))
@@ -9571,109 +9280,93 @@
       )
       `;
 
-		      const bottom = `
+	      const bottom = `
         )
       `;
 
-		      let final = top;
+	      let final = top;
 
-		      if(p.side == "F" || p.reverse) {
-		        final += front;
-		      }
-		      if(p.side == "B" || p.reverse) {
-		        final += back;
-		      }
+	      if(p.side == "F" || p.reverse) {
+	        final += front;
+	      }
+	      if(p.side == "B" || p.reverse) {
+	        final += back;
+	      }
 
-		      final += bottom;
+	      final += bottom;
 
-		      return final;
-		    }
-		 };
-		return switch_reset;
-	}
+	      return final;
+	    }
+	 };
 
-	var text;
-	var hasRequiredText;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Allows oyu to place text on the PCB.
 
-	function requireText () {
-		if (hasRequiredText) return text;
-		hasRequiredText = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Allows oyu to place text on the PCB.
-
-		text = {
-		  params: {
-		    designator: 'TXT',
-		    side: 'F',
-		    reverse: false,
-		    text: 'Awesomeness',
-		  },
-		  body: p => {
-		    const front = `
+	var text = {
+	  params: {
+	    designator: 'TXT',
+	    side: 'F',
+	    reverse: false,
+	    text: 'Awesomeness',
+	  },
+	  body: p => {
+	    const front = `
       (gr_text "${p.text}" ${p.at} (layer F.SilkS)
         (effects (font (size 1 1) (thickness 0.15)))
       )
     `;
-		    const back = `
+	    const back = `
       (gr_text "${p.text}" ${p.at} (layer B.SilkS)
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       )
     `;
 
-		    let final = '';
+	    let final = '';
 
-		    if(p.side == "F" || p.reverse) {
-		      final += front;
-		    }
-		    if(p.side == "B" || p.reverse) {
-		      final += back;
-		    }
+	    if(p.side == "F" || p.reverse) {
+	      final += front;
+	    }
+	    if(p.side == "B" || p.reverse) {
+	      final += back;
+	    }
 
-		    return final;
-		  }
-		};
-		return text;
-	}
+	    return final;
+	  }
+	};
 
-	var trackpoint_mount;
-	var hasRequiredTrackpoint_mount;
+	// Author: @infused-kim
+	//
+	// Description:
+	// Adds mounting holes for a trackpoint to the PCB.
+	//
+	// Should be compatible with:
+	//  - Thinkpad T430
+	//  - Thinkpad T440 / X240
+	//
+	// Check this page for other models:
+	// https://deskthority.net/wiki/TrackPoint_Hardware
 
-	function requireTrackpoint_mount () {
-		if (hasRequiredTrackpoint_mount) return trackpoint_mount;
-		hasRequiredTrackpoint_mount = 1;
-		// Author: @infused-kim
-		//
-		// Description:
-		// Adds mounting holes for a trackpoint to the PCB.
-		//
-		// Should be compatible with:
-		//  - Thinkpad T430
-		//  - Thinkpad T440 / X240
-		//
-		// Check this page for other models:
-		// https://deskthority.net/wiki/TrackPoint_Hardware
+	var trackpoint_mount = {
+	  params: {
+	    designator: 'TP',
+	    side: 'B',
+	    reverse: false,
 
-		trackpoint_mount = {
-		  params: {
-		    designator: 'TP',
-		    side: 'B',
-		    reverse: false,
+	    // T430: 3.5
+	    // T460S (red one): 3.5
+	    // X240: 5.5
+	    drill: 5.5,
+	    outline: 0.25,
 
-		    // T430: 3.5
-		    // T460S (red one): 3.5
-		    // X240: 5.5
-		    drill: 5.5,
-		    outline: 0.25,
-
-		    show_outline_t430: false,
-		    show_outline_x240: false,
-		    show_outline_t460s: false,
-		    show_board: false,
-		  },
-		  body: p => {
-		    const top = `
+	    show_outline_t430: false,
+	    show_outline_x240: false,
+	    show_outline_t460s: false,
+	    show_board: false,
+	  },
+	  body: p => {
+	    const top = `
       (module trackpoint_mount_t430 (layer F.Cu) (tedit 6449FFC5)
         ${p.at /* parametric position */}
         (attr virtual)
@@ -9683,7 +9376,7 @@
         )
     `;
 
-		    const front = `
+	    const front = `
         (fp_circle (center 0 -9.5) (end -2.15 -9.5) (layer F.CrtYd) (width 0.05))
         (fp_circle (center 0 -9.5) (end -1.9 -9.5) (layer Cmts.User) (width 0.15))
         (fp_circle (center 0 9.5) (end -2.15 9.5) (layer F.CrtYd) (width 0.05))
@@ -9695,14 +9388,14 @@
           (effects (font (size 1 1) (thickness 0.15)))
         )
     `;
-		    const back = `
+	    const back = `
         (fp_circle (center 0 0) (end -3.95 0) (layer B.CrtYd) (width 0.05))
         (fp_circle (center 0 0) (end -3.7 0) (layer Cmts.User) (width 0.15))
         (fp_circle (center 0 9.5) (end -2.15 9.5) (layer B.CrtYd) (width 0.05))
         (fp_circle (center 0 -9.5) (end -2.15 -9.5) (layer B.CrtYd) (width 0.05))
     `;
 
-		    const outline_t430_front = `
+	    const outline_t430_front = `
         (fp_line (start -4.5 -12.75) (end -9.5 -7.25) (layer F.Fab) (width 0.2))
         (fp_line (start -9.5 7.25) (end -4.5 12.75) (layer F.Fab) (width 0.2))
         (fp_line (start 6.5 8) (end 6.5 -8) (layer F.Fab) (width 0.2))
@@ -9718,7 +9411,7 @@
         (fp_line (start 8.5 5.5) (end 6.5 5.5) (layer F.Fab) (width 0.2))
     `;
 
-		    const outline_t430_back = `
+	    const outline_t430_back = `
         (fp_line (start -4.5 12.75) (end -9.5 7.25) (layer B.Fab) (width 0.2))
         (fp_line (start 9.5 -8) (end 9.5 -12.75) (layer B.Fab) (width 0.12))
         (fp_line (start 9.5 8) (end 9.5 12.75) (layer B.Fab) (width 0.2))
@@ -9734,7 +9427,7 @@
         (fp_line (start 8.5 5.5) (end 6.5 5.5) (layer B.Fab) (width 0.2))
     `;
 
-		    const outline_x240_front = `
+	    const outline_x240_front = `
         (fp_line (start 12.25 -6.5) (end 6.75 -6.5) (layer F.Fab) (width 0.2))
         (fp_line (start 12.25 6.5) (end 6.75 6.5) (layer F.Fab) (width 0.2))
         (fp_line (start 12.25 6.5) (end 12.25 -6.5) (layer F.Fab) (width 0.2))
@@ -9744,7 +9437,7 @@
         (fp_line (start 6.75 11.5) (end 6.75 -11.5) (layer F.Fab) (width 0.2))
     `;
 
-		    const outline_x240_back = `
+	    const outline_x240_back = `
         (fp_line (start 12.25 -6.5) (end 6.75 -6.5) (layer B.Fab) (width 0.2))
         (fp_line (start 12.25 -6.5) (end 12.25 6.5) (layer B.Fab) (width 0.2))
         (fp_line (start 6.75 -11.5) (end -6.75 -11.5) (layer B.Fab) (width 0.2))
@@ -9754,7 +9447,7 @@
         (fp_line (start 12.25 6.5) (end 6.75 6.5) (layer B.Fab) (width 0.2))
     `;
 
-		    const outline_x240_board = `
+	    const outline_x240_board = `
         (fp_line (start 39.25 12) (end 23.25 12) (layer Dwgs.User) (width 0.2))
         (fp_line (start 23.25 5.5) (end 23.25 12) (layer Dwgs.User) (width 0.2))
         (fp_line (start 23.25 -5.5) (end 23.25 5.5) (layer Dwgs.User) (width 0.2))
@@ -9766,7 +9459,7 @@
         (fp_line (start 12.25 -5.5) (end 12.25 5.5) (layer Dwgs.User) (width 0.2))
     `;
 
-		    const outline_t460s_front = `
+	    const outline_t460s_front = `
         (fp_line (start 2.75 6.5) (end 6.25 3) (layer F.Fab) (width 0.2))
         (fp_line (start 2.75 11.5) (end -2.75 11.5) (layer F.Fab) (width 0.2))
         (fp_line (start -6.25 3) (end -6.25 -3) (layer F.Fab) (width 0.2))
@@ -9781,7 +9474,7 @@
         (fp_line (start -6.25 -3) (end -2.75 -6.5) (layer F.Fab) (width 0.2))
     `;
 
-		    const outline_t460s_back = `
+	    const outline_t460s_back = `
         (fp_line (start -6.25 -3) (end -2.75 -6.5) (layer B.Fab) (width 0.2))
         (fp_line (start 6.25 -3) (end 2.75 -6.5) (layer B.Fab) (width 0.2))
 
@@ -9798,7 +9491,7 @@
         (fp_line (start 2.75 -11.5) (end 2.75 -6.5) (layer B.Fab) (width 0.2))
     `;
 
-		    const outline_t460s_board = `
+	    const outline_t460s_board = `
         (fp_line (start 38.25 12.25) (end 22.25 12.25) (layer Dwgs.User) (width 0.2))
         (fp_line (start 22.25 2.75) (end 22.25 12.25) (layer Dwgs.User) (width 0.2))
         (fp_line (start 22.25 -2.75) (end 22.25 2.75) (layer Dwgs.User) (width 0.2))
@@ -9810,141 +9503,159 @@
         (fp_line (start 6.25 -2.75) (end 6.25 2.75) (layer Dwgs.User) (width 0.2))
     `;
 
-		    const size = p.drill + (p.outline * 2);
-		    const bottom = `
+	    const size = p.drill + (p.outline * 2);
+	    const bottom = `
         (pad "" thru_hole circle (at 0 -9.5 180) (size 3.8 3.8) (drill 2.2) (layers *.Cu *.Mask))
         (pad 1 np_thru_hole circle (at 0 0 180) (size ${size} ${size}) (drill ${p.drill}) (layers *.Cu *.Mask))
         (pad "" thru_hole circle (at 0 9.5 180) (size 3.8 3.8) (drill 2.2) (layers *.Cu *.Mask))
       )
     `;
 
-		    let final = top;
+	    let final = top;
 
-		    if(p.side == "F" || p.reverse) {
-		      final += front;
+	    if(p.side == "F" || p.reverse) {
+	      final += front;
 
-		      if(p.show_outline_t430) {
-		        final += outline_t430_front;
-		      }
-		      if(p.show_outline_x240) {
-		        final += outline_x240_front;
-		      }
-		      if(p.show_outline_t460s) {
-		        final += outline_t460s_front;
-		      }
-		    }
+	      if(p.show_outline_t430) {
+	        final += outline_t430_front;
+	      }
+	      if(p.show_outline_x240) {
+	        final += outline_x240_front;
+	      }
+	      if(p.show_outline_t460s) {
+	        final += outline_t460s_front;
+	      }
+	    }
 
-		    if(p.side == "B" || p.reverse) {
-		      final += back;
-		      if(p.show_outline_t430) {
-		        final += outline_t430_back;
-		      }
-		      if(p.show_outline_x240) {
-		        final += outline_x240_back;
-		      }
-		      if(p.show_outline_t460s) {
-		        final += outline_t460s_back;
-		      }
-		    }
+	    if(p.side == "B" || p.reverse) {
+	      final += back;
+	      if(p.show_outline_t430) {
+	        final += outline_t430_back;
+	      }
+	      if(p.show_outline_x240) {
+	        final += outline_x240_back;
+	      }
+	      if(p.show_outline_t460s) {
+	        final += outline_t460s_back;
+	      }
+	    }
 
-		    if(p.show_board) {
-		      if(p.show_outline_x240) {
-		        final += outline_x240_board;
-		      }
-		      if(p.show_outline_t460s) {
-		        final += outline_t460s_board;
-		      }
-		    }
+	    if(p.show_board) {
+	      if(p.show_outline_x240) {
+	        final += outline_x240_board;
+	      }
+	      if(p.show_outline_t460s) {
+	        final += outline_t460s_board;
+	      }
+	    }
 
-		    final += bottom;
+	    final += bottom;
 
-		    return final;
-		  }
-		};
-		return trackpoint_mount;
-	}
+	    return final;
+	  }
+	};
 
-	var footprints;
-	var hasRequiredFootprints;
+	var footprints = {
+	  alps: alps,
+	  button: button,
+	  choc: choc$1,
+	  chocmini: chocmini,
+	  diode: diode$1,
+	  jstph: jstph,
+	  jumper: jumper,
+	  mx: mx,
+	  oled: oled,
+	  omron: omron,
+	  pad: pad,
+	  promicro: promicro,
+	  rgb: rgb,
+	  rotary: rotary,
+	  scrollwheel: scrollwheel,
+	  slider: slider,
+	  trrs: trrs,
+	  via: via,
+	  'ceoloide/battery_connector_jst_ph_2': battery_connector_jst_ph_2,
+	  'ceoloide/diode_tht_sod123': diode_tht_sod123,
+	  'ceoloide/display_nice_view': display_nice_view,
+	  'ceoloide/display_ssd1306_nice_view': display_ssd1306_nice_view,
+	  'ceoloide/display_ssd1306': display_ssd1306,
+	  'ceoloide/led_sk6812mini-e': led_sk6812miniE,
+	  'ceoloide/mcu_nice_nano': mcu_nice_nano,
+	  'ceoloide/mounting_hole_npth': mounting_hole_npth,
+	  'ceoloide/power_switch_smd_side': power_switch_smd_side,
+	  'ceoloide/reset_switch_tht_top': reset_switch_tht_top,
+	  'ceoloide/switch_choc_v1_v2': switch_choc_v1_v2,
+	  'ceoloide/trrs_pj320a': trrs_pj320a,
+	  'ceoloide/utility_ergogen_logo': utility_ergogen_logo,
+	  'ceoloide/utility_filled_zone': utility_filled_zone,
+	  'ceoloide/utility_text': utility_text,
+	  'infused-kim/choc': choc,
+	  'infused-kim/conn_molex_pico_ezmate_1x02': conn_molex_pico_ezmate_1x02,
+	  'infused-kim/conn_molex_pico_ezmate_1x05': conn_molex_pico_ezmate_1x05,
+	  'infused-kimo/isde': diode,
+	  'infused-kim/icon_bat': icon_bat,
+	  'infused-kim/mounting_hole': mounting_hole,
+	  'infused-kim/nice_nano_pretty': nice_nano_pretty,
+	  'infused-kim/nice_view': nice_view,
+	  'infused-kim/pads': pads,
+	  'infused-kim/point_debugger': point_debugger,
+	  'infused-kim/smd_0805': smd_0805,
+	  'infused-kim/switch_power': switch_power,
+	  'infused-kim/switch_reset': switch_reset,
+	  'infused-kim/text': text,
+	  'infused-kim/trackpoint_mount': trackpoint_mount,
+	};
 
-	function requireFootprints () {
-		if (hasRequiredFootprints) return footprints;
-		hasRequiredFootprints = 1;
-		footprints = {
-		  alps: requireAlps(),
-		  button: requireButton(),
-		  choc: requireChoc$1(),
-		  chocmini: requireChocmini(),
-		  diode: requireDiode$1(),
-		  jstph: requireJstph(),
-		  jumper: requireJumper(),
-		  mx: requireMx(),
-		  oled: requireOled(),
-		  omron: requireOmron(),
-		  pad: requirePad(),
-		  promicro: requirePromicro(),
-		  rgb: requireRgb(),
-		  rotary: requireRotary(),
-		  scrollwheel: requireScrollwheel(),
-		  slider: requireSlider(),
-		  trrs: requireTrrs(),
-		  via: requireVia(),
-		  'ceoloide/battery_connector_jst_ph_2': requireBattery_connector_jst_ph_2(),
-		  'ceoloide/diode_tht_sod123': requireDiode_tht_sod123(),
-		  'ceoloide/display_nice_view': requireDisplay_nice_view(),
-		  'ceoloide/display_ssd1306_nice_view': requireDisplay_ssd1306_nice_view(),
-		  'ceoloide/display_ssd1306': requireDisplay_ssd1306(),
-		  'ceoloide/led_sk6812mini-e': requireLed_sk6812miniE(),
-		  'ceoloide/mcu_nice_nano': requireMcu_nice_nano(),
-		  'ceoloide/mounting_hole_npth': requireMounting_hole_npth(),
-		  'ceoloide/power_switch_smd_side': requirePower_switch_smd_side(),
-		  'ceoloide/reset_switch_tht_top': requireReset_switch_tht_top(),
-		  'ceoloide/switch_choc_v1_v2': requireSwitch_choc_v1_v2(),
-		  'ceoloide/trrs_pj320a': requireTrrs_pj320a(),
-		  'ceoloide/utility_ergogen_logo': requireUtility_ergogen_logo(),
-		  'ceoloide/utility_filled_zone': requireUtility_filled_zone(),
-		  'ceoloide/utility_text': requireUtility_text(),
-		  'infused-kim/choc': requireChoc(),
-		  'infused-kim/conn_molex_pico_ezmate_1x02': requireConn_molex_pico_ezmate_1x02(),
-		  'infused-kim/conn_molex_pico_ezmate_1x05': requireConn_molex_pico_ezmate_1x05(),
-		  'infused-kimo/isde': requireDiode(),
-		  'infused-kim/icon_bat': requireIcon_bat(),
-		  'infused-kim/mounting_hole': requireMounting_hole(),
-		  'infused-kim/nice_nano_pretty': requireNice_nano_pretty(),
-		  'infused-kim/nice_view': requireNice_view(),
-		  'infused-kim/pads': requirePads(),
-		  'infused-kim/point_debugger': requirePoint_debugger(),
-		  'infused-kim/smd_0805': requireSmd_0805(),
-		  'infused-kim/switch_power': requireSwitch_power(),
-		  'infused-kim/switch_reset': requireSwitch_reset(),
-		  'infused-kim/text': requireText(),
-		  'infused-kim/trackpoint_mount': requireTrackpoint_mount(),
-		};
-		return footprints;
-	}
+	const m$1 = require$$0;
 
-	var kicad5;
-	var hasRequiredKicad5;
+	var kicad5 = {
 
-	function requireKicad5 () {
-		if (hasRequiredKicad5) return kicad5;
-		hasRequiredKicad5 = 1;
-		kicad5 = params => {
+	    convert_outline: (model, layer) => {
+	        const grs = [];
+	        const xy = val => `${val[0]} ${-val[1]}`;
+	        m$1.model.walk(model, {
+	            onPath: wp => {
+	                const p = wp.pathContext;
+	                switch (p.type) {
+	                    case 'line':
+	                        grs.push(`(gr_line (start ${xy(p.origin)}) (end ${xy(p.end)}) (angle 90) (layer ${layer}) (width 0.15))`);
+	                        break
+	                    case 'arc':
+	                        const arc_center = p.origin;
+	                        const angle_start = p.startAngle > p.endAngle ? p.startAngle - 360 : p.startAngle;
+	                        const angle_diff = Math.abs(p.endAngle - angle_start);
+	                        const arc_end = m$1.point.rotate(m$1.point.add(arc_center, [p.radius, 0]), angle_start, arc_center);
+	                        grs.push(`(gr_arc (start ${xy(arc_center)}) (end ${xy(arc_end)}) (angle ${-angle_diff}) (layer ${layer}) (width 0.15))`);
+	                        break
+	                    case 'circle':
+	                        const circle_center = p.origin;
+	                        const circle_end = m$1.point.add(circle_center, [p.radius, 0]);
+	                        grs.push(`(gr_circle (center ${xy(circle_center)}) (end ${xy(circle_end)}) (layer ${layer}) (width 0.15))`);
+	                        break
+	                    default:
+	                        throw new Error(`Can't convert path type "${p.type}" to kicad!`)
+	                }
+	            }
+	        });
+	        return grs.join('\n')
+	    },
 
-		    const net_text = params.nets.join('\n');
-		    const netclass_text = params.nets.map(net => `(add_net "${net.name}")`).join('\n');
-		    const footprint_text = params.footprints.join('\n');
-		    const outline_text = Object.values(params.outlines).join('\n');
-		    
-		    return `
+	    body: params => {
+
+	        const net_text = params.nets.join('\n');
+	        const netclass_text = params.nets.map(net => `(add_net "${net.name}")`).join('\n');
+	        const footprint_text = params.footprints.join('\n');
+	        const outline_text = Object.values(params.outlines).join('\n');
+	        
+	        return `
 
 (kicad_pcb (version 20171130) (host pcbnew 5.1.6)
 
   (page A3)
   (title_block
-    (title ${params.name})
-    (rev ${params.version})
-    (company ${params.author})
+    (title "${params.name}")
+    (rev "${params.version}")
+    (company "${params.author}")
   )
 
   (general
@@ -10049,23 +9760,152 @@
 
 `
 
-		};
-		return kicad5;
 	}
-
-	var templates;
-	var hasRequiredTemplates;
-
-	function requireTemplates () {
-		if (hasRequiredTemplates) return templates;
-		hasRequiredTemplates = 1;
-		templates = {
-		    kicad5: requireKicad5()
-		};
-		return templates;
-	}
+	};
 
 	const m = require$$0;
+	const version$1 = require$$8.version;
+
+	var kicad8 = {
+
+	    convert_outline: (model, layer) => {
+	        const grs = [];
+	        const xy = val => `${val[0]} ${-val[1]}`;
+	        m.model.walk(model, {
+	            onPath: wp => {
+	                const p = wp.pathContext;
+	                switch (p.type) {
+	                    case 'line':
+	                        grs.push(`(gr_line (start ${xy(p.origin)}) (end ${xy(p.end)}) (layer ${layer}) (stroke (width 0.15) (type default)))`);
+	                        break
+	                    case 'arc':
+	                        const arc_center = p.origin;
+	                        const angle_start = p.startAngle > p.endAngle ? p.startAngle - 360 : p.startAngle;
+	                        const angle_diff = Math.abs(p.endAngle - angle_start);
+	                        const arc_start = m.point.rotate(m.point.add(arc_center, [p.radius, 0]), angle_start, arc_center);
+	                        const arc_mid = m.point.rotate(arc_start, angle_diff / 2, arc_center);
+	                        const arc_end = m.point.rotate(arc_start, angle_diff, arc_center);
+	                        grs.push(`(gr_arc (start ${xy(arc_start)}) (mid ${xy(arc_mid)}) (end ${xy(arc_end)}) (layer ${layer}) (stroke (width 0.15) (type default)))`);
+	                        break
+	                    case 'circle':
+	                        const circle_center = p.origin;
+	                        const circle_end = m.point.add(circle_center, [p.radius, 0]);
+	                        grs.push(`(gr_circle (center ${xy(circle_center)}) (end ${xy(circle_end)}) (layer ${layer}) (stroke (width 0.15) (type default)) (fill none))`);
+	                        break
+	                    default:
+	                        throw new Error(`Can't convert path type "${p.type}" to kicad!`)
+	                }
+	            }
+	        });
+	        return grs.join('\n')
+	    },
+
+	    body: params => {
+	        const date_text = new Date().toISOString().slice(0, 10);
+	        const net_text = params.nets.join('\n');
+	        const footprint_text = params.footprints.join('\n');
+	        const outline_text = Object.values(params.outlines).join('\n');
+
+	        return `
+
+(kicad_pcb
+  (version 20240108)
+  (generator "ergogen")
+  (generator_version "${version$1}")
+  (general
+    (thickness 1.6)
+    (legacy_teardrops no)
+  )
+  (paper "A3")
+  (title_block
+    (title "${params.name}")
+    (date "${date_text}")
+    (rev "${params.version}")
+    (company "${params.author}")
+  )
+
+  (layers
+    (0 "F.Cu" signal)
+    (31 "B.Cu" signal)
+    (32 "B.Adhes" user "B.Adhesive")
+    (33 "F.Adhes" user "F.Adhesive")
+    (34 "B.Paste" user)
+    (35 "F.Paste" user)
+    (36 "B.SilkS" user "B.Silkscreen")
+    (37 "F.SilkS" user "F.Silkscreen")
+    (38 "B.Mask" user)
+    (39 "F.Mask" user)
+    (40 "Dwgs.User" user "User.Drawings")
+    (41 "Cmts.User" user "User.Comments")
+    (42 "Eco1.User" user "User.Eco1")
+    (43 "Eco2.User" user "User.Eco2")
+    (44 "Edge.Cuts" user)
+    (45 "Margin" user)
+    (46 "B.CrtYd" user "B.Courtyard")
+    (47 "F.CrtYd" user "F.Courtyard")
+    (48 "B.Fab" user)
+    (49 "F.Fab" user)
+  )
+
+  (setup
+    (pad_to_mask_clearance 0.05)
+    (allow_soldermask_bridges_in_footprints no)
+    (pcbplotparams
+      (layerselection 0x00010fc_ffffffff)
+      (plot_on_all_layers_selection 0x0000000_00000000)
+      (disableapertmacros no)
+      (usegerberextensions no)
+      (usegerberattributes yes)
+      (usegerberadvancedattributes yes)
+      (creategerberjobfile yes)
+      (dashed_line_dash_ratio 12.000000)
+      (dashed_line_gap_ratio 3.000000)
+      (svgprecision 4)
+      (plotframeref no)
+      (viasonmask no)
+      (mode 1)
+      (useauxorigin no)
+      (hpglpennumber 1)
+      (hpglpenspeed 20)
+      (hpglpendiameter 15.000000)
+      (pdf_front_fp_property_popups yes)
+      (pdf_back_fp_property_popups yes)
+      (dxfpolygonmode yes)
+      (dxfimperialunits yes)
+      (dxfusepcbnewfont yes)
+      (psnegative no)
+      (psa4output no)
+      (plotreference yes)
+      (plotvalue yes)
+      (plotfptext yes)
+      (plotinvisibletext no)
+      (sketchpadsonfab no)
+      (subtractmaskfromsilk no)
+      (outputformat 1)
+      (mirror no)
+      (drillshape 1)
+      (scaleselection 1)
+      (outputdirectory "")
+    )
+  )
+
+  ${net_text}
+
+  ${footprint_text}
+  ${outline_text}
+
+)
+
+`
+
+	}
+	};
+
+	var templates = {
+	    kicad5: kicad5,
+	    kicad8: kicad8
+	};
+
 	const yaml = require$$2;
 
 	const u$1 = utils;
@@ -10074,38 +9914,8 @@
 	const anchor = anchor$4.parse;
 	const filter = filter$2.parse;
 
-	const makerjs2kicad = pcbs._makerjs2kicad = (model, layer) => {
-	    const grs = [];
-	    const xy = val => `${val[0]} ${-val[1]}`;
-	    m.model.walk(model, {
-	        onPath: wp => {
-	            const p = wp.pathContext;
-	            switch (p.type) {
-	                case 'line':
-	                    grs.push(`(gr_line (start ${xy(p.origin)}) (end ${xy(p.end)}) (angle 90) (layer ${layer}) (width 0.15))`);
-	                    break
-	                case 'arc':
-	                    const arc_center = p.origin;
-	                    const angle_start = p.startAngle > p.endAngle ? p.startAngle - 360 : p.startAngle;
-	                    const angle_diff = Math.abs(p.endAngle - angle_start);
-	                    const arc_end = m.point.rotate(m.point.add(arc_center, [p.radius, 0]), angle_start, arc_center);
-	                    grs.push(`(gr_arc (start ${xy(arc_center)}) (end ${xy(arc_end)}) (angle ${-angle_diff}) (layer ${layer}) (width 0.15))`);
-	                    break
-	                case 'circle':
-	                    const circle_center = p.origin;
-	                    const circle_end = m.point.add(circle_center, [p.radius, 0]);
-	                    grs.push(`(gr_circle (center ${xy(circle_center)}) (end ${xy(circle_end)}) (layer ${layer}) (width 0.15))`);
-	                    break
-	                default:
-	                    throw new Error(`Can't convert path type "${p.type}" to kicad!`)
-	            }
-	        }
-	    });
-	    return grs.join('\n')
-	};
-
-	const footprint_types = requireFootprints();
-	const template_types = requireTemplates();
+	const footprint_types = footprints;
+	const template_types = templates;
 
 	pcbs.inject_footprint = (name, fp) => {
 	    footprint_types[name] = fp;
@@ -10189,7 +9999,7 @@
 	        const converters = {
 	            string: v => v,
 	            number: v => a.sane(v, `${name}.params.${param_name}`, 'number')(units),
-	            boolean: v => v === 'true',
+	            boolean: v => v === 'true' || a.mathnum(v)(units) === 1,
 	            array: v => yaml.load(v),
 	            object: v => yaml.load(v),
 	            net: v => v,
@@ -10275,7 +10085,7 @@
 	        for (const [outline_name, outline] of Object.entries(config_outlines)) {
 	            const ref = a.in(outline.outline, `pcbs.${pcb_name}.outlines.${outline_name}.outline`, Object.keys(outlines));
 	            const layer = a.sane(outline.layer || 'Edge.Cuts', `pcbs.${pcb_name}.outlines.${outline_name}.outline`, 'string')();
-	            kicad_outlines[outline_name] = makerjs2kicad(outlines[ref], layer);
+	            kicad_outlines[outline_name] = template.convert_outline(outlines[ref], layer);
 	        }
 
 	        // making a global net index registry
@@ -10325,7 +10135,7 @@
 	            nets_arr.push(net_obj(net, index));
 	        }
 
-	        results[pcb_name] = template({
+	        results[pcb_name] = template.body({
 	            name: pcb_name,
 	            version: config.meta && config.meta.version || 'v1.0.0',
 	            author: config.meta && config.meta.author || 'Unknown',
@@ -10337,65 +10147,6 @@
 	    }
 
 	    return results
-	};
-
-	var name = "ergogen";
-	var version$1 = "4.0.5";
-	var description = "Ergonomic keyboard layout generator";
-	var author = "Bán Dénes <mr@zealot.hu>";
-	var license = "MIT";
-	var homepage = "https://ergogen.xyz";
-	var repository = "github:ergogen/ergogen";
-	var bugs = "https://github.com/ergogen/ergogen/issues";
-	var main = "./src/ergogen.js";
-	var bin = "./src/cli.js";
-	var scripts = {
-		build: "rollup -c",
-		test: "mocha -r test/helpers/register test/index.js",
-		coverage: "nyc --reporter=html --reporter=text npm test"
-	};
-	var dependencies = {
-		"fs-extra": "^11.1.0",
-		"js-yaml": "^3.14.1",
-		jszip: "^3.10.1",
-		"kle-serial": "github:ergogen/kle-serial#ergogen",
-		makerjs: "github:ergogen/maker.js#ergogen",
-		mathjs: "^11.5.0",
-		yargs: "^17.6.2"
-	};
-	var devDependencies = {
-		"@rollup/plugin-commonjs": "^24.0.1",
-		"@rollup/plugin-json": "^6.0.0",
-		chai: "^4.3.7",
-		"chai-as-promised": "^7.1.1",
-		"dir-compare": "^4.0.0",
-		glob: "^8.1.0",
-		mocha: "^10.2.0",
-		nyc: "^15.1.0",
-		rollup: "^3.10.1",
-		sinon: "^15.0.1"
-	};
-	var nyc = {
-		all: true,
-		include: [
-			"src/**/*.js"
-		]
-	};
-	var require$$8 = {
-		name: name,
-		version: version$1,
-		description: description,
-		author: author,
-		license: license,
-		homepage: homepage,
-		repository: repository,
-		bugs: bugs,
-		main: main,
-		bin: bin,
-		scripts: scripts,
-		dependencies: dependencies,
-		devDependencies: devDependencies,
-		nyc: nyc
 	};
 
 	const u = utils;
