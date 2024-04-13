@@ -3545,7 +3545,7 @@
 	      p.MOSI,
 	    ];
 
-	    local_nets = [
+	    let local_nets = [
 	      p.local_net("1"),
 	      p.local_net("2"),
 	      p.VCC,
@@ -3815,7 +3815,7 @@
 	      p.SDA,
 	    ];
 
-	    local_nets = [
+	    let local_nets = [
 	      p.local_net("1"),
 	      p.local_net("2"),
 	      p.local_net("3"),
@@ -4564,12 +4564,12 @@
 	    };
 
 	    const get_pin_label_override = (p, pin_name) => {
-	      prop_name = `${pin_name}_label`;
+	      let prop_name = `${pin_name}_label`;
 	      return p[prop_name];
 	    };
 
 	    const get_pin_label = (p, pin_name) => {
-	      label = get_pin_label_override(p, pin_name);
+	      let label = get_pin_label_override(p, pin_name);
 	      if (label == '') {
 	        label = get_pin_net_name(p, pin_name);
 	      }
@@ -4611,7 +4611,7 @@
 	      let traces = '';
 	      for (let i = 0; i < 12; i++) {
 	        if (i < 4 || !p.only_required_jumpers) {
-	          row_traces = gen_traces_row(i);
+	          let row_traces = gen_traces_row(i);
 	          traces += row_traces;
 	        }
 	      }
@@ -4835,8 +4835,8 @@
 
 	      let socket_rows = '';
 	      for (let i = 0; i < pin_names.length; i++) {
-	        pin_name_left = pin_names[i][invert_pins ? 1 : 0];
-	        pin_name_right = pin_names[i][invert_pins ? 0 : 1];
+	        let pin_name_left = pin_names[i][invert_pins ? 1 : 0];
+	        let pin_name_right = pin_names[i][invert_pins ? 0 : 1];
 
 	        const socket_row = gen_socket_row(
 	          i, pin_name_left, pin_name_right,
