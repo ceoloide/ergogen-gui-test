@@ -1,17 +1,4 @@
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <http://feross.org>
- * @license  MIT
- */
-
-/*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
-
-/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
-
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
-
-/*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /**
  * @license React
@@ -52,12 +39,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
-/** @license MIT License (c) copyright 2010-2014 original author or authors */
-
-/** @license MIT License (c) copyright 2010-2016 original author or authors */
-
-/** @license MIT License (c) copyright 2010-2017 original author or authors */
 
 /** @license React v16.13.1
  * react-is.production.min.js
