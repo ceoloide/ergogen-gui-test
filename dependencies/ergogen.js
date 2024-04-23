@@ -5713,6 +5713,13 @@
 	//      Alternate version of the footprint compatible with side, reversible, hotswap, solder options in any combination.
 	//      Pretty, allows for connecting ground fill zones via center hole, 
 	//      allows for setting nets to Choc v2 stabilizers and them for your routing needs.
+	//    include_stabilizer_nets: default is false
+	//      if true, will add adjustable nets to choc v2 plated stabilizer holes, 
+	//      LEFTSTAB: default is "D1"
+	//      RIGHTSTAB: default is "D2"
+	//    include_centerhole_net: default is false
+	//      if true, will add adjustable net to the center hole
+	//      CENTERHOLE: default is "GND"
 	//    outer_pad_width_front: default 2.6
 	//    outer_pad_width_back: default 2.6
 	//      Allows you to make the outer hotswap pads smaller to silence DRC
@@ -5729,13 +5736,6 @@
 	//    oval_stabilizer_pad: default is false
 	//      if false, will add an oval pad for the stabilizer leg, and a round one
 	//      if true. Note that the datasheet calls for a round one.
-	//    include_stabilizer_nets: default is false
-	//      if true, will add adjustable nets to choc v2 plated stabilizer holes, 
-	//      LEFTSTAB: default is "D1"
-	//      RIGHTSTAB: default is "D2"
-	//    include_centerhole_net: default is false
-	//      if true, will add adjustable net to the center hole
-	//      CENTERHOLE: default is "GND"
 	//    choc_v1_stabilizers_diameter: default is 1.9 (mm)
 	//      Allows you to narrow Choc v1 stabilizer / boss holes diameter for tighter fit, not recommended to set below 1.7
 	//    choc_v1_support: default is true
@@ -5750,6 +5750,10 @@
 	//      to show a 1.5u outline for easier aligning.
 	//    keycap_width: default is 18
 	//      Allows you to adjust the height of the keycap outline.
+	//    allow_soldermask_bridges: default is true
+	//      Disables 'solder mask aperture bridges items with different nets' DRC check when set to true
+	//      setting this option to false may be useful for debugging purposes, (applied locally to this footprint only)
+	//      for global setting see `allow_soldermask_bridges_in_footprints` in a kicad template
 	//    switch_3dmodel_filename: default is ''
 	//      Allows you to specify the path to a 3D model STEP or WRL file to be
 	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
@@ -5808,6 +5812,7 @@
 	//  - Add ability to set a net to central hole (useful for connecting ground fill zones)
 	//  - Add opposite stabilizer / boss holes when (choc_v2_support & solder & hotswap) options enabled together
 	//  - Change v2 stabilizer / boss holes to plated
+	//  - Add allow_soldermask_bridges option, which disables 'solder mask aperture bridges items with different nets' DRC check
 
 	var switch_choc_v1_v2 = {
 	  params: {
@@ -5815,7 +5820,9 @@
 	    side: 'B',
 	    reversible: false,
 	    hotswap: true,
-	    include_plated_holes: true,
+	    include_plated_holes: false,
+	    include_stabilizer_nets: false,
+	    include_centerhole_net: false,
 	    solder: false,
 	    outer_pad_width_front: 2.6,
 	    outer_pad_width_back: 2.6,
@@ -5825,11 +5832,10 @@
 	    include_corner_marks: false,
 	    include_stabilizer_pad: true,
 	    oval_stabilizer_pad: false,
-	    include_stabilizer_nets: true,
-	    include_centerhole_net: true,
 	    choc_v1_support: true,
 	    choc_v2_support: true,
 	    choc_v1_stabilizers_diameter: 1.9,
+	    allow_soldermask_bridges: true,
 	    switch_3dmodel_filename: '',
 	    switch_3dmodel_xyz_offset: [0, 0, 0],
 	    switch_3dmodel_xyz_rotation: [0, 0, 0],
@@ -5855,7 +5861,7 @@
       ${p.ref_hide}
       (effects (font (size 1 1) (thickness 0.15)))
     )
-    (attr exclude_from_pos_files exclude_from_bom)
+    (attr exclude_from_pos_files exclude_from_bom${p.allow_soldermask_bridges ? ' allow_soldermask_bridges' : ''})
 
     ${''/* middle shaft hole */}
     ${p.include_plated_holes ? `
@@ -5904,28 +5910,28 @@
 
 	    const hotswap_back_pads_plated = `
     (pad "1" smd roundrect (at -2.648 -5.95 ${p.r}) (size 3.8 2.15) (layers "B.Cu") (roundrect_rratio 0.1) ${p.from.str})
-    (pad "1" smd roundrect (at -3.248 -5.95 ${p.r}) (size 2.6 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio 0.1) ${p.from.str})
+    (pad "" smd roundrect (at -3.248 -5.95 ${p.r}) (size 2.6 2.15) (layers "B.Paste" "B.Mask") (roundrect_rratio 0.1))
     (pad "2" smd roundrect (at ${7.6475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back + 1.2} 2.15) (layers "B.Cu") (roundrect_rratio 0.1) ${p.to.str})
-    (pad "2" smd roundrect (at ${8.2475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_back) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_back)}) ${p.to.str})
+    (pad "" smd roundrect (at ${8.2475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.15) (layers "B.Paste" "B.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_back) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_back)}))
     `;
 
 	    const hotswap_front_pads_plated = `
     (pad "1" smd roundrect (at 2.648 -5.95 ${p.r}) (size 3.8 2.15) (layers "F.Cu") (roundrect_rratio 0.1) ${p.from.str})
-    (pad "1" smd roundrect (at 3.248 -5.95 ${p.r}) (size 2.6 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.1) ${p.from.str}) 
+    (pad "" smd roundrect (at 3.248 -5.95 ${p.r}) (size 2.6 2.15) (layers "F.Paste" "F.Mask") (roundrect_rratio 0.1)) 
     (pad "2" smd roundrect (at ${-7.6475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front + 1.2} 2.15) (layers "F.Cu") (roundrect_rratio 0.1) ${p.to.str})
-    (pad "2" smd roundrect (at ${-8.2475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_front) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_front)}) ${p.to.str})
+    (pad "" smd roundrect (at ${-8.2475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.15) (layers "F.Paste" "F.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_front) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_front)}))
     `;
 
 	    const hotswap_back_pads_plated_reversible = `
     (pad "1" smd roundrect (at -3.245 -5.95 ${p.r}) (size 2.65 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio 0.1) ${p.from.str})
     (pad "2" smd roundrect (at ${7.6475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back + 1.2} 2.15) (layers "B.Cu") (roundrect_rratio 0.1) ${p.to.str})
-    (pad "2" smd roundrect (at ${8.2475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_back) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_back)}) ${p.to.str})
+    (pad "" smd roundrect (at ${8.2475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.15) (layers "B.Paste" "B.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_back) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_back)}))
     `;
 
 	    const hotswap_front_pads_plated_reversible = `
     (pad "2" smd roundrect (at 3.245 -5.95 ${p.r}) (size 2.65 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.1) ${p.to.str})
     (pad "1" smd roundrect (at ${-7.6475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front + 1.2} 2.15) (layers "F.Cu") (roundrect_rratio 0.1) ${p.from.str})
-    (pad "1" smd roundrect (at ${-8.2475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_front) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_front)}) ${p.from.str})
+    (pad "" smd roundrect (at ${-8.2475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.15) (layers "F.Paste" "F.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_front) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_front)}))
     `;
 
 	    const hotswap_front_pad_cutoff = `
