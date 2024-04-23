@@ -5709,15 +5709,19 @@
 	//      if true, will include holes and pads for Kailh choc hotswap sockets
 	//    solder: default is false
 	//      if true, will include holes to solder switches (works with hotswap too)
+	//    include_plated_holes: default is false
+	//      Alternate version of the footprint compatible with side, reversible, hotswap, solder options in any combination.
+	//      Pretty, allows for connecting ground fill zones via center hole, 
+	//      allows for setting nets to Choc v2 stabilizers and them for your routing needs.
 	//    outer_pad_width_front: default 2.6
 	//    outer_pad_width_back: default 2.6
 	//      Allows you to make the outer hotswap pads smaller to silence DRC
 	//      warnings when the sockets are too close to the edge cuts. It's not
 	//      recommended to go below 1.6mm to ensure the hotswap socket can be
 	//      properly soldered.
-	//    show_keycaps: default is false
+	//    include_keycap: default is false
 	//      if true, will add mx sized keycap box around the footprint (18mm)
-	//    show_corner_marks: default is false
+	//    include_corner_marks: default is false
 	//      if true, will add corner marks to indicate plate hole size and position
 	//    include_stabilizer_pad: default is true
 	//      if true, will add a corner pad for the stabilizer leg present in some
@@ -5725,6 +5729,15 @@
 	//    oval_stabilizer_pad: default is false
 	//      if false, will add an oval pad for the stabilizer leg, and a round one
 	//      if true. Note that the datasheet calls for a round one.
+	//    include_stabilizer_nets: default is false
+	//      if true, will add adjustable nets to choc v2 plated stabilizer holes, 
+	//      LEFTSTAB: default is "D1"
+	//      RIGHTSTAB: default is "D2"
+	//    include_centerhole_net: default is false
+	//      if true, will add adjustable net to the center hole
+	//      CENTERHOLE: default is "GND"
+	//    choc_v1_stabilizers_diameter: default is 1.9 (mm)
+	//      Allows you to narrow Choc v1 stabilizer / boss holes diameter for tighter fit, not recommended to set below 1.7
 	//    choc_v1_support: default is true
 	//      if true, will add lateral stabilizer holes that are required for
 	//      Choc v1 footprints.
@@ -5732,10 +5745,11 @@
 	//      if true, will make the central hole bigger to as required for
 	//      Choc v2 footprints. If false it will also disable the corner stabilizer
 	//      pad even if include_stabilizer_pad is true.
-	//    keycaps_x: default is 18
-	//    keycaps_y: default is 18
+	//    keycap_height: default is 18
 	//      Allows you to adjust the width of the keycap outline. For example,
 	//      to show a 1.5u outline for easier aligning.
+	//    keycap_width: default is 18
+	//      Allows you to adjust the height of the keycap outline.
 	//    switch_3dmodel_filename: default is ''
 	//      Allows you to specify the path to a 3D model STEP or WRL file to be
 	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
@@ -5788,7 +5802,12 @@
 	//  - Add support for switch 3D model
 	//
 	// @nxtk's improvements:
-	//  - Convert `fp_arc` to a series of `fp_line` for forward KiCad 8 compatibility
+	//  - Add plated version, inspired by @daprice and @ssbb
+	//  - Add ability to adjust v1 stabilizer / boss holes
+	//  - Add ability to assign nets to v2 stabilizer / boss holes (useful for routing diode in place of backlight led)
+	//  - Add ability to set a net to central hole (useful for connecting ground fill zones)
+	//  - Add opposite stabilizer / boss holes when (choc_v2_support & solder & hotswap) options enabled together
+	//  - Change v2 stabilizer / boss holes to plated
 
 	var switch_choc_v1_v2 = {
 	  params: {
@@ -5796,17 +5815,21 @@
 	    side: 'B',
 	    reversible: false,
 	    hotswap: true,
+	    include_plated_holes: true,
 	    solder: false,
 	    outer_pad_width_front: 2.6,
 	    outer_pad_width_back: 2.6,
-	    show_keycaps: false,
-	    show_corner_marks: false,
+	    include_keycap: false,
+	    keycap_width: 18,
+	    keycap_height: 18,
+	    include_corner_marks: false,
 	    include_stabilizer_pad: true,
 	    oval_stabilizer_pad: false,
+	    include_stabilizer_nets: true,
+	    include_centerhole_net: true,
 	    choc_v1_support: true,
 	    choc_v2_support: true,
-	    keycaps_x: 18,
-	    keycaps_y: 18,
+	    choc_v1_stabilizers_diameter: 1.9,
 	    switch_3dmodel_filename: '',
 	    switch_3dmodel_xyz_offset: [0, 0, 0],
 	    switch_3dmodel_xyz_rotation: [0, 0, 0],
@@ -5816,7 +5839,10 @@
 	    hotswap_3dmodel_xyz_rotation: [0, 0, 0],
 	    hotswap_3dmodel_xyz_scale: [1, 1, 1],
 	    from: undefined,
-	    to: undefined
+	    to: undefined,
+	    CENTERHOLE: { type: 'net', value: 'GND'},
+	    LEFTSTAB: { type: 'net', value: 'D1' },
+	    RIGHTSTAB: { type: 'net', value: 'D2' }
 	  },
 	  body: p => {
 	    const common_top = `
@@ -5824,59 +5850,82 @@
     (layer "${p.side}.Cu")
     ${p.at}
     (property "Reference" "${p.ref}"
-      (at 0 0 ${p.r})
+      (at 0 8.8 ${p.r})
       (layer "${p.side}.SilkS")
       ${p.ref_hide}
-      (effects (font (size 1.27 1.27) (thickness 0.15)))
+      (effects (font (size 1 1) (thickness 0.15)))
     )
     (attr exclude_from_pos_files exclude_from_bom)
 
     ${''/* middle shaft hole */}
-    (pad "" np_thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5' : '3.4'} ${p.choc_v2_support ? '5' : '3.4'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask"))
+    ${p.include_plated_holes ? `
+    (pad "" thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5.3 5.3' : '3.7 3.7'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask") ${p.include_centerhole_net ? p.CENTERHOLE : ''})
+    `: `
+    (pad "" np_thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5 5' : '3.4 3.4'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask"))
+    `}
     `;
 
 	    const choc_v1_stabilizers = `
-    (pad "" np_thru_hole circle (at 5.5 0 ${p.r}) (size 1.9 1.9) (drill 1.9) (layers "*.Cu" "*.Mask"))
-    (pad "" np_thru_hole circle (at -5.5 0 ${p.r}) (size 1.9 1.9) (drill 1.9) (layers "*.Cu" "*.Mask"))
+    ${p.include_plated_holes ? `
+    (pad "" thru_hole circle (at 5.5 0 ${p.r}) (size ${p.choc_v1_stabilizers_diameter + 0.3} ${p.choc_v1_stabilizers_diameter + 0.3}) (drill ${p.choc_v1_stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    (pad "" thru_hole circle (at -5.5 0 ${p.r}) (size ${p.choc_v1_stabilizers_diameter + 0.3} ${p.choc_v1_stabilizers_diameter + 0.3}) (drill ${p.choc_v1_stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    `: `
+    (pad "" np_thru_hole circle (at 5.5 0 ${p.r}) (size ${p.choc_v1_stabilizers_diameter} ${p.choc_v1_stabilizers_diameter}) (drill ${p.choc_v1_stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    (pad "" np_thru_hole circle (at -5.5 0 ${p.r}) (size ${p.choc_v1_stabilizers_diameter} ${p.choc_v1_stabilizers_diameter}) (drill ${p.choc_v1_stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    `}
     `;
 
-	    const corner_marks_front = `
+	    const corner_marks = `
     ${''/* corner marks - front */}
-    (fp_line (start -7 -6) (end -7 -7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start -7 7) (end -6 7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start -6 -7) (end -7 -7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start -7 7) (end -7 6) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 7 6) (end 7 7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 7 -7) (end 6 -7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 6 7) (end 7 7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 7 -7) (end 7 -6) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
+    (fp_line (start -7 -6) (end -7 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start -7 7) (end -6 7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start -6 -7) (end -7 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start -7 7) (end -7 6) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 7 6) (end 7 7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 7 -7) (end 6 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 6 7) (end 7 7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 7 -7) (end 7 -6) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
     `;
 
-	    const corner_marks_back = `
-    ${''/* corner marks - back */}
-    (fp_line (start -7 -6) (end -7 -7) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start -7 7) (end -6 7) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start -6 -7) (end -7 -7) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start -7 7) (end -7 6) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 7 6) (end 7 7) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 7 -7) (end 6 -7) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 6 7) (end 7 7) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    (fp_line (start 7 -7) (end 7 -6) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
-    `;
-
-	    const keycap_xo = 0.5 * p.keycaps_x;
-	    const keycap_yo = 0.5 * p.keycaps_y;
+	    const keycap_xo = 0.5 * p.keycap_width;
+	    const keycap_yo = 0.5 * p.keycap_height;
 	    const keycap_marks = `
-    ${'' /* keycap marks - 1u */}
-    (fp_line (start ${-keycap_xo} ${-keycap_yo}) (end ${keycap_xo} ${-keycap_yo}) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
-    (fp_line (start ${keycap_xo} ${-keycap_yo}) (end ${keycap_xo} ${keycap_yo}) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
-    (fp_line (start ${keycap_xo} ${keycap_yo}) (end ${-keycap_xo} ${keycap_yo}) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
-    (fp_line (start ${-keycap_xo} ${keycap_yo}) (end ${-keycap_xo} ${-keycap_yo}) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_rect (start ${keycap_xo} ${keycap_yo}) (end ${-keycap_xo} ${-keycap_yo}) (layer "Dwgs.User") (stroke (width 0.15) (type solid)) (fill none))
     `;
 
 	    const hotswap_common = `
     ${'' /* Middle Hole */}
+    ${p.include_plated_holes ? `
+    (pad ${p.reversible ? '""' : 1} thru_hole circle (at 0 -5.95 ${p.r}) (size 3.3 3.3) (drill 3) (layers "*.Cu" "*.Mask") ${p.reversible ? '' : p.from.str})
+    `: `
     (pad "" np_thru_hole circle (at 0 -5.95 ${p.r}) (size 3 3) (drill 3) (layers "*.Cu" "*.Mask"))
+    `}
+    `;
+
+	    const hotswap_back_pads_plated = `
+    (pad "1" smd roundrect (at -2.648 -5.95 ${p.r}) (size 3.8 2.15) (layers "B.Cu") (roundrect_rratio 0.1) ${p.from.str})
+    (pad "1" smd roundrect (at -3.248 -5.95 ${p.r}) (size 2.6 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio 0.1) ${p.from.str})
+    (pad "2" smd roundrect (at ${7.6475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back + 1.2} 2.15) (layers "B.Cu") (roundrect_rratio 0.1) ${p.to.str})
+    (pad "2" smd roundrect (at ${8.2475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_back) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_back)}) ${p.to.str})
+    `;
+
+	    const hotswap_front_pads_plated = `
+    (pad "1" smd roundrect (at 2.648 -5.95 ${p.r}) (size 3.8 2.15) (layers "F.Cu") (roundrect_rratio 0.1) ${p.from.str})
+    (pad "1" smd roundrect (at 3.248 -5.95 ${p.r}) (size 2.6 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.1) ${p.from.str}) 
+    (pad "2" smd roundrect (at ${-7.6475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front + 1.2} 2.15) (layers "F.Cu") (roundrect_rratio 0.1) ${p.to.str})
+    (pad "2" smd roundrect (at ${-8.2475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_front) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_front)}) ${p.to.str})
+    `;
+
+	    const hotswap_back_pads_plated_reversible = `
+    (pad "1" smd roundrect (at -3.245 -5.95 ${p.r}) (size 2.65 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio 0.1) ${p.from.str})
+    (pad "2" smd roundrect (at ${7.6475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back + 1.2} 2.15) (layers "B.Cu") (roundrect_rratio 0.1) ${p.to.str})
+    (pad "2" smd roundrect (at ${8.2475 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.15) (layers "B.Cu" "B.Paste" "B.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_back) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_back)}) ${p.to.str})
+    `;
+
+	    const hotswap_front_pads_plated_reversible = `
+    (pad "2" smd roundrect (at 3.245 -5.95 ${p.r}) (size 2.65 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.1) ${p.to.str})
+    (pad "1" smd roundrect (at ${-7.6475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front + 1.2} 2.15) (layers "F.Cu") (roundrect_rratio 0.1) ${p.from.str})
+    (pad "1" smd roundrect (at ${-8.2475 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.15) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio ${(2.15 / p.outer_pad_width_front) <= 1 ? 0.1 : 0.1 * (2.15 / p.outer_pad_width_front)}) ${p.from.str})
     `;
 
 	    const hotswap_front_pad_cutoff = `
@@ -5940,6 +5989,18 @@
     (fp_line (start 7 -2) (end 7 -1.5) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
     (fp_arc (start 0.8 -3.7) (mid 1.956518 -3.312082) (end 2.5 -2.22) (layer "B.SilkS") (stroke (width 0.15) (type solid)))
 
+    ${p.include_plated_holes ? `
+    ${'' /* Side Hole */}
+      ${p.reversible ? `
+      (pad "2" thru_hole circle (at 5 -3.75 ${195 + p.r}) (size 3.3 3.3) (drill 3) (layers "*.Cu" "*.Mask") ${p.to.str})
+      ${'' /* Pads */}
+      ${hotswap_back_pads_plated_reversible}
+      `:`
+      (pad "2" thru_hole circle (at 5 -3.75 ${195 + p.r}) (size 3.3 3.3) (drill 3) (layers "*.Cu" "*.Mask") ${p.to.str})
+      ${'' /* Pads */}
+      ${hotswap_back_pads_plated}
+      `}
+    `: `
     ${'' /* Left Pad*/}
     ${p.reversible ? hotswap_back_pad_cutoff : hotswap_back_pad_full}
 
@@ -5947,7 +6008,8 @@
     (pad "2" smd rect (at ${8.275 - (2.6 - p.outer_pad_width_back) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_back} 2.6) (layers "B.Cu" "B.Paste" "B.Mask") ${p.to.str})
 
     ${'' /* Side Hole */}
-    (pad "" np_thru_hole circle (at 5 -3.75 ${195 + p.r}) (size 3 3) (drill 3) (layers "*.Cu" "*.Mask"))            
+    (pad "" np_thru_hole circle (at 5 -3.75 ${195 + p.r}) (size 3 3) (drill 3) (layers "*.Cu" "*.Mask"))
+    `}
     `;
 
 	    const hotswap_front = `
@@ -5968,15 +6030,28 @@
     (fp_line (start 1.5 -3.7) (end -0.8 -3.7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
     (fp_line (start 2 -4.2) (end 1.5 -3.7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
     (fp_arc (start -2.5 -2.22) (mid -1.956518 -3.312082) (end -0.8 -3.7) (layer "F.SilkS") (stroke (width 0.15) (type solid)))
+    
+    ${p.include_plated_holes ? `
+    ${'' /* Side Hole */}
+    ${p.reversible ? `
+    (pad "1" thru_hole circle (at -5 -3.75 ${195 + p.r}) (size 3.3 3.3) (drill 3) (layers "*.Cu" "*.Mask") ${p.from.str})
+    ${'' /* Pads */}
+    ${hotswap_front_pads_plated_reversible}
+    `:`
+    (pad "2" thru_hole circle (at -5 -3.75 ${195 + p.r}) (size 3.3 3.3) (drill 3) (layers "*.Cu" "*.Mask") ${p.to.str})
+    ${'' /* Pads */}
+    ${hotswap_front_pads_plated}
+    `}
+    `: `
+    ${'' /* Side Hole */}
+    (pad "" np_thru_hole circle (at -5 -3.75 ${195 + p.r}) (size 3 3) (drill 3) (layers "*.Cu" "*.Mask"))
 
     ${'' /* Right Pad (cut off) */}
     ${p.reversible ? hotswap_front_pad_cutoff : hotswap_front_pad_full}
 
     ${'' /* Left Pad (not cut off) */}
     (pad "2" smd rect (at ${-8.275 + (2.6 - p.outer_pad_width_front) / 2} -3.75 ${p.r}) (size ${p.outer_pad_width_front} 2.6) (layers "F.Cu" "F.Paste" "F.Mask") ${p.to.str})
-
-    ${'' /* Side Hole */}
-    (pad "" np_thru_hole circle (at -5 -3.75 ${195 + p.r}) (size 3 3) (drill 3) (layers "*.Cu" "*.Mask"))
+    `}
     `;
 
 	    // If both hotswap and solder are enabled, move the solder holes
@@ -5997,6 +6072,7 @@
 	      stab_offset_x_back = '';
 	      stab_offset_y = '';
 	    }
+
 	    const solder_common = `
     (pad "2" thru_hole circle (at 0 ${solder_offset_y}5.9 ${195 + p.r}) (size 2.032 2.032) (drill 1.27) (layers "*.Cu" "*.Mask") ${p.from.str})
     `;
@@ -6004,21 +6080,27 @@
 	    const solder_front = `
     (pad "1" thru_hole circle (at ${solder_offset_x_front}5 ${solder_offset_y}3.8 ${195 + p.r}) (size 2.032 2.032) (drill 1.27) (layers "*.Cu" "*.Mask") ${p.to.str})
     `;
+	    
 	    const solder_back = `
-    (pad "1" thru_hole circle (at ${solder_offset_x_back}5 ${solder_offset_y}3.8 ${195 + p.r}) (size 2.032 2.032) (drill 1.27) (layers "*.Cu" "*.Mask") ${p.to.str})  
+    (pad "1" thru_hole circle (at ${solder_offset_x_back}5 ${solder_offset_y}3.8 ${195 + p.r}) (size 2.032 2.032) (drill 1.27) (layers "*.Cu" "*.Mask") ${p.to.str})
     `;
+
 	    const oval_corner_stab_front = `
-    (pad "" thru_hole oval (at ${stab_offset_x_front}5 ${stab_offset_y}5.15 ${p.r}) (size 2.4 1.2) (drill oval 1.6 0.4) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : ''})
+    (pad "" thru_hole oval (at ${stab_offset_x_front}5 ${stab_offset_y}5.15 ${p.r}) (size 2.4 1.2) (drill oval 1.6 0.4) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : p.include_stabilizer_nets ? p.RIGHTSTAB : ''})
     `;
+
 	    const oval_corner_stab_back = `
-    (pad "" thru_hole oval (at ${stab_offset_x_back}5 ${stab_offset_y}5.15 ${p.r}) (size 2.4 1.2) (drill oval 1.6 0.4) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : ''})
+    (pad "" thru_hole oval (at ${stab_offset_x_back}5 ${stab_offset_y}5.15 ${p.r}) (size 2.4 1.2) (drill oval 1.6 0.4) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : p.include_stabilizer_nets ? p.LEFTSTAB : ''})
     `;
+
 	    const round_corner_stab_front = `
-    (pad "" np_thru_hole circle (at ${stab_offset_x_front}5.00 ${stab_offset_y}5.15 ${p.r}) (size 1.6 1.6) (drill 1.6) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : ''})
+    (pad "" thru_hole circle (at ${stab_offset_x_front}5.00 ${stab_offset_y}5.15 ${p.r}) (size 1.9 1.9) (drill 1.6) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : p.include_stabilizer_nets ? p.RIGHTSTAB : ''})
     `;
+
 	    const round_corner_stab_back = `
-    (pad "" np_thru_hole circle (at ${stab_offset_x_back}5.00 ${stab_offset_y}5.15 ${p.r}) (size 1.6 1.6) (drill 1.6) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : ''})
+    (pad "" thru_hole circle (at ${stab_offset_x_back}5.00 ${stab_offset_y}5.15 ${p.r}) (size 1.9 1.9) (drill 1.6) (layers "*.Cu" "*.Mask") ${p.solder && p.hotswap ? p.to.str : p.include_stabilizer_nets ? p.LEFTSTAB : ''})
     `;
+
 	    const switch_3dmodel = `
     (model ${p.switch_3dmodel_filename}
       (offset (xyz ${p.switch_3dmodel_xyz_offset[0]} ${p.switch_3dmodel_xyz_offset[1]} ${p.switch_3dmodel_xyz_offset[2]}))
@@ -6043,15 +6125,10 @@
 	    if (p.choc_v1_support) {
 	      final += choc_v1_stabilizers;
 	    }
-	    if (p.show_corner_marks) {
-	      if (p.reversible || p.side == "F") {
-	        final += corner_marks_front;
-	      }
-	      if (p.reversible || p.side == "B") {
-	        final += corner_marks_back;
-	      }
+	    if (p.include_corner_marks) {
+	      final += corner_marks;
 	    }
-	    if (p.show_keycaps) {
+	    if (p.include_keycap) {
 	      final += keycap_marks;
 	    }
 	    if (p.include_stabilizer_pad && p.choc_v2_support) {
@@ -6084,6 +6161,272 @@
 	    }
 	    if (p.solder) {
 	      final += solder_common;
+	      if (p.reversible || p.side == "F") {
+	        final += solder_front;
+	      }
+	      if (p.reversible || p.side == "B") {
+	        final += solder_back;
+	      }
+	    }
+
+	    if (p.switch_3dmodel_filename) {
+	      final += switch_3dmodel;
+	    }
+	    final += common_bottom;
+
+	    return final
+	  }
+	};
+
+	/*
+	Copyright (c) 2023 Marco Massarelli
+
+	SPDX-License-Identifier: MIT
+
+	To view a copy of this license, visit https://opensource.org/license/mit/
+
+	Author: @ceoloide
+
+	Description:
+	   Cherry MX compatible reversible and hotswappable footprint.
+
+	Notes:
+	- Hotswap and solder can be used together. The solder holes will then be
+	  added above the hotswap holes.
+
+	Nets:
+	   from: corresponds to pin 1
+	   to: corresponds to pin 2
+
+	Params:
+	  side: default is B for Back
+	    the side on which to place the single-side footprint and designator, either F or B
+	  reversible: default is false
+	    if true, the footprint will be placed on both sides so that the PCB can be
+	    reversible
+	  hotswap: default is true
+	    if true, will include holes and pads for Kailh choc hotswap sockets
+	  solder: default is false
+	    if true, will include holes to solder switches (works with hotswap too)
+	  outer_pad_width_front: default 2.6
+	  outer_pad_width_back: default 2.6
+	    Allows you to make the outer hotswap pads smaller to silence DRC
+	    warnings when the sockets are too close to the edge cuts. It's not
+	    recommended to go below 1.6mm to ensure the hotswap socket can be
+	    properly soldered.
+	  outer_pad_height: default 2.5 (mm)
+	    Allows you to make the outer hotswap pad vertically shorter, e.g. to make room for 
+	    encoder pads to be colocated with the switch (use 2.0mm for EC12).  
+	   stabilizers_diameter: default is 1.9 (mm)
+	     Allows you to narrow stabilizer / boss holes diameter for tighter fit, not
+	     recommended to set below 1.7mm.
+	  include_keycap: default is false
+	    if true, will add mx sized keycap box around the footprint (18mm)
+	  keycap_width: default is 18 (mm - defualt MX size)
+	    Allows you to adjust the height of the keycap outline.
+	  keycap_height: default is 18 (mm - default MX size)
+	    Allows you to adjust the width of the keycap outline. For example,
+	    to show a 1.5u outline for easier aligning.
+	  include_corner_marks: default is false
+	    if true, will add corner marks to indicate plate hole size and position
+	  include_silkscreen: default is true
+	    if true it will include the silkscreen. Recommended to be true to ensure connector
+	    polarity is not reversed, which can lead to shorting and damage to the MCU
+	  switch_3dmodel_filename: default is ''
+	    Allows you to specify the path to a 3D model STEP or WRL file to be
+	    used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	    a KiCad configured path.
+	  switch_3dmodel_xyz_offset: default is [0, 0, 0]
+	    xyz offset (in mm), used to adjust the position of the 3d model
+	    relative the footprint.
+	  switch_3dmodel_xyz_scale: default is [1, 1, 1]
+	    xyz scale, used to adjust the size of the 3d model relative to its
+	    original size.
+	  switch_3dmodel_xyz_rotation: default is [0, 0, 0]
+	    xyz rotation (in degrees), used to adjust the orientation of the 3d
+	    model relative the footprint.
+	  hotswap_3dmodel_filename: default is ''
+	    Allows you to specify the path to a 3D model to be used when rendering
+	    the PCB. Allows for paths using a configured path by using the
+	    ${VAR_NAME} syntax.
+	  hotswap_3dmodel_xyz_offset: default is [0, 0, 0]
+	    xyz offset (in mm), used to adjust the position of the 3d model
+	    relative the footprint.
+	  hotswap_3dmodel_xyz_scale: default is [1, 1, 1]
+	    xyz scale, used to adjust the size of the 3d model relative its
+	    original size.
+	  hotswap_3dmodel_xyz_rotation: default is [0, 0, 0]
+	    xyz rotation (in degrees), used to adjust the orientation of the 3d
+	    model relative the footprint.
+	*/
+
+	var switch_mx = {
+	  params: {
+	    designator: 'S',
+	    side: 'B',
+	    reversible: false,
+	    hotswap: true,
+	    solder: false,
+	    outer_pad_width_front: 2.6,
+	    outer_pad_width_back: 2.6,
+	    outer_pad_height: 2.5,
+	    stabilizers_diameter: 1.9,
+	    include_keycap: false,
+	    keycap_width: 18,
+	    keycap_height: 18,
+	    include_corner_marks: false,
+	    include_silkscreen: true,
+	    switch_3dmodel_filename: '',
+	    switch_3dmodel_xyz_offset: [0, 0, 0],
+	    switch_3dmodel_xyz_rotation: [0, 0, 0],
+	    switch_3dmodel_xyz_scale: [1, 1, 1],
+	    hotswap_3dmodel_filename: '',
+	    hotswap_3dmodel_xyz_offset: [0, 0, 0],
+	    hotswap_3dmodel_xyz_rotation: [0, 0, 0],
+	    hotswap_3dmodel_xyz_scale: [1, 1, 1],
+	    from: undefined,
+	    to: undefined
+	  },
+	  body: p => {
+	    const common_top = `
+  (footprint "ceoloide:switch_mx"
+    (layer "${p.side}.Cu")
+    ${p.at}
+    (property "Reference" "${p.ref}"
+      (at 0 -7.5 180)
+      (layer "${p.side}.SilkS")
+      ${p.ref_hide}
+      (effects (font (size 1 1) (thickness 0.15)))
+    )
+    
+    (pad "" np_thru_hole circle (at 0 0 90) (size 4.1 4.1) (drill 4.1) (layers "*.Cu" "*.Mask"))
+    (pad "" np_thru_hole circle (at 5.08 0 180) (size ${p.stabilizers_diameter} ${p.stabilizers_diameter}) (drill ${p.stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    (pad "" np_thru_hole circle (at -5.08 0 180) (size ${p.stabilizers_diameter} ${p.stabilizers_diameter}) (drill ${p.stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    `;
+	    const corner_marks = `
+    (fp_line (start -7 -6) (end -7 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start -7 7) (end -6 7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start -6 -7) (end -7 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start -7 7) (end -7 6) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 7 6) (end 7 7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 7 -7) (end 6 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 6 7) (end 7 7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    (fp_line (start 7 -7) (end 7 -6) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
+    `;
+	    const keycap_xo = 0.5 * p.keycap_width;
+	    const keycap_yo = 0.5 * p.keycap_height;
+	    const keycap_marks = `
+    (fp_rect (start ${keycap_xo} ${keycap_yo}) (end ${-keycap_xo} ${-keycap_yo}) (layer "Dwgs.User") (stroke (width 0.15) (type solid)) (fill none))
+    `;
+
+	    const hotswap_front = `
+		(pad "" np_thru_hole circle (at -2.54 -5.08 180) (size 3 3) (drill 3) (layers "F&B.Cu" "*.Mask"))
+		(pad "" np_thru_hole circle (at 3.81 -2.54 180) (size 3 3) (drill 3) (layers "F&B.Cu" "*.Mask"))
+		(pad "1" smd rect (at 7.085 -2.54) (size 2.55 ${p.outer_pad_height}) (layers "F.Cu" "F.Paste" "F.Mask") ${p.from})
+		(pad "2" smd rect (at -5.842 -5.08) (size 2.55 2.5) (layers "F.Cu" "F.Paste" "F.Mask") ${p.to})
+    `;
+
+	    const hotswap_back = `
+		(pad "" np_thru_hole circle (at 2.54 -5.08 180) (size 3 3) (drill 3) (layers "F&B.Cu" "*.Mask"))
+		(pad "" np_thru_hole circle (at -3.81 -2.54 180) (size 3 3) (drill 3) (layers "F&B.Cu" "*.Mask"))
+		(pad "1" smd rect (at -7.085 -2.54) (size 2.55 ${p.outer_pad_height}) (layers "B.Cu" "B.Paste" "B.Mask") ${p.from})
+		(pad "2" smd rect (at 5.842 -5.08) (size 2.55 2.5) (layers "B.Cu" "B.Paste" "B.Mask") ${p.to})
+    `;
+
+	    const hotswap_silkscreen_back = `
+		(fp_poly
+			(pts
+				(xy -3.6 -6.5) (xy -3.8 -6.5) (xy -4.1 -6.45) (xy -4.4 -6.35) (xy -4.6 -6.25) (xy -4.75 -6.15) (xy -4.95 -6)
+				(xy -5.1 -5.85) (xy -5.25 -5.65) (xy -5.4 -5.4) (xy -5.5 -5) (xy -5.5 -4.6) (xy -5.35 -4.5) (xy -5.2 -4.4)
+				(xy -4.75 -4.65) (xy -4.5 -4.75) (xy -4.05 -4.85) (xy -3.55 -4.85) (xy -2.95 -4.7) (xy -2.45 -4.4) (xy -2.15 -4.15)
+        (xy -1.75 -3.6) (xy -1.55 -3.05) (xy -1.5 -2.6) (xy -1.25 -2.8) (xy -0.9 -2.9) (xy -0.4 -2.95) (xy 1.65 -2.95)
+        (xy 1.2 -3.2) (xy 0.95 -3.4) (xy 0.65 -3.75) (xy 0.5 -4) (xy 0.35 -4.35) (xy 0.25 -4.75) (xy 0.25 -5.05)
+        (xy 0.25 -5.4) (xy 0.3 -5.65) (xy 0.45 -6.05) (xy 0.75 -6.5)
+			)
+			(stroke (width 0.4) (type solid))
+			(fill solid)
+			(layer "B.SilkS")
+		)
+    `;
+	    const hotswap_silkscreen_front = `
+		(fp_poly
+			(pts
+				(xy 3.6 -6.5) (xy 3.8 -6.5) (xy 4.1 -6.45) (xy 4.4 -6.35) (xy 4.6 -6.25) (xy 4.75 -6.15) (xy 4.95 -6)
+				(xy 5.1 -5.85) (xy 5.25 -5.65) (xy 5.4 -5.4) (xy 5.5 -5) (xy 5.5 -4.6) (xy 5.35 -4.5) (xy 5.2 -4.4)
+				(xy 4.75 -4.65) (xy 4.5 -4.75) (xy 4.05 -4.85) (xy 3.55 -4.85) (xy 2.95 -4.7) (xy 2.45 -4.4) (xy 2.15 -4.15)
+				(xy 1.75 -3.6) (xy 1.55 -3.05) (xy 1.5 -2.6) (xy 1.25 -2.8) (xy 0.9 -2.9) (xy 0.4 -2.95) (xy -1.65 -2.95)
+				(xy -1.2 -3.2) (xy -0.95 -3.4) (xy -0.65 -3.75) (xy -0.5 -4) (xy -0.35 -4.35) (xy -0.25 -4.75) (xy -0.25 -5.05)
+				(xy -0.25 -5.4) (xy -0.3 -5.65) (xy -0.45 -6.05) (xy -0.75 -6.5)
+			)
+			(stroke (width 0.4) (type solid))
+			(fill solid)
+			(layer "F.SilkS")
+		)
+    `;
+	    const hotswap_silkscreen_reversible = `
+		(fp_line (start 1.22 -3.77) (end 0 -2.52) (stroke (width 0.1) (type default)) (layer "B.SilkS"))
+		(fp_line (start 0 -2.52) (end -1.88 -2.52) (stroke (width 0.1) (type default)) (layer "B.SilkS"))
+		(fp_line (start -1.22 -3.77) (end 0 -2.52) (stroke (width 0.1) (type default)) (layer "F.SilkS"))
+		(fp_line (start 0 -2.52) (end 1.88 -2.52) (stroke (width 0.1) (type default)) (layer "F.SilkS"))
+    `;
+
+	    const solder_front = `
+    (pad "1" thru_hole circle (at ${p.solder && p.hotswap ? '' : '-'}2.54 ${p.solder && p.hotswap ? '' : '-'}5.08) (size 2.286 2.286) (drill 1.4986) (layers "F&B.Cu" "*.Mask") ${p.from})
+    (pad "2" thru_hole circle (at ${p.solder && p.hotswap ? '-' : ''}3.81 ${p.solder && p.hotswap ? '' : '-'}2.54) (size 2.286 2.286) (drill 1.4986) (layers "F&B.Cu" "*.Mask") ${p.to})
+    `;
+	    const solder_back = `
+    (pad "1" thru_hole circle (at ${p.solder && p.hotswap ? '-' : ''}2.54 ${p.solder && p.hotswap ? '' : '-'}5.08) (size 2.286 2.286) (drill 1.4986) (layers "F&B.Cu" "*.Mask") ${p.from})
+    (pad "2" thru_hole circle (at ${p.solder && p.hotswap ? '' : '-'}3.81 ${p.solder && p.hotswap ? '' : '-'}2.54) (size 2.286 2.286) (drill 1.4986) (layers "F&B.Cu" "*.Mask") ${p.to})
+    `;
+
+	    const switch_3dmodel = `
+    (model ${p.switch_3dmodel_filename}
+      (offset (xyz ${p.switch_3dmodel_xyz_offset[0]} ${p.switch_3dmodel_xyz_offset[1]} ${p.switch_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.switch_3dmodel_xyz_scale[0]} ${p.switch_3dmodel_xyz_scale[1]} ${p.switch_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.switch_3dmodel_xyz_rotation[0]} ${p.switch_3dmodel_xyz_rotation[1]} ${p.switch_3dmodel_xyz_rotation[2]}))
+    )
+    `;
+
+	    const hotswap_3dmodel = `
+    (model ${p.hotswap_3dmodel_filename}
+      (offset (xyz ${p.hotswap_3dmodel_xyz_offset[0]} ${p.hotswap_3dmodel_xyz_offset[1]} ${p.hotswap_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.hotswap_3dmodel_xyz_scale[0]} ${p.hotswap_3dmodel_xyz_scale[1]} ${p.hotswap_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.hotswap_3dmodel_xyz_rotation[0]} ${p.hotswap_3dmodel_xyz_rotation[1]} ${p.hotswap_3dmodel_xyz_rotation[2]}))
+    )
+	  `;
+
+	    const common_bottom = `
+  )
+    `;
+
+	    let final = common_top;
+	    if (p.include_corner_marks) {
+	      final += corner_marks;
+	    }
+	    if (p.include_keycap) {
+	      final += keycap_marks;
+	    }
+	    if (p.hotswap) {
+	      if (p.reversible || p.side == "F") {
+	        final += hotswap_front;
+	        if (p.include_silkscree && !p.reversible) {
+	          final += hotswap_silkscreen_front;
+	        }
+	      }
+	      if (p.reversible || p.side == "B") {
+	        final += hotswap_back;
+	        if (p.include_silkscreen && !p.reversible) {
+	          final += hotswap_silkscreen_back;
+	        }
+	      }
+	      if (p.hotswap_3dmodel_filename) {
+	        final += hotswap_3dmodel;
+	      }
+	      if (p.include_silkscreen && p.reversible) {
+	        final += hotswap_silkscreen_reversible;
+	      }
+	    }
+	    if (p.solder) {
 	      if (p.reversible || p.side == "F") {
 	        final += solder_front;
 	      }
@@ -9078,6 +9421,7 @@
 	  'ceoloide/reset_switch_smd_side': reset_switch_smd_side,
 	  'ceoloide/reset_switch_tht_top': reset_switch_tht_top,
 	  'ceoloide/switch_choc_v1_v2': switch_choc_v1_v2,
+	  'ceoloide/switch_mx': switch_mx,
 	  'ceoloide/trrs_pj320a': trrs_pj320a,
 	  'ceoloide/utility_ergogen_logo': utility_ergogen_logo,
 	  'ceoloide/utility_filled_zone': utility_filled_zone,
