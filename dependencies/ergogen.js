@@ -6935,15 +6935,14 @@
 
 	    let final = top;
 
-	    // TODO: Remove check when https://github.com/ergogen/ergogen/pull/103 is merged
-	    if ('point' in p) {
+	    if ('point' in p) { // Only available from commit #852c100
 	      final += ` 
-    (fp_text user '${p.point.meta.name}'
+    (fp_text user "${p.point.meta.name}"
       (at -0.3 -0.05 ${p.r})
-      (layer 'Dwgs.User')
+      (layer "Dwgs.User")
       (effects (font (size 0.0254 0.0254) (thickness 0.001)))
     )
-          `;
+      `;
 	    }
 
 	    final += bottom;
