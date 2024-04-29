@@ -5726,6 +5726,11 @@
 	    larger and work well enough.
 	  include_silkscreen: default is true
 	    if true it will include the silkscreen.
+	  include_plated_mounting_holes: default is true
+	    If true, it will include plated mounting holes and their pads, instead of just mechanical
+	    NPTH for the mounting pins. The advantage of NPTH is that they can be more easily co-located
+	    with Cherry MX mounting pins, allowing the Cherry MX hotswap pads to be 2.3 mm tall instead of
+	    2.0 mmm.
 	  mounting_holes_position: default is 5.6 (mm)
 	    The distance in mm from the center of the footprint where to position the side mounting
 	    pads. The datasheet calls for 5.7mm, but wider position can be accommodated by bending
@@ -5767,6 +5772,7 @@
 	    include_momentary_switch_pads: true,
 	    include_plate_hole_marking: false,
 	    include_silkscreen: true,
+	    include_plated_mounting_holes: true,
 	    mounting_holes_position: 5.6,
 	    mounting_holes_height: 2.3,
 	    mounting_holes_width: 1.5,
@@ -5798,6 +5804,15 @@
       (effects (font (size 1 1) (thickness 0.15))${p.side == 'F' ? ' (justify mirror)' : ''})
     )`:''}
     (attr through_hole)
+    (pad "A" thru_hole oval (at 2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.A})
+    (pad "B" thru_hole oval (at 0 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.B})
+    (pad "C" thru_hole oval (at -2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.C})
+    `;
+	    const momentary_switch_pads = `
+    (pad "S1" thru_hole oval (at -2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S1})
+    (pad "S2" thru_hole oval (at 2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S2})
+    `;
+	    const plated_mp = `
     (pad "" thru_hole roundrect
       (at -${p.mounting_holes_position} 0 ${p.r - 90})
       (size ${p.mounting_holes_height+0.3} ${p.mounting_holes_width+0.3})
@@ -5816,13 +5831,18 @@
       (chamfer_ratio 0.2)
       (chamfer bottom_right bottom_left)
     )
-    (pad "A" thru_hole oval (at 2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.A})
-    (pad "B" thru_hole oval (at 0 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.B})
-    (pad "C" thru_hole oval (at -2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.C})
     `;
-	    const momentary_switch_pads = `
-    (pad "S1" thru_hole oval (at -2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S1})
-    (pad "S2" thru_hole oval (at 2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S2})
+	    const npth_mp = `
+    (pad "" np_thru_hole oval
+      (at -${p.mounting_holes_position} 0 ${p.r - 90})
+      (size ${p.mounting_holes_height} ${p.mounting_holes_width})
+      (drill oval ${p.mounting_holes_height} ${p.mounting_holes_width})
+    )    
+    (pad "" np_thru_hole oval
+      (at ${p.mounting_holes_position} 0 ${p.r - 90})
+      (size ${p.mounting_holes_height} ${p.mounting_holes_width})
+      (drill oval ${p.mounting_holes_height} ${p.mounting_holes_width})
+    )
     `;
 	    const plate_hole = `
     (fp_rect (start -5.9 -6) (end 5.9 6) (layer "Dwgs.User") (stroke (width 0.15) (type solid)) (fill none))
@@ -5841,6 +5861,11 @@
 	    let final = common_top;
 	    if (p.include_momentary_switch_pads) {
 	      final += momentary_switch_pads;
+	    }
+	    if (p.include_plated_mounting_holes) {
+	      final += plated_mp;
+	    } else {
+	      final += npth_mp;
 	    }
 	    if (p.include_plate_hole_marking) {
 	      final += plate_hole;
@@ -7014,7 +7039,7 @@
 		(pad "" np_thru_hole circle (at -3.81 -2.54 180) (size 3 3) (drill 3) (layers "F&B.Cu" "*.Mask"))
 		(pad "1" smd rect (at -7.085 -2.54 ${p.r}) (size 2.55 ${p.outer_pad_height}) (layers "B.Cu" "B.Paste" "B.Mask") ${p.from})
 		(pad "2" smd roundrect
-      (at 5.842 -5.0 ${p.r})
+      (at 5.842 -5.08 ${p.r})
       (size 2.55 2.5)
       (layers "B.Cu" "B.Paste" "B.Mask")
 			(roundrect_rratio 0)
