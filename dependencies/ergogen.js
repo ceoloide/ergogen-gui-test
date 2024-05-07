@@ -4618,6 +4618,19 @@
 	//      or above 0.4 (KiCad default), to avoid overlap or DRC errors. 
 	//    Pxx_label, VCC_label, RAW_label, GND_label, RST_label: default is ''
 	//      allows to override the label for each pin
+	//    mcu_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    mcu_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    mcu_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    mcu_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 	//
 	// @infused-kim's improvements:
 	//  - Use real traces instead of pads, which gets rid of hundreds of DRC errors.
@@ -4671,6 +4684,11 @@
 	    show_silk_labels: true,
 	    show_silk_labels_on_both_sides: true,
 	    show_via_labels: true,
+
+	    mcu_3dmodel_filename: '',
+	    mcu_3dmodel_xyz_offset: [0, 0, 0],
+	    mcu_3dmodel_xyz_rotation: [0, 0, 0],
+	    mcu_3dmodel_xyz_scale: [1, 1, 1],
 
 	    RAW_label: '',
 	    GND_label: '',
@@ -5101,6 +5119,14 @@
     (pad "29" thru_hole circle (at ${invert_pins ? '-' : ''}2.54 ${-12.7 + 25.4} ${p.r}) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") ${p.P102})
     `;
 
+	    const mcu_3dmodel = `
+    (model ${p.mcu_3dmodel_filename}
+      (offset (xyz ${p.mcu_3dmodel_xyz_offset[0]} ${p.mcu_3dmodel_xyz_offset[1]} ${p.mcu_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.mcu_3dmodel_xyz_scale[0]} ${p.mcu_3dmodel_xyz_scale[1]} ${p.mcu_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.mcu_3dmodel_xyz_rotation[0]} ${p.mcu_3dmodel_xyz_rotation[1]} ${p.mcu_3dmodel_xyz_rotation[2]}))
+    )
+    `;
+
 	    return `
     ${''/* Controller*/}
     ${common_top}
@@ -5108,6 +5134,7 @@
     ${p.include_extra_pins && (!p.reversible || (p.reversible && p.only_required_jumpers)) ? extra_pins : ''}
     ${p.include_extra_pins && p.reversible && p.only_required_jumpers ? extra_pins_reversible : ''}
     ${p.reversible && p.show_instructions ? instructions : ''}
+    ${p.mcu_3dmodel_filename ? mcu_3dmodel : ''}
   )
 
   ${''/* Traces */}
@@ -5305,6 +5332,19 @@
 	//      connects Bat+ to RAW.
 	//    include_courtyard: default is false
 	//      if true it will include the courtyard around the component
+	//    switch_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    switch_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    switch_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    switch_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 	//
 	// @ceoloide's improvements:
 	//  - Add ability to set text on both sides
@@ -5322,6 +5362,10 @@
 	    invert_behavior: true,
 	    include_silkscreen: true,
 	    include_courtyard: false,
+	    switch_3dmodel_filename: '',
+	    switch_3dmodel_xyz_offset: [0, 0, 0],
+	    switch_3dmodel_xyz_rotation: [0, 0, 0],
+	    switch_3dmodel_xyz_scale: [1, 1, 1],
 	    from: { type: 'net', value: 'BAT_P' },
 	    to: { type: 'net', value: 'RAW' },
 	  },
@@ -5339,11 +5383,11 @@
     (attr smd)
     `;
 	    const silkscreen_front = `
-    (fp_text user "ON" (at 0 ${p.invert_behavior ? '-' : ''}4.5 ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify ${p.invert_behavior ? 'bottom' : 'top'}))
+    (fp_text user "ON" (at 0 ${p.invert_behavior ? '-' : ''}5 ${p.r}) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)))
     )
-    (fp_text user "OFF" (at 0 ${p.invert_behavior ? '' : '-'}4.5 ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify ${p.invert_behavior ? 'top' : 'bottom'}))
+    (fp_text user "OFF" (at 0 ${p.invert_behavior ? '' : '-'}5 ${p.r}) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_line (start 0.415 -3.45) (end -0.375 -3.45) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start -0.375 3.45) (end 0.415 3.45) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
@@ -5355,11 +5399,11 @@
     (fp_text user "${p.ref}" (at -3.5 0 ${90 + p.r}) (layer "B.SilkS") ${p.ref_hide}
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
-    (fp_text user "ON" (at 0 ${p.invert_behavior ? '-' : ''}4.5 ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify ${p.invert_behavior ? 'bottom' : 'top'} mirror))
+    (fp_text user "ON" (at 0 ${p.invert_behavior ? '-' : ''}5 ${p.r}) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
-    (fp_text user "OFF" (at 0 ${p.invert_behavior ? '' : '-'}4.5 ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify ${p.invert_behavior ? 'top' : 'bottom'} mirror))
+    (fp_text user "OFF" (at 0 ${p.invert_behavior ? '' : '-'}5 ${p.r}) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
     (fp_line (start -1.425 1.4) (end -1.425 1.6) (layer "B.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start 0.415 3.45) (end -0.375 3.45) (layer "B.SilkS") (stroke (width 0.12) (type solid)))
@@ -5432,6 +5476,14 @@
   )
     `;
 
+	    const switch_3dmodel = `
+    (model ${p.switch_3dmodel_filename}
+      (offset (xyz ${p.switch_3dmodel_xyz_offset[0]} ${p.switch_3dmodel_xyz_offset[1]} ${p.switch_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.switch_3dmodel_xyz_scale[0]} ${p.switch_3dmodel_xyz_scale[1]} ${p.switch_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.switch_3dmodel_xyz_rotation[0]} ${p.switch_3dmodel_xyz_rotation[1]} ${p.switch_3dmodel_xyz_rotation[2]}))
+    )
+    `;
+
 	    let final = common_start;
 	    if (p.side == "F" || p.reversible) {
 	      final += pads_front;
@@ -5451,6 +5503,11 @@
 	        final += courtyard_back;
 	      }
 	    }
+
+	    if (p.switch_3dmodel_filename) {
+	      final += switch_3dmodel;
+	    }
+
 	    final += common_end;
 	    return final;
 	  }
@@ -5983,6 +6040,19 @@
 	//    hotswap_3dmodel_xyz_rotation: default is [0, 0, 0]
 	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
 	//      model relative the footprint.
+	//    keycap_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    keycap_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    keycap_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    keycap_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 	//
 	// Notes:
 	// - Hotswap and solder can be used together. The solder holes will then be
@@ -6052,6 +6122,10 @@
 	    hotswap_3dmodel_xyz_offset: [0, 0, 0],
 	    hotswap_3dmodel_xyz_rotation: [0, 0, 0],
 	    hotswap_3dmodel_xyz_scale: [1, 1, 1],
+	    keycap_3dmodel_filename: '',
+	    keycap_3dmodel_xyz_offset: [0, 0, 0],
+	    keycap_3dmodel_xyz_rotation: [0, 0, 0],
+	    keycap_3dmodel_xyz_scale: [1, 1, 1],
 	    from: undefined,
 	    to: undefined,
 	    CENTERHOLE: { type: 'net', value: 'GND'},
@@ -6329,6 +6403,14 @@
     )
 	  `;
 
+	    const keycap_3dmodel = `
+    (model ${p.keycap_3dmodel_filename}
+      (offset (xyz ${p.keycap_3dmodel_xyz_offset[0]} ${p.keycap_3dmodel_xyz_offset[1]} ${p.keycap_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.keycap_3dmodel_xyz_scale[0]} ${p.keycap_3dmodel_xyz_scale[1]} ${p.keycap_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.keycap_3dmodel_xyz_rotation[0]} ${p.keycap_3dmodel_xyz_rotation[1]} ${p.keycap_3dmodel_xyz_rotation[2]}))
+    )
+	  `;
+
 	    const common_bottom = `
   )
     `;
@@ -6390,6 +6472,11 @@
 	    if (p.switch_3dmodel_filename) {
 	      final += switch_3dmodel;
 	    }
+
+	    if (p.keycap_3dmodel_filename) {
+	      final += keycap_3dmodel;
+	    }
+
 	    final += common_bottom;
 
 	    return final
@@ -6486,6 +6573,19 @@
 	//    hotswap_3dmodel_xyz_rotation: default is [0, 0, 0]
 	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
 	//      model relative the footprint.
+	//    keycap_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    keycap_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    keycap_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    keycap_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 
 	var switch_gateron_ks27_ks33 = {
 	  params: {
@@ -6515,6 +6615,10 @@
 	    hotswap_3dmodel_xyz_offset: [0, 0, 0],
 	    hotswap_3dmodel_xyz_rotation: [0, 0, 0],
 	    hotswap_3dmodel_xyz_scale: [1, 1, 1],
+	    keycap_3dmodel_filename: '',
+	    keycap_3dmodel_xyz_offset: [0, 0, 0],
+	    keycap_3dmodel_xyz_rotation: [0, 0, 0],
+	    keycap_3dmodel_xyz_scale: [1, 1, 1],
 	    from: undefined,
 	    to: undefined,
 	    CENTERHOLE: { type: 'net', value: 'GND' },
@@ -6821,6 +6925,14 @@
     )
 	  `;
 
+	    const keycap_3dmodel = `
+    (model ${p.keycap_3dmodel_filename}
+      (offset (xyz ${p.keycap_3dmodel_xyz_offset[0]} ${p.keycap_3dmodel_xyz_offset[1]} ${p.keycap_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.keycap_3dmodel_xyz_scale[0]} ${p.keycap_3dmodel_xyz_scale[1]} ${p.keycap_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.keycap_3dmodel_xyz_rotation[0]} ${p.keycap_3dmodel_xyz_rotation[1]} ${p.keycap_3dmodel_xyz_rotation[2]}))
+    )
+	  `;
+
 	    const common_bottom = `
   )
     `;
@@ -6894,6 +7006,10 @@
 	    
 	    if (p.switch_3dmodel_filename) {
 	      final += switch_3dmodel;
+	    }
+
+	    if (p.keycap_3dmodel_filename) {
+	      final += keycap_3dmodel;
 	    }
 
 	    final += common_bottom;
@@ -6981,6 +7097,19 @@
 	  hotswap_3dmodel_xyz_rotation: default is [0, 0, 0]
 	    xyz rotation (in degrees), used to adjust the orientation of the 3d
 	    model relative the footprint.
+	  keycap_3dmodel_filename: default is ''
+	    Allows you to specify the path to a 3D model STEP or WRL file to be
+	    used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	    a KiCad configured path.
+	  keycap_3dmodel_xyz_offset: default is [0, 0, 0]
+	    xyz offset (in mm), used to adjust the position of the 3d model
+	    relative the footprint.
+	  keycap_3dmodel_xyz_scale: default is [1, 1, 1]
+	    xyz scale, used to adjust the size of the 3d model relative to its
+	    original size.
+	  keycap_3dmodel_xyz_rotation: default is [0, 0, 0]
+	    xyz rotation (in degrees), used to adjust the orientation of the 3d
+	    model relative the footprint.
 	*/
 
 	var switch_mx = {
@@ -7007,6 +7136,10 @@
 	    hotswap_3dmodel_xyz_offset: [0, 0, 0],
 	    hotswap_3dmodel_xyz_rotation: [0, 0, 0],
 	    hotswap_3dmodel_xyz_scale: [1, 1, 1],
+	    keycap_3dmodel_filename: '',
+	    keycap_3dmodel_xyz_offset: [0, 0, 0],
+	    keycap_3dmodel_xyz_rotation: [0, 0, 0],
+	    keycap_3dmodel_xyz_scale: [1, 1, 1],
 	    from: undefined,
 	    to: undefined
 	  },
@@ -7133,6 +7266,13 @@
     )
 	  `;
 
+	    const keycap_3dmodel = `
+    (model ${p.keycap_3dmodel_filename}
+      (offset (xyz ${p.keycap_3dmodel_xyz_offset[0]} ${p.keycap_3dmodel_xyz_offset[1]} ${p.keycap_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.keycap_3dmodel_xyz_scale[0]} ${p.keycap_3dmodel_xyz_scale[1]} ${p.keycap_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.keycap_3dmodel_xyz_rotation[0]} ${p.keycap_3dmodel_xyz_rotation[1]} ${p.keycap_3dmodel_xyz_rotation[2]}))
+    )
+	  `;
 	    const common_bottom = `
   )
     `;
@@ -7176,6 +7316,11 @@
 	    if (p.switch_3dmodel_filename) {
 	      final += switch_3dmodel;
 	    }
+
+	    if (p.keycap_3dmodel_filename) {
+	      final += keycap_3dmodel;
+	    }
+
 	    final += common_bottom;
 
 	    return final
