@@ -4831,8 +4831,8 @@
 	      // on the opposite side of where the MCU board is mounted.
 	      const net_silk_front_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
 	      const net_silk_front_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
-	      const net_silk_back_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
-	      const net_silk_back_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
+	      const net_silk_back_left = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_left : via_label_right);
+	      const net_silk_back_right = (p.reversible && (row_num < 4 || !p.only_required_jumpers) ? via_label_right : via_label_left);
 
 	      let socket_row_base = `
     ${''/* Socket Holes */}
@@ -5559,7 +5559,7 @@
 	  },
 	  body: p => {
 	    const common_start = `
-  (footprint "ceoloide:reset_button_smd_side"
+  (footprint "ceoloide:reset_switch_smd_side"
     (layer "${p.side}.Cu")
     ${p.at}
     (property "Reference" "${p.ref}"
@@ -7562,7 +7562,7 @@
       `
 	    };
 	    const common_top = `
-  (footprint "ceoloide:ergogen_logo"
+  (footprint "ceoloide:utility_ergogen_logo"
     (layer "${p.side}.Cu")
     ${p.at}
     (property "Reference" "${p.ref}"
