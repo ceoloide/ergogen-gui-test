@@ -647,11 +647,12 @@
 	        const list = [val];
 	        while (candidates.length) {
 	            const path = candidates.shift();
-	            const other = u$5.deepcopy(u$5.deep(root, path));
+	            const other = u$5.deep(root, path);
 	            a$7.assert(other, `"${path}" (reached from "${breadcrumbs.join('.')}.$extends") does not name a valid inheritance target!`);
 	            let parents = other.$extends || [];
 	            if (a$7.type(parents)() !== 'array') parents = [parents];
 	            candidates = candidates.concat(parents);
+	            a$7.assert(!list.includes(other), `"${path}" (reached from "${breadcrumbs.join('.')}.$extends") leads to a circular dependency!`);
 	            list.unshift(other);
 	        }
 	        val = extend.apply(null, list);
@@ -4819,7 +4820,7 @@
 	      const socket_hole_num_left = 24 - row_num;
 	      const socket_hole_num_right = 1 + row_num;
 	      const via_num_left = 124 - row_num;
-	      const via_num_right = 1 + row_num;
+	      const via_num_right = 101 + row_num;
 
 	      const net_left = get_pin_net_str(p, pin_name_left);
 	      const net_right = get_pin_net_str(p, pin_name_right);
