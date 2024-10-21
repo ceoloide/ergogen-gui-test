@@ -7978,10 +7978,86 @@
 	        show_keycaps: true,
 	        keycaps_x: 18,
 	        keycaps_y: 17,
+
+	        // This parameter defines on which side the actual switch should be.
+	        // Hotswap sockets and keycaps will be placed based on it.
+	        switch_3dmodel_side: '',
+
+	        keycap_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Choc_V1_Keycap_MBK_Black_1u.step',
+	        keycap_3dmodel_xyz_scale: '',
+	        keycap_3dmodel_xyz_rotation: '',
+	        keycap_3dmodel_xyz_offset: '',
+
+	        switch_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Choc_V1_Switch.step',
+	        switch_3dmodel_xyz_scale: '',
+	        switch_3dmodel_xyz_rotation: '',
+	        switch_3dmodel_xyz_offset: '',
+
+	        hotswap_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Choc_V1_Hotswap.step',
+	        hotswap_3dmodel_xyz_scale: '',
+	        hotswap_3dmodel_xyz_rotation: '',
+	        hotswap_3dmodel_xyz_offset: '',
+
 	        from: undefined,
 	        to: undefined
 	    },
 	    body: p => {
+
+	        const gen_3d_model = (filename, scale, rotation, offset, side, {
+	            default_side =  'F',
+	            scale_f =       [1, 1, 1],
+	            rotation_f =    [0, 0, 0],
+	            offset_f =      [0, 0, 0],
+	            scale_b =       [1, 1, 1],
+	            rotation_b =    [0, 0, 0],
+	            offset_b =      [0, 0, 0]
+	        } = {}) => {
+
+	            if(filename == '') {
+	              return '';
+	            }
+
+	            const get_3d_model_side = (side, default_side) => {
+
+	                if(side == '') {
+	                    if(p.reverse == true) {
+	                        side = default_side;
+	                    } else {
+	                        side = p.side;
+	                    }
+	                }
+
+	                if(side == 'F' || side == 'B') {
+	                    return side;
+	                } else {
+	                    return default_side;
+	                }
+	            };
+
+	            const final_side = get_3d_model_side(side, default_side);
+	            const is_front = final_side === 'F';
+
+	            // Determine the actual values to use
+	            const final_scale = scale || (is_front ? scale_f : scale_b);
+	            const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	            let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	            // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	            // 8. All offset values seem to be multiplied by 25.4. So here we
+	            // divide them so that the upgrade KiCad file ends up with the
+	            // correct value.
+	            const offset_divisor = 25.4;
+	            final_offset = final_offset.map(value => value / offset_divisor);
+
+	            return  `
+              (model ${filename}
+                (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+                (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+                (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+              )
+            `;
+	        };
+
 	        const common_top = `
             (module PG1350 (layer F.Cu) (tedit 5DD50112)
             ${p.at /* parametric position */}
@@ -8152,6 +8228,50 @@
             ${p.solder ? solder_front : ''}
             ${p.solder && p.reverse ? solder_back : ''}
 
+            ${ gen_3d_model(
+                p.keycap_3dmodel_filename,
+                p.keycap_3dmodel_xyz_scale,
+                p.keycap_3dmodel_xyz_rotation,
+                p.keycap_3dmodel_xyz_offset,
+                p.switch_3dmodel_side,
+                {
+                    rotation_f: [0, 0, 0],
+                    offset_f: [0, 0, 6.6],
+
+                    rotation_b: [0, 180, 0],
+                    offset_b: [0, 0, -(6.6+1.6)],
+                },
+            )}
+            ${ gen_3d_model(
+                p.switch_3dmodel_filename,
+                p.switch_3dmodel_xyz_scale,
+                p.switch_3dmodel_xyz_rotation,
+                p.switch_3dmodel_xyz_offset,
+                p.switch_3dmodel_side,
+                {
+                    rotation_f: [0, 0, 0],
+                    offset_f: [0, 0, 0],
+
+                    rotation_b: [0, 180, 0],
+                    offset_b: [0, 0, -1.6],
+                },
+            )}
+
+            ${ gen_3d_model(
+                p.hotswap_3dmodel_filename,
+                p.hotswap_3dmodel_xyz_scale,
+                p.hotswap_3dmodel_xyz_rotation,
+                p.hotswap_3dmodel_xyz_offset,
+                p.switch_3dmodel_side,
+                {
+                    rotation_f: [0, 0, 0],
+                    offset_f: [0, 0, 0],
+
+                    rotation_b: [0, 180, 0],
+                    offset_b: [0, 0, -1.6],
+                },
+            )}
+
             ${common_bottom}
         `;
 
@@ -8186,8 +8306,77 @@
 	      reverse: false,
 	      pad_1: {type: 'net', value: 'RAW'},
 	      pad_2: {type: 'net', value: 'GND'},
+
+	      cable_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Molex_Ezmate_Pico_Cable_2pin.step',
+	      cable_3dmodel_side: '',
+	      cable_3dmodel_xyz_scale: '',
+	      cable_3dmodel_xyz_rotation: '',
+	      cable_3dmodel_xyz_offset: '',
+
+	      socket_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Molex_Ezmate_Pico_Socket_2pin.step',
+	      socket_3dmodel_side: '',
+	      socket_3dmodel_xyz_scale: '',
+	      socket_3dmodel_xyz_rotation: '',
+	      socket_3dmodel_xyz_offset: '',
+
 	    },
 	    body: p => {
+
+	      const gen_3d_model = (filename, scale, rotation, offset, side, {
+	        default_side =  'F',
+	        scale_f =       [1, 1, 1],
+	        rotation_f =    [0, 0, 0],
+	        offset_f =      [0, 0, 0],
+	        scale_b =       [1, 1, 1],
+	        rotation_b =    [0, 0, 0],
+	        offset_b =      [0, 0, 0]
+	      } = {}) => {
+
+	        if(filename == '') {
+	          return '';
+	        }
+
+	        const get_3d_model_side = (side, default_side) => {
+
+	            if(side == '') {
+	                if(p.reverse == true) {
+	                    side = default_side;
+	                } else {
+	                    side = p.side;
+	                }
+	            }
+
+	            if(side == 'F' || side == 'B') {
+	                return side;
+	            } else {
+	                return default_side;
+	            }
+	        };
+
+	        const final_side = get_3d_model_side(side, default_side);
+	        const is_front = final_side === 'F';
+
+	        // Determine the actual values to use
+	        const final_scale = scale || (is_front ? scale_f : scale_b);
+	        const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	        let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	        // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	        // 8. All offset values seem to be multiplied by 25.4. So here we
+	        // divide them so that the upgrade KiCad file ends up with the
+	        // correct value.
+	        const offset_divisor = 25.4;
+	        final_offset = final_offset.map(value => value / offset_divisor);
+
+	        return  `
+          (model ${filename}
+            (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+            (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+            (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+          )
+        `;
+	      };
+
 	      const top = `
         (module conn_molex_pico_ezmate_1x02 (layer F.Cu) (tedit 6445F610)
           ${p.at /* parametric position */}
@@ -8259,6 +8448,39 @@
         (pad MP smd roundrect (at -1.75 1.9 ${180 + p.rot}) (size 0.7 0.8) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25))
       `;
 
+	      const all_3d_models = `
+        ${ gen_3d_model(
+              p.cable_3dmodel_filename,
+              p.cable_3dmodel_xyz_scale,
+              p.cable_3dmodel_xyz_rotation,
+              p.cable_3dmodel_xyz_offset,
+              p.cable_3dmodel_side,
+              {
+                rotation_f: [0, 0, 0],
+                offset_f: [0, 0, 0.8],
+
+                rotation_b: [0, 180, 0],
+                offset_b: [0, 0, -(1.6 + 0.8)],
+              },
+          )
+        }
+        ${ gen_3d_model(
+              p.socket_3dmodel_filename,
+              p.socket_3dmodel_xyz_scale,
+              p.socket_3dmodel_xyz_rotation,
+              p.socket_3dmodel_xyz_offset,
+              p.socket_3dmodel_side,
+              {
+                rotation_f: [-90, 0, 0],
+                offset_f: [0, 0, 1.4],
+
+                rotation_b: [-90, 180, 0],
+                offset_b: [0, 0, -3],
+              },
+          )
+        }
+    `;
+
 	      const bottom = `
       )
       `;
@@ -8272,6 +8494,7 @@
 	        final += back;
 	      }
 
+	      final += all_3d_models;
 	      final += bottom;
 
 	      return final;
@@ -8301,8 +8524,76 @@
 	      pad_3: {type: 'net', value: 'CONN_3'},
 	      pad_4: {type: 'net', value: 'CONN_4'},
 	      pad_5: {type: 'net', value: 'CONN_5'},
+
+	      cable_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Molex_Ezmate_Pico_Cable_5pin.step',
+	      cable_3dmodel_side: '',
+	      cable_3dmodel_xyz_scale: '',
+	      cable_3dmodel_xyz_rotation: '',
+	      cable_3dmodel_xyz_offset: '',
+
+	      socket_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Molex_Ezmate_Pico_Socket_5pin.step',
+	      socket_3dmodel_side: '',
+	      socket_3dmodel_xyz_scale: '',
+	      socket_3dmodel_xyz_rotation: '',
+	      socket_3dmodel_xyz_offset: '',
 	    },
 	    body: p => {
+
+	      const gen_3d_model = (filename, scale, rotation, offset, side, {
+	        default_side =  'F',
+	        scale_f =       [1, 1, 1],
+	        rotation_f =    [0, 0, 0],
+	        offset_f =      [0, 0, 0],
+	        scale_b =       [1, 1, 1],
+	        rotation_b =    [0, 0, 0],
+	        offset_b =      [0, 0, 0]
+	      } = {}) => {
+
+	        if(filename == '') {
+	          return '';
+	        }
+
+	        const get_3d_model_side = (side, default_side) => {
+
+	            if(side == '') {
+	                if(p.reverse == true) {
+	                    side = default_side;
+	                } else {
+	                    side = p.side;
+	                }
+	            }
+
+	            if(side == 'F' || side == 'B') {
+	                return side;
+	            } else {
+	                return default_side;
+	            }
+	        };
+
+	        const final_side = get_3d_model_side(side, default_side);
+	        const is_front = final_side === 'F';
+
+	        // Determine the actual values to use
+	        const final_scale = scale || (is_front ? scale_f : scale_b);
+	        const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	        let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	        // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	        // 8. All offset values seem to be multiplied by 25.4. So here we
+	        // divide them so that the upgrade KiCad file ends up with the
+	        // correct value.
+	        const offset_divisor = 25.4;
+	        final_offset = final_offset.map(value => value / offset_divisor);
+
+	        return  `
+          (model ${filename}
+            (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+            (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+            (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+          )
+        `;
+	      };
+
 	      const top = `
       (module conn_molex_pico_ezmate_1x05 (layer F.Cu) (tedit 644602FB)
         ${p.at /* parametric position */}
@@ -8386,6 +8677,40 @@
         (pad MP smd roundrect (at -3.55 1.9 ${180 + p.rot}) (size 0.7 0.8) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25))
       `;
 
+
+	        const all_3d_models = `
+          ${ gen_3d_model(
+                p.cable_3dmodel_filename,
+                p.cable_3dmodel_xyz_scale,
+                p.cable_3dmodel_xyz_rotation,
+                p.cable_3dmodel_xyz_offset,
+                p.cable_3dmodel_side,
+                {
+                  rotation_f: [0, 0, 0],
+                  offset_f: [0, 0, 0.8],
+
+                  rotation_b: [0, 180, 0],
+                  offset_b: [0, 0, -(1.6 + 0.8)],
+                },
+            )
+          }
+          ${ gen_3d_model(
+                p.socket_3dmodel_filename,
+                p.socket_3dmodel_xyz_scale,
+                p.socket_3dmodel_xyz_rotation,
+                p.socket_3dmodel_xyz_offset,
+                p.socket_3dmodel_side,
+                {
+                  rotation_f: [-90, 0, 0],
+                  offset_f: [0, 0, 1.4],
+
+                  rotation_b: [-90, 180, 0],
+                  offset_b: [0, 0, -3],
+                },
+            )
+          }
+      `;
+
 	      const bottom = `
       )
       `;
@@ -8399,6 +8724,7 @@
 	        final += back;
 	      }
 
+	      final += all_3d_models;
 	      final += bottom;
 
 	      return final;
@@ -8416,9 +8742,70 @@
 	        designator: 'D',
 	        include_tht: true,
 	        from: undefined,
-	        to: undefined
+	        to: undefined,
+
+	        diode_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Diode_1N4148W.step',
+	        diode_3dmodel_side: '',
+	        diode_3dmodel_xyz_scale: '',
+	        diode_3dmodel_xyz_rotation: '',
+	        diode_3dmodel_xyz_offset: '',
 	    },
 	    body: p => {
+
+	        const gen_3d_model = (filename, scale, rotation, offset, side, {
+	            default_side =  'F',
+	            scale_f =       [1, 1, 1],
+	            rotation_f =    [0, 0, 0],
+	            offset_f =      [0, 0, 0],
+	            scale_b =       [1, 1, 1],
+	            rotation_b =    [0, 0, 0],
+	            offset_b =      [0, 0, 0]
+	          } = {}) => {
+
+	            if(filename == '') {
+	              return '';
+	            }
+
+	            const get_3d_model_side = (side, default_side) => {
+
+	                if(side == '') {
+	                    if(p.reverse == true) {
+	                        side = default_side;
+	                    } else {
+	                        side = p.side;
+	                    }
+	                }
+
+	                if(side == 'F' || side == 'B') {
+	                    return side;
+	                } else {
+	                    return default_side;
+	                }
+	            };
+
+	            const final_side = get_3d_model_side(side, default_side);
+	            const is_front = final_side === 'F';
+
+	            // Determine the actual values to use
+	            const final_scale = scale || (is_front ? scale_f : scale_b);
+	            const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	            let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	            // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	            // 8. All offset values seem to be multiplied by 25.4. So here we
+	            // divide them so that the upgrade KiCad file ends up with the
+	            // correct value.
+	            const offset_divisor = 25.4;
+	            final_offset = final_offset.map(value => value / offset_divisor);
+
+	            return  `
+              (model ${filename}
+                (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+                (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+                (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+              )
+            `;
+	        };
 
 	        const tht = `
         (pad 1 thru_hole rect (at -3.81 0 ${p.rot}) (size 1.778 1.778) (drill 0.9906) (layers *.Cu *.Mask) ${p.to.str})
@@ -8458,6 +8845,22 @@
 
         ${''/* THT terminals */}
         ${ p.include_tht ? tht : '' }
+        ${ gen_3d_model(
+            p.diode_3dmodel_filename,
+            p.diode_3dmodel_xyz_scale,
+            p.diode_3dmodel_xyz_rotation,
+            p.diode_3dmodel_xyz_offset,
+            p.diode_3dmodel_side,
+            {
+              default_side: 'B',
+
+              rotation_f: [-90, 0, 0],
+              offset_f: [0, 0, 0.7],
+
+              rotation_b: [-90, 180, 180],
+              offset_b: [0, 0, -2.3],
+            },
+        )}
     )
     `;
 
@@ -8648,6 +9051,7 @@
 	    params: {
 	      designator: 'MCU',
 	      traces: true,
+
 	      RAW: {type: 'net', value: 'RAW'},
 	      GND: {type: 'net', value: 'GND'},
 	      RST: {type: 'net', value: 'RST'},
@@ -8699,8 +9103,82 @@
 	      P7_label: '',
 	      P8_label: '',
 	      P9_label: '',
+
+	      // This side parameter applies to all 3d models
+	      mcu_3dmodel_side: '',
+
+	      mcu_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Nice_Nano_V2.step',
+	      mcu_3dmodel_xyz_scale: '',
+	      mcu_3dmodel_xyz_rotation: '',
+	      mcu_3dmodel_xyz_offset: '',
+
+	      header_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/PinHeader_2.54mm_2x-12.step',
+	      header_3dmodel_xyz_scale: '',
+	      header_3dmodel_xyz_rotation: '',
+	      header_3dmodel_xyz_offset: '',
+
+	      socket_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/PinSocket_2.54mm_5mm_2x-12.step',
+	      socket_3dmodel_xyz_scale: '',
+	      socket_3dmodel_xyz_rotation: '',
+	      socket_3dmodel_xyz_offset: '',
 	    },
 	    body: p => {
+
+	      const gen_3d_model = (filename, scale, rotation, offset, side, {
+	        default_side =  'F',
+	        scale_f =       [1, 1, 1],
+	        rotation_f =    [0, 0, 0],
+	        offset_f =      [0, 0, 0],
+	        scale_b =       [1, 1, 1],
+	        rotation_b =    [0, 0, 0],
+	        offset_b =      [0, 0, 0]
+	      } = {}) => {
+
+	        if(filename == '') {
+	          return '';
+	        }
+
+	        const get_3d_model_side = (side, default_side) => {
+
+	            if(side == '') {
+	                if(p.reverse == true) {
+	                    side = default_side;
+	                } else {
+	                    side = p.side;
+	                }
+	            }
+
+	            if(side == 'F' || side == 'B') {
+	                return side;
+	            } else {
+	                return default_side;
+	            }
+	        };
+
+	        const final_side = get_3d_model_side(side, default_side);
+	        const is_front = final_side === 'F';
+
+	        // Determine the actual values to use
+	        const final_scale = scale || (is_front ? scale_f : scale_b);
+	        const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	        let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	        // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	        // 8. All offset values seem to be multiplied by 25.4. So here we
+	        // divide them so that the upgrade KiCad file ends up with the
+	        // correct value.
+	        const offset_divisor = 25.4;
+	        final_offset = final_offset.map(value => value / offset_divisor);
+
+	        return  `
+          (model ${filename}
+            (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+            (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+            (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+          )
+        `;
+	      };
+
 	      const get_pin_net_name = (p, pin_name) => {
 	        return p[pin_name].name;
 	      };
@@ -9044,12 +9522,56 @@
 	      );
 	      const traces = gen_traces();
 
-
 	      return `
           ${''/* Controller*/}
           ${ common_top }
           ${ socket_rows }
           ${ p.show_instructions ? instructions : '' }
+          ${ gen_3d_model(
+                  p.mcu_3dmodel_filename,
+                  p.mcu_3dmodel_xyz_scale,
+                  p.mcu_3dmodel_xyz_rotation,
+                  p.mcu_3dmodel_xyz_offset,
+                  p.mcu_3dmodel_side,
+                  {
+                    rotation_f: [0, 0, 0],
+                    offset_f: [0, 0, 5.0],
+
+                    rotation_b: [0, 180, 0],
+                    offset_b: [0, 0, -6.6],
+                  },
+              )
+          }
+          ${ gen_3d_model(
+                  p.header_3dmodel_filename,
+                  p.header_3dmodel_xyz_scale,
+                  p.header_3dmodel_xyz_rotation,
+                  p.header_3dmodel_xyz_offset,
+                  p.mcu_3dmodel_side,
+                  {
+                    rotation_f: [0, 0, 0],
+                    offset_f: [0, -1.4, 1.5],
+
+                    rotation_b: [0, 180, 0],
+                    offset_b: [0, -1.4, -3.1],
+                  },
+              )
+          }
+          ${ gen_3d_model(
+                  p.socket_3dmodel_filename,
+                  p.socket_3dmodel_xyz_scale,
+                  p.socket_3dmodel_xyz_rotation,
+                  p.socket_3dmodel_xyz_offset,
+                  p.mcu_3dmodel_side,
+                  {
+                    rotation_f: [-90, 0, -90],
+                    offset_f: [0, -15.3, 0],
+
+                    rotation_b: [90, 0, -90],
+                    offset_b: [0, -15.3, -1.6],
+                  },
+              )
+          }
         )
 
         ${''/* Traces */}
@@ -9076,8 +9598,82 @@
 	    CS: {type: 'net', value: 'CS'},
 	    show_labels: {type: 'boolean', value: true},
 	    jumpers_at_bottom: false,
+
+	    // This side parameter applies to all 3d models
+	    display_3dmodel_side: '',
+
+	    display_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Nice_View.step',
+	    display_3dmodel_xyz_scale: '',
+	    display_3dmodel_xyz_rotation: '',
+	    display_3dmodel_xyz_offset: '',
+
+	    header_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/PinHeader_2.54mm_1x-5.step',
+	    header_3dmodel_xyz_scale: '',
+	    header_3dmodel_xyz_rotation: '',
+	    header_3dmodel_xyz_offset: '',
+
+	    socket_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/PinSocket_2.54mm_5mm_1x-5.step',
+	    socket_3dmodel_xyz_scale: '',
+	    socket_3dmodel_xyz_rotation: '',
+	    socket_3dmodel_xyz_offset: '',
+
 	  },
 	  body: p => {
+
+	    const gen_3d_model = (filename, scale, rotation, offset, side, {
+	      default_side =  'F',
+	      scale_f =       [1, 1, 1],
+	      rotation_f =    [0, 0, 0],
+	      offset_f =      [0, 0, 0],
+	      scale_b =       [1, 1, 1],
+	      rotation_b =    [0, 0, 0],
+	      offset_b =      [0, 0, 0]
+	    } = {}) => {
+
+	      if(filename == '') {
+	        return '';
+	      }
+
+	      const get_3d_model_side = (side, default_side) => {
+
+	          if(side == '') {
+	              if(p.reverse == true) {
+	                  side = default_side;
+	              } else {
+	                  side = p.side;
+	              }
+	          }
+
+	          if(side == 'F' || side == 'B') {
+	              return side;
+	          } else {
+	              return default_side;
+	          }
+	      };
+
+	      const final_side = get_3d_model_side(side, default_side);
+	      const is_front = final_side === 'F';
+
+	      // Determine the actual values to use
+	      const final_scale = scale || (is_front ? scale_f : scale_b);
+	      const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	      let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	      // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	      // 8. All offset values seem to be multiplied by 25.4. So here we
+	      // divide them so that the upgrade KiCad file ends up with the
+	      // correct value.
+	      const offset_divisor = 25.4;
+	      final_offset = final_offset.map(value => value / offset_divisor);
+
+	      return  `
+        (model ${filename}
+          (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+          (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+          (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+        )
+      `;
+	    };
 
 	    let dst_nets = [
 	      p.MOSI.str,
@@ -9292,6 +9888,54 @@
 	        final += labels;
 	      }
 	    }
+
+	    final += `
+      ${ gen_3d_model(
+            p.display_3dmodel_filename,
+            p.display_3dmodel_xyz_scale,
+            p.display_3dmodel_xyz_rotation,
+            p.display_3dmodel_xyz_offset,
+            p.display_3dmodel_side,
+            {
+              rotation_f: [0, 0, 0],
+              offset_f: [-7, -18, 6.8],
+
+              rotation_b: [0, 180, 0],
+              offset_b: [7, -18, -8.4],
+            },
+        )
+      }
+      ${ gen_3d_model(
+            p.header_3dmodel_filename,
+            p.header_3dmodel_xyz_scale,
+            p.header_3dmodel_xyz_rotation,
+            p.header_3dmodel_xyz_offset,
+            p.display_3dmodel_side,
+            {
+              rotation_f: [0, 0, -90],
+              offset_f: [0, -16.7, 3],
+
+              rotation_b: [0, 0, -90],
+              offset_b: [0, -16.7, -9],
+            },
+        )
+      }
+      ${ gen_3d_model(
+            p.socket_3dmodel_filename,
+            p.socket_3dmodel_xyz_scale,
+            p.socket_3dmodel_xyz_rotation,
+            p.socket_3dmodel_xyz_offset,
+            p.display_3dmodel_side,
+            {
+              rotation_f: [-90, 0, 0],
+              offset_f: [-5.1, -16.7, 0],
+
+              rotation_b: [90, 0, 0],
+              offset_b: [-5.1, -16.7, -1.6],
+            },
+        )
+      }
+    `;
 
 	    final += bottom;
 
@@ -9602,8 +10246,119 @@
 	        label_5: '',
 	        label_6: '',
 	        label_at_bottom: false,
+
+	        component_3dmodel_side: '',
+
+	        component_1_3dmodel_filename: '',
+	        component_1_3dmodel_xyz_scale: '',
+	        component_1_3dmodel_xyz_rotation: '',
+	        component_1_3dmodel_xyz_offset: '',
+	        component_2_3dmodel_filename: '',
+	        component_2_3dmodel_xyz_scale: '',
+	        component_2_3dmodel_xyz_rotation: '',
+	        component_2_3dmodel_xyz_offset: '',
+	        component_3_3dmodel_filename: '',
+	        component_3_3dmodel_xyz_scale: '',
+	        component_3_3dmodel_xyz_rotation: '',
+	        component_3_3dmodel_xyz_offset: '',
+	        component_4_3dmodel_filename: '',
+	        component_4_3dmodel_xyz_scale: '',
+	        component_4_3dmodel_xyz_rotation: '',
+	        component_4_3dmodel_xyz_offset: '',
+	        component_5_3dmodel_filename: '',
+	        component_5_3dmodel_xyz_scale: '',
+	        component_5_3dmodel_xyz_rotation: '',
+	        component_5_3dmodel_xyz_offset: '',
+	        component_6_3dmodel_filename: '',
+	        component_6_3dmodel_xyz_scale: '',
+	        component_6_3dmodel_xyz_rotation: '',
+	        component_6_3dmodel_xyz_offset: '',
 	      },
 	    body: p => {
+
+	        const get_3d_model_side = (model_side, default_side) => {
+
+	            if(model_side == '') {
+	                if(p.reverse == true) {
+	                    model_side = default_side;
+	                } else {
+	                    model_side = p.side;
+	                }
+	            }
+
+	            if(model_side == 'F' || model_side == 'B') {
+	                return model_side;
+	            } else {
+	                return default_side;
+	            }
+	        };
+
+	        const gen_3d_model = (filename, scale, rotation, offset, side, {
+	            default_side =  'F',
+	            scale_f =       [1, 1, 1],
+	            rotation_f =    [0, 0, 0],
+	            offset_f =      [0, 0, 0],
+	            scale_b =       [1, 1, 1],
+	            rotation_b =    [0, 0, 0],
+	            offset_b =      [0, 0, 0]
+	        } = {}) => {
+
+	            if(filename == '') {
+	              return '';
+	            }
+
+	            const final_side = get_3d_model_side(side, default_side);
+	            const is_front = final_side === 'F';
+
+	            // Determine the actual values to use
+	            const final_scale = scale || (is_front ? scale_f : scale_b);
+	            const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	            let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	            // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	            // 8. All offset values seem to be multiplied by 25.4. So here we
+	            // divide them so that the upgrade KiCad file ends up with the
+	            // correct value.
+	            const offset_divisor = 25.4;
+	            final_offset = final_offset.map(value => value / offset_divisor);
+
+	            return  `
+                (model ${filename}
+                (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+                (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+                (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+                )
+            `;
+	        };
+
+	        const gen_3d_model_for_net = (net_idx, pos_x) => {
+	            prop_base =         `component_${net_idx + 1}`;
+	            prop_filename =     `${prop_base}_3dmodel_filename`;
+	            prop_scale =        `${prop_base}_3dmodel_scale`;
+	            prop_rotation =     `${prop_base}_3dmodel_rotation`;
+	            prop_offset =       `${prop_base}_3dmodel_offset`;
+
+	            if(!p[prop_filename]) {
+	                return '';
+	            }
+
+	            const model = gen_3d_model(
+	                p[prop_filename],
+	                p[prop_scale],
+	                p[prop_rotation],
+	                p[prop_offset],
+	                p.component_3dmodel_side,
+	                {
+	                  rotation_f: [0, 0, 0],
+	                  offset_f:   [pos_x, 0, 0],
+
+	                  rotation_b: [0, 180, 0],
+	                  offset_b:   [-pos_x, 0, -1.6],
+	                },
+	            );
+
+	            return model;
+	        };
 
 	        const gen_nets = (p) => {
 	          const all_nets_from = [
@@ -9719,6 +10474,11 @@
               `;
 	            }
 
+	            const side_3dmodel = get_3d_model_side(p.component_3dmodel_side, 'F');
+	            if(layer == side_3dmodel) {
+	                pad += gen_3d_model_for_net(pad_idx, pos_x);
+	            }
+
 	            return pad;
 	        };
 
@@ -9776,6 +10536,7 @@
 	            p.label_at_bottom, p.mirror, p.swap_pad_direction,
 	          );
 	        }
+
 	        const fp = `
           (module smd_805 (layer F.Cu) (tedit 6446BF3D)
             ${p.at /* parametric position */}
@@ -9807,11 +10568,73 @@
 	    params: {
 	      designator: 'SW',
 	      side: 'F',
+	      reverse: false,
 	      from: {type: 'net', value: 'BAT_P'},
 	      to: {type: 'net', value: 'RAW'},
-	      reverse: false,
+
+	      switch_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Switch_Power.step',
+	      switch_3dmodel_side: '',
+	      switch_3dmodel_xyz_scale: '',
+	      switch_3dmodel_xyz_rotation: '',
+	      switch_3dmodel_xyz_offset: '',
 	    },
 	    body: p => {
+
+	      const gen_3d_model = (filename, scale, rotation, offset, side, {
+	        default_side =  'F',
+	        scale_f =       [1, 1, 1],
+	        rotation_f =    [0, 0, 0],
+	        offset_f =      [0, 0, 0],
+	        scale_b =       [1, 1, 1],
+	        rotation_b =    [0, 0, 0],
+	        offset_b =      [0, 0, 0]
+	      } = {}) => {
+
+	        if(filename == '') {
+	          return '';
+	        }
+
+	        const get_3d_model_side = (side, default_side) => {
+
+	            if(side == '') {
+	                if(p.reverse == true) {
+	                    side = default_side;
+	                } else {
+	                    side = p.side;
+	                }
+	            }
+
+	            if(side == 'F' || side == 'B') {
+	                return side;
+	            } else {
+	                return default_side;
+	            }
+	        };
+
+	        const final_side = get_3d_model_side(side, default_side);
+	        const is_front = final_side === 'F';
+
+	        // Determine the actual values to use
+	        const final_scale = scale || (is_front ? scale_f : scale_b);
+	        const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	        let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	        // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	        // 8. All offset values seem to be multiplied by 25.4. So here we
+	        // divide them so that the upgrade KiCad file ends up with the
+	        // correct value.
+	        const offset_divisor = 25.4;
+	        final_offset = final_offset.map(value => value / offset_divisor);
+
+	        return  `
+          (model ${filename}
+            (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+            (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+            (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+          )
+        `;
+	      };
+
 	      const shared_1 = `
         (module power_switch (layer F.Cu) (tedit 644556E6)
           ${p.at /* parametric position */}
@@ -9897,7 +10720,6 @@
 	        const shared_2 = `
           (pad "" np_thru_hole circle (at 0.025 -1.5 ${90 + p.rot}) (size 0.9 0.9) (drill 0.9) (layers *.Cu *.Mask))
           (pad "" np_thru_hole circle (at 0.025 1.5 ${90 + p.rot}) (size 0.9 0.9) (drill 0.9) (layers *.Cu *.Mask))
-        )
         `;
 
 	        let final = shared_1;
@@ -9909,7 +10731,29 @@
 	          final += back_switch;
 	        }
 
+
 	        final += shared_2;
+
+	        final += gen_3d_model(
+	          p.switch_3dmodel_filename,
+	          p.switch_3dmodel_xyz_scale,
+	          p.switch_3dmodel_xyz_rotation,
+	          p.switch_3dmodel_xyz_offset,
+	          p.switch_3dmodel_side,
+	          {
+	            default_side: 'B',
+
+	            rotation_f: [-90, 0, -90],
+	            offset_f: [0, 0, 0],
+
+	            rotation_b: [90, 0, 90],
+	            offset_b: [0, 0, -1.6],
+	          },
+	        );
+
+	        final += `
+          )
+        `;
 
 	        return final;
 	    }
@@ -9933,8 +10777,70 @@
 	      reverse: false,
 	      from: {type: 'net', value: 'GND'},
 	      to: {type: 'net', value: 'RST'},
+
+	      switch_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/Switch_Reset.step',
+	      switch_3dmodel_side: '',
+	      switch_3dmodel_xyz_scale: '',
+	      switch_3dmodel_xyz_rotation: '',
+	      switch_3dmodel_xyz_offset: '',
 	    },
 	    body: p => {
+
+	      const gen_3d_model = (filename, scale, rotation, offset, side, {
+	        default_side =  'F',
+	        scale_f =       [1, 1, 1],
+	        rotation_f =    [0, 0, 0],
+	        offset_f =      [0, 0, 0],
+	        scale_b =       [1, 1, 1],
+	        rotation_b =    [0, 0, 0],
+	        offset_b =      [0, 0, 0]
+	      } = {}) => {
+
+	        if(filename == '') {
+	          return '';
+	        }
+
+	        const get_3d_model_side = (side, default_side) => {
+
+	            if(side == '') {
+	                if(p.reverse == true) {
+	                    side = default_side;
+	                } else {
+	                    side = p.side;
+	                }
+	            }
+
+	            if(side == 'F' || side == 'B') {
+	                return side;
+	            } else {
+	                return default_side;
+	            }
+	        };
+
+	        const final_side = get_3d_model_side(side, default_side);
+	        const is_front = final_side === 'F';
+
+	        // Determine the actual values to use
+	        const final_scale = scale || (is_front ? scale_f : scale_b);
+	        const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	        let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	        // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	        // 8. All offset values seem to be multiplied by 25.4. So here we
+	        // divide them so that the upgrade KiCad file ends up with the
+	        // correct value.
+	        const offset_divisor = 25.4;
+	        final_offset = final_offset.map(value => value / offset_divisor);
+
+	        return  `
+          (model ${filename}
+            (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+            (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+            (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+          )
+        `;
+	      };
+
 	      const top = `
         (module sw_reset_side (layer F.Cu) (tedit 64473C6F)
           ${p.at /* parametric position */}
@@ -10009,6 +10915,23 @@
 	        final += back;
 	      }
 
+	      final += gen_3d_model(
+	        p.switch_3dmodel_filename,
+	        p.switch_3dmodel_xyz_scale,
+	        p.switch_3dmodel_xyz_rotation,
+	        p.switch_3dmodel_xyz_offset,
+	        p.switch_3dmodel_side,
+	        {
+	          default_side: 'B',
+
+	          rotation_f: [-90, 0, -90],
+	          offset_f: [0, 0, 0],
+
+	          rotation_b: [90, 0, 90],
+	          offset_b: [0, 0, -1.6],
+	        },
+	      );
+
 	      final += bottom;
 
 	      return final;
@@ -10080,8 +11003,82 @@
 	    show_outline_x240: false,
 	    show_outline_t460s: false,
 	    show_board: false,
+
+	      // This side parameter applies to all 3d models
+	      tp_3dmodel_side: '',
+
+	      tp_cap_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/trackpoint/TP_Cap_Red_T460S.step',
+	      tp_cap_3dmodel_xyz_scale: '',
+	      tp_cap_3dmodel_xyz_rotation: '',
+	      tp_cap_3dmodel_xyz_offset: '',
+
+	      tp_extension_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/trackpoint/TP_Extension_Red_T460S_h10.5_md0.0_pcb1.6.step',
+	      tp_extension_3dmodel_xyz_scale: '',
+	      tp_extension_3dmodel_xyz_rotation: '',
+	      tp_extension_3dmodel_xyz_offset: '',
+
+	      tp_3dmodel_filename: '${EG_INFUSED_KIM_3D_MODELS}/trackpoint/TP_Red_T460S_platform_z_offset_+0.0_pcb_offset_-2.0.step',
+	      tp_3dmodel_xyz_scale: '',
+	      tp_3dmodel_xyz_rotation: '',
+	      tp_3dmodel_xyz_offset: '',
 	  },
 	  body: p => {
+
+	    const gen_3d_model = (filename, scale, rotation, offset, side, {
+	      default_side =  'F',
+	      scale_f =       [1, 1, 1],
+	      rotation_f =    [0, 0, 0],
+	      offset_f =      [0, 0, 0],
+	      scale_b =       [1, 1, 1],
+	      rotation_b =    [0, 0, 0],
+	      offset_b =      [0, 0, 0]
+	    } = {}) => {
+
+	      if(filename == '') {
+	        return '';
+	      }
+
+	      const get_3d_model_side = (side, default_side) => {
+
+	          if(side == '') {
+	              if(p.reverse == true) {
+	                  side = default_side;
+	              } else {
+	                  side = p.side;
+	              }
+	          }
+
+	          if(side == 'F' || side == 'B') {
+	              return side;
+	          } else {
+	              return default_side;
+	          }
+	      };
+
+	      const final_side = get_3d_model_side(side, default_side);
+	      const is_front = final_side === 'F';
+
+	      // Determine the actual values to use
+	      const final_scale = scale || (is_front ? scale_f : scale_b);
+	      const final_rotation = rotation || (is_front ? rotation_f : rotation_b);
+	      let final_offset = offset || (is_front ? offset_f : offset_b);
+
+	      // Fix bug that seems to happen during the upgrade from KiCad 5 to
+	      // 8. All offset values seem to be multiplied by 25.4. So here we
+	      // divide them so that the upgrade KiCad file ends up with the
+	      // correct value.
+	      const offset_divisor = 25.4;
+	      final_offset = final_offset.map(value => value / offset_divisor);
+
+	      return  `
+        (model ${filename}
+          (at (xyz ${final_offset[0]} ${final_offset[1]} ${final_offset[2]}))
+          (scale (xyz ${final_scale[0]} ${final_scale[1]} ${final_scale[2]}))
+          (rotate (xyz ${final_rotation[0]} ${final_rotation[1]} ${final_rotation[2]}))
+        )
+      `;
+	    };
+
 	    const top = `
       (module trackpoint_mount_t430 (layer F.Cu) (tedit 6449FFC5)
         ${p.at /* parametric position */}
@@ -10093,10 +11090,10 @@
     `;
 
 	    const front = `
-        (fp_circle (center 0 -9.5) (end -2.15 -9.5) (layer F.CrtYd) (width 0.05))
-        (fp_circle (center 0 -9.5) (end -1.9 -9.5) (layer Cmts.User) (width 0.15))
-        (fp_circle (center 0 9.5) (end -2.15 9.5) (layer F.CrtYd) (width 0.05))
-        (fp_circle (center 0 9.5) (end -1.9 9.5) (layer Cmts.User) (width 0.15))
+        (fp_circle (center 0 -9.75) (end -2.15 -9.75) (layer F.CrtYd) (width 0.05))
+        (fp_circle (center 0 -9.75) (end -1.9 -9.75) (layer Cmts.User) (width 0.15))
+        (fp_circle (center 0 9.75) (end -2.15 9.75) (layer F.CrtYd) (width 0.05))
+        (fp_circle (center 0 9.75) (end -1.9 9.75) (layer Cmts.User) (width 0.15))
         (fp_circle (center 0 0) (end -3.95 0) (layer F.CrtYd) (width 0.05))
         (fp_circle (center 0 0) (end -3.7 0) (layer Cmts.User) (width 0.15))
 
@@ -10107,8 +11104,8 @@
 	    const back = `
         (fp_circle (center 0 0) (end -3.95 0) (layer B.CrtYd) (width 0.05))
         (fp_circle (center 0 0) (end -3.7 0) (layer Cmts.User) (width 0.15))
-        (fp_circle (center 0 9.5) (end -2.15 9.5) (layer B.CrtYd) (width 0.05))
-        (fp_circle (center 0 -9.5) (end -2.15 -9.5) (layer B.CrtYd) (width 0.05))
+        (fp_circle (center 0 9.75) (end -2.15 9.75) (layer B.CrtYd) (width 0.05))
+        (fp_circle (center 0 -9.75) (end -2.15 -9.75) (layer B.CrtYd) (width 0.05))
     `;
 
 	    const outline_t430_front = `
@@ -10221,9 +11218,9 @@
 
 	    const size = p.drill + (p.outline * 2);
 	    const bottom = `
-        (pad "" thru_hole circle (at 0 -9.5 180) (size 3.8 3.8) (drill 2.2) (layers *.Cu *.Mask))
+        (pad "" thru_hole circle (at 0 -9.75 180) (size 3.8 3.8) (drill 2.2) (layers *.Cu *.Mask))
         (pad 1 np_thru_hole circle (at 0 0 180) (size ${size} ${size}) (drill ${p.drill}) (layers *.Cu *.Mask))
-        (pad "" thru_hole circle (at 0 9.5 180) (size 3.8 3.8) (drill 2.2) (layers *.Cu *.Mask))
+        (pad "" thru_hole circle (at 0 9.75 180) (size 3.8 3.8) (drill 2.2) (layers *.Cu *.Mask))
       )
     `;
 
@@ -10264,6 +11261,56 @@
 	        final += outline_t460s_board;
 	      }
 	    }
+
+	    final += `
+      ${ gen_3d_model(
+              p.tp_cap_3dmodel_filename,
+              p.tp_cap_3dmodel_xyz_scale,
+              p.tp_cap_3dmodel_xyz_rotation,
+              p.tp_cap_3dmodel_xyz_offset,
+              p.tp_3dmodel_side,
+              {
+                rotation_f: [0, 0, 0],
+                offset_f: [0, 0, 10.5],
+
+                rotation_b: [0, 180, 0],
+                offset_b: [0, 0, -(10.5+1.6)],
+              },
+          )
+        }
+
+      ${ gen_3d_model(
+              p.tp_extension_3dmodel_filename,
+              p.tp_extension_3dmodel_xyz_scale,
+              p.tp_extension_3dmodel_xyz_rotation,
+              p.tp_extension_3dmodel_xyz_offset,
+              p.tp_3dmodel_side,
+              {
+                rotation_f: [0, 0, 0],
+                offset_f: [0, 0, 0],
+
+                rotation_b: [0, 180, 0],
+                offset_b: [0, 0, -1.6],
+              },
+          )
+        }
+
+      ${ gen_3d_model(
+              p.tp_3dmodel_filename,
+              p.tp_3dmodel_xyz_scale,
+              p.tp_3dmodel_xyz_rotation,
+              p.tp_3dmodel_xyz_offset,
+              p.tp_3dmodel_side,
+              {
+                rotation_f: [0, 0, 180],
+                offset_f: [0, 0, 0],
+
+                rotation_b: [0, 0, 0],
+                offset_b: [0, 0, 0],
+              },
+          )
+        }
+    `;
 
 	    final += bottom;
 
