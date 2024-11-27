@@ -7630,6 +7630,17 @@
 	    if true, will include holes and pads for Kailh choc hotswap sockets
 	  solder: default is false
 	    if true, will include holes to solder switches (works with hotswap too)
+	  include_plated_holes: default is false
+	    Alternate version of the footprint compatible with side, reversible, hotswap, solder
+	    options in any combination. Pretty, allows for connecting ground fill zones via
+	    center hole, and allows for setting nets on stabilizers for your routing needs.
+	  include_stabilizer_nets: default is false
+	    if true, will add adjustable nets to plated stabilizer holes, 
+	    LEFTSTAB: default is "D1"
+	    RIGHTSTAB: default is "D2"
+	  include_centerhole_net: default is false
+	    if true, will add adjustable net to the center hole
+	    CENTERHOLE: default is "GND"
 	  outer_pad_width_front: default 2.6
 	  outer_pad_width_back: default 2.6
 	    Allows you to make the outer hotswap pads smaller to silence DRC
@@ -7701,6 +7712,9 @@
 	    side: 'B',
 	    reversible: false,
 	    hotswap: true,
+	    include_plated_holes: false,
+	    include_stabilizer_nets: false,
+	    include_centerhole_net: false,
 	    solder: false,
 	    outer_pad_width_front: 2.6,
 	    outer_pad_width_back: 2.6,
@@ -7724,7 +7738,10 @@
 	    keycap_3dmodel_xyz_rotation: [0, 0, 0],
 	    keycap_3dmodel_xyz_scale: [1, 1, 1],
 	    from: undefined,
-	    to: undefined
+	    to: undefined,
+	    CENTERHOLE: { type: 'net', value: 'GND'},
+	    LEFTSTAB: { type: 'net', value: 'D1' },
+	    RIGHTSTAB: { type: 'net', value: 'D2' }
 	  },
 	  body: p => {
 	    const common_top = `
@@ -7738,9 +7755,27 @@
       (effects (font (size 1 1) (thickness 0.15)))
     )
     
-    (pad "" np_thru_hole circle (at 0 0 90) (size 4.1 4.1) (drill 4.1) (layers "*.Cu" "*.Mask"))
-    (pad "" np_thru_hole circle (at 5.08 0 180) (size ${p.stabilizers_diameter} ${p.stabilizers_diameter}) (drill ${p.stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
-    (pad "" np_thru_hole circle (at -5.08 0 180) (size ${p.stabilizers_diameter} ${p.stabilizers_diameter}) (drill ${p.stabilizers_diameter}) (layers "*.Cu" "*.Mask"))
+    (pad "" ${!p.include_plated_holes ? `np_thru_hole` : `thru_hole`} circle 
+      (at 0 0 ${p.r})
+      (size ${p.include_plated_holes ? `4.4 4.4` : `4.1 4.1`})
+      (drill 4.1)
+      (layers "*.Cu" "*.Mask")
+      ${p.include_plated_holes && p.include_centerhole_net ? p.CENTERHOLE : ''}
+    )
+    (pad "" ${!p.include_plated_holes ? `np_thru_hole` : `thru_hole`} circle 
+      (at 5.08 0 ${p.r})
+      (size ${p.stabilizers_diameter + (p.include_plated_holes ? 0.3 : 0)} ${p.stabilizers_diameter + (p.include_plated_holes ? 0.3 : 0)})
+      (drill ${p.stabilizers_diameter})
+      (layers "*.Cu" "*.Mask")
+      ${p.include_plated_holes && p.include_centerhole_net ? p.RIGHTSTAB : ''}
+    )
+    (pad "" ${!p.include_plated_holes ? `np_thru_hole` : `thru_hole`} circle 
+      (at -5.08 0 ${p.r})
+      (size ${p.stabilizers_diameter + (p.include_plated_holes ? 0.3 : 0)} ${p.stabilizers_diameter + (p.include_plated_holes ? 0.3 : 0)})
+      (drill ${p.stabilizers_diameter})
+      (layers "*.Cu" "*.Mask")
+      ${p.include_plated_holes && p.include_centerhole_net ? p.LEFTSTAB : ''}
+    )
     `;
 	    const corner_marks = `
     (fp_line (start -7 -6) (end -7 -7) (layer "Dwgs.User") (stroke (width 0.15) (type solid)))
@@ -7784,7 +7819,8 @@
 			(roundrect_rratio 0)
 			(chamfer_ratio 0.2)
 			(chamfer bottom_left)` : ''}
-      ${p.to})
+      ${p.to}
+    )
     `;
 
 	    const hotswap_silkscreen_back = `
