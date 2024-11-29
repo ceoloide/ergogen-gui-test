@@ -13,7 +13,6 @@ type Props = {
 const FilePreview = ({previewKey, previewContent, width = '100%', height = '100%', className}: Props) => {
   const previewExt = previewKey.split(".").slice(-1)[0];
   const previewRoot = previewKey.split(".")[0];
-  const configContext = useConfigContext();
   
     const renderFilePreview = (previewExt: string) => {
       switch (previewExt) {
