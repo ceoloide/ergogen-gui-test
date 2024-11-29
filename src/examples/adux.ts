@@ -177,6 +177,8 @@ pcbs:
           rotate: -90
         params:
           reverse_mount: true
+          reversible: true
+          only_required_jumpers: true
         adjust:
           rotate: 90
       trrs:
