@@ -22,7 +22,8 @@ type ContextProps = {
     autoGen: boolean,
     setAutoGen: Dispatch<SetStateAction<boolean>>,
     autoGen3D: boolean,
-    setAutoGen3D: Dispatch<SetStateAction<boolean>>
+    setAutoGen3D: Dispatch<SetStateAction<boolean>>,
+    experiment: string | null
 };
 
 type ProcessOptions = {
@@ -38,8 +39,7 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
     const [results, setResults] = useState<Results|null>(null);
     const [debug, setDebug] = useState<boolean>(true);
     const [autoGen, setAutoGen] = useState<boolean>(true);
-    const [autoGen3D, setAutoGen3D] = useState<boolean>(false);
-
+    const [autoGen3D, setAutoGen3D] = useState<boolean>(true);
 
     const parseConfig = (inputString: string): [string, { [key: string]: any[] }] => {
         let type = 'UNKNOWN';
@@ -113,7 +113,9 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
         }
     }, [configInput, processInput, autoGen, autoGen3D]);
 
-
+    const queryParameters = new URLSearchParams(window.location.search);
+    const experiment = queryParameters.get("exp");
+    
     return (
         <ConfigContext.Provider
             value={ {
@@ -127,7 +129,9 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
                 autoGen,
                 setAutoGen,
                 autoGen3D,
-                setAutoGen3D
+                setAutoGen3D,
+                experiment,
+
             } }
         >
             { children }

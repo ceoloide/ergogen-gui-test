@@ -27,7 +27,7 @@ const ConfigEditor = ({className}: Props) => {
         <div className={className}>
             <Editor
                 height="70vh"
-                defaultLanguage="JSON"
+                defaultLanguage="YAML"
                 onChange={handleChange}
                 value={configInput}
                 theme={"vs-dark"}

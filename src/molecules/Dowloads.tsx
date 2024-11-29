@@ -96,14 +96,13 @@ const Downloads = ({setPreview}: Props) => {
                     fileName: name,
                     extension: 'kicad_pcb',
                     // @ts-ignore
-                    content: pcb
+                    content: pcb,
+                    preview: (configContext?.experiment == "kicad" ? `pcbs.${name}` : ''),
                 }
             )
         }
 
     }
-
-
 
     return (
       <DownloadsContainer>
