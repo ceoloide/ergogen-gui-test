@@ -31,7 +31,6 @@ const Downloads = ({setPreview}: Props) => {
     if(!configContext) return null;
 
     const {configInput, results} = configContext;
-
     if (results?.demo) {
         downloads.push({
                 fileName: 'raw',
@@ -91,13 +90,16 @@ const Downloads = ({setPreview}: Props) => {
 
     if (results?.pcbs) {
         for (const [name, pcb] of Object.entries(results.pcbs)) {
+            const pcbString = String(pcb);
+            const match = pcbString.match(/version "?([0-9]+)"?/);
+            const version = (match && match.length > 1 ? Number(match[1]) : -1);
             downloads.push(
                 {
                     fileName: name,
                     extension: 'kicad_pcb',
                     // @ts-ignore
                     content: pcb,
-                    preview: (configContext?.experiment == "kicad" ? `pcbs.${name}` : ''),
+                    preview: (configContext?.experiment === "kicanvas" && version > 20240101 ? `pcbs.${name}` : ''),
                 }
             )
         }
