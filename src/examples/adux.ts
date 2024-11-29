@@ -4,9 +4,12 @@ const ADux: ConfigExample = {
     label: "A. dux",
     author: "tapioki",
     value: `
+meta:
+  engine: 4.1.0
 points:
   zones:
     matrix:
+      anchor.shift: [50,-100] # Fix KiCad placement
       columns:
         pinky:
           key:
@@ -145,49 +148,56 @@ outlines:
       fillet: 0.5
 pcbs:
   architeuthis_dux:
+    template: kicad8
     outlines:
       main:
         outline: panel
     footprints:
       choc_hotswap:
-        what: choc
+        what: ceoloide/switch_choc_v1_v2
         where: true
         params:
           from: =column_net
           to: GND
-          keycaps: true
-          reverse: true
+          include_corner_marks: true
+          include_keycap: true
+          keycap_height: 16.5
+          keycap_width: 17.5
+          reversible: true
+          solder: true
           hotswap: true
-      choc:
-        what: choc
-        where: true
-        adjust:
-          rotate: 180
-        params:
-          from: =column_net
-          to: GND
-          keycaps: true
-          reverse: true
-      promicro:
-        what: promicro
+          choc_v2_support: false
+          outer_pad_width_front: 2.0
+          outer_pad_width_back: 2.0
+      mcu:
+        what: ceoloide/mcu_nice_nano
         where:
           ref: matrix_inner_home
           shift: [19, -8.5]
           rotate: -90
         params:
-          orientation: down
+          reverse_mount: true
+        adjust:
+          rotate: 90
       trrs:
-        what: trrs
+        what: ceoloide/trrs_pj320a
         where:
           ref: matrix_inner_home
-          shift: [34.75, 6.5]
+          shift: [32, 6.5]
         params:
-          A: GND
-          B: GND
-          C: P2
-          D: VCC
-          reverse: true
+          SL: GND
+          R2: P2
+          TP: VCC # Tip and Ring 1 are joined together
+          reversible: true
           symmetric: true
+      jlcpcb_order_number_text:
+        what: ceoloide/utility_text
+        where: thumb_first_only
+        params:
+          text: JLCJLCJLCJLC
+          reversible: true
+        adjust:
+          shift: [-25,-5]
 `
 };
 
