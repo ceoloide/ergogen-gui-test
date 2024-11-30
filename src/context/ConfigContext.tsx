@@ -131,7 +131,6 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
                 autoGen3D,
                 setAutoGen3D,
                 experiment,
-
             } }
         >
             { children }

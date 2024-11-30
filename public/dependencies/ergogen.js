@@ -3658,6 +3658,10 @@
 	//  component is oriented verically and pointing upwards, or left of the pins, when oriented
 	//  horizontally and oriented leftward. Jumper pads position can be inverted with a parameter.
 	//
+	//  In its default configuration, labels are positioned below the pins, when the
+	//  component is oriented verically and pointing upwards, or right of the pins, when oriented
+	//  horizontally and oriented leftward. Labels position can be inverted with a parameter.
+	//
 	// Pinout and schematics:
 	//  https://nicekeyboards.com/docs/nice-view/pinout-schematic
 	//
@@ -3679,6 +3683,9 @@
 	//    invert_jumpers_position default is false
 	//      allows to change the position of the jumper pads, from their default to the opposite
 	//      side of the pins. See the description above for more details.
+	//    invert_labels_position default is false
+	//      allows to change the position of the labels, from their default to the north
+	//      side of the pins. See the description above for more details.
 	//    include_silkscreen: default is true
 	//      if true it will include the silkscreen layer.
 	//    include_labels default is true
@@ -3692,6 +3699,16 @@
 	//  - Added support for traces
 	//  - Upgraded to KiCad 8 format
 	//  - Make silkscreen and courtyard optional
+	//  - Added ability to move labels and jumpers independently
+	//
+	// # Placement and soldering of jumpers
+	//
+	// The reversible footprint is meant to be used with jumpers on the
+	// OPPOSITE side of where the nice!view is installed. The silkscreen
+	// labels will also match the board when read on the opposite side.
+	// This is to have all jumpers and components to solder on the same
+	// side, and be able to read the correct labels of the display to do
+	// tests with a multimeter.
 
 	var display_nice_view = {
 	  params: {
@@ -3702,6 +3719,7 @@
 	    gnd_trace_width: 0.25,
 	    signal_trace_width: 0.25,
 	    invert_jumpers_position: false,
+	    invert_labels_position: false,
 	    include_silkscreen: true,
 	    include_labels: true,
 	    include_courtyard: true,
@@ -3713,11 +3731,11 @@
 	  },
 	  body: p => {
 	    let dst_nets = [
-	      p.CS,
-	      p.GND,
-	      p.VCC,
-	      p.SCK,
 	      p.MOSI,
+	      p.SCK,
+	      p.VCC,
+	      p.GND,
+	      p.CS,
 	    ];
 
 	    let local_nets = [
@@ -3728,27 +3746,35 @@
 	      p.local_net("5"),
 	    ];
 
-	    let socket_nets = dst_nets;
-
-	    if (p.reversible) {
-	      socket_nets = local_nets;
-	    } else if (p.side == 'B') {
-	      socket_nets = dst_nets.slice().reverse();
+	    if (p.reversible || p.side == "B") {
+	      dst_nets = dst_nets.slice().reverse();
 	    }
+	    let socket_nets = p.reversible ? local_nets : dst_nets;
 
 	    let jumpers_offset = 0;
-	    let labels_offset = 0;
-	    let label_vcc_offset = 0;
+	    let labels_offset = 3.75;
+	    let label_vcc_offset = 3.75;
 
 	    let jumpers_front_top = dst_nets;
-	    let jumpers_front_bottom = local_nets;
+	    let jumpers_front_bottom = local_nets.slice().reverse();
 	    let jumpers_back_top = dst_nets;
-	    let jumpers_back_bottom = local_nets.slice().reverse();
+	    let jumpers_back_bottom = local_nets;
 
+	    if (p.invert_labels_position) {
+	      if(p.reversible && !p.invert_jumpers_position) {
+	          label_vcc_offset = 0;
+	          labels_offset = -1.62;
+	      } else {
+	        label_vcc_offset = 0;
+	        labels_offset = label_vcc_offset;
+	      }
+	    } else {
+	      if(p.reversible && p.invert_jumpers_position) {
+	        labels_offset = 1.62 + label_vcc_offset;
+	      }
+	    }
 	    if (p.invert_jumpers_position) {
 	      jumpers_offset = 4.4;
-	      labels_offset = jumpers_offset + 2.80 + 0.1;
-	      label_vcc_offset = 4.35;
 
 	      jumpers_front_top = local_nets;
 	      jumpers_front_bottom = dst_nets;
@@ -3820,38 +3846,38 @@
     `;
 
 	    const silkscreen_labels_front = `
-    (fp_text user "DA" (at -5.08 ${13.1 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[0].name}" (at -5.08 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position  ? "right" : "left"}))
     )
-    (fp_text user "CS" (at 5.12 ${13.1 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[1].name}" (at -2.48 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
-    (fp_text user "GND" (at 2.62 ${13.1 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[2].name}" (at 0.15 ${14.75 + label_vcc_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
-    (fp_text user "VCC" (at 0.15 ${14.6 + label_vcc_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[3].name}" (at 2.62 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
-    (fp_text user "CL" (at -2.48 ${13.1 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[4].name}" (at 5.12 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
     `;
 
 	    const silkscreen_labels_back = `
-    (fp_text user "CS" (at -4.98 ${13.1 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[0].name : dst_nets[4].name}" (at 5.22 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "VCC" (at 0.15 ${14.6 + label_vcc_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[1].name : dst_nets[3].name}" (at 2.72 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "DA" (at 5.22 ${13.1 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[2].name : dst_nets[2].name}" (at 0.15 ${14.75 + label_vcc_offset} ${90 + p.r}) (unlocked yes) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "CL" (at 2.72 ${13.1 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[3].name : dst_nets[1].name}" (at -2.38 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "GND" (at -2.38 ${13.1 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[4].name : dst_nets[0].name}" (at -4.98 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
     `;
 
@@ -3944,6 +3970,10 @@
 	//  component is oriented verically and pointing upwards, or left of the pins, when oriented
 	//  horizontally and oriented leftward. Jumper pads position can be inverted with a parameter.
 	//
+	//  In its default configuration, labels are positioned below the pins, when the
+	//  component is oriented verically and pointing upwards, or right of the pins, when oriented
+	//  horizontally and oriented leftward. Labels position can be inverted with a parameter.
+	//
 	// Params:
 	//    side: default is F for Front
 	//      the side on which to place the single-side footprint and designator, either F or B
@@ -3962,10 +3992,26 @@
 	//    invert_jumpers_position default is false
 	//      allows to change the position of the jumper pads, from their default to the opposite
 	//      side of the pins. See the description above for more details.
+	//    invert_labels_position default is false
+	//      allows to change the position of the labels, from their default to the north
+	//      side of the pins. See the description above for more details.
+	//    include_silkscreen: default is true
+	//      if true it will include the silkscreen layer.
 	//    include_labels default is true
-	//      if true it will include the pin labels on the Silkscreen layer. The labels will match
-	//      the *opposite* side of the board when the footprint is set to be reversible, since
-	//      they are meant to match the solder jumpers behavior and aid testing.
+	//      if true and Silkscreen layer is included, it will include the pin labels. The labels
+	//      will match the *opposite* side of the board when the footprint is set to be reversible, 
+	//      since they are meant to match the solder jumpers behavior and aid testing.
+	//    include_courtyard: default is true
+	//      if true it will include a courtyard outline around the pin header.
+	//
+	// # Placement and soldering of jumpers
+	//
+	// The reversible footprint is meant to be used with jumpers on the
+	// OPPOSITE side of where the display is installed. The silkscreen
+	// labels will also match the board when read on the opposite side.
+	// This is to have all jumpers and components to solder on the same
+	// side, and be able to read the correct labels of the display to do
+	// tests with a multimeter.
 
 	var display_ssd1306 = {
 	  params: {
@@ -3976,7 +4022,10 @@
 	    gnd_trace_width: 0.25,
 	    signal_trace_width: 0.25,
 	    invert_jumpers_position: false,
+	    invert_labels_position: false,
+	    include_silkscreen: true,
 	    include_labels: true,
+	    include_courtyard: true,
 	    SDA: { type: 'net', value: 'SDA' },
 	    SCL: { type: 'net', value: 'SCL' },
 	    VCC: { type: 'net', value: 'VCC' },
@@ -3984,10 +4033,10 @@
 	  },
 	  body: p => {
 	    let dst_nets = [
-	      p.GND,
-	      p.VCC,
-	      p.SCL,
 	      p.SDA,
+	      p.SCL,
+	      p.VCC,
+	      p.GND,
 	    ];
 
 	    let local_nets = [
@@ -3997,25 +4046,32 @@
 	      p.local_net("4"),
 	    ];
 
-	    let socket_nets = dst_nets;
-
-	    if (p.reversible) {
-	      socket_nets = local_nets;
-	    } else if (p.side == 'B') {
-	      socket_nets = dst_nets.slice().reverse();
+	    if (p.reversible || p.side == "B") {
+	      dst_nets = dst_nets.slice().reverse();
 	    }
+	    let socket_nets = p.reversible ? local_nets : dst_nets;
 
 	    let jumpers_offset = 0;
-	    let labels_offset = 0;
+	    let labels_offset = 3.75;
 
 	    let jumpers_front_top = dst_nets;
-	    let jumpers_front_bottom = local_nets;
+	    let jumpers_front_bottom = local_nets.slice().reverse();
 	    let jumpers_back_top = dst_nets;
-	    let jumpers_back_bottom = local_nets.slice().reverse();
+	    let jumpers_back_bottom = local_nets;
 
+	    if (p.invert_labels_position) {
+	      if(p.reversible && !p.invert_jumpers_position) {
+	          labels_offset = -1.62;
+	      } else {
+	        labels_offset = 0;
+	      }
+	    } else {
+	      if(p.reversible && p.invert_jumpers_position) {
+	        labels_offset = 1.62 + 3.75;
+	      }
+	    }
 	    if (p.invert_jumpers_position) {
 	      jumpers_offset = 4.4;
-	      labels_offset = jumpers_offset + 2.80 + 0.1;
 
 	      jumpers_front_top = local_nets;
 	      jumpers_front_bottom = dst_nets;
@@ -4034,18 +4090,23 @@
       (effects (font (size 1 1) (thickness 0.15)))
     )
 		(attr exclude_from_pos_files exclude_from_bom)
-        `;
-	    const front = `
+    `;
+	    
+	    const front_silkscreen = `
     (fp_line (start 5.14 15.37) (end 5.14 18.03) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start 5.14 15.37) (end -5.14 15.37) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start 5.14 18.03) (end -5.14 18.03) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start -5.14 15.37) (end -5.14 18.03) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
-
+    `;
+	    
+	    const front_courtyard = `
     (fp_line (start 5.61 14.9) (end 5.61 18.45) (layer "F.CrtYd") (stroke (width 0.15) (type solid)))
     (fp_line (start 5.61 18.45) (end -5.61 18.45) (layer "F.CrtYd") (stroke (width 0.15) (type solid)))
     (fp_line (start -5.61 18.45) (end -5.61 14.9) (layer "F.CrtYd") (stroke (width 0.15) (type solid)))
     (fp_line (start -5.61 14.9) (end 5.61 14.9) (layer "F.CrtYd") (stroke (width 0.15) (type solid)))
-
+    `;
+	    
+	    const front_fab = `
     (fp_line (start -3.77 -11.14) (end -3.77 11.24) (layer "F.Fab") (stroke (width 0.15) (type solid)))
     (fp_line (start 1.75 -11.14) (end 1.75 11.24) (layer "F.Fab") (stroke (width 0.15) (type solid)))
     (fp_line (start -3.77 -11.14) (end 1.75 -11.14) (layer "F.Fab") (stroke (width 0.15) (type solid)))
@@ -4064,17 +4125,21 @@
     (pad "13" smd rect (at 3.81 ${14.95 + jumpers_offset} ${90 + p.r}) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask") ${jumpers_front_bottom[3].str})
     `;
 
-	    const back = `
+	    const back_silkscreen = `
     (fp_line (start 5.14 15.37) (end 5.14 18.03) (layer "B.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start 5.14 15.37) (end -5.14 15.37) (layer "B.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start 5.14 18.03) (end -5.14 18.03) (layer "B.SilkS") (stroke (width 0.12) (type solid)))
     (fp_line (start -5.14 15.37) (end -5.14 18.03) (layer "B.SilkS") (stroke (width 0.12) (type solid)))
+    `;
 
+	    const back_courtyard = `
     (fp_line (start 5.61 14.9) (end 5.61 18.45) (layer "B.CrtYd") (stroke (width 0.15) (type solid)))
     (fp_line (start 5.61 18.45) (end -5.61 18.45) (layer "B.CrtYd") (stroke (width 0.15) (type solid)))
     (fp_line (start -5.61 18.45) (end -5.61 14.9) (layer "B.CrtYd") (stroke (width 0.15) (type solid)))
     (fp_line (start -5.61 14.9) (end 5.61 14.9) (layer "B.CrtYd") (stroke (width 0.15) (type solid)))
-
+    `;
+	    
+	    const back_fab = `
     (fp_line (start 3.77 -11.14) (end 3.77 11.24) (layer "B.Fab") (stroke (width 0.15) (type solid)))
     (fp_line (start -1.75 -11.14) (end -1.75 11.24) (layer "B.Fab") (stroke (width 0.15) (type solid)))
     (fp_line (start 3.77 -11.14) (end -1.75 -11.14) (layer "B.Fab") (stroke (width 0.15) (type solid)))
@@ -4093,30 +4158,32 @@
     (pad "23" smd rect (at -3.81 ${14.95 + jumpers_offset} ${270 + p.r}) (size 0.6 1.2) (layers "B.Cu" "B.Paste" "B.Mask") ${jumpers_back_bottom[3].str})
     `;
 
-	    const labels = `
-    (fp_text user "SDA" (at -4.50 ${13.0 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+	    const silkscreen_labels_front = `
+    (fp_text user "${dst_nets[0].name}" (at -3.81 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position  ? "right" : "left"}))
     )
-    (fp_text user "SCL" (at -1.50 ${13.0 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[1].name}" (at -1.27 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
-    (fp_text user "VCC" (at 1.50 ${13.0 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[2].name}" (at 1.27 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
-    (fp_text user "GND" (at 4.50 ${13.0 + labels_offset} ${p.r}) (layer "F.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)))
+    (fp_text user "${dst_nets[3].name}" (at 3.81 ${14.75 + labels_offset} ${90 + p.r}) (unlocked yes) (layer "F.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "right" : "left"}))
     )
-    (fp_text user "GND" (at -4.50 ${13.0 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    `;
+	    const silkscreen_labels_back = `
+    (fp_text user "${p.reversible ? dst_nets[0].name : dst_nets[3].name}" (at 3.81 ${14.75 + labels_offset} ${90 + p.r}) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "VCC" (at -1.50 ${13.0 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[1].name : dst_nets[2].name}" (at 1.27 ${14.75 + labels_offset} ${90 + p.r}) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "SCL" (at 1.50 ${13.0 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[2].name : dst_nets[1].name}" (at -1.27 ${14.75 + labels_offset} ${90 + p.r}) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
-    (fp_text user "SDA" (at 4.50 ${13.0 + labels_offset} ${p.r}) (layer "B.SilkS")
-      (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
+    (fp_text user "${p.reversible ? dst_nets[3].name : dst_nets[0].name}" (at -3.81 ${14.75 + labels_offset} ${90 + p.r}) (layer "B.SilkS")
+      (effects (font (size 1 1) (thickness 0.15)) (justify ${!p.invert_labels_position ? "left" : "right"} mirror))
     )
     `;
 
@@ -4160,23 +4227,26 @@
 	    let final = top;
 
 	    if (p.side == "F" || p.reversible) {
-	      final += front;
+	      final += front_fab;
+	      if (p.include_silkscreen) {
+	        final += front_silkscreen;
+	        if (p.include_labels) final += silkscreen_labels_front;
+	      }
+	      if (p.include_courtyard) final += front_courtyard;
 	    }
 	    if (p.side == "B" || p.reversible) {
-	      final += back;
+	      final += back_fab;
+	      if (p.include_silkscreen) {
+	        final += back_silkscreen;
+	        if (p.include_labels) final += silkscreen_labels_back;
+	      }
+	      if (p.include_courtyard) final += back_courtyard;
 	    }
-
 	    if (p.reversible) {
 	      final += front_jumpers;
 	      final += back_jumpers;
-
-	      if (p.include_labels) {
-	        final += labels;
-	      }
 	    }
-
 	    final += bottom;
-
 	    if (p.include_traces && p.reversible) {
 	      if (p.invert_jumpers_position) {
 	        final += traces_bottom;
@@ -4184,7 +4254,6 @@
 	        final += traces_top;
 	      }
 	    }
-
 	    return final;
 	  }
 	};
