@@ -1,6 +1,5 @@
 import PcbPreview from "../atoms/PcbPreview";
 import SvgPreview from "../atoms/SvgPreview";
-import { useConfigContext } from "../context/ConfigContext";
 
 type Props = {
     previewKey: string,
