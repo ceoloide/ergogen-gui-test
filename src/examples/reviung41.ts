@@ -4,6 +4,8 @@ const Reviung41: ConfigExample = {
     label: "Reviung41 (simplified)",
     author: "jcmkk3",
     value: `
+meta:
+  engine: 4.1.0
 units:
   # U is a predefined unit of measure that means 19.05mm, which is MX spacing (u is 19.00mm)
   angle: -8
