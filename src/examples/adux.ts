@@ -157,7 +157,7 @@ pcbs:
         what: ceoloide/switch_choc_v1_v2
         where: true
         params:
-          from: =column_net
+          from: "{{column_net}}"
           to: GND
           include_corner_marks: true
           include_keycap: true
@@ -198,6 +198,7 @@ pcbs:
           reversible: true
         adjust:
           shift: [-25,-5]
+  
 `
 };
 
