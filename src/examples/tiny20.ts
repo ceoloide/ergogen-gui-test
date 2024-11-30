@@ -9,44 +9,45 @@ points:
     matrix:
       anchor:
         rotate: 5
+        shift: [50,-75] # Fix KiCad placement
       columns:
         pinky:
           key:
             spread: 18
-            rows:
-              bottom:
-                column_net: P21
-              home:
-                column_net: P20
+          rows:
+            bottom:
+              column_net: P21
+            home:
+              column_net: P20
         ring:
           key:
             spread: 18
             splay: -5
             origin: [-12, -19]
             stagger: 16
-            rows:
-              bottom:
-                column_net: P19
-              home:
-                column_net: P18
+          rows:
+            bottom:
+              column_net: P19
+            home:
+              column_net: P18
         middle:
           key:
             spread: 18
             stagger: 5
-            rows:
-              bottom:
-                column_net: P15
-              home:
-                column_net: P14
+          rows:
+            bottom:
+              column_net: P15
+            home:
+              column_net: P14
         index:
           key:
             spread: 18
             stagger: -6
-            rows:
-              bottom:
-                column_net: P26
-              home:
-                column_net: P10
+          rows:
+            bottom:
+              column_net: P26
+            home:
+              column_net: P10
       rows:
         bottom:
           padding: 17
@@ -74,17 +75,6 @@ points:
           rows:
             home:
               column_net: P9
-  key:
-    footprints:
-      choc:
-        type: choc
-        nets:
-          from: GND
-          to: "{{column_net}}"
-        params:
-          keycaps: true
-          reverse: true
-          hotswap: false
 
 outlines:
   plate:
@@ -132,61 +122,70 @@ outlines:
 
 pcbs:
   tiny20:
+    template: kicad8
     outlines:
       main:
         outline: pcb_perimeter
     footprints:
       keys:
-        what: choc
+        what: ceoloide/switch_choc_v1_v2
         where: true
         params:
           from: GND
           to: "{{column_net}}"
-          keycaps: true
-          reverse: true
+          include_keycap: true
+          keycap_width: 17.5
+          keycap_height: 16.5
+          reversible: true
           hotswap: false
+          solder: true
+          choc_v2_support: false
       promicro:
-        what: promicro
-        where:
-          ref: matrix_index_home
-          shift: [0.95u, -0.5u]
-          rotate: -90
+        what: ceoloide/mcu_nice_nano
+        where: matrix_index_home
         params:
-          orientation: down
+          reverse_mount: true
+          reversible: true
+          only_required_jumpers: true
+        adjust.shift: [0.95u, -0.5u]
       trrs:
-        what: trrs
+        what: ceoloide/trrs_pj320a
         where:
           ref: matrix_pinky_home
-          shift: [2, 1.1u]
+          shift: [0, 1.2u]
           rotate: 0
         params:
-          A: GND
-          B: GND
-          C: P1
-          D: VCC
-          reverse: true
+          SL: GND
+          R2: P1
+          TP: VCC # Tip and Ring 1 are joined togetherue
           symmetric: true
+          reversible: true
       reset:
-        what: button
-        where:
-          ref:
-            - matrix_ring_home
-          shift: [-0.7u, 0]
-          rotate: 90
+        what: ceoloide/reset_switch_tht_top
+        where: matrix_ring_home
         params:
           from: RST
           to: GND
-      resetbottom:
-        what: button
-        where:
-          ref:
-            - matrix_ring_home
+          reversible: true
+        adjust:
           shift: [-0.7u, 0]
           rotate: 90
+      jlcpcb_order_number_text:
+        what: ceoloide/utility_text
+        where: matrix_middle_bottom
         params:
-          from: RST
-          to: GND
-          side: B
+          text: JLCJLCJLCJLC
+          reversible: true
+        adjust:
+          shift: [0,-u/2]
+      ergogen_logo_2:
+        what: ceoloide/utility_ergogen_logo
+        where: matrix_middle_bottom
+        params:
+          scale: 2.5
+          reversible: true
+        adjust:
+          shift: [0,-1.25u]
 `
 };
 
