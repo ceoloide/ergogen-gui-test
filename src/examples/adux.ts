@@ -173,14 +173,12 @@ pcbs:
         what: ceoloide/mcu_nice_nano
         where:
           ref: matrix_inner_home
-          shift: [19, -8.5]
-          rotate: -90
         params:
           reverse_mount: true
           reversible: true
           only_required_jumpers: true
         adjust:
-          rotate: 90
+          shift: [19, -8.5]
       trrs:
         what: ceoloide/trrs_pj320a
         where:
