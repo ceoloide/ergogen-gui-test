@@ -4,12 +4,16 @@ const Reviung41: ConfigExample = {
     label: "Plank (ortholinear, 2u space)",
     author: "cache.works",
     value: `
+meta:
+  engine: 4.1.0
 units:
   visual_x: 17.5
   visual_y: 16.5
 points:
   zones:
     matrix:
+      anchor:
+        shift: [50, -100] # Fix KiCad placement
       columns:
         one:
           key:
@@ -103,11 +107,10 @@ outlines:
       where: true
       asym: left
       size: [1cx,1cy]
-      corner: 1
   panel:
     - what: outline
       name: raw
-      fillet: 0.5
+      expand: 1.6
   switch_cutouts:
     - what: rectangle
       where: true
@@ -118,26 +121,31 @@ outlines:
     main:
       what: outline
       name: panel
-      fillet: 0.5
     keyholes:
       what: outline
       name: switch_cutouts
       operation: subtract
 pcbs:
   plank:
+    template: kicad8
     outlines:
       main:
         outline: panel
     footprints:
       choc:
-        what: choc
+        what: ceoloide/switch_choc_v1_v2
         where: true
         params:
           from: "{{colrow}}"
           to: "{{column_net}}"
-          keycaps: true
+          include_keycap: true
+          keycap_width: 17.5
+          keycap_height: 16.5
+          choc_v2_support: false
+          solder: true
+          hotswap: false
       diode:
-        what: diode
+        what: ceoloide/diode_tht_sod123
         where: true
         adjust:
           rotate: 0
@@ -145,34 +153,50 @@ pcbs:
         params:
           from: "{{colrow}}"
           to: "{{row_net}}"
-          # via_in_pad: true
-          # through_hole: false
       promicro:
-        what: promicro
+        what: ceoloide/mcu_nice_nano
         where:
           ref: matrix_seven_top
           shift: [-0.5cx, 1]
+          rotate: 90
         params:
-          orientation: down
+          reverse_mount: true
       powerswitch:
-        what: slider
+        what: ceoloide/power_switch_smd_side
         where:
           ref: matrix_four_top
-          shift: [0.5cx, 8.95]
+          shift: [0.5cx+2, cy/2 - 1.8 + 1.6]
+          rotate: 90
         params:
           from: RAW
-          to: BAT
+          to: BAT_P
           side: B
       jstph:
-        what: jstph
+        what: ceoloide/battery_connector_jst_ph_2
         where:
           ref: matrix_four_top
           shift: [0.5cx, -1.5cy]
           rotate: 180
         params:
-          pos: BAT
-          neg: GND
+          BAT_P: BAT
+          BAT_N: GND
           side: B
+      jlcpcb_order_number_text:
+        what: ceoloide/utility_text
+        where: matrix_seven_2uspacebar
+        params:
+          text: JLCJLCJLCJLC
+          reversible: true
+        adjust:
+          shift: [0,-u/2]
+      ergogen_logo:
+        what: ceoloide/utility_ergogen_logo
+        where: matrix_seven_2uspacebar
+        params:
+          scale: 1.75
+          reversible: true
+        adjust:
+          shift: [0,-1.5cy-2]
 `
 };
 
