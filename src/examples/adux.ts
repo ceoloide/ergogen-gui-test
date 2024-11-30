@@ -157,7 +157,7 @@ pcbs:
         what: ceoloide/switch_choc_v1_v2
         where: true
         params:
-          from: "{{column_net}}"
+          from: =column_net
           to: GND
           include_corner_marks: true
           include_keycap: true
@@ -192,13 +192,20 @@ pcbs:
           symmetric: true
       jlcpcb_order_number_text:
         what: ceoloide/utility_text
-        where: thumb_first_only
+        where: matrix_inner_bottom
         params:
           text: JLCJLCJLCJLC
           reversible: true
         adjust:
-          shift: [-25,-5]
-  
+          shift: [0,-u/2 - 1.5]
+      ergogen_logo:
+        what: ceoloide/utility_ergogen_logo
+        where: matrix_middle_bottom
+        params:
+          scale: 2.5
+          reversible: true
+        adjust:
+          shift: [0,-1u]  
 `
 };
 
