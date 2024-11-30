@@ -5,11 +5,12 @@ const Reviung41: ConfigExample = {
     author: "jcmkk3",
     value: `
 units:
-  # \`U\` is a predefined unit of measure that means 19.05mm, which is MX spacing
+  # U is a predefined unit of measure that means 19.05mm, which is MX spacing (u is 19.00mm)
   angle: -8
 points:
   zones:
     matrix:
+      anchor.shift: [50,-100] # Fix KiCad placement
       rotate: angle
       mirror: &mirror
         ref: matrix_inner_bottom
@@ -98,30 +99,33 @@ points:
         mirror.column_net: P14
 pcbs:
   simple_reviung41:
+    template: kicad8
     footprints:
       keys:
-        what: mx
+        what: ceoloide/switch_mx
         where: true
         params:
           from: "{{row_net}}"
           to: "{{column_net}}"
-          keycaps: true
+          include_keycap: true
+          hotswap: true
       diodes:
-        what: diode
+        what: ceoloide/diode_tht_sod123
         where: true
         adjust:
           shift: [0, -4.7]
+          rotate: 180
         params:
           from: "{{row_net}}"
           to: "{{colrow}}"
       mcu:
-        what: promicro
+        what: ceoloide/mcu_nice_nano
         where:
           aggregate.parts:
             - ref: matrix_inner_top
             - ref: mirror_matrix_inner_top
           shift: [0, 22]
-          rotate: angle
+          rotate: angle + 90
 `
 };
 
