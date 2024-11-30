@@ -50,18 +50,18 @@ points:
         bottom:
           key:
             padding: U
-            row_net: P21
-            mirror.row_net: P18
+          row_net: P21
+          mirror.row_net: P18
         home:
           key:
             padding: U
-            row_net: P20
-            mirror.row_net: P15
+          row_net: P20
+          mirror.row_net: P15
         top:
           key:
             padding: U
-            row_net: P19
-            mirror.row_net: P14
+          row_net: P19
+          mirror.row_net: P14
     thumb_middle:
       anchor:
         aggregate.parts:
@@ -105,8 +105,8 @@ pcbs:
         what: ceoloide/switch_mx
         where: true
         params:
-          from: "{{row_net}}"
           to: "{{column_net}}"
+          from: "{{colrow}}"
           include_keycap: true
           hotswap: true
       diodes:
@@ -116,8 +116,8 @@ pcbs:
           shift: [0, -4.7]
           rotate: 180
         params:
-          from: "{{row_net}}"
-          to: "{{colrow}}"
+          from: "{{colrow}}"
+          to: "{{row_net}}"
       mcu:
         what: ceoloide/mcu_nice_nano
         where:
@@ -125,7 +125,7 @@ pcbs:
             - ref: matrix_inner_top
             - ref: mirror_matrix_inner_top
           shift: [0, 22]
-          rotate: angle + 90
+          rotate: angle + 90  
 `
 };
 
