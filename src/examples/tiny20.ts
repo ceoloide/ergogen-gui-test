@@ -180,7 +180,7 @@ pcbs:
           reversible: true
         adjust:
           shift: [0,-u/2]
-      ergogen_logo_2:
+      ergogen_logo:
         what: ceoloide/utility_ergogen_logo
         where: matrix_middle_bottom
         params:
