@@ -12275,7 +12275,7 @@
     (thickness 1.6)
     (legacy_teardrops no)
   )
-  (paper "A4")
+  (paper "A3")
   (title_block
     (title "${params.name}")
     (date "${date_text}")
