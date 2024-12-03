@@ -3041,6 +3041,19 @@
 	//      to also account for the male connector plug and the wires. Recommended to be true
 	//      at least once in the development of a board to confirm sufficient clearance for the
 	//      connector and wires.
+	//    battery_connector_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    battery_connector_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    battery_connector_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    battery_connector_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 
 	var battery_connector_jst_ph_2 = {
 	  params: {
@@ -3052,6 +3065,10 @@
 	    include_silkscreen: true,
 	    include_fabrication: true,
 	    include_courtyard: true,
+	    battery_connector_3dmodel_filename: '',
+	    battery_connector_3dmodel_xyz_offset: [0, 0, 0],
+	    battery_connector_3dmodel_xyz_rotation: [0, 0, 0],
+	    battery_connector_3dmodel_xyz_scale: [1, 1, 1],
 	    BAT_P: { type: 'net', value: 'BAT_P' },
 	    BAT_N: { type: 'net', value: 'GND' },
 	  },
@@ -3293,6 +3310,14 @@
     (segment (start ${p.eaxy(1, 1.8)}) (end ${p.eaxy(1, 0)}) (width ${p.trace_width}) (layer "B.Cu") (net ${local_nets[1].index}))
         `;
 
+	    const battery_connector_3dmodel = `
+    (model ${p.battery_connector_3dmodel_filename}
+      (offset (xyz ${p.battery_connector_3dmodel_xyz_offset[0]} ${p.battery_connector_3dmodel_xyz_offset[1]} ${p.battery_connector_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.battery_connector_3dmodel_xyz_scale[0]} ${p.battery_connector_3dmodel_xyz_scale[1]} ${p.battery_connector_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.battery_connector_3dmodel_xyz_rotation[0]} ${p.battery_connector_3dmodel_xyz_rotation[1]} ${p.battery_connector_3dmodel_xyz_rotation[2]}))
+    )
+    `;
+
 	    let final = standard_opening;
 
 	    if (p.side == "F" || p.reversible) {
@@ -3323,6 +3348,9 @@
 	      final += front_pads;
 	    } else if (p.side == "B") {
 	      final += back_pads;
+	    }
+	    if (p.battery_connector_3dmodel_filename) {
+	      final += battery_connector_3dmodel;
 	    }
 	    final += standard_closing;
 	    if (p.reversible && p.include_traces) {
@@ -6245,6 +6273,19 @@
 	//      if true it will include silkscreen markings
 	//    include_courtyard: default is false
 	//      if true it will include the part courtyard
+	//    reset_switch_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    reset_switch_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the 3d model
+	//      relative the footprint.
+	//    reset_switch_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the 3d model relative to its
+	//      original size.
+	//    reset_switch_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the 3d
+	//      model relative the footprint.
 
 	var reset_switch_smd_side = {
 	  params: {
@@ -6254,6 +6295,10 @@
 	    include_bosses: false,
 	    include_silkscreen: true,
 	    include_courtyard: false,
+	    reset_switch_3dmodel_filename: '',
+	    reset_switch_3dmodel_xyz_offset: [0, 0, 0],
+	    reset_switch_3dmodel_xyz_rotation: [0, 0, 0],
+	    reset_switch_3dmodel_xyz_scale: [1, 1, 1],
 	    from: { type: 'net', value: 'GND' },
 	    to: { type: 'net', value: 'RST' },
 	  },
@@ -6319,6 +6364,15 @@
     (pad "" np_thru_hole circle (at 0 -1.375 ${180 + p.r}) (size 0.75 0.75) (drill 0.75) (layers "*.Cu" "*.Mask"))
     (pad "" np_thru_hole circle (at 0 1.375 ${180 + p.r}) (size 0.75 0.75) (drill 0.75) (layers "*.Cu" "*.Mask"))
     `;
+
+	    const reset_switch_3dmodel = `
+    (model ${p.reset_switch_3dmodel_filename}
+      (offset (xyz ${p.reset_switch_3dmodel_xyz_offset[0]} ${p.reset_switch_3dmodel_xyz_offset[1]} ${p.reset_switch_3dmodel_xyz_offset[2]}))
+      (scale (xyz ${p.reset_switch_3dmodel_xyz_scale[0]} ${p.reset_switch_3dmodel_xyz_scale[1]} ${p.reset_switch_3dmodel_xyz_scale[2]}))
+      (rotate (xyz ${p.reset_switch_3dmodel_xyz_rotation[0]} ${p.reset_switch_3dmodel_xyz_rotation[1]} ${p.reset_switch_3dmodel_xyz_rotation[2]}))
+    )
+    `;
+
 	    const common_end = `
   )
     `;
@@ -6344,6 +6398,9 @@
 	      if (p.include_courtyard) {
 	        final += courtyard_back;
 	      }
+	    }
+	    if (p.reset_switch_3dmodel_filename) {
+	      final += reset_switch_3dmodel;
 	    }
 
 	    final += common_end;
