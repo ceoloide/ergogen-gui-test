@@ -101,16 +101,16 @@ points:
   key:
     bind: 2
 outlines:
-  raw:
+  _raw:
     - what: rectangle
       where: true
       asym: left
       size: [1cx,1cy]
   panel:
     - what: outline
-      name: raw
+      name: _raw
       expand: 1.6
-  switch_cutouts:
+  _switch_cutouts:
     - what: rectangle
       where: true
       asym: left
@@ -122,7 +122,7 @@ outlines:
       name: panel
     keyholes:
       what: outline
-      name: switch_cutouts
+      name: _switch_cutouts
       operation: subtract
 pcbs:
   plank:

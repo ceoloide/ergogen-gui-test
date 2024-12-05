@@ -122,28 +122,28 @@ points:
       key:
         footprints:
 outlines:
-  raw:
+  _raw:
     - what: rectangle
       where: true
       bound: true
       asym: left
       size: [18,17]
       corner: 1
-  first:
+  _first:
     - what: outline
-      name: raw
+      name: _raw
       fillet: 3
-  second:
+  _second:
     - what: outline
-      name: first
+      name: _first
       fillet: 2
-  third:
+  _third:
     - what: outline
-      name: second
+      name: _second
       fillet: 1
   panel:
     - what: outline
-      name: third
+      name: _third
       fillet: 0.5
 pcbs:
   architeuthis_dux:

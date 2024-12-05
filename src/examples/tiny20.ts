@@ -90,13 +90,13 @@ outlines:
       size: 14
       bound: false
       operation: subtract
-  pcb_perimeter_raw:
+  _pcb_perimeter_raw:
     - what: rectangle
       where: true
       asym: source
       size: 18
       corner: 1
-  polygon:
+  _polygon:
     - what: polygon # all borders
       operation: stack
       points:
@@ -116,9 +116,9 @@ outlines:
           shift: [9,-9]
   pcb_perimeter:
     - what: outline # keys
-      name: pcb_perimeter_raw
+      name: _pcb_perimeter_raw
     - what: outline
-      name: polygon
+      name: _polygon
       operation: add
 
 pcbs:
