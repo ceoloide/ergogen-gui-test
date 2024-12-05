@@ -1,6 +1,7 @@
 import Absolem from "./absolem";
 import Atreus from "./atreus";
 import Adux from "./adux";
+import EmptyYAML from "./empty_yaml";
 import Wubbo from "./wubbo";
 import Sweeplike from "./sweeplike";
 import Reviung41 from "./reviung41";
@@ -24,6 +25,10 @@ export interface ConfigExample extends ConfigOption {
     readonly author: string;
 }
 
+const emptyExamples = [
+    EmptyYAML,
+];
+
 const simpleExamples = [
     Absolem,
     Atreus,
@@ -44,6 +49,10 @@ const miscExamples = [
 ];
 
 export const exampleOptions: readonly GroupedOption[] = [
+    {
+        label: 'Empty configurations',
+        options: emptyExamples,
+    },
     {
         label: 'Simple (points only)',
         options: simpleExamples,
