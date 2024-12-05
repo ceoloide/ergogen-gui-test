@@ -47,14 +47,14 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
 
         try {
             parsedConfig = JSON.parse(inputString);
-            type = 'JSON';
+            type = 'json';
         } catch (e: unknown) {
             // Input is not valid JSON
         }
 
         try {
             parsedConfig = yaml.load(inputString);
-            type = 'YAML';
+            type = 'yaml';
         } catch (e: unknown) {
             // Input is not valid YAML
         }
@@ -85,7 +85,7 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
             try {
                 results = await window.ergogen.process(
                     inputConfig,
-                    debug, // debug
+                    true, // Set debug to true or no SVGs are generated
                     (m: string) => console.log(m) // logger
                 );
             } catch (e: unknown) {
