@@ -37,7 +37,7 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
     const [configInput, setConfigInput] = useLocalStorage<string>(CONFIG_LOCAL_STORAGE_KEY, initialInput);
     const [error, setError] = useState<string|null>(null);
     const [results, setResults] = useState<Results|null>(null);
-    const [debug, setDebug] = useState<boolean>(true);
+    const [debug, setDebug] = useState<boolean>(false);
     const [autoGen, setAutoGen] = useState<boolean>(true);
     const [autoGen3D, setAutoGen3D] = useState<boolean>(true);
 
