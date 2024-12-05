@@ -12,12 +12,10 @@ const TextPreview = ({content, language, className, options}: Props) => {
     return (
         <div className={className}>
             <Editor
-                height="70vh"
-                defaultLanguage="yaml"
-                language={language || "yaml"}
+                height="80vh"
+                language={language}
                 value={content}
                 theme={"vs-dark"}
-                defaultValue={content}
                 options={options || {readOnly: true}}
             />
         </div>
