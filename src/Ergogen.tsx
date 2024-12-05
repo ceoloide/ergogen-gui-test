@@ -116,6 +116,7 @@ const Ergogen = () => {
     }, [selectedOption, configContext]);
 
     if (!configContext) return null;
+    if (!configContext.results) return null;
     let result = findResult(preview.key, configContext.results);
     if (result === undefined) {
       // If we don't find the preview we had, switch to demo.svg
