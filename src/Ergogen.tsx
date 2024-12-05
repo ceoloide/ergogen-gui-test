@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import styled from "styled-components";
 import Split from "react-split";
+import yaml from 'js-yaml';
 
 import ConfigEditor from "./molecules/ConfigEditor";
 import Downloads from "./molecules/Dowloads";
@@ -89,7 +90,7 @@ const RightSplitPane = styled.div`
 `;
 
 const Ergogen = () => {
-    const [previewKey, setPreviewKey] = useState("demo.svg");
+    const [preview, setPreviewKey] = useState({key: "demo.svg", extension: "svg"});
     const [selectedOption, setSelectedOption] = useState<ConfigOption|null>(null);
     const configContext = useConfigContext();
 
@@ -104,9 +105,19 @@ const Ergogen = () => {
 
     let walkArray = configContext?.results;
     // Walk through the JSON keys until we get the content of the desired previewKey
-    previewKey.split(".").forEach((key) => walkArray = walkArray?.[key]);
+    preview.key.split(".").forEach((key) => walkArray = walkArray?.[key]);
 
-    let previewContent = typeof walkArray === 'string' ? walkArray : "";
+    let previewContent;
+    switch(typeof walkArray) {
+      case 'string':
+        previewContent = walkArray;
+        break;
+      case 'object':
+        previewContent = yaml.dump(walkArray);
+        break;
+      default:
+        previewContent = ""
+    }
 
     return (
         <FlexContainer>
@@ -146,7 +157,7 @@ const Ergogen = () => {
                         snapOffset={0}
                     >
                         <LeftSplitPane>
-                            <StyledFilePreview key={previewKey} previewKey={previewKey} previewContent={previewContent}/>
+                            <StyledFilePreview previewExtension={preview.extension} previewKey={preview.key} previewContent={previewContent}/>
                         </LeftSplitPane>
                         <RightSplitPane>
                             <Downloads setPreview={setPreviewKey}/>

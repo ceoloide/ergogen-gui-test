@@ -2,12 +2,18 @@ import Button from "./Button";
 import styled from "styled-components";
 import {Dispatch, SetStateAction} from "react";
 
+export interface Preview {
+  extension: string,
+  key: string,
+  content?: string
+}
+
 type Props = {
     fileName: string,
     extension: string,
     content: string,
-    preview?: string,
-    setPreview: (preview: string) => void,
+    preview?: Preview,
+    setPreview: (preview: Preview) => void,
     setTabIndex: Dispatch<SetStateAction<number>> | undefined
 };
 
