@@ -112,9 +112,20 @@ const Downloads = ({setPreview}: Props) => {
           {
               downloads.map(
                   (download, i) => {
+                    if (!configContext.debug) {
                       if (download.fileName.startsWith("_")) return false;
-
-                      return <DownloadRow key={i} {...download} setPreview={setPreview} setTabIndex={tabContext?.setTabIndex}/>;
+                        
+                        // Ignore the following combinations of file names and extensions:
+                        const ignore : {[key:string]:string} = {
+                          "units": "yaml",
+                          "points": "yaml",
+                          "canonical": "yaml",
+                          "raw": "txt",
+                        };
+                        if(ignore[download.fileName] === download.extension) return false;
+                    }
+                    
+                    return <DownloadRow key={i} {...download} setPreview={setPreview} setTabIndex={tabContext?.setTabIndex}/>;
                   }
               )
           }
