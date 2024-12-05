@@ -12,30 +12,36 @@ type Props = {
 };
 
 const FilePreview = ({ previewExtension, previewContent, width = '100%', height = '100%', className }: Props) => {
-  const previewExt = previewExtension;
-
-  const renderFilePreview = (previewExtension: string) => {
-    switch (previewExtension) {
+  const renderFilePreview = (extension: string) => {
+    switch (extension) {
       case 'svg':
         return (
           <SvgPreview svg={previewContent} width={width} height={height} />
         )
       case 'yaml':
+        return (
+          <TextPreview language="yaml" content={previewContent} />
+        )
       case 'txt':
         return (
-          <TextPreview content={previewContent} />
+          <TextPreview language="text" content={previewContent} />
+        )
+      case 'jscad':
+        return (
+          <TextPreview language="javascript" content={previewContent} />
         )
       case 'kicad_pcb':
         return (
           <PcbPreview pcb={previewContent} />
         )
       default:
+        return "No preview available";
     }
   };
 
   return (
     <div className={className}>
-      {renderFilePreview(previewExt)}
+      {renderFilePreview(previewExtension)}
     </div>
   );
 }
