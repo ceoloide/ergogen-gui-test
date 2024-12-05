@@ -3,8 +3,7 @@ import {ConfigExample} from "./index";
 const Alpha: ConfigExample = {
     label: "Alpha (staggered bottom row)",
     author: "jcmkk3",
-    value: `
-points:
+    value: `points:
   mirror:
     ref: ortho_inner_home
     distance: 1U

@@ -3,8 +3,7 @@ import {ConfigExample} from "./index";
 const Tiny20: ConfigExample = {
     label: "Tiny20",
     author: "enzocoralc",
-    value: `
-meta:
+    value: `meta:
   engine: 4.1.0
 points:
   zones:

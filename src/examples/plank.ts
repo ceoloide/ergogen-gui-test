@@ -3,8 +3,7 @@ import {ConfigExample} from "./index";
 const Reviung41: ConfigExample = {
     label: "Plank (ortholinear, 2u space)",
     author: "cache.works",
-    value: `
-meta:
+    value: `meta:
   engine: 4.1.0
 units:
   visual_x: 17.5

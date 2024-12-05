@@ -3,7 +3,9 @@ import {ConfigExample} from "./index";
 const Wubbo: ConfigExample = {
     label: "Wubbo (outlines, switchplate)",
     author: "cache.works",
-    value: `units:
+    value: `meta:
+  engine: 4.1.0
+units:
   # Parameters
   row_spacing: 1cy
 

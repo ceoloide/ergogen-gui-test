@@ -3,8 +3,7 @@ import {ConfigExample} from "./index";
 const ADux: ConfigExample = {
     label: "A. dux",
     author: "tapioki",
-    value: `
-meta:
+    value: `meta:
   engine: 4.1.0
 points:
   zones:

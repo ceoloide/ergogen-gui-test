@@ -3,8 +3,7 @@ import {ConfigExample} from "./index";
 const Atreus: ConfigExample = {
     label: "Atreus (simplified)",
     author: "MrZealot",
-    value: `
-points:
+    value: `points:
   zones:
     matrix:
       columns:

@@ -3,8 +3,7 @@ import {ConfigExample} from "./index";
 const Sweeplike: ConfigExample = {
     label: "Sweep-like (minimal)",
     author: "jcmkk3",
-    value: `
-meta:
+    value: `meta:
   engine: 4.1.0
 # U is a predefined unit of measure that means 19.05mm, which is MX spacing (u is 19.00mm)
 points:
