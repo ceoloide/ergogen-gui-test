@@ -8,7 +8,6 @@ import Downloads from "./molecules/Dowloads";
 import FilePreview from "./molecules/FilePreview";
 
 import {useConfigContext} from "./context/ConfigContext";
-import Results from "./context/ConfigContext";
 import Button from "./atoms/Button";
 import Select from "react-select";
 import GenOption from "./atoms/GenOption";
@@ -118,10 +117,11 @@ const Ergogen = () => {
     if (!configContext) return null;
     if (!configContext.results) return null;
     let result = findResult(preview.key, configContext.results);
-    if (result === undefined) {
+    if (result === undefined && preview.key !== "demo.svg") {
       // If we don't find the preview we had, switch to demo.svg
       preview.key = "demo.svg"
       preview.extension = "svg"
+      result = findResult(preview.key, configContext.results);
     }
 
     switch(preview.extension) {
