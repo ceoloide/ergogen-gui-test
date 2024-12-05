@@ -5,7 +5,7 @@ import {Dispatch, SetStateAction} from "react";
 export interface Preview {
   extension: string,
   key: string,
-  content?: string
+  content: string
 }
 
 type Props = {

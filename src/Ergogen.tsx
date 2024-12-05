@@ -8,6 +8,7 @@ import Downloads from "./molecules/Dowloads";
 import FilePreview from "./molecules/FilePreview";
 
 import {useConfigContext} from "./context/ConfigContext";
+import Results from "./context/ConfigContext";
 import Button from "./atoms/Button";
 import Select from "react-select";
 import GenOption from "./atoms/GenOption";
@@ -89,8 +90,22 @@ const RightSplitPane = styled.div`
     position: relative;
 `;
 
+const findResult = (resultToFind : string, resultsToSearch : any) : (any | undefined) => {
+  if (resultsToSearch === null) return null;
+  if (resultToFind === '') return resultsToSearch;
+  let properties = resultToFind.split('.');
+  let currentProperty = properties[0] as keyof typeof resultsToSearch;
+  let remainingProperties = properties.slice(1).join('.');
+  return (resultsToSearch.hasOwnProperty(currentProperty)
+    ? findResult(
+        remainingProperties,
+        resultsToSearch[currentProperty]
+      )
+    : undefined);
+};
+
 const Ergogen = () => {
-    const [preview, setPreviewKey] = useState({key: "demo.svg", extension: "svg"});
+    const [preview, setPreviewKey] = useState({key: "demo.svg", extension: "svg", content: ""});
     const [selectedOption, setSelectedOption] = useState<ConfigOption|null>(null);
     const configContext = useConfigContext();
 
@@ -101,23 +116,27 @@ const Ergogen = () => {
     }, [selectedOption, configContext]);
 
     if (!configContext) return null;
+    let result = findResult(preview.key, configContext.results);
+    if (result === undefined) {
+      // If we don't find the preview we had, switch to demo.svg
+      preview.key = "demo.svg"
+      preview.extension = "svg"
+    }
 
-
-    let walkArray = configContext?.results;
-    // Walk through the JSON keys until we get the content of the desired previewKey
-    preview.key.split(".").forEach((key) => walkArray = walkArray?.[key]);
-
-    let previewContent;
-    switch(typeof walkArray) {
-      case 'string':
-        previewContent = walkArray;
+    switch(preview.extension) {
+      case 'svg':
+      case 'kicad_pcb':
+        preview.content = (typeof result === "string" ? result :  "");
         break;
-      case 'object':
-        previewContent = yaml.dump(walkArray);
+      case 'jscad':
+        preview.content = (typeof result?.jscad === "string" ? result.jscad :  "");
+        break;
+      case 'yaml':
+        preview.content = yaml.dump(result);
         break;
       default:
-        previewContent = ""
-    }
+        preview.content = ""
+    };
 
     return (
         <FlexContainer>
@@ -157,7 +176,7 @@ const Ergogen = () => {
                         snapOffset={0}
                     >
                         <LeftSplitPane>
-                            <StyledFilePreview previewExtension={preview.extension} previewKey={preview.key} previewContent={previewContent}/>
+                            <StyledFilePreview previewExtension={preview.extension} previewKey={preview.key} previewContent={preview.content}/>
                         </LeftSplitPane>
                         <RightSplitPane>
                             <Downloads setPreview={setPreviewKey}/>

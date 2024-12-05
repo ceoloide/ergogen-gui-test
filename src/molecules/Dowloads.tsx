@@ -56,7 +56,8 @@ const Downloads = ({ setPreview }: Props) => {
         previewKey: 'demo.svg',
         preview: {
           key: 'demo.svg',
-          extension: 'svg'
+          extension: 'svg',
+          content: results?.demo?.svg,
         }
       },
       {
@@ -94,7 +95,9 @@ const Downloads = ({ setPreview }: Props) => {
           previewKey: `outlines.${name}.svg`,
           preview: {
             key: `outlines.${name}.svg`,
-            extension: 'svg'
+            extension: 'svg',
+            // @ts-ignore
+            content: outline.svg
           }
         }
       )
@@ -109,7 +112,14 @@ const Downloads = ({ setPreview }: Props) => {
           fileName: name,
           extension: 'jscad',
           // @ts-ignore
-          content: caseObj.jscad
+          content: caseObj.jscad,
+          previewKey: `cases.${name}`,
+          preview: {
+            key: `cases.${name}`,
+            extension: 'jscad',
+            // @ts-ignore
+            content: caseObj.jscad
+          }
         }
       )
     }
