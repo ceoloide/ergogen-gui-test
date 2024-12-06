@@ -112,7 +112,8 @@ const Ergogen = () => {
         if(selectedOption?.value) {
             configContext?.setConfigInput(selectedOption.value)
         }
-    }, [selectedOption, configContext]);
+    // eslint-disable-next-line
+    }, [selectedOption]);
 
     if (!configContext) return null;
     if (!configContext.results) return null;
