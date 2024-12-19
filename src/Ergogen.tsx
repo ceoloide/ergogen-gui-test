@@ -107,38 +107,39 @@ const Ergogen = () => {
     const [preview, setPreviewKey] = useState({key: "demo.svg", extension: "svg", content: ""});
     const [selectedOption, setSelectedOption] = useState<ConfigOption|null>(null);
     const configContext = useConfigContext();
-
+    
     useEffect(()=>{
-        if(selectedOption?.value) {
-            configContext?.setConfigInput(selectedOption.value)
-        }
-    // eslint-disable-next-line
+      if(selectedOption?.value) {
+        configContext?.setConfigInput(selectedOption.value)
+      }
+      // eslint-disable-next-line
     }, [selectedOption]);
-
     if (!configContext) return null;
-    if (!configContext.results) return null;
-    let result = findResult(preview.key, configContext.results);
-    if (result === undefined && preview.key !== "demo.svg") {
-      // If we don't find the preview we had, switch to demo.svg
-      preview.key = "demo.svg"
-      preview.extension = "svg"
+    let result = null;
+    if (configContext.results) {
       result = findResult(preview.key, configContext.results);
-    }
+      if (result === undefined && preview.key !== "demo.svg") {
+        // If we don't find the preview we had, switch to demo.svg
+        preview.key = "demo.svg"
+        preview.extension = "svg"
+        result = findResult(preview.key, configContext.results);
+      }
 
-    switch(preview.extension) {
-      case 'svg':
-      case 'kicad_pcb':
-        preview.content = (typeof result === "string" ? result :  "");
-        break;
-      case 'jscad':
-        preview.content = (typeof result?.jscad === "string" ? result.jscad :  "");
-        break;
-      case 'yaml':
-        preview.content = yaml.dump(result);
-        break;
-      default:
-        preview.content = ""
-    };
+      switch(preview.extension) {
+        case 'svg':
+        case 'kicad_pcb':
+          preview.content = (typeof result === "string" ? result :  "");
+          break;
+        case 'jscad':
+          preview.content = (typeof result?.jscad === "string" ? result.jscad :  "");
+          break;
+        case 'yaml':
+          preview.content = yaml.dump(result);
+          break;
+        default:
+          preview.content = ""
+      };
+    }
 
     return (
         <FlexContainer>
@@ -159,13 +160,13 @@ const Ergogen = () => {
                             placeholder={"Paste your config below, or select an example here!"}
                         />
                         <StyledConfigEditor/>
-                        <Button onClick={() => configContext?.processInput(configContext?.configInput, {pointsonly: false})}>Generate</Button>
+                        <Button onClick={() => configContext.processInput(configContext.configInput, {pointsonly: false})}>Generate</Button>
                         <OptionContainer>
-                            <GenOption optionId={'autogen'} label={'Auto-generate'} setSelected={configContext?.setAutoGen} checked={configContext?.autoGen}/>
-                            <GenOption optionId={'debug'} label={'Debug'} setSelected={configContext?.setDebug} checked={configContext?.debug}/>
-                            <GenOption optionId={'autogen3d'} label={<>Auto-gen PCB, 3D <small>(slow)</small></>} setSelected={configContext?.setAutoGen3D} checked={configContext?.autoGen3D}/>
+                            <GenOption optionId={'autogen'} label={'Auto-generate'} setSelected={configContext.setAutoGen} checked={configContext.autoGen}/>
+                            <GenOption optionId={'debug'} label={'Debug'} setSelected={configContext.setDebug} checked={configContext.debug}/>
+                            <GenOption optionId={'autogen3d'} label={<>Auto-gen PCB, 3D <small>(slow)</small></>} setSelected={configContext.setAutoGen3D} checked={configContext.autoGen3D}/>
                         </OptionContainer>
-                        {configContext?.error && <Error>{configContext?.error?.toString()}</Error>}
+                        {configContext.error && <Error>{configContext.error?.toString()}</Error>}
                     </EditorContainer>
                 </LeftSplitPane>
 
