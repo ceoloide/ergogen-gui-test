@@ -3,7 +3,9 @@ import {ConfigExample} from "./index";
 const Absolem: ConfigExample = {
     label: "Absolem (simplified)",
     author: "MrZealot",
-    value: `points:
+    value: `meta:
+  engine: 4.1.0
+points:
   zones:
     matrix:
       anchor:
