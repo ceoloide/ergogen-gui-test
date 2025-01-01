@@ -329,7 +329,7 @@
 
 	kle$2.convert = (config, logger) => {
 	    const keyboard = kle$1.Serial.deserialize(config);
-	    const result = {points: {zones: {}}, pcbs: {main: {}}};
+	    const result = {points: {zones: {}}};
 
 	    // if the keyboard notes are valid YAML/JSON, they get added to each key as metadata
 	    let meta;
@@ -362,15 +362,18 @@
 	        const x = key.x + (key.width - 1) / 2;
 	        const y = key.y + (key.height - 1) / 2;
 	        
-	        // KLE deals in absolute rotation origins so we calculate
-	        // a relative difference as an origin for the column rotation
-	        // again, considering corner vs. center with the extra half width/height
-	        const diff_x = key.rotation_x - (key.x + key.width / 2);
-	        const diff_y = key.rotation_y - (key.y + key.height / 2);
+	        // KLE rotations have an absolute origin, which is the
+	        // top left corner of a standard keycap, so we adjust
+	        // by half of its size, to match where Ergogen positions
+	        // its keys
+	        const origin_x = key.rotation_x - 0.5;
+	        const origin_y = key.rotation_y - 0.5;
 
 	        // anchoring the per-key zone to the KLE-computed coords
 	        const converted = {
-	            anchor: {
+	            key: {
+	                origin: [`${origin_x} u`, `${-origin_y} u`],
+	                splay: -key.rotation_angle,
 	                shift: [`${x} u`, `${-y} u`],
 	            },
 	            columns: {}
@@ -378,15 +381,13 @@
 	        
 	        // adding a column-level rotation with origin
 	        converted.columns[colid] = {
-	            rotate: -key.rotation_angle,
-	            origin: [`${diff_x} u`, `${-diff_y} u`],
 	            rows: {}
 	        };
 	        
 	        // passing along metadata to each key
 	        converted.columns[colid].rows[rowid] = u$7.deepcopy(meta);
-	        converted.columns[colid].rows[rowid].width = key.width;
-	        converted.columns[colid].rows[rowid].height = key.height;
+	        converted.columns[colid].rows[rowid].width = `${key.width} u`;
+	        converted.columns[colid].rows[rowid].height = `${key.height} u`;
 	        converted.columns[colid].rows[rowid].label = label;
 	        converted.columns[colid].rows[rowid].column_net = col_net;
 	        converted.columns[colid].rows[rowid].row_net = row_net;
@@ -12951,6 +12952,7 @@
 	    parsed_params.ref_hide = extra.references ? '' : 'hide';
 
 	    // footprint positioning
+	    parsed_params.point = point;
 	    parsed_params.x = point.x;
 	    parsed_params.y = -point.y;
 	    parsed_params.r = point.r;
