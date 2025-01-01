@@ -4658,9 +4658,9 @@ entities@^2.0.0:
   resolved "https://registry.yarnpkg.com/entities/-/entities-2.2.0.tgz#098dc90ebb83d8dffa089d55256b351d34c4da55"
   integrity sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==
 
-ergogen@ergogen/ergogen#develop:
+ergogen@ceoloide/ergogen#patch-1:
   version "4.1.0"
-  resolved "https://codeload.github.com/ergogen/ergogen/tar.gz/887220abe3069fe0deb2c4f9a951296cacfdcdb9"
+  resolved "https://codeload.github.com/ceoloide/ergogen/tar.gz/a6e193c425169e58f3d1eac781d9a9efba123db9"
   dependencies:
     fs-extra "^11.1.0"
     js-yaml "^3.14.1"

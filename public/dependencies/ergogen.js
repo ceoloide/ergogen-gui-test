@@ -357,42 +357,40 @@
 	            col_net = `col_${parts[1]}`;
 	        }
 
-	        // We need to account for keycap sizes, as KLE anchors
-	        // at the corners, while we consider the centers.
-          // KLE also has a flipped Y axis compared to Ergogen, so
-          // we need to flip the Y coordinate.
+	        // need to account for keycap sizes, as KLE anchors
+	        // at the corners, while we consider the centers
 	        const x = key.x + (key.width - 1) / 2;
-	        const y = -(key.y + (key.height -1) / 2);
+	        const y = key.y + (key.height - 1) / 2;
 	        
 	        // KLE rotations have an absolute origin, which is the
-          // top left corner of a standard keycap, so we adjust
-          // by half of its size, to match where Ergogen positions
-          // its keys
+	        // top left corner of a standard keycap, so we adjust
+	        // by half of its size, to match where Ergogen positions
+	        // its keys
 	        const origin_x = key.rotation_x - 0.5;
-	        const origin_y = -key.rotation_y + 0.5;
+	        const origin_y = key.rotation_y - 0.5;
 
-	        // Splay and origin are used to match KLE rotation
-          // logic, and then shift to match the absolute position
+	        // anchoring the per-key zone to the KLE-computed coords
 	        const converted = {
-              key: {
-                width: `${key.width}u`,
-                height: `${key.height}u`,
-                origin: [`${origin_x}u`,`${origin_y}u`],
-                splay: -key.rotation_angle,
-                shift: [`${x}u`, `${y}u`],
-                label: label,
-                column_net: col_net,
-                row_net: row_net,
-              },
+	            key: {
+	                origin: [`${origin_x} u`, `${-origin_y} u`],
+	                splay: -key.rotation_angle,
+	                shift: [`${x} u`, `${-y} u`],
+	            },
 	            columns: {}
 	        };
-
+	        
+	        // adding a column-level rotation with origin
 	        converted.columns[colid] = {
 	            rows: {}
 	        };
 	        
 	        // passing along metadata to each key
 	        converted.columns[colid].rows[rowid] = u$7.deepcopy(meta);
+	        converted.columns[colid].rows[rowid].width = `${key.width} u`;
+	        converted.columns[colid].rows[rowid].height = `${key.height} u`;
+	        converted.columns[colid].rows[rowid].label = label;
+	        converted.columns[colid].rows[rowid].column_net = col_net;
+	        converted.columns[colid].rows[rowid].row_net = row_net;
 	        
 	        result.points.zones[id] = converted;
 	    }
@@ -12954,6 +12952,7 @@
 	    parsed_params.ref_hide = extra.references ? '' : 'hide';
 
 	    // footprint positioning
+	    parsed_params.point = point;
 	    parsed_params.x = point.x;
 	    parsed_params.y = -point.y;
 	    parsed_params.r = point.r;
