@@ -9137,8 +9137,8 @@
 	      let start = undefined; // [x, y]
 
 	      for (let i = 0; i < route.length; i++) {
-	        ch = route[i].toLowerCase();
-	        switch (ch) {
+	        let command = route[i].toLowerCase();
+	        switch (command) {
 	          case "f":
 	            layer = "F.Cu";
 	            break
@@ -9203,7 +9203,7 @@
 	            start = undefined;
 	            break
 	          default:
-	            throw new Error(`Unsupported character '${ch}' at position ${i}.`)
+	            throw new Error(`Unsupported character '${command}' at position ${i}.`)
 	        }
 	      }
 
