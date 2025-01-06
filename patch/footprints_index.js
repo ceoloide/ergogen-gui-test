@@ -39,6 +39,7 @@ module.exports = {
   'ceoloide/utility_ergogen_logo': require('./ceoloide/utility_ergogen_logo'),
   'ceoloide/utility_filled_zone': require('./ceoloide/utility_filled_zone'),
   'ceoloide/utility_point_debugger': require('./ceoloide/utility_point_debugger'),
+  'ceoloide/utility_router': require('./ceoloide/utility_router'),
   'ceoloide/utility_text': require('./ceoloide/utility_text'),
   // @infused-kim's footprints
   'infused-kim/choc': require('./infused-kim/choc.js'),
