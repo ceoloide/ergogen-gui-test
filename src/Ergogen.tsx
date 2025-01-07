@@ -160,7 +160,7 @@ const Ergogen = () => {
                             placeholder={"Paste your config below, or select an example here!"}
                         />
                         <StyledConfigEditor/>
-                        <Button onClick={() => configContext.processInput(configContext.configInput, {pointsonly: false})}>Generate</Button>
+                        <Button onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, {pointsonly: false})}>Generate</Button>
                         <OptionContainer>
                             <GenOption optionId={'autogen'} label={'Auto-generate'} setSelected={configContext.setAutoGen} checked={configContext.autoGen}/>
                             <GenOption optionId={'debug'} label={'Debug'} setSelected={configContext.setDebug} checked={configContext.debug}/>

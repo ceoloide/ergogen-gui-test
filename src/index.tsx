@@ -24,7 +24,7 @@ root.render(
       <>  
         <AppContainer>
             <Header />
-            <ConfigContextProvider initialInput={Absolem.value}>
+            <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={undefined}>
               <Ergogen />
             </ConfigContextProvider>
             <Footer/>

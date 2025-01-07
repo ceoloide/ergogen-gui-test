@@ -6,6 +6,7 @@ import { useLocalStorage } from 'react-use';
 
 type Props = {
     initialInput: string,
+    initialInjectionInput?: [[string,string,string]] | undefined,
     children: React.ReactNode[] | React.ReactNode,
 };
 
@@ -14,7 +15,9 @@ type Results = { [key: string]: any|Results };
 type ContextProps = {
     configInput: string | undefined,
     setConfigInput: Dispatch<SetStateAction<string | undefined>>,
-    processInput: DebouncedFunc<(textInput: string | undefined, options?: ProcessOptions) => Promise<void>>,
+    injectionInput: [[string,string,string]] | undefined,
+    setInjectionInput: Dispatch<SetStateAction<[[string,string,string]] | undefined>>,
+    processInput: DebouncedFunc<(textInput: string | undefined, injectionInput: [[string,string,string]] | undefined, options?: ProcessOptions) => Promise<void>>,
     error: string | null,
     results: Results | null,
     debug: boolean,
@@ -33,8 +36,9 @@ type ProcessOptions = {
 export const ConfigContext = createContext<ContextProps | null>(null);
 export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG'
 
-const ConfigContextProvider = ({initialInput, children}: Props) => {
+const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: Props) => {
     const [configInput, setConfigInput] = useLocalStorage<string>(CONFIG_LOCAL_STORAGE_KEY, initialInput);
+    const [injectionInput, setInjectionInput] = useLocalStorage<[[string,string,string]]>("ergogen:injection", initialInjectionInput);
     const [error, setError] = useState<string|null>(null);
     const [results, setResults] = useState<Results|null>(null);
     const [debug, setDebug] = useState<boolean>(false);
@@ -64,9 +68,10 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const processInput = useCallback(
-        debounce(async (textInput: string | undefined, options: ProcessOptions = { pointsonly: true }) => {
+        debounce(async (textInput: string | undefined, injectionInput: [[string,string,string]] | undefined, options: ProcessOptions = { pointsonly: true }) => {
             let results = null;
             let inputConfig: string | {} = textInput ?? '';
+            let inputInjection: [[string,string,string]] | {} = injectionInput ?? '';
             const [,parsedConfig] = parseConfig(textInput ?? '');
 
             setError(null);
@@ -83,6 +88,21 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
             }
 
             try {
+                if(inputInjection !== undefined && Array.isArray(inputInjection)) {
+                  for(let i = 0; i < inputInjection.length; i++) {
+                    let injection = inputInjection[i];
+                    if(Array.isArray(injection) && injection.length === 3) {
+                      const inj_type = injection[0];
+                      const inj_name = injection[1];
+                      const inj_text = injection[2];
+                      const module_prefix = 'const module = {};\n\n'
+                      const module_suffix = '\n\nreturn module.exports;'
+                      let fake_require = new Function('fake_require', window.ergogen.fake_require);
+                      const inj_value = new Function(module_prefix + inj_text + module_suffix)(fake_require(inj_name));
+                      window.ergogen.inject(inj_type, inj_name, inj_value);
+                    }
+                  }
+                }
                 results = await window.ergogen.process(
                     inputConfig,
                     true, // Set debug to true or no SVGs are generated
@@ -109,9 +129,9 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
 
     useEffect(() => {
         if(autoGen) {
-            processInput(configInput, { pointsonly: !autoGen3D });
+            processInput(configInput, injectionInput, { pointsonly: !autoGen3D });
         }
-    }, [configInput, processInput, autoGen, autoGen3D]);
+    }, [configInput, injectionInput, processInput, autoGen, autoGen3D]);
 
     const queryParameters = new URLSearchParams(window.location.search);
     const experiment = queryParameters.get("exp");
@@ -121,6 +141,8 @@ const ConfigContextProvider = ({initialInput, children}: Props) => {
             value={ {
                 configInput,
                 setConfigInput,
+                injectionInput,
+                setInjectionInput,
                 processInput,
                 error,
                 results,
