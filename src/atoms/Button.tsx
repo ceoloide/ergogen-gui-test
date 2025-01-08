@@ -49,8 +49,15 @@ const SmallButton  = styled(Button)`
     font-size: 0.8rem;
 `;
 
+const IconButton  = styled(Button)`
+padding: 0.2rem 0.4rem;
+font-size: 0.4rem;
+`;
+
 const styledButton = ({size, ...rest}: Props): JSX.Element => {
     switch(size){
+        case "icon":
+            return <IconButton {...rest}/>;
         case "sm":
         case "small":
             return <SmallButton {...rest}/>;

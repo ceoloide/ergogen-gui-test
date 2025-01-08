@@ -36,14 +36,30 @@ type ProcessOptions = {
 export const ConfigContext = createContext<ContextProps | null>(null);
 export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG'
 
+const localStorageOrDefault = (key: string, defaultValue: any) => {
+  const storedValue = localStorage.getItem(key);
+  if(storedValue) {
+    return JSON.parse(storedValue);
+  } else {
+    return defaultValue;
+  }
+}
+
 const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: Props) => {
     const [configInput, setConfigInput] = useLocalStorage<string>(CONFIG_LOCAL_STORAGE_KEY, initialInput);
     const [injectionInput, setInjectionInput] = useLocalStorage<[[string,string,string]]>("ergogen:injection", initialInjectionInput);
     const [error, setError] = useState<string|null>(null);
     const [results, setResults] = useState<Results|null>(null);
-    const [debug, setDebug] = useState<boolean>(false);
-    const [autoGen, setAutoGen] = useState<boolean>(true);
-    const [autoGen3D, setAutoGen3D] = useState<boolean>(true);
+    const [debug, setDebug] = useState<boolean>(localStorageOrDefault("ergogen:config:debug",false));
+    const [autoGen, setAutoGen] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen",true));
+    const [autoGen3D, setAutoGen3D] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen3D",true));
+
+    // Save config to localStorage whenever it changes
+    useEffect(() => {
+      localStorage.setItem('ergogen:config:debug', JSON.stringify(debug));
+      localStorage.setItem('ergogen:config:autoGen', JSON.stringify(autoGen));
+      localStorage.setItem('ergogen:config:autoGen3D', JSON.stringify(autoGen3D));
+    }, [debug, autoGen, autoGen3D]);
 
     const parseConfig = (inputString: string): [string, { [key: string]: any[] }] => {
         let type = 'UNKNOWN';

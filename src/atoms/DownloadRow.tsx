@@ -42,20 +42,24 @@ const DownloadRow = ({fileName, extension, content, preview, setPreview, setTabI
             <FileName>{fileName}.{extension}</FileName>
             <Buttons>
                 {preview && (
-                    <StyledButton size={"small"}
+                    <StyledButton size={"icon"}
                         onClick={()=>{
                             setPreview(preview);
                             setTabIndex?.(0)
                         }}
                     >
-                        Preview
+                        {/* @ts-ignore */}
+                        <span class="material-symbols-outlined">visibility</span>
                     </StyledButton>
                 )}
                 <a target={"_blank"}
                    rel={"noreferrer"}
                    download={`${fileName}.${extension}`}
                    href={window.URL.createObjectURL(new Blob([content], {type: "octet/stream"}))}>
-                    <Button size={"small"}>Download</Button>
+                    <Button size={"icon"}>
+                        {/* @ts-ignore */}
+                        <span class="material-symbols-outlined">download</span>
+                    </Button>
                 </a>
             </Buttons>
         </Row>
