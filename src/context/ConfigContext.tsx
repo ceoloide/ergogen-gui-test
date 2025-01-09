@@ -20,6 +20,8 @@ type ContextProps = {
     processInput: DebouncedFunc<(textInput: string | undefined, injectionInput: [[string,string,string]] | undefined, options?: ProcessOptions) => Promise<void>>,
     error: string | null,
     results: Results | null,
+    showSettings: boolean,
+    setShowSettings: Dispatch<SetStateAction<boolean>>,
     debug: boolean,
     setDebug: Dispatch<SetStateAction<boolean>>,
     autoGen: boolean,
@@ -53,6 +55,7 @@ const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: 
     const [debug, setDebug] = useState<boolean>(localStorageOrDefault("ergogen:config:debug",false));
     const [autoGen, setAutoGen] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen",true));
     const [autoGen3D, setAutoGen3D] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen3D",true));
+    const [showSettings, setShowSettings] = useState<boolean>(false);
 
     // Save config to localStorage whenever it changes
     useEffect(() => {
@@ -113,8 +116,7 @@ const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: 
                       const inj_text = injection[2];
                       const module_prefix = 'const module = {};\n\n'
                       const module_suffix = '\n\nreturn module.exports;'
-                      let fake_require = new Function('fake_require', window.ergogen.fake_require);
-                      const inj_value = new Function(module_prefix + inj_text + module_suffix)(fake_require(inj_name));
+                      const inj_value = new Function("require", module_prefix + inj_text + module_suffix)();
                       window.ergogen.inject(inj_type, inj_name, inj_value);
                     }
                   }
@@ -144,6 +146,7 @@ const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: 
     );
 
     useEffect(() => {
+        localStorage.setItem('ergogen:injection', JSON.stringify(injectionInput));
         if(autoGen) {
             processInput(configInput, injectionInput, { pointsonly: !autoGen3D });
         }
@@ -162,6 +165,8 @@ const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: 
                 processInput,
                 error,
                 results,
+                showSettings,
+                setShowSettings,
                 debug,
                 setDebug,
                 autoGen,

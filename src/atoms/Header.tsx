@@ -1,4 +1,7 @@
+import Button from "./Button";
 import styled from "styled-components";
+import {useEffect, useState} from "react";
+import {useConfigContext} from "../context/ConfigContext";
 
 const HeaderContainer = styled.div`
       width: 100%;
@@ -24,6 +27,10 @@ const LinkContainer = styled.div`
 
 
 const Header = (): JSX.Element => {
+    const configContext = useConfigContext();
+    const toggleSettings = () => {
+      configContext?.setShowSettings(!configContext?.showSettings);
+    };
     return (
         <HeaderContainer>
             <div>
@@ -41,6 +48,11 @@ const Header = (): JSX.Element => {
                 <a href="https://discord.gg/nbKcAZB" target="_blank" rel="noreferrer">
                     Discord
                 </a>
+              </LinkContainer>
+              <LinkContainer>
+                {/* @ts-ignore */}
+                <Button size="small" onClick={toggleSettings}><span class="material-symbols-outlined">
+                {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></Button>
             </LinkContainer>
         </HeaderContainer>
     );

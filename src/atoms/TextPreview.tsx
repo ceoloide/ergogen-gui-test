@@ -5,14 +5,15 @@ type Props = {
   content: string,
   language?: string,
   className?: string,
+  height?: string,
   options?: typeof IEditorOptions,
 };
 
-const TextPreview = ({content, language, className, options}: Props) => {
+const TextPreview = ({content, language, className, height, options}: Props) => {
     return (
         <div className={className}>
             <Editor
-                height="80vh"
+                height={height || "80vh"}
                 language={language}
                 value={content}
                 theme={"vs-dark"}

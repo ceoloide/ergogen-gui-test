@@ -23,11 +23,11 @@ root.render(
   <React.StrictMode>
       <>  
         <AppContainer>
-            <Header />
             <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={undefined}>
+              <Header />
               <Ergogen />
+              <Footer/>
             </ConfigContextProvider>
-            <Footer/>
         </AppContainer>
       </>
   </React.StrictMode>

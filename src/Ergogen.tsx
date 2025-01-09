@@ -5,17 +5,29 @@ import yaml from 'js-yaml';
 
 import ConfigEditor from "./molecules/ConfigEditor";
 import Downloads from "./molecules/Dowloads";
+import Injections from "./molecules/Injections";
 import FilePreview from "./molecules/FilePreview";
 
 import {useConfigContext} from "./context/ConfigContext";
 import Button from "./atoms/Button";
+import Input from "./atoms/Input";
+import TextPreview from "./atoms/TextPreview";
 import Select from "react-select";
 import GenOption from "./atoms/GenOption";
 import {ConfigOption, exampleOptions} from "./examples";
 
 const EditorContainer = styled.div`
   position: relative;
-  height: 80%;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex-grow: 1;
+`;
+
+const InjectionEditorContainer = styled.div`
+  position: relative;
+  height: 50%;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -30,10 +42,14 @@ const FlexContainer = styled.div`
 const Error = styled.div`
   background: #ff6d6d;
   color: #a31111;
+  border: 1px solid #a31111;
   padding: 1em;
   margin: 0.5em 0 0.5em 0;
-  border: 1px solid #a31111;
-  border-radius: 0.3em;
+  width: 100%;
+  min-height: 4em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const StyledFilePreview = styled(FilePreview)`
@@ -44,8 +60,12 @@ const StyledConfigEditor = styled(ConfigEditor)`
   position: relative;
 `;
 
+const StyledTextPreview = styled(TextPreview)`
+  position: relative;
+`;
+
 const OptionContainer = styled.div`
-  display: flex;
+  display: inline-grid;
   justify-content: space-between;
 `;
 
@@ -105,6 +125,7 @@ const findResult = (resultToFind : string, resultsToSearch : any) : (any | undef
 
 const Ergogen = () => {
     const [preview, setPreviewKey] = useState({key: "demo.svg", extension: "svg", content: ""});
+    const [injection, setInjectionKey] = useState({type: "", name: "", content: ""});
     const [selectedOption, setSelectedOption] = useState<ConfigOption|null>(null);
     const configContext = useConfigContext();
     
@@ -141,9 +162,11 @@ const Ergogen = () => {
       };
     }
 
-    return (
+    return (<div>
+        {configContext.error && <Error>{configContext.error?.toString()}</Error>}
         <FlexContainer>
-            <StyledSplit
+          {!configContext.showSettings ?
+            (<StyledSplit
                 direction={"horizontal"}
                 sizes={[30, 70]}
                 minSize={100}
@@ -161,12 +184,6 @@ const Ergogen = () => {
                         />
                         <StyledConfigEditor/>
                         <Button onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, {pointsonly: false})}>Generate</Button>
-                        <OptionContainer>
-                            <GenOption optionId={'autogen'} label={'Auto-generate'} setSelected={configContext.setAutoGen} checked={configContext.autoGen}/>
-                            <GenOption optionId={'debug'} label={'Debug'} setSelected={configContext.setDebug} checked={configContext.debug}/>
-                            <GenOption optionId={'autogen3d'} label={<>Auto-gen PCB, 3D <small>(slow)</small></>} setSelected={configContext.setAutoGen3D} checked={configContext.autoGen3D}/>
-                        </OptionContainer>
-                        {configContext.error && <Error>{configContext.error?.toString()}</Error>}
                     </EditorContainer>
                 </LeftSplitPane>
 
@@ -186,8 +203,15 @@ const Ergogen = () => {
                         </RightSplitPane>
                     </StyledSplit>
                 </RightSplitPane>
-            </StyledSplit>
-        </FlexContainer>
+            </StyledSplit>) : (
+                <OptionContainer>
+                    <h3>Options</h3>
+                    <GenOption optionId={'autogen'} label={'Live reload'} setSelected={configContext.setAutoGen} checked={configContext.autoGen}/>
+                    <GenOption optionId={'debug'} label={'Debug mode'} setSelected={configContext.setDebug} checked={configContext.debug}/>
+                    <GenOption optionId={'autogen3d'} label={<>Include PCB, 3D cases in live reload <small>(slow)</small></>} setSelected={configContext.setAutoGen3D} checked={configContext.autoGen3D}/>
+                </OptionContainer>
+            )}
+        </FlexContainer></div>
     );
 }
 
