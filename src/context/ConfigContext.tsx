@@ -150,7 +150,7 @@ const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: 
         if(autoGen) {
             processInput(configInput, injectionInput, { pointsonly: !autoGen3D });
         }
-    }, [configInput, injectionInput, processInput, autoGen, autoGen3D]);
+    }, [configInput, injectionInput, autoGen, autoGen3D]);
 
     const queryParameters = new URLSearchParams(window.location.search);
     const experiment = queryParameters.get("exp");
