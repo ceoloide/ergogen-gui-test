@@ -95,14 +95,14 @@ const ConfigContextProvider = ({initialInput, initialInjectionInput, children}: 
 
             setError(null);
 
-            // When running this as part of onChange we only send 'points', 'units' and 'variables' to generate a preview
+            // When running this as part of onChange we remove `pcbs` and `cases` properties to generate
+            // a simplified preview.
             // If there is no 'points' key we send the input to Ergogen as-is, it could be KLE or invalid.
             if (parsedConfig?.points && options?.pointsonly) {
                 inputConfig = {
-                    points: {...parsedConfig?.points},
-                    units: {...parsedConfig?.units},
-                    variables: {...parsedConfig?.variables},
-                    outlines: {...parsedConfig?.outlines}
+                    ...parsedConfig,
+                    ['pcbs']: undefined,
+                    ['cases']: undefined,
                 };
             }
 
