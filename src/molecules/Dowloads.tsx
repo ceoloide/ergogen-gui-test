@@ -152,7 +152,7 @@ const Downloads = ({ setPreview }: Props) => {
 
   return (
     <DownloadsContainer>
-      <h3>Downloads</h3>
+      <h3>Outputs</h3>
       {
         downloads.map(
           (download, i) => {
