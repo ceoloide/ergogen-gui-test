@@ -21,14 +21,14 @@ const container = document.getElementById('root');
 const root = createRoot(container!); // createRoot(container!) if you use TypeScript
 root.render(
   <React.StrictMode>
-      <>  
-        <AppContainer>
-            <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={undefined}>
-              <Header />
-              <Ergogen />
-              <Footer/>
-            </ConfigContextProvider>
-        </AppContainer>
-      </>
+    <>
+      <AppContainer>
+        <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={[]}>
+          <Header />
+          <Ergogen />
+          <Footer />
+        </ConfigContextProvider>
+      </AppContainer>
+    </>
   </React.StrictMode>
 );

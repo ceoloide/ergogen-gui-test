@@ -1,11 +1,9 @@
 import InjectionRow from "../atoms/InjectionRow";
 import Button from "../atoms/Button";
 import { Injection } from "../atoms/InjectionRow";
-import yaml from 'js-yaml';
 import styled from "styled-components";
 import { useConfigContext } from "../context/ConfigContext";
-import { Dispatch, SetStateAction, useContext } from "react";
-// import { TabContext } from "../organisms/Tabs";
+import { Dispatch, SetStateAction } from "react";
 
 const InjectionsContainer = styled.div`
   display: flex;
@@ -15,30 +13,18 @@ const InjectionsContainer = styled.div`
 
 const StyledButton = styled(Button)`
 margin-right: 0.5em;
-margin-left: 1.5em;
-`;
-
-const HeaderWithButton = styled.div`
-    white-space: nowrap;
-    display: flex;
-    width: 100%
-    flex-direction: column;
+margin-left: 1em;
+display: block;
 `;
 
 type Props = {
-  setInjection: Dispatch<SetStateAction<Injection>>
+  setInjectionToEdit: Dispatch<SetStateAction<Injection>>,
+  deleteInjection: (injection: Injection) => void
 };
 
-type InjectionObj = {
-  name: string,
-  type: string,
-  content: string,
-  injection: Injection,
-};
+type InjectionArr = Array<Injection>;
 
-type InjectionArr = Array<InjectionObj>;
-
-const Injections = ({ setInjection }: Props) => {
+const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
   let footprints: InjectionArr = [];
   let templates: InjectionArr = [];
   const configContext = useConfigContext();
@@ -47,49 +33,56 @@ const Injections = ({ setInjection }: Props) => {
 
   const { injectionInput } = configContext;
   if (injectionInput && Array.isArray(injectionInput) && injectionInput.length > 0) {
-    for (const [injType, injName, injContent] of injectionInput) {
-      let collection = (injType === "footprint" ? footprints : templates);
-      collection.push(
-        {
-          type: injType,
-          name: injName,
-          content: injContent,
-          injection: {
-            type: injType,
-            name: injName,
-            content: injContent,
+    for (let i = 0; i < injectionInput.length; i++) {
+      const injection = injectionInput[i];
+      if (injection.length === 3) {
+        let collection = (injection[0] === "footprint" ? footprints : templates);
+        collection.push(
+          {
+            key: i,
+            type: injection[0],
+            name: injection[1],
+            content: injection[2],
           }
-        }
-      )
+        )
+      }
     }
+  }
+
+  const handleNewFootprint = () => {
+    const nextKey = configContext?.injectionInput?.length || 0;
+    const newInjection = {
+      key: nextKey,
+      type: "footprint",
+      name: `custom_footprint_${nextKey + 1}`,
+      content: "module.exports = {\n  params: {\n    designator: '',\n  },\n  body: p => ``\n}"
+    }
+    setInjectionToEdit(newInjection);
   }
 
   return (
     <InjectionsContainer>
-      <HeaderWithButton>
-        <h3>Custom Footprints</h3>
-        <StyledButton size={"icon"}
-                onClick={()=>{}}
-            >
-              {/* @ts-ignore */}
-              <span class="material-symbols-outlined">add</span>
-        </StyledButton>
-      </HeaderWithButton>
+      <h3>Custom Footprints</h3>
       {
         footprints.map(
           (footprint, i) => {
-            return <InjectionRow key={i} {...footprint} setInjection={setInjection} />;
+            return <InjectionRow injection={footprint} setInjectionToEdit={setInjectionToEdit} deleteInjection={deleteInjection} />;
           }
         )
       }
-      <h3>Custom Templates</h3>
+      {/* <h3>Custom Templates</h3>
       {
         templates.map(
           (template, i) => {
             return <InjectionRow key={i} {...template} setInjection={setInjection} />;
           }
         )
-      }
+      } */}
+      <StyledButton size={"small"}
+        onClick={handleNewFootprint}
+      >{/* @ts-ignore */}
+        <span class="material-symbols-outlined">add</span>
+      </StyledButton>
     </InjectionsContainer>
   );
 };
