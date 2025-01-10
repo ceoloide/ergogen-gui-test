@@ -28,7 +28,7 @@ const InjectionEditor = ({ className, options, injection, setInjection }: Props)
   return (
     <div className={className}>
       <Editor
-        height="80vh"
+        height="60vh"
         defaultLanguage="javascript"
         language="javascript"
         onChange={handleChange}
