@@ -17,6 +17,7 @@
 
 	const m$7 = require$$0;
 
+
 	utils.deepcopy = value => {
 	    if (value === undefined) return undefined
 	    return JSON.parse(JSON.stringify(value))
@@ -83,6 +84,38 @@
 	        prev = p;
 	    }
 	    return res
+	};
+
+	utils.bezier = (points, control_points, accuracy) => {
+	  let counter = 0;
+	  let res = {
+	      models: {}
+	  };
+	  let measures = [];
+	  for (let i=0; i<points.length; i=i+control_points+1) {
+	    const curve_name = 'bez' + (++counter);
+	    let curve_points = [];
+	    if(i+control_points+2 < points.length) {
+	      curve_points = points.slice(i, i+control_points+2);
+	    } else {
+	      curve_points = points.slice(i, i+control_points+1);
+	      curve_points.push(points[0]); // Looping back to the start
+	    }
+	    const model = (accuracy>=0 ? new m$7.models.BezierCurve(curve_points, accuracy) : new m$7.models.BezierCurve(curve_points));
+	    m$7.model.addModel(res, model, curve_name);
+	    measures.push(m$7.measure.modelExtents(model));
+	  }
+	  const bbox = {
+	    low: [
+	      measures.reduce((min, p) => Math.min(min,p.low[0]), Infinity),
+	      measures.reduce((min, p) => Math.min(min,p.low[1]), Infinity)
+	    ],
+	    high: [
+	      measures.reduce((max, p) => Math.max(max,p.high[0]), -Infinity),
+	      measures.reduce((max, p) => Math.max(max,p.high[1]), -Infinity)
+	    ]
+	  };
+	  return [res, bbox]
 	};
 
 	utils.bbox = (arr) => {
@@ -418,7 +451,7 @@
 		"js-yaml": "^3.14.1",
 		jszip: "^3.10.1",
 		"kle-serial": "github:ergogen/kle-serial#ergogen",
-		makerjs: "github:ergogen/maker.js#ergogen",
+		makerjs: "^0.18.1",
 		mathjs: "^11.5.0",
 		yargs: "^17.6.2"
 	};
@@ -1626,6 +1659,35 @@
 	    }, units]
 	};
 
+	const bezier = (config, name, points, outlines, units) => {
+
+	  // prepare params
+	  a$2.unexpected(config, `${name}`, ['type', 'accuracy', 'points']);
+	  const type = a$2.in(config.type || 'quadratic', `${name}.type`, ['cubic', 'quadratic']);
+	  const control_points = {
+	    'quadratic': 1,
+	    'cubic': 2,
+	  };
+	  const accuracy = a$2.sane(config.accuracy || -1, `${name}.accuracy`, 'number')(units);
+	  const bezier_points = a$2.sane(config.points, `${name}.points`, 'array')();
+	  a$2.assert(config.points.length%(control_points[type]+1)==0, `${name}.points doesn't contain enough points to form a closed Bezier spline, there should be a multiple of ${control_points[type]+1} points.`);
+	  
+	  // return shape function and its units
+	  return [point => {
+	    const parsed_points = [];
+	    // the bezier starts at [0, 0] as it will be positioned later
+	    // but we keep the point metadata for potential mirroring purposes
+	    let last_anchor = new Point(0, 0, 0, point.meta);
+	    let bezier_index = -1;
+	    for (const bezier_point of bezier_points) {
+	        const bezier_name = `${name}.points[${++bezier_index}]`;
+	        last_anchor = anchor$1(bezier_point, bezier_name, points, last_anchor)(units);
+	        parsed_points.push(last_anchor.p);
+	    }
+	    return u$2.bezier(parsed_points, control_points[type], accuracy)
+	  }, units]
+	};
+
 	const outline = (config, name, points, outlines, units) => {
 
 	    // prepare params
@@ -1646,7 +1708,8 @@
 	    rectangle,
 	    circle,
 	    polygon,
-	    outline
+	    outline,
+	    bezier
 	};
 
 	const expand_shorthand = (config, name, units) => {
@@ -1697,7 +1760,7 @@
 
 	            // process keys that are common to all part declarations
 	            const operation = u$2[a$2.in(part.operation || 'add', `${name}.operation`, ['add', 'subtract', 'intersect', 'stack'])];
-	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline']);
+	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'bezier']);
 	            const bound = !!part.bound;
 	            const asym = a$2.asym(part.asym || 'source', `${name}.asym`);
 
