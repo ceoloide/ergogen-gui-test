@@ -4,10 +4,10 @@
  */
 
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('makerjs'), require('js-yaml'), require('jszip'), require('mathjs'), require('kle-serial')) :
-	typeof define === 'function' && define.amd ? define(['makerjs', 'js-yaml', 'jszip', 'mathjs', 'kle-serial'], factory) :
-	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ergogen = factory(global.makerjs, global.jsyaml, global.jszip, global.math, global.kle));
-})(this, (function (require$$0, require$$2, require$$1$1, require$$3, require$$1) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('makerjs'), require('js-yaml'), require('jszip'), require('mathjs'), require('kle-serial'), require('hull')) :
+	typeof define === 'function' && define.amd ? define(['makerjs', 'js-yaml', 'jszip', 'mathjs', 'kle-serial', 'hull'], factory) :
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ergogen = factory(global.makerjs, global.jsyaml, global.jszip, global.math, global.kle, global.hull));
+})(this, (function (require$$0, require$$2, require$$1$1, require$$3, require$$1, require$$8$1) { 'use strict';
 
 	function getDefaultExportFromCjs (x) {
 		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -453,7 +453,8 @@
 		"kle-serial": "github:ergogen/kle-serial#ergogen",
 		makerjs: "^0.18.1",
 		mathjs: "^11.5.0",
-		yargs: "^17.6.2"
+		yargs: "^17.6.2",
+		hull: "github:andriiheonia/hull"
 	};
 	var devDependencies = {
 		"@rollup/plugin-commonjs": "^24.0.1",
@@ -1552,6 +1553,7 @@
 	const prep$1 = prepare$1;
 	const anchor$1 = anchor$4.parse;
 	const filter$1 = filter$2.parse;
+	const hulljs = require$$8$1;
 
 	const binding = (base, bbox, point, units) => {
 
@@ -1688,6 +1690,49 @@
 	  }, units]
 	};
 
+	const hull = (config, name, points, outlines, units) => {
+
+	  // prepare params
+	  a$2.unexpected(config, `${name}`, ['concavity', 'extend', 'points']);
+	  const concavity = a$2.sane(config.concavity || 50, `${name}.concavity`, 'number')(units);
+	  const extend = a$2.sane(config.extend || true, `${name}.extend`, 'boolean')(units);
+	  const hull_points = a$2.sane(config.points, `${name}.points`, 'array')();
+
+	  // return shape function and its units
+	  return [point => {
+	    const parsed_points = [];
+	    // the poly starts at [0, 0] as it will be positioned later
+	    // but we keep the point metadata for potential mirroring purposes
+	    let last_anchor = new Point(0, 0, 0, point.meta);
+	    let poly_index = -1;
+	    for (const poly_point of hull_points) {
+	        const poly_name = `${name}.points[${++poly_index}]`;
+	        last_anchor = anchor$1(poly_point, poly_name, points, last_anchor)(units);
+	        if(extend) {
+	          const w = last_anchor.meta.width;
+	          const h = last_anchor.meta.height;
+	          const rect = u$2.rect(w, h, [-w/2, -h/2]);
+	          const model = last_anchor.position(rect);
+	          let top_origin = model.paths.top.origin;
+	          let top_end =  model.paths.top.end;
+	          let bottom_origin =  model.paths.bottom.origin;
+	          let bottom_end =  model.paths.bottom.end;
+	          let model_origin = model.origin;
+	          parsed_points.push([top_origin[0] + model_origin[0], top_origin[1] + model_origin[1]]);
+	          parsed_points.push([top_end[0] + model_origin[0], top_end[1] + model_origin[1]]);
+	          parsed_points.push([bottom_origin[0] + model_origin[0], bottom_origin[1] + model_origin[1]]);
+	          parsed_points.push([bottom_end[0] + model_origin[0], bottom_end[1] + model_origin[1]]);
+	        } else {
+	          parsed_points.push(last_anchor.p);
+	        }
+	    }
+	    const poly_points = hulljs(parsed_points, concavity);
+	    let poly = u$2.poly(poly_points);
+	    const bbox = u$2.bbox(poly_points);
+	    return [poly, bbox]
+	  }, units]
+	};
+
 	const outline = (config, name, points, outlines, units) => {
 
 	    // prepare params
@@ -1709,7 +1754,8 @@
 	    circle,
 	    polygon,
 	    outline,
-	    bezier
+	    bezier,
+	    hull
 	};
 
 	const expand_shorthand = (config, name, units) => {
@@ -1760,7 +1806,7 @@
 
 	            // process keys that are common to all part declarations
 	            const operation = u$2[a$2.in(part.operation || 'add', `${name}.operation`, ['add', 'subtract', 'intersect', 'stack'])];
-	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'bezier']);
+	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'bezier', 'hull']);
 	            const bound = !!part.bound;
 	            const asym = a$2.asym(part.asym || 'source', `${name}.asym`);
 
