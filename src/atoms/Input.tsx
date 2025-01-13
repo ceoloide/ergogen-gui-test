@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from "styled-components";
 
 const styledInput = styled.input.attrs<{ $size?: string; }>(props => ({

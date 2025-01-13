@@ -1,6 +1,5 @@
 import Button from "./Button";
 import styled from "styled-components";
-import {useEffect, useState} from "react";
 import {useConfigContext} from "../context/ConfigContext";
 
 const HeaderContainer = styled.div`
