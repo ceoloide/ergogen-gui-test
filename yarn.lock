@@ -4658,15 +4658,15 @@ entities@^2.0.0:
   resolved "https://registry.yarnpkg.com/entities/-/entities-2.2.0.tgz#098dc90ebb83d8dffa089d55256b351d34c4da55"
   integrity sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==
 
-ergogen@ceoloide/ergogen#patch-1:
+ergogen@ceoloide/ergogen#bezier:
   version "4.1.0"
-  resolved "https://codeload.github.com/ceoloide/ergogen/tar.gz/a6e193c425169e58f3d1eac781d9a9efba123db9"
+  resolved "https://codeload.github.com/ceoloide/ergogen/tar.gz/62ede7d59be4171be713f3f65626a6c2e087a73f"
   dependencies:
     fs-extra "^11.1.0"
     js-yaml "^3.14.1"
     jszip "^3.10.1"
     kle-serial "github:ergogen/kle-serial#ergogen"
-    makerjs "github:ergogen/maker.js#ergogen"
+    makerjs "^0.18.1"
     mathjs "^11.5.0"
     yargs "^17.6.2"
 
@@ -7515,9 +7515,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-"makerjs@github:ergogen/maker.js#ergogen":
-  version "0.17.0"
-  resolved "https://codeload.github.com/ergogen/maker.js/tar.gz/a0ca32948845efe8ad5c9ca454f1285926853138"
+makerjs@^0.18.1:
+  version "0.18.1"
+  resolved "https://registry.yarnpkg.com/makerjs/-/makerjs-0.18.1.tgz#ccc10a9d7b3e92ba9794568e52358653621e693b"
+  integrity sha512-yw1tEeOVGgoj34K+uLRKsAbeVeBu1m2TGdm673BxrFc+auj71GJlQhS/5byGYaUmzyw+kyR/OQI4zyuM+v5Dxg==
   dependencies:
     "@danmarshall/jscad-typings" "^1.0.0"
     "@types/bezier-js" "^0.0.6"
