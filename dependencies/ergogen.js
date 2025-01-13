@@ -4,10 +4,10 @@
  */
 
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('makerjs'), require('js-yaml'), require('jszip'), require('mathjs'), require('kle-serial')) :
-	typeof define === 'function' && define.amd ? define(['makerjs', 'js-yaml', 'jszip', 'mathjs', 'kle-serial'], factory) :
-	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ergogen = factory(global.makerjs, global.jsyaml, global.jszip, global.math, global.kle));
-})(this, (function (require$$0, require$$2, require$$1$1, require$$3, require$$1) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('makerjs'), require('js-yaml'), require('jszip'), require('mathjs'), require('kle-serial'), require('hull')) :
+	typeof define === 'function' && define.amd ? define(['makerjs', 'js-yaml', 'jszip', 'mathjs', 'kle-serial', 'hull'], factory) :
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.ergogen = factory(global.makerjs, global.jsyaml, global.jszip, global.math, global.kle, global.hull));
+})(this, (function (require$$0, require$$2, require$$1$1, require$$3, require$$1, require$$8$1) { 'use strict';
 
 	function getDefaultExportFromCjs (x) {
 		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -16,6 +16,7 @@
 	var utils = {};
 
 	const m$7 = require$$0;
+
 
 	utils.deepcopy = value => {
 	    if (value === undefined) return undefined
@@ -83,6 +84,38 @@
 	        prev = p;
 	    }
 	    return res
+	};
+
+	utils.bezier = (points, control_points, accuracy) => {
+	  let counter = 0;
+	  let res = {
+	      models: {}
+	  };
+	  let measures = [];
+	  for (let i=0; i<points.length; i=i+control_points+1) {
+	    const curve_name = 'bez' + (++counter);
+	    let curve_points = [];
+	    if(i+control_points+2 < points.length) {
+	      curve_points = points.slice(i, i+control_points+2);
+	    } else {
+	      curve_points = points.slice(i, i+control_points+1);
+	      curve_points.push(points[0]); // Looping back to the start
+	    }
+	    const model = (accuracy>=0 ? new m$7.models.BezierCurve(curve_points, accuracy) : new m$7.models.BezierCurve(curve_points));
+	    m$7.model.addModel(res, model, curve_name);
+	    measures.push(m$7.measure.modelExtents(model));
+	  }
+	  const bbox = {
+	    low: [
+	      measures.reduce((min, p) => Math.min(min,p.low[0]), Infinity),
+	      measures.reduce((min, p) => Math.min(min,p.low[1]), Infinity)
+	    ],
+	    high: [
+	      measures.reduce((max, p) => Math.max(max,p.high[0]), -Infinity),
+	      measures.reduce((max, p) => Math.max(max,p.high[1]), -Infinity)
+	    ]
+	  };
+	  return [res, bbox]
 	};
 
 	utils.bbox = (arr) => {
@@ -329,7 +362,7 @@
 
 	kle$2.convert = (config, logger) => {
 	    const keyboard = kle$1.Serial.deserialize(config);
-	    const result = {points: {zones: {}}, pcbs: {main: {}}};
+	    const result = {points: {zones: {}}};
 
 	    // if the keyboard notes are valid YAML/JSON, they get added to each key as metadata
 	    let meta;
@@ -362,15 +395,18 @@
 	        const x = key.x + (key.width - 1) / 2;
 	        const y = key.y + (key.height - 1) / 2;
 	        
-	        // KLE deals in absolute rotation origins so we calculate
-	        // a relative difference as an origin for the column rotation
-	        // again, considering corner vs. center with the extra half width/height
-	        const diff_x = key.rotation_x - (key.x + key.width / 2);
-	        const diff_y = key.rotation_y - (key.y + key.height / 2);
+	        // KLE rotations have an absolute origin, which is the
+	        // top left corner of a standard keycap, so we adjust
+	        // by half of its size, to match where Ergogen positions
+	        // its keys
+	        const origin_x = key.rotation_x - 0.5;
+	        const origin_y = key.rotation_y - 0.5;
 
 	        // anchoring the per-key zone to the KLE-computed coords
 	        const converted = {
-	            anchor: {
+	            key: {
+	                origin: [`${origin_x} u`, `${-origin_y} u`],
+	                splay: -key.rotation_angle,
 	                shift: [`${x} u`, `${-y} u`],
 	            },
 	            columns: {}
@@ -378,15 +414,13 @@
 	        
 	        // adding a column-level rotation with origin
 	        converted.columns[colid] = {
-	            rotate: -key.rotation_angle,
-	            origin: [`${diff_x} u`, `${-diff_y} u`],
 	            rows: {}
 	        };
 	        
 	        // passing along metadata to each key
 	        converted.columns[colid].rows[rowid] = u$7.deepcopy(meta);
-	        converted.columns[colid].rows[rowid].width = key.width;
-	        converted.columns[colid].rows[rowid].height = key.height;
+	        converted.columns[colid].rows[rowid].width = `${key.width} u`;
+	        converted.columns[colid].rows[rowid].height = `${key.height} u`;
 	        converted.columns[colid].rows[rowid].label = label;
 	        converted.columns[colid].rows[rowid].column_net = col_net;
 	        converted.columns[colid].rows[rowid].row_net = row_net;
@@ -417,9 +451,10 @@
 		"js-yaml": "^3.14.1",
 		jszip: "^3.10.1",
 		"kle-serial": "github:ergogen/kle-serial#ergogen",
-		makerjs: "github:ergogen/maker.js#ergogen",
+		makerjs: "^0.18.1",
 		mathjs: "^11.5.0",
-		yargs: "^17.6.2"
+		yargs: "^17.6.2",
+		hull: "github:andriiheonia/hull"
 	};
 	var devDependencies = {
 		"@rollup/plugin-commonjs": "^24.0.1",
@@ -1518,6 +1553,7 @@
 	const prep$1 = prepare$1;
 	const anchor$1 = anchor$4.parse;
 	const filter$1 = filter$2.parse;
+	const hulljs = require$$8$1;
 
 	const binding = (base, bbox, point, units) => {
 
@@ -1625,6 +1661,78 @@
 	    }, units]
 	};
 
+	const bezier = (config, name, points, outlines, units) => {
+
+	  // prepare params
+	  a$2.unexpected(config, `${name}`, ['type', 'accuracy', 'points']);
+	  const type = a$2.in(config.type || 'quadratic', `${name}.type`, ['cubic', 'quadratic']);
+	  const control_points = {
+	    'quadratic': 1,
+	    'cubic': 2,
+	  };
+	  const accuracy = a$2.sane(config.accuracy || -1, `${name}.accuracy`, 'number')(units);
+	  const bezier_points = a$2.sane(config.points, `${name}.points`, 'array')();
+	  a$2.assert(config.points.length%(control_points[type]+1)==0, `${name}.points doesn't contain enough points to form a closed Bezier spline, there should be a multiple of ${control_points[type]+1} points.`);
+	  
+	  // return shape function and its units
+	  return [point => {
+	    const parsed_points = [];
+	    // the bezier starts at [0, 0] as it will be positioned later
+	    // but we keep the point metadata for potential mirroring purposes
+	    let last_anchor = new Point(0, 0, 0, point.meta);
+	    let bezier_index = -1;
+	    for (const bezier_point of bezier_points) {
+	        const bezier_name = `${name}.points[${++bezier_index}]`;
+	        last_anchor = anchor$1(bezier_point, bezier_name, points, last_anchor)(units);
+	        parsed_points.push(last_anchor.p);
+	    }
+	    return u$2.bezier(parsed_points, control_points[type], accuracy)
+	  }, units]
+	};
+
+	const hull = (config, name, points, outlines, units) => {
+
+	  // prepare params
+	  a$2.unexpected(config, `${name}`, ['concavity', 'extend', 'points']);
+	  const concavity = a$2.sane(config.concavity || 50, `${name}.concavity`, 'number')(units);
+	  const extend = a$2.sane(config.extend || true, `${name}.extend`, 'boolean')(units);
+	  const hull_points = a$2.sane(config.points, `${name}.points`, 'array')();
+
+	  // return shape function and its units
+	  return [point => {
+	    const parsed_points = [];
+	    // the poly starts at [0, 0] as it will be positioned later
+	    // but we keep the point metadata for potential mirroring purposes
+	    let last_anchor = new Point(0, 0, 0, point.meta);
+	    let poly_index = -1;
+	    for (const poly_point of hull_points) {
+	        const poly_name = `${name}.points[${++poly_index}]`;
+	        last_anchor = anchor$1(poly_point, poly_name, points, last_anchor)(units);
+	        if(extend) {
+	          const w = last_anchor.meta.width;
+	          const h = last_anchor.meta.height;
+	          const rect = u$2.rect(w, h, [-w/2, -h/2]);
+	          const model = last_anchor.position(rect);
+	          let top_origin = model.paths.top.origin;
+	          let top_end =  model.paths.top.end;
+	          let bottom_origin =  model.paths.bottom.origin;
+	          let bottom_end =  model.paths.bottom.end;
+	          let model_origin = model.origin;
+	          parsed_points.push([top_origin[0] + model_origin[0], top_origin[1] + model_origin[1]]);
+	          parsed_points.push([top_end[0] + model_origin[0], top_end[1] + model_origin[1]]);
+	          parsed_points.push([bottom_origin[0] + model_origin[0], bottom_origin[1] + model_origin[1]]);
+	          parsed_points.push([bottom_end[0] + model_origin[0], bottom_end[1] + model_origin[1]]);
+	        } else {
+	          parsed_points.push(last_anchor.p);
+	        }
+	    }
+	    const poly_points = hulljs(parsed_points, concavity);
+	    let poly = u$2.poly(poly_points);
+	    const bbox = u$2.bbox(poly_points);
+	    return [poly, bbox]
+	  }, units]
+	};
+
 	const outline = (config, name, points, outlines, units) => {
 
 	    // prepare params
@@ -1645,7 +1753,9 @@
 	    rectangle,
 	    circle,
 	    polygon,
-	    outline
+	    outline,
+	    bezier,
+	    hull
 	};
 
 	const expand_shorthand = (config, name, units) => {
@@ -1696,7 +1806,7 @@
 
 	            // process keys that are common to all part declarations
 	            const operation = u$2[a$2.in(part.operation || 'add', `${name}.operation`, ['add', 'subtract', 'intersect', 'stack'])];
-	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline']);
+	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'bezier', 'hull']);
 	            const bound = !!part.bound;
 	            const asym = a$2.asym(part.asym || 'source', `${name}.asym`);
 
@@ -13454,6 +13564,7 @@
 	    parsed_params.ref_hide = extra.references ? '' : 'hide';
 
 	    // footprint positioning
+	    parsed_params.point = point;
 	    parsed_params.x = point.x;
 	    parsed_params.y = -point.y;
 	    parsed_params.r = point.r;
