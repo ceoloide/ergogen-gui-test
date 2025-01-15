@@ -1695,7 +1695,7 @@
 	  // prepare params
 	  a$2.unexpected(config, `${name}`, ['concavity', 'extend', 'points']);
 	  const concavity = a$2.sane(config.concavity || 50, `${name}.concavity`, 'number')(units);
-	  const extend = a$2.sane(config.extend || true, `${name}.extend`, 'boolean')(units);
+	  const extend = a$2.sane(config.extend === undefined || config.extend, `${name}.extend`, 'boolean')(units);
 	  const hull_points = a$2.sane(config.points, `${name}.points`, 'array')();
 
 	  // return shape function and its units
