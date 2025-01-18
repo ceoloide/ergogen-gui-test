@@ -1661,40 +1661,13 @@
 	    }, units]
 	};
 
-	const bezier = (config, name, points, outlines, units) => {
-
-	  // prepare params
-	  a$2.unexpected(config, `${name}`, ['type', 'accuracy', 'points']);
-	  const type = a$2.in(config.type || 'quadratic', `${name}.type`, ['cubic', 'quadratic']);
-	  const control_points = {
-	    'quadratic': 1,
-	    'cubic': 2,
-	  };
-	  const accuracy = a$2.sane(config.accuracy || -1, `${name}.accuracy`, 'number')(units);
-	  const bezier_points = a$2.sane(config.points, `${name}.points`, 'array')();
-	  a$2.assert(config.points.length%(control_points[type]+1)==0, `${name}.points doesn't contain enough points to form a closed Bezier spline, there should be a multiple of ${control_points[type]+1} points.`);
-	  
-	  // return shape function and its units
-	  return [point => {
-	    const parsed_points = [];
-	    // the bezier starts at [0, 0] as it will be positioned later
-	    // but we keep the point metadata for potential mirroring purposes
-	    let last_anchor = new Point(0, 0, 0, point.meta);
-	    let bezier_index = -1;
-	    for (const bezier_point of bezier_points) {
-	        const bezier_name = `${name}.points[${++bezier_index}]`;
-	        last_anchor = anchor$1(bezier_point, bezier_name, points, last_anchor)(units);
-	        parsed_points.push(last_anchor.p);
-	    }
-	    return u$2.bezier(parsed_points, control_points[type], accuracy)
-	  }, units]
-	};
 
 	const hull = (config, name, points, outlines, units) => {
 
 	  // prepare params
 	  a$2.unexpected(config, `${name}`, ['concavity', 'extend', 'points']);
 	  const concavity = a$2.sane(config.concavity || 50, `${name}.concavity`, 'number')(units);
+	  // Extend should default to `true` if not defined
 	  const extend = a$2.sane(config.extend === undefined || config.extend, `${name}.extend`, 'boolean')(units);
 	  const hull_points = a$2.sane(config.points, `${name}.points`, 'array')();
 
@@ -1713,15 +1686,42 @@
 	          const h = last_anchor.meta.height;
 	          const rect = u$2.rect(w, h, [-w/2, -h/2]);
 	          const model = last_anchor.position(rect);
-	          let top_origin = model.paths.top.origin;
-	          let top_end =  model.paths.top.end;
-	          let bottom_origin =  model.paths.bottom.origin;
-	          let bottom_end =  model.paths.bottom.end;
-	          let model_origin = model.origin;
+	          const top_origin = model.paths.top.origin;
+	          const top_end =  model.paths.top.end;
+	          const bottom_origin =  model.paths.bottom.origin;
+	          const bottom_end =  model.paths.bottom.end;
+	          const model_origin = model.origin;
 	          parsed_points.push([top_origin[0] + model_origin[0], top_origin[1] + model_origin[1]]);
 	          parsed_points.push([top_end[0] + model_origin[0], top_end[1] + model_origin[1]]);
 	          parsed_points.push([bottom_origin[0] + model_origin[0], bottom_origin[1] + model_origin[1]]);
 	          parsed_points.push([bottom_end[0] + model_origin[0], bottom_end[1] + model_origin[1]]);
+	          // When width or height are too large, we need to add additional points along the sides, or
+	          // the convex hull algorithm will fold "within" the key. Points are then added at regular
+	          // intervals, their number being at least 2, since MakerJS places the first two points at
+	          // either end of the path. When a side is longer than 18 divide the length of a side by
+	          // that amount and add it to 2, this way we always have at least a middle point for sides
+	          // longer than 18 
+	          const l = 18;
+	          let intermediate_points = [];
+	          if (w > l) {
+	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.top, 2 + Math.floor(w / l)));
+	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.bottom, 2 + Math.floor(w / l)));
+	          }
+	          if (h > l) {
+	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.left, 2 + Math.floor(h / l)));
+	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.right, 2 + Math.floor(h / l)));
+	          }
+	          for (let i = 0; i < intermediate_points.length; i++) {
+	            const p = intermediate_points[i];
+	            if (!m$3.measure.isPointEqual(p, top_origin) &&
+	              !m$3.measure.isPointEqual(p, top_end) &&
+	              !m$3.measure.isPointEqual(p, bottom_origin) &&
+	              !m$3.measure.isPointEqual(p, bottom_end)) {
+	              // Not one of the corners
+	              const intermediate_point = [p[0] + model_origin[0], p[1] + model_origin[1]];
+	              parsed_points.push(intermediate_point);
+	            }
+	          }
 	        } else {
 	          parsed_points.push(last_anchor.p);
 	        }
@@ -1749,12 +1749,109 @@
 	    }, units]
 	};
 
+	const path = (config, name, points, outlines, units) => {
+
+	    // prepare params
+	    a$2.unexpected(config, `${name}`, ['segments']);
+	    const segments = a$2.sane(config.segments, `${name}.segments`, 'array')();
+	    const segments_points = [];
+	    for(const [index, segment] of segments.entries()) {
+	      a$2.in(segment.type, `${name}.segments.${index}.type`, ['line', 'arc', 's_curve', 'bezier']);
+	      segments_points.push(a$2.sane(segment.points, `${name}.segments.${index}.points`, 'array')());
+	      const num_points = segment.points.length;
+	      switch (segment.type) {
+	       case 'bezier':
+	          a$2.unexpected(segment, `${name}.segments.${index}`, ['type', `points`, 'accuracy']);
+	          break
+	        case 'arc':
+	        case 'line':
+	        case 's_curve':
+	          a$2.unexpected(segment, `${name}.segments.${index}`, ['type', `points`]);
+	          break
+	      }
+	      switch (segment.type) {
+	       case 'bezier':
+	          a$2.assert(num_points > 2, `Bezier Curve needs 3 or 4 points, but ${num_points} were provided`);
+	          break
+	        case 'arc':
+	          a$2.assert(num_points === 3, `Arc needs 3 points, but ${num_points} ${num_points === 1 ? 'was' : 'were'} provided`);
+	          break
+	        case 'line':
+	          a$2.assert(num_points > 1, `Line need at least 2 points, but ${num_points} ${num_points === 1 ? 'was' : 'were'} provided`);
+	          break
+	        case 's_curve':
+	          a$2.assert(num_points === 2, `S-Curve needs 2 points, but ${num_points} ${num_points === 1 ? 'was' : 'were'} provided`);
+	          break
+	      }
+	    }
+
+	    // return shape function and its units
+	    return [(point) => {
+	      let shape = {
+	        models: {},
+	        paths: {}
+	      };
+	      // the segment starts at [0, 0] as it will be positioned later
+	      // but we keep the point metadata for potential mirroring purposes
+	      let first_anchor = undefined;
+	      let last_anchor = new Point(0, 0, 0, point.meta);
+	      for (const [index, segment] of segments.entries()){
+	        const parsed_points = [];
+	        let point_index = -1;
+	        for (const segment_point of segments_points[index]) {
+	            const segment_points_name = `${name}.segments.${index}.points[${++point_index}]`;
+	            last_anchor = anchor$1(segment_point, segment_points_name, points, last_anchor)(units);
+	            if(first_anchor === undefined) {
+	              first_anchor = last_anchor;
+	            }
+	            parsed_points.push(last_anchor.p);
+	        }
+	        const segment_name = `path${index}`;
+	        switch (segment.type) {
+	          case 'line':
+	            let line = new m$3.models.ConnectTheDots(false, parsed_points);
+	            shape.models[segment_name] = line;
+	            break
+	          case 'arc':
+	            let arc = new m$3.paths.Arc(...parsed_points);
+	            shape.paths[segment_name] = arc;
+	            break
+	          case 's_curve':
+	            const origin = parsed_points[0];
+	            a$2.assert(parsed_points[0][0] !== parsed_points[1][0], "The ${name}.segments.${index} S-Curve segment cannot have points on the same X axis");
+	            const width = Math.abs(parsed_points[1][0] - parsed_points[0][0]);
+	            a$2.assert(parsed_points[0][1] !== parsed_points[1][1], "The ${name}.segments.${index} S-Curve segment cannot have points on the same Y axis");
+	            const height = Math.abs(parsed_points[1][1] - parsed_points[0][1]);
+	            const mirrorX = parsed_points[0][0] > parsed_points[1][0];
+	            const mirrorY = parsed_points[0][1] > parsed_points[1][1];
+	            const s_curve_raw = new m$3.models.SCurve(width, height);
+	            const mirrored_s_curve = m$3.model.mirror(s_curve_raw, mirrorX, mirrorY);
+	            const s_curve = m$3.model.move(mirrored_s_curve, origin);
+	            shape.models[segment_name] = s_curve;
+	          case 'bezier':
+	            let bezier = new m$3.models.BezierCurve(...parsed_points);
+	            shape.models[segment_name] = bezier;
+	            break
+	        }
+	      }
+	      // We always close the shape with a line between the first and last anchor, if they are not already the same
+	      if(first_anchor.x !== last_anchor.x || first_anchor.y != last_anchor.y) {
+	        let closing_line = new m$3.paths.Line([first_anchor.x, first_anchor.y], [last_anchor.x, last_anchor.y]);
+	        shape.paths["closing_line"] = closing_line;
+	      }
+	      const chain = m$3.model.findSingleChain(shape);
+	      a$2.assert(chain.endless, "The provided path configuration doesn't generate a closed shape.");
+	      const bbox = m$3.measure.modelExtents(shape);
+	      return [shape, {low: bbox.low, high: bbox.high}]
+	    }, units]
+	};
+
 	const whats = {
 	    rectangle,
 	    circle,
 	    polygon,
 	    outline,
-	    bezier,
+	    path,
 	    hull
 	};
 
@@ -1806,7 +1903,7 @@
 
 	            // process keys that are common to all part declarations
 	            const operation = u$2[a$2.in(part.operation || 'add', `${name}.operation`, ['add', 'subtract', 'intersect', 'stack'])];
-	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'bezier', 'hull']);
+	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'path', 'hull']);
 	            const bound = !!part.bound;
 	            const asym = a$2.asym(part.asym || 'source', `${name}.asym`);
 
