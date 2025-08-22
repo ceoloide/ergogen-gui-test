@@ -1661,14 +1661,41 @@
 	    }, units]
 	};
 
+	const bezier = (config, name, points, outlines, units) => {
+
+	  // prepare params
+	  a$2.unexpected(config, `${name}`, ['type', 'accuracy', 'points']);
+	  const type = a$2.in(config.type || 'quadratic', `${name}.type`, ['cubic', 'quadratic']);
+	  const control_points = {
+	    'quadratic': 1,
+	    'cubic': 2,
+	  };
+	  const accuracy = a$2.sane(config.accuracy || -1, `${name}.accuracy`, 'number')(units);
+	  const bezier_points = a$2.sane(config.points, `${name}.points`, 'array')();
+	  a$2.assert(config.points.length%(control_points[type]+1)==0, `${name}.points doesn't contain enough points to form a closed Bezier spline, there should be a multiple of ${control_points[type]+1} points.`);
+	  
+	  // return shape function and its units
+	  return [point => {
+	    const parsed_points = [];
+	    // the bezier starts at [0, 0] as it will be positioned later
+	    // but we keep the point metadata for potential mirroring purposes
+	    let last_anchor = new Point(0, 0, 0, point.meta);
+	    let bezier_index = -1;
+	    for (const bezier_point of bezier_points) {
+	        const bezier_name = `${name}.points[${++bezier_index}]`;
+	        last_anchor = anchor$1(bezier_point, bezier_name, points, last_anchor)(units);
+	        parsed_points.push(last_anchor.p);
+	    }
+	    return u$2.bezier(parsed_points, control_points[type], accuracy)
+	  }, units]
+	};
 
 	const hull = (config, name, points, outlines, units) => {
 
 	  // prepare params
 	  a$2.unexpected(config, `${name}`, ['concavity', 'extend', 'points']);
 	  const concavity = a$2.sane(config.concavity || 50, `${name}.concavity`, 'number')(units);
-	  // Extend should default to `true` if not defined
-	  const extend = a$2.sane(config.extend === undefined || config.extend, `${name}.extend`, 'boolean')(units);
+	  const extend = a$2.sane(config.extend || true, `${name}.extend`, 'boolean')(units);
 	  const hull_points = a$2.sane(config.points, `${name}.points`, 'array')();
 
 	  // return shape function and its units
@@ -1686,42 +1713,15 @@
 	          const h = last_anchor.meta.height;
 	          const rect = u$2.rect(w, h, [-w/2, -h/2]);
 	          const model = last_anchor.position(rect);
-	          const top_origin = model.paths.top.origin;
-	          const top_end =  model.paths.top.end;
-	          const bottom_origin =  model.paths.bottom.origin;
-	          const bottom_end =  model.paths.bottom.end;
-	          const model_origin = model.origin;
+	          let top_origin = model.paths.top.origin;
+	          let top_end =  model.paths.top.end;
+	          let bottom_origin =  model.paths.bottom.origin;
+	          let bottom_end =  model.paths.bottom.end;
+	          let model_origin = model.origin;
 	          parsed_points.push([top_origin[0] + model_origin[0], top_origin[1] + model_origin[1]]);
 	          parsed_points.push([top_end[0] + model_origin[0], top_end[1] + model_origin[1]]);
 	          parsed_points.push([bottom_origin[0] + model_origin[0], bottom_origin[1] + model_origin[1]]);
 	          parsed_points.push([bottom_end[0] + model_origin[0], bottom_end[1] + model_origin[1]]);
-	          // When width or height are too large, we need to add additional points along the sides, or
-	          // the convex hull algorithm will fold "within" the key. Points are then added at regular
-	          // intervals, their number being at least 2, since MakerJS places the first two points at
-	          // either end of the path. When a side is longer than 18 divide the length of a side by
-	          // that amount and add it to 2, this way we always have at least a middle point for sides
-	          // longer than 18 
-	          const l = 18;
-	          let intermediate_points = [];
-	          if (w > l) {
-	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.top, 2 + Math.floor(w / l)));
-	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.bottom, 2 + Math.floor(w / l)));
-	          }
-	          if (h > l) {
-	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.left, 2 + Math.floor(h / l)));
-	            intermediate_points = intermediate_points.concat(m$3.path.toPoints(model.paths.right, 2 + Math.floor(h / l)));
-	          }
-	          for (let i = 0; i < intermediate_points.length; i++) {
-	            const p = intermediate_points[i];
-	            if (!m$3.measure.isPointEqual(p, top_origin) &&
-	              !m$3.measure.isPointEqual(p, top_end) &&
-	              !m$3.measure.isPointEqual(p, bottom_origin) &&
-	              !m$3.measure.isPointEqual(p, bottom_end)) {
-	              // Not one of the corners
-	              const intermediate_point = [p[0] + model_origin[0], p[1] + model_origin[1]];
-	              parsed_points.push(intermediate_point);
-	            }
-	          }
 	        } else {
 	          parsed_points.push(last_anchor.p);
 	        }
@@ -1749,114 +1749,12 @@
 	    }, units]
 	};
 
-	const path = (config, name, points, outlines, units) => {
-
-	    // prepare params
-	    a$2.unexpected(config, `${name}`, ['segments']);
-	    const segments = a$2.sane(config.segments, `${name}.segments`, 'array')();
-	    const segments_points = [];
-	    for(const [index, segment] of segments.entries()) {
-	      a$2.in(segment.type, `${name}.segments.${index}.type`, ['line', 'arc', 's_curve', 'bezier']);
-	      segments_points.push(a$2.sane(segment.points, `${name}.segments.${index}.points`, 'array')());
-	      const num_points = segment.points.length;
-	      switch (segment.type) {
-	       case 'bezier':
-	          a$2.unexpected(segment, `${name}.segments.${index}`, ['type', `points`, 'accuracy']);
-	          break
-	        case 'arc':
-	        case 'line':
-	        case 's_curve':
-	          a$2.unexpected(segment, `${name}.segments.${index}`, ['type', `points`]);
-	          break
-	      }
-	      switch (segment.type) {
-	       case 'bezier':
-	          a$2.assert(num_points > (index === 0 ? 2 : 1), `Bezier Curve needs 3 or 4 points, but ${num_points} were provided`);
-	          break
-	        case 'arc':
-	          a$2.assert(num_points === (index === 0 ? 3 : 2), `Arc needs 3 points, but ${num_points} ${num_points === 1 ? 'was' : 'were'} provided`);
-	          break
-	        case 'line':
-	          a$2.assert(num_points > (index === 0 ? 1 : 0), `Line need at least 2 points, but ${num_points} ${num_points === 1 ? 'was' : 'were'} provided`);
-	          break
-	        case 's_curve':
-	          a$2.assert(num_points === (index === 0 ? 2 : 1), `S-Curve needs 2 points, but ${num_points} ${num_points === 1 ? 'was' : 'were'} provided`);
-	          break
-	      }
-	    }
-
-	    // return shape function and its units
-	    return [(point) => {
-	      let shape = {
-	        models: {},
-	        paths: {}
-	      };
-	      // the segment starts at [0, 0] as it will be positioned later
-	      // but we keep the point metadata for potential mirroring purposes
-	      let first_anchor = undefined;
-	      let last_anchor = new Point(0, 0, 0, point.meta);
-	      for (const [index, segment] of segments.entries()){
-	        const parsed_points = [];
-	        // Segments after the first one need one less point, as the start is taken from the
-	        // last segment
-	        if (index > 0) {
-	          parsed_points.push(last_anchor.p);
-	        }
-	        let point_index = -1;
-	        for (const segment_point of segments_points[index]) {
-	            const segment_points_name = `${name}.segments.${index}.points[${++point_index}]`;
-	            last_anchor = anchor$1(segment_point, segment_points_name, points, last_anchor)(units);
-	            if(first_anchor === undefined) {
-	              first_anchor = last_anchor;
-	            }
-	            parsed_points.push(last_anchor.p);
-	        }
-	        const segment_name = `path${index}`;
-	        switch (segment.type) {
-	          case 'line':
-	            let line = new m$3.models.ConnectTheDots(false, parsed_points);
-	            shape.models[segment_name] = line;
-	            break
-	          case 'arc':
-	            let arc = new m$3.paths.Arc(...parsed_points);
-	            shape.paths[segment_name] = arc;
-	            break
-	          case 's_curve':
-	            const origin = parsed_points[0];
-	            a$2.assert(parsed_points[0][0] !== parsed_points[1][0], "The ${name}.segments.${index} S-Curve segment cannot have points on the same X axis");
-	            const width = Math.abs(parsed_points[1][0] - parsed_points[0][0]);
-	            a$2.assert(parsed_points[0][1] !== parsed_points[1][1], "The ${name}.segments.${index} S-Curve segment cannot have points on the same Y axis");
-	            const height = Math.abs(parsed_points[1][1] - parsed_points[0][1]);
-	            const mirrorX = parsed_points[0][0] > parsed_points[1][0];
-	            const mirrorY = parsed_points[0][1] > parsed_points[1][1];
-	            const s_curve_raw = new m$3.models.SCurve(width, height);
-	            const mirrored_s_curve = m$3.model.mirror(s_curve_raw, mirrorX, mirrorY);
-	            const s_curve = m$3.model.move(mirrored_s_curve, origin);
-	            shape.models[segment_name] = s_curve;
-	          case 'bezier':
-	            let bezier = new m$3.models.BezierCurve(...parsed_points);
-	            shape.models[segment_name] = bezier;
-	            break
-	        }
-	      }
-	      // We always close the shape with a line between the first and last anchor, if they are not already the same
-	      if(first_anchor.x !== last_anchor.x || first_anchor.y != last_anchor.y) {
-	        let closing_line = new m$3.paths.Line([first_anchor.x, first_anchor.y], [last_anchor.x, last_anchor.y]);
-	        shape.paths["closing_line"] = closing_line;
-	      }
-	      const chain = m$3.model.findSingleChain(shape);
-	      a$2.assert(chain.endless, "The provided path configuration doesn't generate a closed shape.");
-	      const bbox = m$3.measure.modelExtents(shape);
-	      return [shape, {low: bbox.low, high: bbox.high}]
-	    }, units]
-	};
-
 	const whats = {
 	    rectangle,
 	    circle,
 	    polygon,
 	    outline,
-	    path,
+	    bezier,
 	    hull
 	};
 
@@ -1908,7 +1806,7 @@
 
 	            // process keys that are common to all part declarations
 	            const operation = u$2[a$2.in(part.operation || 'add', `${name}.operation`, ['add', 'subtract', 'intersect', 'stack'])];
-	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'path', 'hull']);
+	            const what = a$2.in(part.what || 'outline', `${name}.what`, ['rectangle', 'circle', 'polygon', 'outline', 'bezier', 'hull']);
 	            const bound = !!part.bound;
 	            const asym = a$2.asym(part.asym || 'source', `${name}.asym`);
 
@@ -4083,6 +3981,45 @@
 	//      since they are meant to match the solder jumpers behavior and aid testing.
 	//    include_courtyard: default is true
 	//      if true it will include a courtyard outline around the pin header.
+	//    niceview_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB for the nice!view display. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    niceview_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the nice!view 3d model
+	//      relative to the footprint.
+	//    niceview_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the nice!view 3d model relative to its
+	//      original size.
+	//    niceview_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the nice!view 3d
+	//      model relative to the footprint.
+	//    pin_socket_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file for pin socket to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    pin_socket_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the pin socket 3d model
+	//      relative to the footprint.
+	//    pin_socket_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the pin socket 3d model relative to its
+	//      original size.
+	//    pin_socket_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the pin socket 3d
+	//      model relative to the footprint.
+	//    pin_header_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file for pin header to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    pin_header_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the pin header 3d model
+	//      relative to the footprint.
+	//    pin_header_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the pin header 3d model relative to its
+	//      original size.
+	//    pin_header_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the pin header 3d
+	//      model relative to the footprint.
 	//
 	// @ceoloide's improvements:
 	//  - Added support for traces
@@ -6644,7 +6581,9 @@
 	//
 	// Description:
 	//   SMD side-operated momentary switch, compatible with Panasonic EVQ-PU[A|C|J|L]02K
-	//   as sold on Typeractive.xyz and LCSC. These switches are shorter than the height of hotswap
+	//   as sold on Typeractive.xyz https://typeractive.xyz/products/reset-button
+	//   keebd.com https://keebd.com/products/reset-button-panasonic
+	//   and LCSC. These switches are shorter than the height of hotswap
 	//   sockets, so they can be mounted on the same side.
 	//
 	// Datasheet:
@@ -6909,7 +6848,7 @@
 	  of the rotary encoder. The encoder mounting pads can be positioned 7.5mm instead of 5.6mm to
 	  avoid overlap with mounting pins.
 	- The footprint can be co-located with a Choc v1 / v2 hotswap footprint, as long as the encoder
-	  pads are positioned at leat 8.254 mm. If Choc v1 is co-located with the encoder, then mounting
+	  pads are positioned at least 8.254 mm. If Choc v1 is co-located with the encoder, then mounting
 	  pads can be positioned 8.00mm instead of 5.6mm to avoid overlap with mounting pins. Choc v2
 	  don't have those pins, so wouldn't need the encoder mounting pads moved.
 	- The footprint is inherently reversible, no solder jumper needed. Make sure to invert the pin
@@ -7011,13 +6950,13 @@
       (effects (font (size 1 1) (thickness 0.15))${p.side == 'F' ? ' (justify mirror)' : ''})
     )`:''}
     (attr through_hole)
-    (pad "A" thru_hole oval (at 2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.A})
-    (pad "B" thru_hole oval (at 0 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.B})
-    (pad "C" thru_hole oval (at -2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.C})
+    (pad "A" thru_hole oval (at 2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.A})
+    (pad "B" thru_hole oval (at 0 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.B})
+    (pad "C" thru_hole oval (at -2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.C})
     `;
 	    const momentary_switch_pads = `
-    (pad "S1" thru_hole oval (at -2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S1})
-    (pad "S2" thru_hole oval (at 2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S2})
+    (pad "S1" thru_hole oval (at -2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.S1})
+    (pad "S2" thru_hole oval (at 2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.S2})
     `;
 	    const plated_mp = `
     (pad "" thru_hole roundrect
@@ -7135,7 +7074,7 @@
 	//      sets the traces and vias as locked in KiCad. Locked objects may not be manipulated
 	//      or moved, and cannot be selected unless the Locked Items option is enabled in the
 	//      Selection Filter panel in KiCad. Useful for a faster workflow. If using autorouting
-	//      solutins like Freerouting, locking can prevent the traces and vias from being
+	//      solutions like Freerouting, locking can prevent the traces and vias from being
 	//      replaced.
 	//    include_plated_holes: default is false
 	//      Alternate version of the footprint compatible with side, reversible, hotswap, solder options in any combination.
@@ -7170,6 +7109,8 @@
 	//      if true. Note that the datasheet calls for a round one.
 	//    choc_v1_stabilizers_diameter: default is 1.9 (mm)
 	//      Allows you to narrow Choc v1 stabilizer / boss holes diameter for tighter fit, not recommended to set below 1.7
+	//    center_hole_diameter: default is 3.4 mm for choc v1 or 5.0 mm for choc v2
+	//      The diameter of the center hole under the switch.
 	//    choc_v1_support: default is true
 	//      if true, will add lateral stabilizer holes that are required for
 	//      Choc v1 footprints.
@@ -7293,6 +7234,7 @@
 	    choc_v1_support: true,
 	    choc_v2_support: true,
 	    choc_v1_stabilizers_diameter: 1.9,
+	    center_hole_diameter: 0.0,
 	    allow_soldermask_bridges: true,
 	    switch_3dmodel_filename: '',
 	    switch_3dmodel_xyz_offset: [0, 0, 0],
@@ -7313,6 +7255,7 @@
 	    RIGHTSTAB: { type: 'net', value: 'D2' }
 	  },
 	  body: p => {
+	    const center_hole_diameter = p.center_hole_diameter > 0 ? p.center_hole_diameter : (p.choc_v2_support ? 5 : 3.4);
 	    const common_top = `
   (footprint "ceoloide:switch_choc_v1_v2"
     (layer "${p.side}.Cu")
@@ -7327,9 +7270,9 @@
 
     ${''/* middle shaft hole */}
     ${p.include_plated_holes ? `
-    (pad "" thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5.3 5.3' : '3.7 3.7'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask") ${p.include_centerhole_net ? p.CENTERHOLE : ''})
+    (pad "" thru_hole circle (at 0 0 ${p.r}) (size ${center_hole_diameter + 0.3} ${center_hole_diameter + 0.3}) (drill ${center_hole_diameter}) (layers "*.Cu" "*.Mask") ${p.include_centerhole_net ? p.CENTERHOLE : ''})
     `: `
-    (pad "" np_thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5 5' : '3.4 3.4'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask"))
+    (pad "" np_thru_hole circle (at 0 0 ${p.r}) (size ${center_hole_diameter} ${center_hole_diameter}) (drill ${center_hole_diameter}) (layers "*.Cu" "*.Mask"))
     `}
     `;
 
@@ -8419,7 +8362,7 @@
 	    sets the traces and vias as locked in KiCad. Locked objects may not be manipulated
 	    or moved, and cannot be selected unless the Locked Items option is enabled in the
 	    Selection Filter panel in KiCad. Useful for a faster workflow. If using autorouting
-	    solutins like Freerouting, locking can prevent the traces and vias from being
+	    solutions like Freerouting, locking can prevent the traces and vias from being
 	    replaced.
 	  solder: default is false
 	    if true, will include holes to solder switches (works with hotswap too)
@@ -8448,7 +8391,7 @@
 	     recommended to set below 1.7mm.
 	  include_keycap: default is false
 	    if true, will add mx sized keycap box around the footprint (18mm)
-	  keycap_width: default is 18 (mm - defualt MX size)
+	  keycap_width: default is 18 (mm - default MX size)
 	    Allows you to adjust the height of the keycap outline.
 	  keycap_height: default is 18 (mm - default MX size)
 	    Allows you to adjust the width of the keycap outline. For example,
@@ -8892,7 +8835,7 @@
 	    if (p.hotswap) {
 	      if (p.reversible || p.side == "F") {
 	        final += hotswap_front;
-	        if (p.include_silkscree && !p.reversible) {
+	        if (p.include_silkscreen && !p.reversible) {
 	          final += hotswap_silkscreen_front;
 	        }
 	      }
@@ -9259,13 +9202,13 @@
 	//    hatch_gap: default is 1.5
 	//      the hatch gap size (in mm)
 	//    hatch_orientation: default is 0
-	//      the orientation of the htach pattern (in degrees)
+	//      the orientation of the hatch pattern (in degrees)
 	//    hatch_smoothing_level: default is 0
 	//      the level of smoothing to apply to the hatch pattern algorithm,
 	//      between 0 and 3
 	//    hatch_smoothing_value: default is 0.1
 	//      the smoothing value used by the hatch smoothing algorithm,
-	//      bertween 0.0 and 1.0
+	//      between 0.0 and 1.0
 	//    points: default is [[0,0],[420,0],[420,297],[0,297]]
 	//      an array containing the polygon points of the filled area, in
 	//      xy coordinates relative to the PCB. The default is a square area of
@@ -9358,7 +9301,7 @@
 	  outline without defining points, then they won't show up.
 
 	Usage:
-	  ou can make enabling and disabling easy with ergogen's preprocessor:
+	  You can make enabling and disabling easy with ergogen's preprocessor:
 
 	  ```js
 	  settings:
@@ -9468,6 +9411,13 @@
 	//    net: "{{row_net}}"
 	//    route: "f(-8.275,5.1)(-8.275,7.26)"
 	//
+	//  row_route2:
+	//    what: ceoloide/utility_router
+	//    where: true
+	//    params:
+	//    net: "{{row_net}}"
+	//    route: "f(-8.275 5.1) (-8.275 7.26)"
+	//
 	// Params:
 	//    net: default is no net
 	//      allows specifying a net for all routes in this footprint. To route multiple different nets,
@@ -9487,7 +9437,7 @@
 	//      sets the traces and vias as locked in KiCad. Locked objects may not be manipulated
 	//      or moved, and cannot be selected unless the Locked Items option is enabled in the
 	//      Selection Filter panel in KiCad. Useful for a faster workflow. If using autorouting
-	//      solutins like Freerouting, locking can prevent the traces and vias from being
+	//      solutions like Freerouting, locking can prevent the traces and vias from being
 	//      replaced.
 	//    routes: default empty / no routes
 	//      an array of routes based on the syntax described below, each stands by its own except they all
@@ -9505,10 +9455,13 @@
 	//    v - place a via and switch layer
 	//    x or | - start a new route (if layer is set, stays on the same layer, just like in KiCad)
 	//    (x_pos,y_pos) - route to the given position (relative to the Ergogen point). If it is the first
-	//      occurence in the route or if after x command then it places the cursor in the specific point.
+	//      occurrence in the route or if after x command then it places the cursor in the specific point.
 	//    <net_name> - the name of a net to use for the following segment. Currently unsupported in mainline
 	//      Ergogen, until https://github.com/ergogen/ergogen/pull/109 is merged.
 	//
+	// @morrijr's improvements:
+	//  - ',' between x and y, is now optional
+	//  - Spaces between coordinates are now allowed
 	// @ceoloide's improvements:
 	//  - Replace `get_at_coordinates` and `adjust_point` with native Ergogen `eaxy()`
 	//  - Refresh `via` and `segment` syntax to align with KiCad 8
@@ -9586,7 +9539,11 @@
 	    };
 
 	    const parse_tuple = (t) => {
-	      let str_tuple = JSON.parse(t.replace(/\(/g, "[").replace(/\)/g, "]"));
+	      let str_tuple = JSON.parse(
+	        t.replace(/ /g, ',') // replace spaces with commas
+	        .replace(/[,]+/g, ',') // replace multiple commas with a single comma
+	        .replace(/\([,]*/g, "[") // replace opening parenthesis (and any leading comma's) with a bracket
+	        .replace(/[,]*\)/g, "]")); // replace closing parenthesis (and any trailing comma's) with a bracket
 	      let num_tuple = str_tuple.map((v) => Number(v));
 	      if (isNaN(num_tuple[0] || isNaN(num_tuple[1]))) {
 	        throw new Error(`Invalid position encountered: ${str_tuple}`)
@@ -9665,6 +9622,8 @@
 	          case "|":
 	            start = undefined;
 	            break
+	          case " ":
+	            break // ignore spaces between coordinates
 	          default:
 	            throw new Error(`Unsupported character '${command}' at position ${i}.`)
 	        }
