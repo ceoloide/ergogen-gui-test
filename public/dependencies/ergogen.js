@@ -3981,6 +3981,45 @@
 	//      since they are meant to match the solder jumpers behavior and aid testing.
 	//    include_courtyard: default is true
 	//      if true it will include a courtyard outline around the pin header.
+	//    niceview_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file to be
+	//      used when rendering the PCB for the nice!view display. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    niceview_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the nice!view 3d model
+	//      relative to the footprint.
+	//    niceview_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the nice!view 3d model relative to its
+	//      original size.
+	//    niceview_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the nice!view 3d
+	//      model relative to the footprint.
+	//    pin_socket_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file for pin socket to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    pin_socket_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the pin socket 3d model
+	//      relative to the footprint.
+	//    pin_socket_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the pin socket 3d model relative to its
+	//      original size.
+	//    pin_socket_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the pin socket 3d
+	//      model relative to the footprint.
+	//    pin_header_3dmodel_filename: default is ''
+	//      Allows you to specify the path to a 3D model STEP or WRL file for pin header to be
+	//      used when rendering the PCB. Use the ${VAR_NAME} syntax to point to
+	//      a KiCad configured path.
+	//    pin_header_3dmodel_xyz_offset: default is [0, 0, 0]
+	//      xyz offset (in mm), used to adjust the position of the pin header 3d model
+	//      relative to the footprint.
+	//    pin_header_3dmodel_xyz_scale: default is [1, 1, 1]
+	//      xyz scale, used to adjust the size of the pin header 3d model relative to its
+	//      original size.
+	//    pin_header_3dmodel_xyz_rotation: default is [0, 0, 0]
+	//      xyz rotation (in degrees), used to adjust the orientation of the pin header 3d
+	//      model relative to the footprint.
 	//
 	// @ceoloide's improvements:
 	//  - Added support for traces
@@ -6542,7 +6581,9 @@
 	//
 	// Description:
 	//   SMD side-operated momentary switch, compatible with Panasonic EVQ-PU[A|C|J|L]02K
-	//   as sold on Typeractive.xyz and LCSC. These switches are shorter than the height of hotswap
+	//   as sold on Typeractive.xyz https://typeractive.xyz/products/reset-button
+	//   keebd.com https://keebd.com/products/reset-button-panasonic
+	//   and LCSC. These switches are shorter than the height of hotswap
 	//   sockets, so they can be mounted on the same side.
 	//
 	// Datasheet:
@@ -6807,7 +6848,7 @@
 	  of the rotary encoder. The encoder mounting pads can be positioned 7.5mm instead of 5.6mm to
 	  avoid overlap with mounting pins.
 	- The footprint can be co-located with a Choc v1 / v2 hotswap footprint, as long as the encoder
-	  pads are positioned at leat 8.254 mm. If Choc v1 is co-located with the encoder, then mounting
+	  pads are positioned at least 8.254 mm. If Choc v1 is co-located with the encoder, then mounting
 	  pads can be positioned 8.00mm instead of 5.6mm to avoid overlap with mounting pins. Choc v2
 	  don't have those pins, so wouldn't need the encoder mounting pads moved.
 	- The footprint is inherently reversible, no solder jumper needed. Make sure to invert the pin
@@ -6909,13 +6950,13 @@
       (effects (font (size 1 1) (thickness 0.15))${p.side == 'F' ? ' (justify mirror)' : ''})
     )`:''}
     (attr through_hole)
-    (pad "A" thru_hole oval (at 2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.A})
-    (pad "B" thru_hole oval (at 0 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.B})
-    (pad "C" thru_hole oval (at -2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.C})
+    (pad "A" thru_hole oval (at 2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.A})
+    (pad "B" thru_hole oval (at 0 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.B})
+    (pad "C" thru_hole oval (at -2.5 ${p.encoder_pads_position} ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.C})
     `;
 	    const momentary_switch_pads = `
-    (pad "S1" thru_hole oval (at -2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S1})
-    (pad "S2" thru_hole oval (at 2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "F.Mask") ${p.S2})
+    (pad "S1" thru_hole oval (at -2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.S1})
+    (pad "S2" thru_hole oval (at 2.5 -7 ${p.r}) (size 1.6 1.1) (drill oval 1 0.5) (layers "*.Cu" "*.Mask") ${p.S2})
     `;
 	    const plated_mp = `
     (pad "" thru_hole roundrect
@@ -7033,7 +7074,7 @@
 	//      sets the traces and vias as locked in KiCad. Locked objects may not be manipulated
 	//      or moved, and cannot be selected unless the Locked Items option is enabled in the
 	//      Selection Filter panel in KiCad. Useful for a faster workflow. If using autorouting
-	//      solutins like Freerouting, locking can prevent the traces and vias from being
+	//      solutions like Freerouting, locking can prevent the traces and vias from being
 	//      replaced.
 	//    include_plated_holes: default is false
 	//      Alternate version of the footprint compatible with side, reversible, hotswap, solder options in any combination.
@@ -7068,6 +7109,8 @@
 	//      if true. Note that the datasheet calls for a round one.
 	//    choc_v1_stabilizers_diameter: default is 1.9 (mm)
 	//      Allows you to narrow Choc v1 stabilizer / boss holes diameter for tighter fit, not recommended to set below 1.7
+	//    center_hole_diameter: default is 3.4 mm for choc v1 or 5.0 mm for choc v2
+	//      The diameter of the center hole under the switch.
 	//    choc_v1_support: default is true
 	//      if true, will add lateral stabilizer holes that are required for
 	//      Choc v1 footprints.
@@ -7191,6 +7234,7 @@
 	    choc_v1_support: true,
 	    choc_v2_support: true,
 	    choc_v1_stabilizers_diameter: 1.9,
+	    center_hole_diameter: 0.0,
 	    allow_soldermask_bridges: true,
 	    switch_3dmodel_filename: '',
 	    switch_3dmodel_xyz_offset: [0, 0, 0],
@@ -7211,6 +7255,7 @@
 	    RIGHTSTAB: { type: 'net', value: 'D2' }
 	  },
 	  body: p => {
+	    const center_hole_diameter = p.center_hole_diameter > 0 ? p.center_hole_diameter : (p.choc_v2_support ? 5 : 3.4);
 	    const common_top = `
   (footprint "ceoloide:switch_choc_v1_v2"
     (layer "${p.side}.Cu")
@@ -7225,9 +7270,9 @@
 
     ${''/* middle shaft hole */}
     ${p.include_plated_holes ? `
-    (pad "" thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5.3 5.3' : '3.7 3.7'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask") ${p.include_centerhole_net ? p.CENTERHOLE : ''})
+    (pad "" thru_hole circle (at 0 0 ${p.r}) (size ${center_hole_diameter + 0.3} ${center_hole_diameter + 0.3}) (drill ${center_hole_diameter}) (layers "*.Cu" "*.Mask") ${p.include_centerhole_net ? p.CENTERHOLE : ''})
     `: `
-    (pad "" np_thru_hole circle (at 0 0 ${p.r}) (size ${p.choc_v2_support ? '5 5' : '3.4 3.4'}) (drill ${p.choc_v2_support ? '5' : '3.4'}) (layers "*.Cu" "*.Mask"))
+    (pad "" np_thru_hole circle (at 0 0 ${p.r}) (size ${center_hole_diameter} ${center_hole_diameter}) (drill ${center_hole_diameter}) (layers "*.Cu" "*.Mask"))
     `}
     `;
 
@@ -8317,7 +8362,7 @@
 	    sets the traces and vias as locked in KiCad. Locked objects may not be manipulated
 	    or moved, and cannot be selected unless the Locked Items option is enabled in the
 	    Selection Filter panel in KiCad. Useful for a faster workflow. If using autorouting
-	    solutins like Freerouting, locking can prevent the traces and vias from being
+	    solutions like Freerouting, locking can prevent the traces and vias from being
 	    replaced.
 	  solder: default is false
 	    if true, will include holes to solder switches (works with hotswap too)
@@ -8346,7 +8391,7 @@
 	     recommended to set below 1.7mm.
 	  include_keycap: default is false
 	    if true, will add mx sized keycap box around the footprint (18mm)
-	  keycap_width: default is 18 (mm - defualt MX size)
+	  keycap_width: default is 18 (mm - default MX size)
 	    Allows you to adjust the height of the keycap outline.
 	  keycap_height: default is 18 (mm - default MX size)
 	    Allows you to adjust the width of the keycap outline. For example,
@@ -8790,7 +8835,7 @@
 	    if (p.hotswap) {
 	      if (p.reversible || p.side == "F") {
 	        final += hotswap_front;
-	        if (p.include_silkscree && !p.reversible) {
+	        if (p.include_silkscreen && !p.reversible) {
 	          final += hotswap_silkscreen_front;
 	        }
 	      }
@@ -9157,13 +9202,13 @@
 	//    hatch_gap: default is 1.5
 	//      the hatch gap size (in mm)
 	//    hatch_orientation: default is 0
-	//      the orientation of the htach pattern (in degrees)
+	//      the orientation of the hatch pattern (in degrees)
 	//    hatch_smoothing_level: default is 0
 	//      the level of smoothing to apply to the hatch pattern algorithm,
 	//      between 0 and 3
 	//    hatch_smoothing_value: default is 0.1
 	//      the smoothing value used by the hatch smoothing algorithm,
-	//      bertween 0.0 and 1.0
+	//      between 0.0 and 1.0
 	//    points: default is [[0,0],[420,0],[420,297],[0,297]]
 	//      an array containing the polygon points of the filled area, in
 	//      xy coordinates relative to the PCB. The default is a square area of
@@ -9256,7 +9301,7 @@
 	  outline without defining points, then they won't show up.
 
 	Usage:
-	  ou can make enabling and disabling easy with ergogen's preprocessor:
+	  You can make enabling and disabling easy with ergogen's preprocessor:
 
 	  ```js
 	  settings:
@@ -9366,6 +9411,13 @@
 	//    net: "{{row_net}}"
 	//    route: "f(-8.275,5.1)(-8.275,7.26)"
 	//
+	//  row_route2:
+	//    what: ceoloide/utility_router
+	//    where: true
+	//    params:
+	//    net: "{{row_net}}"
+	//    route: "f(-8.275 5.1) (-8.275 7.26)"
+	//
 	// Params:
 	//    net: default is no net
 	//      allows specifying a net for all routes in this footprint. To route multiple different nets,
@@ -9385,7 +9437,7 @@
 	//      sets the traces and vias as locked in KiCad. Locked objects may not be manipulated
 	//      or moved, and cannot be selected unless the Locked Items option is enabled in the
 	//      Selection Filter panel in KiCad. Useful for a faster workflow. If using autorouting
-	//      solutins like Freerouting, locking can prevent the traces and vias from being
+	//      solutions like Freerouting, locking can prevent the traces and vias from being
 	//      replaced.
 	//    routes: default empty / no routes
 	//      an array of routes based on the syntax described below, each stands by its own except they all
@@ -9403,10 +9455,13 @@
 	//    v - place a via and switch layer
 	//    x or | - start a new route (if layer is set, stays on the same layer, just like in KiCad)
 	//    (x_pos,y_pos) - route to the given position (relative to the Ergogen point). If it is the first
-	//      occurence in the route or if after x command then it places the cursor in the specific point.
+	//      occurrence in the route or if after x command then it places the cursor in the specific point.
 	//    <net_name> - the name of a net to use for the following segment. Currently unsupported in mainline
 	//      Ergogen, until https://github.com/ergogen/ergogen/pull/109 is merged.
 	//
+	// @morrijr's improvements:
+	//  - ',' between x and y, is now optional
+	//  - Spaces between coordinates are now allowed
 	// @ceoloide's improvements:
 	//  - Replace `get_at_coordinates` and `adjust_point` with native Ergogen `eaxy()`
 	//  - Refresh `via` and `segment` syntax to align with KiCad 8
@@ -9484,7 +9539,11 @@
 	    };
 
 	    const parse_tuple = (t) => {
-	      let str_tuple = JSON.parse(t.replace(/\(/g, "[").replace(/\)/g, "]"));
+	      let str_tuple = JSON.parse(
+	        t.replace(/ /g, ',') // replace spaces with commas
+	        .replace(/[,]+/g, ',') // replace multiple commas with a single comma
+	        .replace(/\([,]*/g, "[") // replace opening parenthesis (and any leading comma's) with a bracket
+	        .replace(/[,]*\)/g, "]")); // replace closing parenthesis (and any trailing comma's) with a bracket
 	      let num_tuple = str_tuple.map((v) => Number(v));
 	      if (isNaN(num_tuple[0] || isNaN(num_tuple[1]))) {
 	        throw new Error(`Invalid position encountered: ${str_tuple}`)
@@ -9563,6 +9622,8 @@
 	          case "|":
 	            start = undefined;
 	            break
+	          case " ":
+	            break // ignore spaces between coordinates
 	          default:
 	            throw new Error(`Unsupported character '${command}' at position ${i}.`)
 	        }
