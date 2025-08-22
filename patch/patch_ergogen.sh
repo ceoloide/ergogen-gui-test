@@ -19,4 +19,15 @@ if [ -d node_modules/ergogen ]; then
   # Add the footprints to the index
   echo "Patching footprints/index.js..."
   cp -f patch/footprints_index.js node_modules/ergogen/src/footprints/index.js
+else
+  echo "Directory node_modules/ergogen not found."
+fi
+
+# Patch rollup.config.mjs to use Node 20+ JSON import syntax
+
+if [ -f node_modules/ergogen/rollup.config.mjs ]; then
+  sed -i "s|import pkg from './package.json' assert { type: 'json' }|import pkg from './package.json' with { type: 'json' }|g" node_modules/ergogen/rollup.config.mjs
+  echo "Patched node_modules/ergogen/rollup.config.mjs for Node 20+ JSON import syntax."
+else
+  echo "File node_modules/ergogen/rollup.config.mjs not found."
 fi
