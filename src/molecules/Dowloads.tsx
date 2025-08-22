@@ -137,9 +137,9 @@ const Downloads = ({ setPreview }: Props) => {
           extension: 'kicad_pcb',
           // @ts-ignore
           content: pcb,
-          previewKey: ((configContext.kicanvasPreview || configContext?.experiment === "kicanvas") && version > 20240101 ? `pcbs.${name}` : ''),
+          previewKey: (configContext.kicanvasPreview && version > 20240101 ? `pcbs.${name}` : ''),
           // @ts-ignore
-          preview: ((configContext.kicanvasPreview || configContext?.experiment === "kicanvas") && version > 20240101 ? {
+          preview: (configContext.kicanvasPreview && version > 20240101 ? {
             key: `pcbs.${name}`,
             extension: 'kicad_pcb',
             content: pcb
