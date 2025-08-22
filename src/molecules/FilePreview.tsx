@@ -11,7 +11,7 @@ type Props = {
   className?: string
 };
 
-const FilePreview = ({ previewExtension, previewContent, width = '100%', height = '100%', className }: Props) => {
+const FilePreview = ({ previewExtension, previewContent, previewKey, width = '100%', height = '100%', className }: Props) => {
   const renderFilePreview = (extension: string) => {
     switch (extension) {
       case 'svg':
@@ -32,7 +32,7 @@ const FilePreview = ({ previewExtension, previewContent, width = '100%', height 
         )
       case 'kicad_pcb':
         return (
-          <PcbPreview pcb={previewContent} />
+          <PcbPreview pcb={previewContent} key={previewKey} />
         )
       default:
         return "No preview available";

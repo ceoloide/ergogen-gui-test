@@ -8,6 +8,7 @@ declare namespace JSX {
         'controlslist'?: string,
         'theme'?: string,
         'zoom'?: string,
+        'key'?: string
       };
       'kicanvas-source': { 
         'children'?: string,

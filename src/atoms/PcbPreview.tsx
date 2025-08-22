@@ -1,9 +1,11 @@
 type Props = {
   pcb: string,
+  key: string,
 };
 
-const PcbPreview = ({pcb}: Props): JSX.Element => (
+const PcbPreview = ({pcb, key}: Props): JSX.Element => (
   <kicanvas-embed
+    key={key}
     controls="full"
     controlslist="nodownload nooverlay"
     theme="kicad"
