@@ -28,6 +28,8 @@ type ContextProps = {
   setAutoGen: Dispatch<SetStateAction<boolean>>,
   autoGen3D: boolean,
   setAutoGen3D: Dispatch<SetStateAction<boolean>>,
+  kicanvasPreview: boolean,
+  setKicanvasPreview: Dispatch<SetStateAction<boolean>>,
   experiment: string | null
 };
 
@@ -55,6 +57,7 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   const [debug, setDebug] = useState<boolean>(localStorageOrDefault("ergogen:config:debug", false));
   const [autoGen, setAutoGen] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen", true));
   const [autoGen3D, setAutoGen3D] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen3D", true));
+  const [kicanvasPreview, setKicanvasPreview] = useState<boolean>(localStorageOrDefault("ergogen:config:kicanvasPreview", false));
   const [showSettings, setShowSettings] = useState<boolean>(false);
 
   // Save config to localStorage whenever it changes
@@ -62,7 +65,8 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
     localStorage.setItem('ergogen:config:debug', JSON.stringify(debug));
     localStorage.setItem('ergogen:config:autoGen', JSON.stringify(autoGen));
     localStorage.setItem('ergogen:config:autoGen3D', JSON.stringify(autoGen3D));
-  }, [debug, autoGen, autoGen3D]);
+    localStorage.setItem('ergogen:config:kicanvasPreview', JSON.stringify(kicanvasPreview));
+  }, [debug, autoGen, autoGen3D, kicanvasPreview]);
 
   const parseConfig = (inputString: string): [string, { [key: string]: any[] }] => {
     let type = 'UNKNOWN';
@@ -173,6 +177,8 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
         setAutoGen,
         autoGen3D,
         setAutoGen3D,
+        kicanvasPreview,
+        setKicanvasPreview,
         experiment,
       }}
     >
