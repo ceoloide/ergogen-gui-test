@@ -4,7 +4,11 @@ This is a web interface for [Ergogen](https://github.com/mrzealot/ergogen) by @M
 
 Original work by [@MvEerd](https://github.com/MvEerd).
 
-### :warning: This repo currently relies on an outdated Webpack 4, moving to Webpack 5 is non-trivial due to outdated dependencies like openjscad which depend on browserify and node polyfills
+> [!WARNING]
+> This repo currently relies on an outdated Webpack 4, moving to Webpack 5 is non-trivial due to outdated dependencies like openjscad which depend on browserify and node polyfills
+
+> [!WARNING]
+> This repo currently relies on Node 20, it will not build with node 22 due to outdated dependencies.
 
 This adds some additional features like
 
