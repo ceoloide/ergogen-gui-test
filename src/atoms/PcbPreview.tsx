@@ -8,7 +8,7 @@ const PcbPreview = ({pcb}: Props): JSX.Element => (
     controlslist="nodownload nooverlay"
     theme="kicad"
     >
-      <kicanvas-source type="pcb">
+      <kicanvas-source type="board">
         {pcb}
       </kicanvas-source>
     </kicanvas-embed>

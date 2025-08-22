@@ -11,8 +11,9 @@ declare namespace JSX {
       };
       'kicanvas-source': { 
         'children'?: string,
-        'type'?: string,
+        'type': string,
         'originname'?: string,
+        'src'?: string
       };
   }
 }
