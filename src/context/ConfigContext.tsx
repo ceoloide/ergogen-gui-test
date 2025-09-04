@@ -159,6 +159,33 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   const queryParameters = new URLSearchParams(window.location.search);
   const experiment = queryParameters.get("exp");
 
+  useEffect(() => {
+    const githubUrl = queryParameters.get("github");
+    if (githubUrl) {
+      const getRawUrl = (url: string) => {
+        const rawUrl = url
+          .replace("github.com", "raw.githubusercontent.com")
+          .replace("/blob/", "/");
+        return rawUrl;
+      };
+
+      fetch(getRawUrl(githubUrl))
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then((data) => {
+          setConfigInput(data);
+        })
+        .catch((e) => {
+          setError(`Failed to fetch config from GitHub: ${e.message}`);
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
+
   return (
     <ConfigContext.Provider
       value={{
