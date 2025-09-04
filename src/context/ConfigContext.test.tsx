@@ -7,11 +7,8 @@ const mockConfig = 'points: {}';
 describe('ConfigContextProvider', () => {
   it('should fetch config from github url parameter and update the config', async () => {
     const fetchSpy = jest.spyOn(window, 'fetch').mockImplementation(() =>
-      Promise.resolve({
-        ok: true,
-        text: () => Promise.resolve(mockConfig),
-      })
-    ) as jest.Mock;
+      Promise.resolve(new Response(mockConfig, { status: 200 }))
+    );
 
     // Set the URL for the test
     window.history.pushState({}, 'Test page', '/?github=https://github.com/ceoloide/corney-island/blob/main/ergogen/config.yaml');
