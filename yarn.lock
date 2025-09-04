@@ -4660,7 +4660,7 @@ entities@^2.0.0:
 
 ergogen@ceoloide/ergogen#bezier:
   version "4.1.0"
-  resolved "https://codeload.github.com/ceoloide/ergogen/tar.gz/2034deccd895da3b54cc5c312336288d205a4165"
+  resolved "https://codeload.github.com/ceoloide/ergogen/tar.gz/d2a729bb0c08067a38b1b4a285c37f2afc2d3038"
   dependencies:
     fs-extra "^11.1.0"
     hull "github:andriiheonia/hull"
