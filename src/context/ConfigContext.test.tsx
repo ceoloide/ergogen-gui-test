@@ -13,7 +13,7 @@ describe('ConfigContextProvider', () => {
     // Set the URL for the test
     window.history.pushState({}, 'Test page', '/?github=https://github.com/ceoloide/corney-island/blob/main/ergogen/config.yaml');
 
-    let configValue;
+    let configValue: string | undefined;
 
     render(
       <ConfigContextProvider initialInput="">
