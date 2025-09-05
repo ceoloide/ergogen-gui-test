@@ -230,6 +230,9 @@ const Ergogen = () => {
                   if (newValue.__isNew__) {
                     fetchConfigFromUrl(newValue.value)
                       .then(configContext.setConfigInput)
+                      .catch((e) => {
+                        configContext.setError(`Failed to fetch config from GitHub: ${e.message}`);
+                      });
                   } else {
                     setSelectedOption(newValue)
                   }
