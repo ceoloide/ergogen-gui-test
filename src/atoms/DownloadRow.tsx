@@ -47,6 +47,7 @@ const DownloadRow = ({fileName, extension, content, preview, setPreview, setTabI
                             setPreview(preview);
                             setTabIndex?.(0)
                         }}
+                        data-testid={`preview-icon-${fileName}`}
                     >
                         {/* @ts-ignore */}
                         <span class="material-symbols-outlined">visibility</span>

@@ -12,12 +12,20 @@ const JscadPreview: React.FC<JscadPreviewProps> = ({ jscad }) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    console.log("JscadPreview: useEffect called")
     if (containerRef.current) {
-      const viewer = new myjscad.Viewer(containerRef.current, {
-        name: 'jscad-preview',
-        color: [0.2, 0.2, 0.2, 1],
-      })
-      viewer.add(jscad)
+      console.log("JscadPreview: containerRef.current is not null")
+      try {
+        const viewer = new myjscad.Viewer(containerRef.current, {
+          name: 'jscad-preview',
+          color: [0.2, 0.2, 0.2, 1],
+        })
+        console.log("JscadPreview: viewer created")
+        viewer.add(jscad)
+        console.log("JscadPreview: jscad added to viewer")
+      } catch (e) {
+        console.error("JscadPreview: error creating viewer", e)
+      }
     }
   }, [jscad])
 

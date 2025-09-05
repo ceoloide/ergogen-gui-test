@@ -50,7 +50,7 @@ const Header = (): JSX.Element => {
               </LinkContainer>
               <LinkContainer>
                 {/* @ts-ignore */}
-                <Button size="small" onClick={toggleSettings}><span class="material-symbols-outlined">
+                <Button size="small" onClick={toggleSettings} data-testid="settings-button"><span class="material-symbols-outlined">
                 {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></Button>
             </LinkContainer>
         </HeaderContainer>
