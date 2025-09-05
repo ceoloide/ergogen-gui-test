@@ -3,6 +3,7 @@ import { DebouncedFunc } from "lodash-es";
 import yaml from "js-yaml";
 import debounce from "lodash.debounce";
 import { useLocalStorage } from 'react-use';
+import { fetchConfigFromUrl } from '../utils/github';
 
 type Props = {
   initialInput: string,
@@ -162,20 +163,7 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   useEffect(() => {
     const githubUrl = queryParameters.get("github");
     if (githubUrl) {
-      const getRawUrl = (url: string) => {
-        const rawUrl = url
-          .replace("github.com", "raw.githubusercontent.com")
-          .replace("/blob/", "/");
-        return rawUrl;
-      };
-
-      fetch(getRawUrl(githubUrl))
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.text();
-        })
+      fetchConfigFromUrl(githubUrl)
         .then((data) => {
           setConfigInput(data);
         })

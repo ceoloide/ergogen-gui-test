@@ -13,8 +13,9 @@ import { useConfigContext } from "./context/ConfigContext";
 import Button from "./atoms/Button";
 import Input from "./atoms/Input";
 import { Injection } from "./atoms/InjectionRow";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import GenOption from "./atoms/GenOption";
+import { fetchConfigFromUrl } from "./utils/github";
 import { ConfigOption, exampleOptions } from "./examples";
 
 const EditorContainer = styled.div`
@@ -57,7 +58,7 @@ const OptionContainer = styled.div`
   justify-content: space-between;
 `;
 
-const StyledSelect = styled(Select)`
+const StyledSelect = styled(CreatableSelect)`
     color: black;
     white-space: nowrap;
 `;
@@ -222,11 +223,18 @@ const Ergogen = () => {
           <LeftSplitPane>
             <EditorContainer>
               <StyledSelect
+                isClearable
                 options={exampleOptions}
                 value={selectedOption}
-                // @ts-ignore
-                onChange={(newValue: ConfigOption | null) => setSelectedOption(newValue)}
-                placeholder={"Paste your config below, or select an example here!"}
+                onChange={(newValue:any) => {
+                  if (newValue.__isNew__) {
+                    fetchConfigFromUrl(newValue.value)
+                      .then(configContext.setConfigInput)
+                  } else {
+                    setSelectedOption(newValue)
+                  }
+                }}
+                placeholder={"Paste a GitHub URL here, or select an example"}
               />
               <StyledConfigEditor />
               <Button onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</Button>
