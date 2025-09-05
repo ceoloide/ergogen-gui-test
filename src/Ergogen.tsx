@@ -253,7 +253,7 @@ const Ergogen = () => {
               snapOffset={0}
             >
               <LeftSplitPane>
-                <StyledFilePreview previewExtension={preview.extension} previewKey={preview.key} previewContent={preview.content} />
+                <StyledFilePreview previewExtension={preview.extension} previewKey={preview.key} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
               </LeftSplitPane>
               <RightSplitPane>
                 <Downloads setPreview={setPreviewKey} />
@@ -275,6 +275,7 @@ const Ergogen = () => {
                 <GenOption optionId={'debug'} label={'Debug'} setSelected={configContext.setDebug} checked={configContext.debug} />
                 <GenOption optionId={'autogen3d'} label={<>Auto-gen PCB, 3D <small>(slow)</small></>} setSelected={configContext.setAutoGen3D} checked={configContext.autoGen3D} />
                 <GenOption optionId={'kicanvasPreview'} label={<>KiCad Preview <small>(experimental)</small></>} setSelected={configContext.setKicanvasPreview} checked={configContext.kicanvasPreview} />
+                <GenOption optionId={'jscadPreview'} label={<>JSCAD Preview <small>(experimental)</small></>} setSelected={configContext.setJscadPreview} checked={configContext.jscadPreview} />
               </OptionContainer>
               <Injections setInjectionToEdit={setInjectionToEdit} deleteInjection={handleDeleteInjection} />
             </LeftSplitPane>

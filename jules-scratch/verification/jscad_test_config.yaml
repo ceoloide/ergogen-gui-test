@@ -1,0 +1,7 @@
+meta:
+  engine: 4.1.0
+cases:
+  test_case:
+    - what: outline
+      name: points
+      fillet: 2
