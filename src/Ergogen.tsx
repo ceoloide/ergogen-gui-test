@@ -234,7 +234,7 @@ const Ergogen = () => {
                     setSelectedOption(newValue)
                   }
                 }}
-                placeholder={"Paste a github URL, or select an example here!"}
+                placeholder={"Paste a GitHub URL here, or select an example"}
               />
               <StyledConfigEditor />
               <Button onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</Button>
