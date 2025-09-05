@@ -6,7 +6,12 @@ export const getRawUrl = (url: string) => {
 };
 
 export const fetchConfigFromUrl = async (url: string): Promise<string> => {
-    const baseUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+    let newUrl = url.trim();
+    if (!newUrl.match(/^(https?:\/\/)/i)) {
+        newUrl = `https://${newUrl}`;
+    }
+
+    const baseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl;
 
     const isRepoRoot = (url: string) => {
         try {
