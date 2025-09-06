@@ -1,3 +1,4 @@
+import JscadPreview from "../atoms/JscadPreview";
 import PcbPreview from "../atoms/PcbPreview";
 import SvgPreview from "../atoms/SvgPreview";
 import TextPreview from "../atoms/TextPreview";
@@ -8,10 +9,11 @@ type Props = {
   previewContent: string,
   width?: number | string,
   height?: number | string,
-  className?: string
+  className?: string,
+  jscadPreview?: boolean
 };
 
-const FilePreview = ({ previewExtension, previewContent, previewKey, width = '100%', height = '100%', className }: Props) => {
+const FilePreview = ({ previewExtension, previewContent, previewKey, width = '100%', height = '100%', className, jscadPreview }: Props) => {
   const renderFilePreview = (extension: string) => {
     switch (extension) {
       case 'svg':
@@ -28,7 +30,9 @@ const FilePreview = ({ previewExtension, previewContent, previewKey, width = '10
         )
       case 'jscad':
         return (
-          <TextPreview language="javascript" content={previewContent} />
+          jscadPreview ?
+            <JscadPreview jscad={previewContent} /> :
+            <TextPreview language="javascript" content={previewContent} />
         )
       case 'kicad_pcb':
         return (
