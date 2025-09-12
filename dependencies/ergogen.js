@@ -9459,6 +9459,7 @@
     (locked ${p.locked ? 'yes' : 'no'})
     (layers "${p.side}.Cu")
     ${p.name ? '(name "' + p.name + '")' : ''}
+		(hatch ${p.outline_type} ${p.hatch_pitch})
     (connect_pads
       (clearance 0)
     )
