@@ -38,6 +38,7 @@ module.exports = {
   'ceoloide/trrs_pj320a': require('./ceoloide/trrs_pj320a'),
   'ceoloide/utility_ergogen_logo': require('./ceoloide/utility_ergogen_logo'),
   'ceoloide/utility_filled_zone': require('./ceoloide/utility_filled_zone'),
+  'ceoloide/utility_keepout_zone': require('./ceoloide/utility_keepout_zone'),
   'ceoloide/utility_point_debugger': require('./ceoloide/utility_point_debugger'),
   'ceoloide/utility_router': require('./ceoloide/utility_router'),
   'ceoloide/utility_text': require('./ceoloide/utility_text'),
