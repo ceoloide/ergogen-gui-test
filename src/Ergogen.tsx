@@ -46,9 +46,9 @@ const Error = styled.div`
 `;
 
 const Warning = styled.div`
-  background: #fffbe6;
-  color: #9a7d00;
-  border: 1px solid #fff1a6;
+  background: #ffc107;
+  color: #000000;
+  border: 1px solid #e0a800;
   padding: 1em;
   margin: 0.5em 0 0.5em 0;
   width: 100%;
