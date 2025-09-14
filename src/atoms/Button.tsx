@@ -50,8 +50,8 @@ const SmallButton  = styled(Button)`
 `;
 
 const IconButton  = styled(Button)`
-  padding: 1rem;
-  width: 3.7rem;
+padding: 0.2rem 0.4rem;
+font-size: 0.4rem;
 `;
 
 const styledButton = ({size, ...rest}: Props): JSX.Element => {

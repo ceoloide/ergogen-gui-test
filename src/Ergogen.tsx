@@ -11,6 +11,7 @@ import FilePreview from "./molecules/FilePreview";
 
 import { useConfigContext } from "./context/ConfigContext";
 import Button from "./atoms/Button";
+import DownloadButton from "./atoms/DownloadButton";
 import DownloadIcon from "./atoms/DownloadIcon";
 import Input from "./atoms/Input";
 import { Injection } from "./atoms/InjectionRow";
@@ -32,10 +33,10 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: stretch;
+`;
 
-  & > button:first-child {
-    flex-grow: 1;
-  }
+const GrowButton = styled(Button)`
+  flex-grow: 1;
 `;
 
 const FlexContainer = styled.div`
@@ -279,10 +280,10 @@ const Ergogen = () => {
               />
               <StyledConfigEditor />
               <ButtonContainer>
-                <Button onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</Button>
-                <Button size="icon" onClick={handleDownload}>
+                <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
+                <DownloadButton onClick={handleDownload}>
                   <DownloadIcon />
-                </Button>
+                </DownloadButton>
               </ButtonContainer>
             </EditorContainer>
           </LeftSplitPane>
