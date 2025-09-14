@@ -20,16 +20,24 @@ import { ConfigOption, exampleOptions } from "./examples";
 
 const EditorContainer = styled.div`
   position: relative;
-  height: 85%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
   flex-grow: 1;
 `;
 
+const ErgogenWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+`;
+
 const FlexContainer = styled.div`
   display: flex;
   flex-flow: wrap;
+  flex-grow: 1;
 `;
 
 const Error = styled.div`
@@ -222,7 +230,7 @@ const Ergogen = () => {
     }
   }
 
-  return (<div>
+  return (<ErgogenWrapper>
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
     <FlexContainer>
@@ -303,7 +311,7 @@ const Ergogen = () => {
             </RightSplitPane>
           </StyledSplit>
         )}
-    </FlexContainer></div>
+    </FlexContainer></ErgogenWrapper>
   );
 }
 
