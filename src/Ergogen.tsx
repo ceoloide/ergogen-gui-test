@@ -90,7 +90,7 @@ const StyledSplit = styled(Split)`
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 1rem;
+  padding: 0 1rem;
 
   .gutter {
     background-color: #878787;
