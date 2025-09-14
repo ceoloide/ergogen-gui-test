@@ -72,6 +72,7 @@ const StyledFilePreview = styled(FilePreview)`
 
 const StyledConfigEditor = styled(ConfigEditor)`
   position: relative;
+  flex-grow: 1;
 `;
 
 const OptionContainer = styled.div`
