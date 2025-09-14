@@ -140,6 +140,12 @@ const findResult = (resultToFind: string, resultsToSearch: any): (any | undefine
     : undefined);
 };
 
+const FlexContainer = styled.div`
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+`;
+
 const Ergogen = () => {
   const [preview, setPreviewKey] = useState({ key: "demo.svg", extension: "svg", content: "" });
   const [injectionToEdit, setInjectionToEdit] = useState({ key: -1, type: "", name: "", content: "" });
