@@ -46,12 +46,6 @@ const ErgogenWrapper = styled.div`
   overflow: hidden;
 `;
 
-const FlexContainer = styled.div`
-  display: flex;
-  flex-flow: wrap;
-  flex-grow: 1;
-`;
-
 const Error = styled.div`
   background: #ff6d6d;
   color: #a31111;
@@ -289,7 +283,7 @@ const Ergogen = () => {
               />
               <StyledConfigEditor />
               <ButtonContainer>
-                <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</Button>
+                <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
                 <DownloadButton onClick={handleDownload}>
                   <DownloadIcon />
                 </DownloadButton>
