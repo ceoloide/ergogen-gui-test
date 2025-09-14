@@ -11,6 +11,8 @@ import FilePreview from "./molecules/FilePreview";
 
 import { useConfigContext } from "./context/ConfigContext";
 import Button from "./atoms/Button";
+import DownloadButton from "./atoms/DownloadButton";
+import DownloadIcon from "./atoms/DownloadIcon";
 import Input from "./atoms/Input";
 import { Injection } from "./atoms/InjectionRow";
 import CreatableSelect from "react-select/creatable";
@@ -24,6 +26,16 @@ const EditorContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex-grow: 1;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+`;
+
+const GrowButton = styled(Button)`
   flex-grow: 1;
 `;
 
@@ -231,6 +243,19 @@ const Ergogen = () => {
     }
   }
 
+  const handleDownload = () => {
+    if (configContext.configInput === undefined) {
+      return;
+    }
+    const element = document.createElement("a");
+    const file = new Blob([configContext.configInput], {type: 'text/yaml'});
+    element.href = URL.createObjectURL(file);
+    element.download = "config.yaml";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+
   return (<ErgogenWrapper>
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
@@ -263,7 +288,12 @@ const Ergogen = () => {
                 placeholder={"Paste a GitHub URL here, or select an example"}
               />
               <StyledConfigEditor />
-              <Button onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</Button>
+              <ButtonContainer>
+                <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</Button>
+                <DownloadButton onClick={handleDownload}>
+                  <DownloadIcon />
+                </DownloadButton>
+              </ButtonContainer>
             </EditorContainer>
           </LeftSplitPane>
 
