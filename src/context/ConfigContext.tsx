@@ -154,11 +154,11 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
               const module_prefix = 'const module = {};\n\n'
               const module_suffix = '\n\nreturn module.exports;'
               const inj_value = new Function("require", module_prefix + inj_text + module_suffix)();
-              window.ergogen.inject(inj_type, inj_name, inj_value);
+              (window as any).ergogen.inject(inj_type, inj_name, inj_value);
             }
           }
         }
-        results = await window.ergogen.process(
+        results = await (window as any).ergogen.process(
           inputConfig,
           true, // Set debug to true or no SVGs are generated
           (m: string) => console.log(m) // logger
@@ -179,7 +179,7 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
       setResults(results);
 
     }, 300),
-    [window.ergogen]
+    [(window as any).ergogen]
   );
 
   useEffect(() => {

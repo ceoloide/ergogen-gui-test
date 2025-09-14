@@ -9,7 +9,8 @@ import { TabContext } from "../organisms/Tabs";
 const DownloadsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  height: 100%;
+  overflow-y: auto;
 `;
 
 type Props = {

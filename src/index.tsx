@@ -5,7 +5,6 @@ import './index.css';
 
 import Ergogen from './Ergogen';
 import Header from "./atoms/Header";
-import Footer from "./atoms/Footer";
 import ConfigContextProvider from "./context/ConfigContext";
 import Absolem from "./examples/absolem";
 
@@ -15,6 +14,7 @@ const AppContainer = styled.div`
   color: #FFFFFF;
   height: 100%;
   width: 100%;
+  padding-bottom: 1rem;
 `;
 
 const container = document.getElementById('root');
@@ -26,7 +26,6 @@ root.render(
         <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={[]}>
           <Header />
           <Ergogen />
-          <Footer />
         </ConfigContextProvider>
       </AppContainer>
     </>

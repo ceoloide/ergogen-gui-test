@@ -22,7 +22,7 @@ import { ConfigOption, exampleOptions } from "./examples";
 
 const EditorContainer = styled.div`
   position: relative;
-  height: 85%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -39,9 +39,11 @@ const GrowButton = styled(Button)`
   flex-grow: 1;
 `;
 
-const FlexContainer = styled.div`
+const ErgogenWrapper = styled.div`
   display: flex;
-  flex-flow: wrap;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
 `;
 
 const Error = styled.div`
@@ -76,6 +78,7 @@ const StyledFilePreview = styled(FilePreview)`
 
 const StyledConfigEditor = styled(ConfigEditor)`
   position: relative;
+  flex-grow: 1;
 `;
 
 const OptionContainer = styled.div`
@@ -93,7 +96,7 @@ const StyledSplit = styled(Split)`
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 1rem;
+  padding: 0 1rem;
 
   .gutter {
     background-color: #878787;
@@ -136,6 +139,12 @@ const findResult = (resultToFind: string, resultsToSearch: any): (any | undefine
     )
     : undefined);
 };
+
+const FlexContainer = styled.div`
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+`;
 
 const Ergogen = () => {
   const [preview, setPreviewKey] = useState({ key: "demo.svg", extension: "svg", content: "" });
@@ -247,7 +256,7 @@ const Ergogen = () => {
     document.body.removeChild(element);
   }
 
-  return (<div>
+  return (<ErgogenWrapper>
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
     <FlexContainer>
@@ -333,7 +342,7 @@ const Ergogen = () => {
             </RightSplitPane>
           </StyledSplit>
         )}
-    </FlexContainer></div>
+    </FlexContainer></ErgogenWrapper>
   );
 }
 

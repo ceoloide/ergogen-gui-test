@@ -25,6 +25,13 @@ const LinkContainer = styled.div`
 
 
 
+const VersionLink = styled.a`
+  color: #28a745;
+  text-decoration: none;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+`;
+
 const Header = (): JSX.Element => {
     const configContext = useConfigContext();
     const toggleSettings = () => {
@@ -32,8 +39,11 @@ const Header = (): JSX.Element => {
     };
     return (
         <HeaderContainer>
-            <div>
+            <div style={{display: 'flex', alignItems: 'baseline'}}>
                 <h2>Ergogen</h2>
+                <VersionLink href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">
+                  v4.1.0
+                </VersionLink>
             </div>
 
             <LinkContainer>

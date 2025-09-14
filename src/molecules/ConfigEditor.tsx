@@ -31,7 +31,7 @@ const ConfigEditor = ({className, options}: Props) => {
     return (
         <div className={className}>
             <Editor
-                height="70vh"
+                height="100%"
                 defaultLanguage="yaml"
                 language="yaml"
                 onChange={handleChange}
