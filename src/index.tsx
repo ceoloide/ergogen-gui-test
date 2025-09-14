@@ -5,7 +5,6 @@ import './index.css';
 
 import Ergogen from './Ergogen';
 import Header from "./atoms/Header";
-import Footer from "./atoms/Footer";
 import ConfigContextProvider from "./context/ConfigContext";
 import Absolem from "./examples/absolem";
 
@@ -26,7 +25,6 @@ root.render(
         <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={[]}>
           <Header />
           <Ergogen />
-          <Footer />
         </ConfigContextProvider>
       </AppContainer>
     </>
