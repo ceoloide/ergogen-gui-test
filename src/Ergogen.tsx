@@ -44,6 +44,7 @@ const ErgogenWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
+  padding: 0 1em;
 `;
 
 const Error = styled.div`
@@ -96,7 +97,6 @@ const StyledSplit = styled(Split)`
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 0 1rem;
 
   .gutter {
     background-color: #878787;

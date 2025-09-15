@@ -20,7 +20,7 @@ type Props = {
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5em
+  align-items: center;
 `;
 
 const FileName = styled.div`
@@ -30,10 +30,48 @@ const FileName = styled.div`
 
 const Buttons = styled.div`
     white-space: nowrap;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-bottom: 5px;
 `;
 
 const StyledButton = styled(Button)`
-margin-right: 0.5em;
+    height: 34px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    
+    .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+        
+    &:hover {
+        background-color: #222222;
+    }
+`;
+
+const StyledLinkButton = styled.a`
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 16px;
+    gap: 6px
+    height: 34px;
+
+    .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+
+    &:hover {
+        background-color: #222222;
+    }
 `;
 
 const DownloadRow = ({fileName, extension, content, preview, setPreview, setTabIndex}: Props): JSX.Element => {
@@ -42,25 +80,22 @@ const DownloadRow = ({fileName, extension, content, preview, setPreview, setTabI
             <FileName>{fileName}.{extension}</FileName>
             <Buttons>
                 {preview && (
-                    <StyledButton size={"icon"}
+
+                <StyledLinkButton 
                         onClick={()=>{
                             setPreview(preview);
                             setTabIndex?.(0)
-                        }}
-                    >
-                        {/* @ts-ignore */}
-                        <span class="material-symbols-outlined">visibility</span>
-                    </StyledButton>
+                        }}>
+                    <span className="material-symbols-outlined">visibility</span>
+                </StyledLinkButton>
                 )}
-                <a target={"_blank"}
+
+                <StyledLinkButton target={"_blank"}
                    rel={"noreferrer"}
                    download={`${fileName}.${extension}`}
                    href={window.URL.createObjectURL(new Blob([content], {type: "octet/stream"}))}>
-                    <Button size={"icon"}>
-                        {/* @ts-ignore */}
-                        <span class="material-symbols-outlined">download</span>
-                    </Button>
-                </a>
+                    <span className="material-symbols-outlined">download</span>
+                </StyledLinkButton>
             </Buttons>
         </Row>
     );

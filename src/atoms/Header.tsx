@@ -64,6 +64,7 @@ const StyledLinkButton = styled.a`
 const SettingsButton = styled(Button)`
     height: 34px;
     padding: 8px 12px;
+    border-radius: 6px;
     .material-symbols-outlined {
         font-size: 16px !important;
     }
