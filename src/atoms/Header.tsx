@@ -55,6 +55,10 @@ const StyledLinkButton = styled.a`
         margin-right: 6px;
         font-size: 16px !important;
     }
+
+    &:hover {
+        background-color: #222222;
+    }
 `;
 
 const SettingsButton = styled(Button)`
