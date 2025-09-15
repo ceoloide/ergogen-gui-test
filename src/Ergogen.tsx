@@ -306,7 +306,7 @@ const Ergogen = () => {
               snapOffset={0}
             >
               <LeftSplitPane>
-                <StyledFilePreview previewExtension={preview.extension} previewKey={preview.key} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
+                <StyledFilePreview previewExtension={preview.extension} previewKey={`${preview.key}-${configContext.resultsVersion}`} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
               </LeftSplitPane>
               <RightSplitPane>
                 <Downloads setPreview={setPreviewKey} />

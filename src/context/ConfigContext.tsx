@@ -23,6 +23,8 @@ type ContextProps = {
   setError: Dispatch<SetStateAction<string | null>>,
   deprecationWarning: string | null,
   results: Results | null,
+  resultsVersion: number,
+  setResultsVersion: Dispatch<SetStateAction<number>>,
   showSettings: boolean,
   setShowSettings: Dispatch<SetStateAction<boolean>>,
   debug: boolean,
@@ -60,6 +62,7 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   const [error, setError] = useState<string | null>(null);
   const [deprecationWarning, setDeprecationWarning] = useState<string | null>(null);
   const [results, setResults] = useState<Results | null>(null);
+  const [resultsVersion, setResultsVersion] = useState<number>(0);
   const [debug, setDebug] = useState<boolean>(localStorageOrDefault("ergogen:config:debug", false));
   const [autoGen, setAutoGen] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen", true));
   const [autoGen3D, setAutoGen3D] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen3D", true));
@@ -177,6 +180,7 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
       }
 
       setResults(results);
+      setResultsVersion(v => v + 1)
 
     }, 300),
     [(window as any).ergogen]
@@ -218,6 +222,8 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
         setError,
         deprecationWarning,
         results,
+        resultsVersion,
+        setResultsVersion,
         showSettings,
         setShowSettings,
         debug,
