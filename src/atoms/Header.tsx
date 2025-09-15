@@ -20,18 +20,20 @@ const LeftContainer = styled.div`
 const RightContainer = styled.div`
     display: flex;
     align-items: center;
+    gap: 10px;
 `;
 
 const AppName = styled.div`
     font-size: 1rem;
     font-weight: 600;
-    color: #28a745;
+    color: white;
     margin-right: 0.5rem;
 `;
 
-const VersionText = styled.div`
+const VersionText = styled.a`
     font-size: 0.75rem;
     color: #28a745;
+    text-decoration: none;
 `
 
 const StyledLinkButton = styled.a`
@@ -68,7 +70,7 @@ const Header = (): JSX.Element => {
     return (
         <HeaderContainer>
             <LeftContainer>
-                <AppName>Ergogen</AppName><VersionText>v4.1.0</VersionText>
+                <AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText>
             </LeftContainer>
             <RightContainer>
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
