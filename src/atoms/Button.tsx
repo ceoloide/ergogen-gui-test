@@ -45,13 +45,13 @@ const MediumButton = styled(Button)`
 `;
 
 const SmallButton  = styled(Button)`
-    padding: 0.4rem 0.8rem;
+    padding: 8px 12px;
     font-size: 0.8rem;
 `;
 
 const IconButton  = styled(Button)`
-padding: 0.2rem 0.4rem;
-font-size: 0.4rem;
+    padding: 8px 12px;
+    font-size: 0.4rem;
 `;
 
 const styledButton = ({size, ...rest}: Props): JSX.Element => {
