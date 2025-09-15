@@ -14,7 +14,6 @@ const HeaderContainer = styled.div`
 
 const LeftContainer = styled.div`
     display: flex;
-    align-items: baseline;
 `;
 
 const RightContainer = styled.div`
@@ -34,22 +33,27 @@ const VersionText = styled.a`
     font-size: 0.75rem;
     color: #28a745;
     text-decoration: none;
+    align-items: center;
 `;
 
 const StyledLinkButton = styled.a`
     background-color: transparent;
     border: 1px solid #ccc;
-    border-radius: .25rem;
+    border-radius: 6px;
     color: white;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     padding: 8px 12px;
     text-decoration: none;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 13px;
+    line-height: 16px;
+    gap: 6px
+    height: 34px;
 
     .material-symbols-outlined {
-        margin-right: 0.5em;
+        margin-right: 6px;
+        font-size: 16px !important;
     }
 `;
 
@@ -74,7 +78,7 @@ const Header = (): JSX.Element => {
             <RightContainer>
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
                     <span className="material-symbols-outlined">description</span>
-                    Docs
+                    <span>Docs</span>
                 </StyledLinkButton>
                 <StyledLinkButton href="https://discord.gg/nbKcAZB" target="_blank" rel="noreferrer">
                     <DiscordIcon />
