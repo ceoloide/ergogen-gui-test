@@ -34,7 +34,7 @@ const VersionText = styled.a`
     font-size: 0.75rem;
     color: #28a745;
     text-decoration: none;
-`
+`;
 
 const StyledLinkButton = styled.a`
     background-color: transparent;
@@ -47,7 +47,6 @@ const StyledLinkButton = styled.a`
     text-decoration: none;
     cursor: pointer;
     font-size: 1rem;
-    margin-right: 1em;
 
     .material-symbols-outlined {
         margin-right: 0.5em;
