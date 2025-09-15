@@ -22,12 +22,17 @@ const RightContainer = styled.div`
     align-items: center;
 `;
 
-const Title = styled.h2`
-    font-size: 1.1rem;
+const AppName = styled.div`
+    font-size: 1rem;
     font-weight: 600;
     color: #28a745;
     margin-right: 0.5rem;
 `;
+
+const VersionText = styled.div`
+    font-size: 0.75rem;
+    color: #28a745;
+`
 
 const StyledLinkButton = styled.a`
     background-color: transparent;
@@ -63,7 +68,7 @@ const Header = (): JSX.Element => {
     return (
         <HeaderContainer>
             <LeftContainer>
-                <Title>Ergogen v4.1.0</Title>
+                <AppName>Ergogen</AppName><VersionText>v4.1.0</VersionText>
             </LeftContainer>
             <RightContainer>
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
