@@ -10,6 +10,7 @@ const HeaderContainer = styled.div`
       align-items: center;
       justify-content: space-between;
       padding: 0 1rem;
+      background-color: #222222;
 `;
 
 const LeftContainer = styled.div`
