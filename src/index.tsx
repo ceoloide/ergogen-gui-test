@@ -14,7 +14,6 @@ const AppContainer = styled.div`
   color: #FFFFFF;
   height: 100%;
   width: 100%;
-  padding-bottom: 1rem;
 `;
 
 const container = document.getElementById('root');

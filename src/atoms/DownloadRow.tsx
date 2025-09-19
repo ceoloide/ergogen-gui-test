@@ -46,13 +46,13 @@ const StyledButton = styled(Button)`
     }
         
     &:hover {
-        background-color: #222222;
+        background-color: #3f3f3f;
     }
 `;
 
 const StyledLinkButton = styled.a`
     background-color: transparent;
-    border: 1px solid #ccc;
+    border: 1px solid #3f3f3f;
     border-radius: 6px;
     color: white;
     display: flex;
@@ -70,7 +70,7 @@ const StyledLinkButton = styled.a`
     }
 
     &:hover {
-        background-color: #222222;
+        background-color: #3f3f3f;
     }
 `;
 

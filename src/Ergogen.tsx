@@ -44,7 +44,7 @@ const ErgogenWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
-  padding: 0 1em;
+  padding: 1em;
 `;
 
 const Error = styled.div`
