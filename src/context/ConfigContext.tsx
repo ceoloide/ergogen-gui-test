@@ -27,6 +27,8 @@ type ContextProps = {
   setResultsVersion: Dispatch<SetStateAction<number>>,
   showSettings: boolean,
   setShowSettings: Dispatch<SetStateAction<boolean>>,
+  showConfig: boolean,
+  setShowConfig: Dispatch<SetStateAction<boolean>>,
   debug: boolean,
   setDebug: Dispatch<SetStateAction<boolean>>,
   autoGen: boolean,
@@ -69,7 +71,8 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   const [kicanvasPreview, setKicanvasPreview] = useState<boolean>(localStorageOrDefault("ergogen:config:kicanvasPreview", true));
   const [jscadPreview, setJscadPreview] = useState<boolean>(localStorageOrDefault("ergogen:config:jscadPreview", false));
   const [showSettings, setShowSettings] = useState<boolean>(false);
-
+  const [showConfig, setShowConfig] = useState<boolean>(true);
+  
   // Save config to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('ergogen:config:debug', JSON.stringify(debug));
@@ -226,6 +229,8 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
         setResultsVersion,
         showSettings,
         setShowSettings,
+        showConfig,
+        setShowConfig,
         debug,
         setDebug,
         autoGen,

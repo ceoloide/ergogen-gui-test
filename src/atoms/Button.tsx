@@ -20,8 +20,7 @@ const Button = styled.button`
   border-color .15s ease-in-out,
   box-shadow .15s ease-in-out;
   color: #ffffff;
-  font-family: sans-serif;
-  font-size: 1.2rem;
+  font-family: 'Roboto', sans-serif;
   cursor: pointer;
   text-align: center;
   -webkit-appearance: none;

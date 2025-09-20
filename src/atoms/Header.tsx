@@ -18,7 +18,7 @@ const LeftContainer = styled.div`
     align-items: center;
     gap: 16px;
     flex-direction: row;
-    fex-grow: 1;
+    flex-grow: 1;
     min-width: 0;
     width: 100%;
 `;

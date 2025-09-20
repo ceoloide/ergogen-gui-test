@@ -14,6 +14,7 @@ const AppContainer = styled.div`
   color: #FFFFFF;
   height: 100%;
   width: 100%;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const container = document.getElementById('root');

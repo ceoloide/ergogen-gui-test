@@ -16,9 +16,54 @@ import DownloadIcon from "./atoms/DownloadIcon";
 import Input from "./atoms/Input";
 import { Injection } from "./atoms/InjectionRow";
 import CreatableSelect from "react-select/creatable";
+import { StylesConfig } from 'react-select';
 import GenOption from "./atoms/GenOption";
 import { fetchConfigFromUrl } from "./utils/github";
 import { ConfigOption, exampleOptions } from "./examples";
+
+const SubHeaderContainer = styled.div`
+      width: 100%;
+      height: 3em;
+      display: none;
+      align-items: center;
+      border-bottom: 1px solid #3f3f3f;
+      flex-direction: row;
+      gap: 16px;
+      padding: 0 1rem;
+
+      @media (max-width: 639px) {
+          display: flex;
+      }
+`;
+
+const OutlineIconButton = styled.button`
+    background-color: transparent;
+    transition: color .15s ease-in-out,
+    background-color .15s ease-in-out,
+    border-color .15s ease-in-out,
+    box-shadow .15s ease-in-out;
+    border: 1px solid #3f3f3f;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 16px;
+    gap: 6px
+    height: 34px;
+    font-family: 'Roboto', sans-serif;
+
+    .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+
+    &:hover {
+        background-color: #3f3f3f;
+    }
+`;
 
 const EditorContainer = styled.div`
   position: relative;
@@ -33,6 +78,16 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: stretch;
+
+  @media (max-width: 639px) {
+      display: none;
+  }
+`;
+
+const DesktopOnlyContainer = styled.div`
+  @media (max-width: 639px) {
+      display: none;
+  }
 `;
 
 const GrowButton = styled(Button)`
@@ -45,6 +100,10 @@ const ErgogenWrapper = styled.div`
   flex-grow: 1;
   overflow: hidden;
   padding: 1em;
+  
+  @media (max-width: 639px) {
+    padding: 0 0 1em 0;
+  }
 `;
 
 const Error = styled.div`
@@ -75,6 +134,10 @@ const Warning = styled.div`
 
 const StyledFilePreview = styled(FilePreview)`
   height: 100%;
+
+  @media (max-width: 639px) {
+      padding-top: 16px;
+  }
 `;
 
 const StyledConfigEditor = styled(ConfigEditor)`
@@ -90,7 +153,54 @@ const OptionContainer = styled.div`
 const StyledSelect = styled(CreatableSelect)`
     color: black;
     white-space: nowrap;
+    width: 100%;
+    
+  @media (min-width: 640px) {
+    padding: 0 0 10px 0;
+  }
 `;
+
+// Define custom styles for react-select components
+const customSelectStyles: StylesConfig = {
+  // Styles for the main input control
+  control: (provided, state) => ({
+    ...provided,
+    border: '1px solid #3f3f3f',
+    color: 'white',
+    borderRadius: '6px',
+    minHeight: '34px',
+    height: '34px',
+    fontSize: '13px',
+    lineHeight: '16px',
+    backgroundColor: 'transparent',
+    fontFamily: '\'Roboto\', sans-serif',
+    '&:hover': {
+      backgroundColor: '3f3f3f',
+    },
+  }),
+
+  // Styles for the container that holds the value or placeholder
+  valueContainer: (provided) => ({
+    ...provided,
+    height: '34px',
+    padding: '0px 12px',
+  }),
+
+  // Styles for the text of the selected value
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'white',
+    whiteSpace: 'nowrap',
+  }),
+
+  indicatorSeparator: () => ({
+    display: 'none', // Hides the vertical line separator
+  }),
+  indicatorsContainer: (provided) => ({
+    ...provided,
+    height: '34px',
+  }),
+};
 
 // @ts-ignore
 const StyledSplit = styled(Split)`
@@ -99,14 +209,14 @@ const StyledSplit = styled(Split)`
   display: flex;
 
   .gutter {
-    background-color: #878787;
+    background-color: #3f3f3f;
     border-radius: 0.15rem;
 
     background-repeat: no-repeat;
     background-position: 50%;
 
     &:hover {
-      background-color: #a0a0a0;
+      background-color: #676767;
     }
 
     &.gutter-horizontal {
@@ -118,7 +228,10 @@ const StyledSplit = styled(Split)`
 
 const LeftSplitPane = styled.div`
     padding-right: 1rem;
-    position: relative;
+    position: relative; 
+    @media (min-width: 640px) {
+      min-width: 300px;
+    }
 `;
 
 const RightSplitPane = styled.div`
@@ -259,19 +372,10 @@ const Ergogen = () => {
   return (<ErgogenWrapper>
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
-    <FlexContainer>
-      {!configContext.showSettings ?
-        (<StyledSplit
-          direction={"horizontal"}
-          sizes={[30, 70]}
-          minSize={100}
-          gutterSize={10}
-          snapOffset={0}
-        >
-          <LeftSplitPane>
-            <EditorContainer>
+    {!configContext.showSettings && <SubHeaderContainer><OutlineIconButton>Config</OutlineIconButton><OutlineIconButton>Outputs</OutlineIconButton>
               <StyledSelect
-                isClearable
+                styles={customSelectStyles}
+                isClearable={false}
                 options={exampleOptions}
                 value={selectedOption}
                 onChange={(newValue:any) => {
@@ -286,7 +390,36 @@ const Ergogen = () => {
                   }
                 }}
                 placeholder={"Paste a GitHub URL here, or select an example"}
-              />
+              /></SubHeaderContainer>}
+    <FlexContainer>
+      {!configContext.showSettings ?
+        (<StyledSplit
+          direction={"horizontal"}
+          sizes={[30, 70]}
+          minSize={100}
+          gutterSize={5}
+          snapOffset={0}
+        >
+          <LeftSplitPane>
+            <EditorContainer>
+              <DesktopOnlyContainer><StyledSelect
+                isClearable={false}
+                styles={customSelectStyles}
+                options={exampleOptions}
+                value={selectedOption}
+                onChange={(newValue:any) => {
+                  if (newValue.__isNew__) {
+                    fetchConfigFromUrl(newValue.value)
+                      .then(configContext.setConfigInput)
+                      .catch((e) => {
+                        configContext.setError(`Failed to fetch config from GitHub: ${e.message}`);
+                      });
+                  } else {
+                    setSelectedOption(newValue)
+                  }
+                }}
+                placeholder={"Paste a GitHub URL here, or select an example"}
+              /></DesktopOnlyContainer>
               <StyledConfigEditor />
               <ButtonContainer>
                 <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
@@ -302,7 +435,7 @@ const Ergogen = () => {
               direction={"horizontal"}
               sizes={[70, 30]}
               minSize={100}
-              gutterSize={10}
+              gutterSize={5}
               snapOffset={0}
             >
               <LeftSplitPane>
