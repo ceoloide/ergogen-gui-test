@@ -39,7 +39,7 @@
     "start": "react-scripts --openssl-legacy-provider start",
     "build": "react-scripts --openssl-legacy-provider build",
     "postbuild": "yarn run build-ergogen",
-    "test": "react-scripts --openssl-legacy-provider test",
+    "test": "CI=true react-scripts --openssl-legacy-provider test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"
