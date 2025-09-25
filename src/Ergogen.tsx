@@ -421,7 +421,7 @@ const Ergogen = () => {
                 }}
                 placeholder={"Paste a GitHub URL here, or select an example"}
               /></DesktopOnlyContainer>
-              <StyledConfigEditor />
+              <StyledConfigEditor data-testid="config-editor" />
               <ButtonContainer>
                 <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
                 <DownloadButton onClick={handleDownload}>
@@ -440,7 +440,7 @@ const Ergogen = () => {
               snapOffset={0}
             >
               <LeftSplitPane>
-                <StyledFilePreview previewExtension={preview.extension} previewKey={`${preview.key}-${configContext.resultsVersion}`} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
+                <StyledFilePreview data-testid="file-preview" previewExtension={preview.extension} previewKey={`${preview.key}-${configContext.resultsVersion}`} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
               </LeftSplitPane>
               <RightSplitPane>
                 <Downloads setPreview={setPreviewKey} />

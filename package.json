@@ -40,6 +40,8 @@
     "build": "react-scripts --openssl-legacy-provider build",
     "postbuild": "yarn run build-ergogen",
     "test": "CI=true react-scripts --openssl-legacy-provider test --env=jsdom",
+    "test:e2e": "playwright test",
+    "test:ci": "yarn test && yarn test:e2e",
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"
@@ -64,6 +66,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@playwright/test": "^1.55.1",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash-es": "^4.17.12",
     "@types/lodash.debounce": "^4.0.9",
