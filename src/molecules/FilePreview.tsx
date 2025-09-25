@@ -10,10 +10,11 @@ type Props = {
   width?: number | string,
   height?: number | string,
   className?: string,
-  jscadPreview?: boolean
+  jscadPreview?: boolean,
+  "data-testid"?: string
 };
 
-const FilePreview = ({ previewExtension, previewContent, previewKey, width = '100%', height = '100%', className, jscadPreview }: Props) => {
+const FilePreview = ({ previewExtension, previewContent, previewKey, width = '100%', height = '100%', className, jscadPreview, "data-testid": dataTestId }: Props) => {
   const renderFilePreview = (extension: string) => {
     switch (extension) {
       case 'svg':
@@ -44,7 +45,7 @@ const FilePreview = ({ previewExtension, previewContent, previewKey, width = '10
   };
 
   return (
-    <div className={className}>
+    <div className={className} data-testid={dataTestId}>
       {renderFilePreview(previewExtension)}
     </div>
   );

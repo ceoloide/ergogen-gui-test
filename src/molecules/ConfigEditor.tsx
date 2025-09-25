@@ -10,9 +10,10 @@ type EditorOptions = {
 type Props = {
   className?: string,
   options?: EditorOptions,
+  "data-testid"?: string
 };
 
-const ConfigEditor = ({className, options}: Props) => {
+const ConfigEditor = ({className, options, "data-testid": dataTestId}: Props) => {
     const configContext = useConfigContext();
 
     // @ts-ignore
@@ -29,7 +30,7 @@ const ConfigEditor = ({className, options}: Props) => {
     });
 
     return (
-        <div className={className}>
+        <div className={className} data-testid={dataTestId}>
             <Editor
                 height="100%"
                 defaultLanguage="yaml"
