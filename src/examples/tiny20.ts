@@ -1,5 +1,9 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the Tiny20 keyboard.
+ * @type {ConfigExample}
+ */
 const Tiny20: ConfigExample = {
     label: "Tiny20",
     author: "enzocoralc",

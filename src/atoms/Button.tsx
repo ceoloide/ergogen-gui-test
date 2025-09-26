@@ -1,12 +1,22 @@
 import React from 'react';
 import styled from "styled-components";
 
+/**
+ * Props for the Button component.
+ * @typedef {object} Props
+ * @property {string} [size] - The size of the button. Accepts 'icon', 'sm'/'small', 'md'/'medium', 'lg'/'large'.
+ * @property {React.ReactNode} children - The content to be displayed inside the button.
+ * @property {React.MouseEventHandler<HTMLButtonElement>} [onClick] - Optional click handler.
+ */
 type Props = {
     size?: string,
     children: React.ReactNode,
     onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
 };
 
+/**
+ * A standard styled button component.
+ */
 const Button = styled.button`
   display: inline-block;
   border: none;
@@ -38,21 +48,41 @@ const Button = styled.button`
   }
 `;
 
+/**
+ * A medium-sized variant of the Button.
+ */
 const MediumButton = styled(Button)`
     padding: 0.7rem 1.4rem;
     font-size: 1rem;
 `;
 
+/**
+ * A small-sized variant of the Button.
+ */
 const SmallButton  = styled(Button)`
     padding: 8px 12px;
     font-size: 0.8rem;
 `;
 
+/**
+ * An icon-sized variant of the Button.
+ */
 const IconButton  = styled(Button)`
     padding: 8px 12px;
     font-size: 0.4rem;
 `;
 
+/**
+ * Renders a button component with a specified size.
+ * This component acts as a factory, returning a button of a specific size
+ * based on the `size` prop.
+ *
+ * @param {Props} props - The props for the component.
+ * @param {string} [props.size="large"] - The size of the button. Can be 'icon', 'sm'/'small', 'md'/'medium', or 'lg'/'large'.
+ * @param {React.ReactNode} props.children - The content of the button.
+ * @param {React.MouseEventHandler<HTMLButtonElement>} [props.onClick] - The function to call on button click.
+ * @returns {JSX.Element} A styled Button component based on the size prop.
+ */
 const styledButton = ({size, ...rest}: Props): JSX.Element => {
     switch(size){
         case "icon":

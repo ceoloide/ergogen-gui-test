@@ -1,6 +1,11 @@
 import {ConfigExample} from "./index";
 
-const Reviung41: ConfigExample = {
+/**
+ * An example Ergogen configuration for a Plank-like ortholinear keyboard.
+ * This example features a 2u spacebar.
+ * @type {ConfigExample}
+ */
+const Plank: ConfigExample = {
     label: "Plank (ortholinear, 2u space)",
     author: "cache.works",
     value: `meta:
@@ -199,4 +204,4 @@ pcbs:
 `
 };
 
-export default Reviung41;
+export default Plank;

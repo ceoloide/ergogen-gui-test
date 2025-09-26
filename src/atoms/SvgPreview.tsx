@@ -2,12 +2,23 @@ import styled from "styled-components";
 // @ts-ignore
 import { PanZoom } from 'react-easy-panzoom';
 
+/**
+ * Props for the SvgPreview component.
+ * @typedef {object} Props
+ * @property {string} svg - The SVG content as a string.
+ * @property {number | string} width - The width of the SVG image.
+ * @property {number | string} height - The height of the SVG image.
+ */
 type Props = {
   svg: string,
   width: number | string,
   height: number | string
 };
 
+/**
+ * An img element styled to invert its colors and disable dragging.
+ * This is used to make the SVG preview visible in a dark theme.
+ */
 const InvertedImage = styled.img`
       filter: invert();
       -webkit-user-drag: none;
@@ -17,6 +28,10 @@ const InvertedImage = styled.img`
       user-drag: none;
 `;
 
+/**
+ * A styled PanZoom component to provide panning and zooming functionality.
+ * It hides overflow and removes the focus outline.
+ */
 const StyledPanZoom = styled(PanZoom)`
   overflow: hidden;
   height: 100%;
@@ -26,6 +41,13 @@ const StyledPanZoom = styled(PanZoom)`
   }
 `;
 
+/**
+ * A component that displays an SVG preview with panning and zooming capabilities.
+ * The SVG's colors are inverted for better visibility on dark backgrounds.
+ *
+ * @param {Props} props - The props for the component.
+ * @returns {JSX.Element} A pan-and-zoom container with the inverted SVG image.
+ */
 const SvgPreview = ({svg, width, height}: Props): JSX.Element => (
     <StyledPanZoom enableBoundingBox={true} minZoom={0.8} maxZoom={5}>
         <InvertedImage

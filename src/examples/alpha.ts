@@ -1,5 +1,10 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the Alpha keyboard layout.
+ * This example demonstrates a staggered bottom row.
+ * @type {ConfigExample}
+ */
 const Alpha: ConfigExample = {
     label: "Alpha (staggered bottom row)",
     author: "jcmkk3",

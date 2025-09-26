@@ -1,5 +1,10 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the Wubbo keyboard.
+ * This example demonstrates the use of outlines and switchplate generation.
+ * @type {ConfigExample}
+ */
 const Wubbo: ConfigExample = {
     label: "Wubbo (outlines, switchplate)",
     author: "cache.works",
