@@ -6,6 +6,10 @@ import { useConfigContext } from "../context/ConfigContext";
 import { Dispatch, SetStateAction, useContext } from "react";
 import { TabContext } from "../organisms/Tabs";
 
+/**
+ * A styled container for the list of downloads.
+ * It allows for vertical scrolling if the content overflows.
+ */
 const DownloadsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -13,10 +17,24 @@ const DownloadsContainer = styled.div`
   overflow-y: auto;
 `;
 
+/**
+ * Props for the Downloads component.
+ * @typedef {object} Props
+ * @property {Dispatch<SetStateAction<Preview>>} setPreview - Function to set the active file preview.
+ */
 type Props = {
   setPreview: Dispatch<SetStateAction<Preview>>
 };
 
+/**
+ * Represents a single downloadable file object.
+ * @typedef {object} DownloadObj
+ * @property {string} fileName - The name of the file without the extension.
+ * @property {string} extension - The file extension.
+ * @property {string} content - The content of the file.
+ * @property {string} [previewKey] - An optional key for identifying the preview.
+ * @property {Preview} [preview] - An optional preview object.
+ */
 type DownloadObj = {
   fileName: string,
   extension: string,
@@ -25,8 +43,19 @@ type DownloadObj = {
   preview?: Preview,
 };
 
+/**
+ * An array of DownloadObj.
+ * @typedef {DownloadObj[]} DownloadArr
+ */
 type DownloadArr = Array<DownloadObj>;
 
+/**
+ * A component that generates and displays a list of downloadable files from the Ergogen results.
+ * It processes the results from the ConfigContext and creates DownloadRow components for each output file.
+ *
+ * @param {Props} props - The props for the component.
+ * @returns {JSX.Element | null} A list of downloads or null if the context is not available.
+ */
 const Downloads = ({ setPreview }: Props) => {
   let downloads: DownloadArr = [];
   const configContext = useConfigContext();

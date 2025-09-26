@@ -1,5 +1,9 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the A. dux keyboard.
+ * @type {ConfigExample}
+ */
 const ADux: ConfigExample = {
     label: "A. dux",
     author: "tapioki",

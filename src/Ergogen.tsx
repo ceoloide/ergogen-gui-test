@@ -21,6 +21,9 @@ import GenOption from "./atoms/GenOption";
 import { fetchConfigFromUrl } from "./utils/github";
 import { ConfigOption, exampleOptions } from "./examples";
 
+/**
+ * A container for a sub-header, designed to be displayed on smaller screens.
+ */
 const SubHeaderContainer = styled.div`
       width: 100%;
       height: 3em;
@@ -36,6 +39,9 @@ const SubHeaderContainer = styled.div`
       }
 `;
 
+/**
+ * A styled button with an outline, used for secondary actions.
+ */
 const OutlineIconButton = styled.button`
     background-color: transparent;
     transition: color .15s ease-in-out,
@@ -65,6 +71,9 @@ const OutlineIconButton = styled.button`
     }
 `;
 
+/**
+ * A container for editor components, ensuring it fills available space.
+ */
 const EditorContainer = styled.div`
   position: relative;
   height: 100%;
@@ -74,6 +83,9 @@ const EditorContainer = styled.div`
   flex-grow: 1;
 `;
 
+/**
+ * A container for action buttons, hidden on smaller screens.
+ */
 const ButtonContainer = styled.div`
   display: flex;
   gap: 0.5rem;
@@ -84,16 +96,25 @@ const ButtonContainer = styled.div`
   }
 `;
 
+/**
+ * A container for elements that should only be visible on desktop-sized screens.
+ */
 const DesktopOnlyContainer = styled.div`
   @media (max-width: 639px) {
       display: none;
   }
 `;
 
+/**
+ * A button that expands to fill the available horizontal space.
+ */
 const GrowButton = styled(Button)`
   flex-grow: 1;
 `;
 
+/**
+ * The main wrapper for the entire Ergogen application UI.
+ */
 const ErgogenWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -106,6 +127,9 @@ const ErgogenWrapper = styled.div`
   }
 `;
 
+/**
+ * A styled component for displaying error messages.
+ */
 const Error = styled.div`
   background: #ff6d6d;
   color: #a31111;
@@ -119,6 +143,9 @@ const Error = styled.div`
   justify-content: space-between;
 `;
 
+/**
+ * A styled component for displaying warning messages.
+ */
 const Warning = styled.div`
   background: #ffc107;
   color: #000000;
@@ -132,6 +159,9 @@ const Warning = styled.div`
   justify-content: space-between;
 `;
 
+/**
+ * A styled version of the FilePreview component.
+ */
 const StyledFilePreview = styled(FilePreview)`
   height: 100%;
 
@@ -140,16 +170,25 @@ const StyledFilePreview = styled(FilePreview)`
   }
 `;
 
+/**
+ * A styled version of the ConfigEditor component.
+ */
 const StyledConfigEditor = styled(ConfigEditor)`
   position: relative;
   flex-grow: 1;
 `;
 
+/**
+ * A container for settings and options.
+ */
 const OptionContainer = styled.div`
   display: inline-grid;
   justify-content: space-between;
 `;
 
+/**
+ * A styled CreatableSelect component from `react-select`.
+ */
 const StyledSelect = styled(CreatableSelect)`
     color: black;
     white-space: nowrap;
@@ -160,7 +199,9 @@ const StyledSelect = styled(CreatableSelect)`
   }
 `;
 
-// Define custom styles for react-select components
+/**
+ * Custom styles object for the `react-select` component to match the application's theme.
+ */
 const customSelectStyles: StylesConfig = {
   // Styles for the main input control
   control: (provided, state) => ({
@@ -202,6 +243,9 @@ const customSelectStyles: StylesConfig = {
   }),
 };
 
+/**
+ * A styled version of the `react-split` component, providing resizable panes.
+ */
 // @ts-ignore
 const StyledSplit = styled(Split)`
   width: 100%;
@@ -226,6 +270,9 @@ const StyledSplit = styled(Split)`
   }
 `;
 
+/**
+ * A container for the left pane in a split layout.
+ */
 const LeftSplitPane = styled.div`
     padding-right: 1rem;
     position: relative; 
@@ -234,11 +281,20 @@ const LeftSplitPane = styled.div`
     }
 `;
 
+/**
+ * A container for the right pane in a split layout.
+ */
 const RightSplitPane = styled.div`
     padding-left: 1rem;
     position: relative;
 `;
 
+/**
+ * Recursively finds a nested property within an object using a dot-separated string.
+ * @param {string} resultToFind - The dot-separated path to the desired property (e.g., "outlines.top.svg").
+ * @param {any} resultsToSearch - The object to search within.
+ * @returns {any | undefined} The found property value, or undefined if not found.
+ */
 const findResult = (resultToFind: string, resultsToSearch: any): (any | undefined) => {
   if (resultsToSearch === null) return null;
   if (resultToFind === '') return resultsToSearch;
@@ -253,18 +309,46 @@ const findResult = (resultToFind: string, resultsToSearch: any): (any | undefine
     : undefined);
 };
 
+/**
+ * A flex container that allows its children to wrap and grow.
+ */
 const FlexContainer = styled.div`
   display: flex;
   flex-flow: wrap;
   flex-grow: 1;
 `;
 
+/**
+ * The main component of the Ergogen application.
+ * It orchestrates the layout, state management, and interaction between the config editor,
+ * previews, download lists, and settings panels.
+ *
+ * @returns {JSX.Element | null} The rendered Ergogen application UI, or null if the config context is not available.
+ */
 const Ergogen = () => {
+  /**
+   * State for the currently displayed file preview.
+   * @type {{key: string, extension: string, content: string}}
+   */
   const [preview, setPreviewKey] = useState({ key: "demo.svg", extension: "svg", content: "" });
+
+  /**
+   * State for the custom injection currently being edited in the settings panel.
+   * @type {Injection}
+   */
   const [injectionToEdit, setInjectionToEdit] = useState({ key: -1, type: "", name: "", content: "" });
+
+  /**
+   * State for the selected example from the dropdown menu.
+   * @type {ConfigOption | null}
+   */
   const [selectedOption, setSelectedOption] = useState<ConfigOption | null>(null);
+
   const configContext = useConfigContext();
 
+  /**
+   * Effect to update the config input when a new example is selected from the dropdown.
+   */
   useEffect(() => {
     if (selectedOption?.value) {
       configContext?.setConfigInput(selectedOption.value)
@@ -272,6 +356,10 @@ const Ergogen = () => {
     // eslint-disable-next-line
   }, [selectedOption]);
 
+  /**
+   * Effect to handle changes to the injection being edited.
+   * It updates the main injection list in the context when an injection is created or modified.
+   */
   useEffect(() => {
     if (injectionToEdit.key === -1) return;
     if (injectionToEdit.name === "") return;
@@ -311,13 +399,14 @@ const Ergogen = () => {
   let result = null;
   if (configContext.results) {
     result = findResult(preview.key, configContext.results);
+    // Fallback to the default demo SVG if the current preview key is not found.
     if (result === undefined && preview.key !== "demo.svg") {
-      // If we don't find the preview we had, switch to demo.svg
       preview.key = "demo.svg"
       preview.extension = "svg"
       result = findResult(preview.key, configContext.results);
     }
 
+    // Process the result based on the file extension to format it for the preview component.
     switch (preview.extension) {
       case 'svg':
       case 'kicad_pcb':
@@ -334,6 +423,10 @@ const Ergogen = () => {
     };
   }
 
+  /**
+   * Handles changes to the name input field for the injection being edited.
+   * @param {ChangeEvent<HTMLInputElement>} e - The input change event.
+   */
   const handleInjectionNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newInjectionToEdit = {
       ...injectionToEdit,
@@ -342,11 +435,16 @@ const Ergogen = () => {
     setInjectionToEdit(newInjectionToEdit);
   }
 
+  /**
+   * Handles the deletion of a custom injection from the list.
+   * @param {Injection} injectionToDelete - The injection object to be deleted.
+   */
   const handleDeleteInjection = (injectionToDelete: Injection) => {
     if (!Array.isArray(configContext?.injectionInput)) return;
     const injections = [...configContext.injectionInput].filter((e, i) => { return i !== injectionToDelete.key })
     // @ts-ignore
     configContext.setInjectionInput(injections);
+    // Reset or re-index the currently edited injection if it was affected by the deletion.
     if (injectionToEdit.key === injectionToDelete.key) {
       const emptyInjection = { key: -1, type: "", name: "", content: "" };
       setInjectionToEdit(emptyInjection);
@@ -356,6 +454,9 @@ const Ergogen = () => {
     }
   }
 
+  /**
+   * Triggers a browser download of the current configuration as a 'config.yaml' file.
+   */
   const handleDownload = () => {
     if (configContext.configInput === undefined) {
       return;

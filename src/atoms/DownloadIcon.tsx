@@ -1,5 +1,12 @@
 import React from "react";
 
+/**
+ * A React component that renders a download icon as an SVG.
+ * This icon is typically used in buttons or links to indicate a download action.
+ * It is a stateless functional component.
+ *
+ * @returns {JSX.Element} The download SVG icon.
+ */
 const DownloadIcon = () => (
   <svg
     width="24"

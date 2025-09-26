@@ -5,14 +5,56 @@ import debounce from "lodash.debounce";
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 
+/**
+ * Props for the ConfigContextProvider component.
+ * @typedef {object} Props
+ * @property {string} initialInput - The initial configuration input string.
+ * @property {string[][]} [initialInjectionInput] - The initial array of code injections.
+ * @property {React.ReactNode[] | React.ReactNode} children - The child components to be wrapped by the provider.
+ */
 type Props = {
   initialInput: string,
   initialInjectionInput?: string[][],
   children: React.ReactNode[] | React.ReactNode,
 };
 
+/**
+ * Represents the structure of the Ergogen processing results.
+ * @typedef {object} Results
+ * @property {any | Results} [key] - Can contain any value or be recursively nested.
+ */
 type Results = { [key: string]: any | Results };
 
+/**
+ * Defines the shape of the data and functions provided by the ConfigContext.
+ * @typedef {object} ContextProps
+ * @property {string | undefined} configInput - The current YAML/JSON configuration string.
+ * @property {Dispatch<SetStateAction<string | undefined>>} setConfigInput - Function to update the config input.
+ * @property {string[][] | undefined} injectionInput - The current array of code injections.
+ * @property {Dispatch<SetStateAction<string[][] | undefined>>} setInjectionInput - Function to update the injections.
+ * @property {DebouncedFunc<...>} processInput - Debounced function to process the configuration.
+ * @property {string | null} error - Any error message from the Ergogen process.
+ * @property {Dispatch<SetStateAction<string | null>>} setError - Function to set an error message.
+ * @property {string | null} deprecationWarning - Any deprecation warnings from the process.
+ * @property {Results | null} results - The results from the Ergogen process.
+ * @property {number} resultsVersion - A version number that increments with each new result.
+ * @property {Dispatch<SetStateAction<number>>} setResultsVersion - Function to update the results version.
+ * @property {boolean} showSettings - Flag to control the visibility of the settings panel.
+ * @property {Dispatch<SetStateAction<boolean>>} setShowSettings - Function to toggle the settings panel.
+ * @property {boolean} showConfig - Flag to control the visibility of the configuration editor.
+ * @property {Dispatch<SetStateAction<boolean>>} setShowConfig - Function to toggle the config editor.
+ * @property {boolean} debug - Flag to enable debug mode.
+ * @property {Dispatch<SetStateAction<boolean>>} setDebug - Function to set debug mode.
+ * @property {boolean} autoGen - Flag to enable automatic regeneration of previews.
+ * @property {Dispatch<SetStateAction<boolean>>} setAutoGen - Function to toggle auto-generation.
+ * @property {boolean} autoGen3D - Flag to enable automatic regeneration of 3D previews.
+ * @property {Dispatch<SetStateAction<boolean>>} setAutoGen3D - Function to toggle 3D auto-generation.
+ * @property {boolean} kicanvasPreview - Flag to enable the KiCanvas preview for PCBs.
+ * @property {Dispatch<SetStateAction<boolean>>} setKicanvasPreview - Function to toggle the KiCanvas preview.
+ * @property {boolean} jscadPreview - Flag to enable the JSCAD 3D preview.
+ * @property {Dispatch<SetStateAction<boolean>>} setJscadPreview - Function to toggle the JSCAD preview.
+ * @property {string | null} experiment - The value of any 'exp' query parameter.
+ */
 type ContextProps = {
   configInput: string | undefined,
   setConfigInput: Dispatch<SetStateAction<string | undefined>>,
@@ -42,13 +84,31 @@ type ContextProps = {
   experiment: string | null
 };
 
+/**
+ * Options for the `processInput` function.
+ * @typedef {object} ProcessOptions
+ * @property {boolean} pointsonly - If true, only the points will be processed, skipping PCBs and cases.
+ */
 type ProcessOptions = {
   pointsonly: boolean
 };
 
+/**
+ * The main React context for managing Ergogen configuration and results.
+ */
 export const ConfigContext = createContext<ContextProps | null>(null);
+
+/**
+ * The key used to store the main configuration in local storage.
+ */
 export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG'
 
+/**
+ * Retrieves a value from local storage, or returns a default value if not found.
+ * @param {string} key - The local storage key.
+ * @param {any} defaultValue - The default value to return if the key is not found.
+ * @returns {any} The parsed value from local storage or the default value.
+ */
 const localStorageOrDefault = (key: string, defaultValue: any) => {
   const storedValue = localStorage.getItem(key);
   if (storedValue) {
@@ -58,6 +118,14 @@ const localStorageOrDefault = (key: string, defaultValue: any) => {
   }
 }
 
+/**
+ * The provider component for the ConfigContext.
+ * It manages all state related to configuration, injections, settings, and results.
+ * It also handles fetching initial config from URL parameters and persisting settings to local storage.
+ *
+ * @param {Props} props - The props for the component.
+ * @returns {JSX.Element} The context provider wrapping the children.
+ */
 const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }: Props) => {
   const [configInput, setConfigInput] = useLocalStorage<string>(CONFIG_LOCAL_STORAGE_KEY, initialInput);
   const [injectionInput, setInjectionInput] = useLocalStorage<string[][]>("ergogen:injection", initialInjectionInput);
@@ -73,7 +141,9 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
   
-  // Save config to localStorage whenever it changes
+  /**
+   * Effect to save user settings to local storage whenever they change.
+   */
   useEffect(() => {
     localStorage.setItem('ergogen:config:debug', JSON.stringify(debug));
     localStorage.setItem('ergogen:config:autoGen', JSON.stringify(autoGen));
@@ -82,7 +152,12 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
     localStorage.setItem('ergogen:config:jscadPreview', JSON.stringify(jscadPreview));
   }, [debug, autoGen, autoGen3D, kicanvasPreview, jscadPreview]);
 
-  const parseConfig = (inputString: string): [string, { [key: string]: any[] }] => {
+  /**
+   * Parses a string as either JSON or YAML.
+   * @param {string} inputString - The string to parse.
+   * @returns {[string, object | null]} A tuple containing the detected type ('json', 'yaml', or 'UNKNOWN') and the parsed object, or null if parsing fails.
+   */
+  const parseConfig = (inputString: string): [string, { [key: string]: any[] } | null] => {
     let type = 'UNKNOWN';
     let parsedConfig = null;
 
@@ -103,6 +178,10 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
     return [type, parsedConfig]
   };
 
+  /**
+   * Debounced function to process the Ergogen configuration.
+   * This function is wrapped in `useCallback` and `debounce` to prevent excessive processing on every keystroke.
+   */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const processInput = useCallback(
     debounce(async (textInput: string | undefined, injectionInput: string[][] | undefined, options: ProcessOptions = { pointsonly: true }) => {
@@ -189,6 +268,10 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
     [(window as any).ergogen]
   );
 
+  /**
+   * Effect to process the input configuration whenever it or the auto-generation settings change.
+   * Also persists the injection input to local storage.
+   */
   useEffect(() => {
     localStorage.setItem('ergogen:injection', JSON.stringify(injectionInput));
     if (autoGen) {
@@ -199,6 +282,9 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
   const queryParameters = new URLSearchParams(window.location.search);
   const experiment = queryParameters.get("exp");
 
+  /**
+   * Effect to fetch a configuration from a GitHub URL specified in the query parameters on initial component mount.
+   */
   useEffect(() => {
     const githubUrl = queryParameters.get("github");
     if (githubUrl) {
@@ -251,4 +337,8 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
 
 export default ConfigContextProvider;
 
+/**
+ * A custom hook to easily consume the ConfigContext.
+ * @returns {ContextProps | null} The context value, or null if used outside a provider.
+ */
 export const useConfigContext = () => useContext(ConfigContext);

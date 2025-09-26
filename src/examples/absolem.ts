@@ -1,5 +1,10 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the Absolem keyboard.
+ * This is a simplified version focusing on the points definition.
+ * @type {ConfigExample}
+ */
 const Absolem: ConfigExample = {
     label: "Absolem (simplified)",
     author: "MrZealot",

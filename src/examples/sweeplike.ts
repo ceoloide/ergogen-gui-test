@@ -1,5 +1,9 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for a minimal Sweep-like keyboard.
+ * @type {ConfigExample}
+ */
 const Sweeplike: ConfigExample = {
     label: "Sweep-like (minimal)",
     author: "jcmkk3",

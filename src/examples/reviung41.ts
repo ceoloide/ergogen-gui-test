@@ -1,5 +1,10 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the Reviung41 keyboard.
+ * This is a simplified version.
+ * @type {ConfigExample}
+ */
 const Reviung41: ConfigExample = {
     label: "Reviung41 (simplified)",
     author: "jcmkk3",

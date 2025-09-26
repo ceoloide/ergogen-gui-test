@@ -1,5 +1,15 @@
 import styled from "styled-components";
 
+/**
+ * A styled text input component.
+ * It accepts a `$size` prop to control its margin and padding.
+ *
+ * @param {object} props - The props for the component.
+ * @param {string} [props.$size="0.5em"] - The size for margin and padding.
+ *
+ * @example
+ * <Input $size="1em" />
+ */
 const styledInput = styled.input.attrs<{ $size?: string; }>(props => ({
   // we can define static props
   type: "text",

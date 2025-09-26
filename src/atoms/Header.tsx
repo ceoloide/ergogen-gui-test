@@ -3,6 +3,9 @@ import styled from "styled-components";
 import {useConfigContext} from "../context/ConfigContext";
 import DiscordIcon from "./DiscordIcon";
 
+/**
+ * A styled container for the entire header.
+ */
 const HeaderContainer = styled.div`
       width: 100%;
       height: 3em;
@@ -13,6 +16,9 @@ const HeaderContainer = styled.div`
       background-color: #222222;
 `;
 
+/**
+ * A styled container for the left section of the header.
+ */
 const LeftContainer = styled.div`
     display: flex;
     align-items: center;
@@ -23,17 +29,26 @@ const LeftContainer = styled.div`
     width: 100%;
 `;
 
+/**
+ * A styled container for the right section of the header.
+ */
 const RightContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 10px;
 `;
 
+/**
+ * A styled container for the Ergogen logo and name.
+ */
 const ErgogenLogo = styled.div`
     display: flex;
     height: 18px;
 `;
 
+/**
+ * A styled div for the application name.
+ */
 const AppName = styled.div`
     font-size: 1rem;
     font-weight: 600;
@@ -41,6 +56,9 @@ const AppName = styled.div`
     margin-right: 0.5rem;
 `;
 
+/**
+ * A styled anchor tag for displaying the version number.
+ */
 const VersionText = styled.a`
     font-size: 0.75rem;
     color: #28a745;
@@ -48,6 +66,9 @@ const VersionText = styled.a`
     align-items: center;
 `;
 
+/**
+ * A styled anchor tag that functions as a link button.
+ */
 const StyledLinkButton = styled.a`
     background-color: transparent;
     border: 1px solid #3f3f3f;
@@ -73,6 +94,9 @@ const StyledLinkButton = styled.a`
     }
 `;
 
+/**
+ * A styled button with an outline style, typically for icons.
+ */
 const OutlineIconButton = styled.button`
     background-color: transparent;
     transition: color .15s ease-in-out,
@@ -101,12 +125,19 @@ const OutlineIconButton = styled.button`
     }
 `;
 
+/**
+ * A responsive button that is only visible on smaller screens.
+ * Note: This component is defined but not currently used in the Header.
+ */
 const LeftPanelButton = styled(OutlineIconButton)`
 @media (min-width: 640px) {
     display: none;
 }
 `;
 
+/**
+ * A styled button with an accent color, extending the base Button component.
+ */
 const AccentIconButton = styled(Button)`
     height: 34px;
     padding: 8px 12px;
@@ -116,8 +147,19 @@ const AccentIconButton = styled(Button)`
     }
 `;
 
+/**
+ * The main header component for the application.
+ * It displays the application logo, name, version, and navigation links.
+ * It also includes a button to toggle the settings panel.
+ *
+ * @returns {JSX.Element} The rendered header component.
+ */
 const Header = (): JSX.Element => {
     const configContext = useConfigContext();
+
+    /**
+     * Toggles the visibility of the settings panel.
+     */
     const toggleSettings = () => {
       configContext?.setShowSettings(!configContext?.showSettings);
     };

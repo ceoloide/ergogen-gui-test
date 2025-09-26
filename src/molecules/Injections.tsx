@@ -5,30 +5,52 @@ import styled from "styled-components";
 import { useConfigContext } from "../context/ConfigContext";
 import { Dispatch, SetStateAction } from "react";
 
+/**
+ * A styled container for the injections list.
+ */
 const InjectionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 `;
 
+/**
+ * A styled button for adding new injections.
+ */
 const StyledButton = styled(Button)`
 margin-right: 0.5em;
 margin-left: 1em;
 display: block;
 `;
 
+/**
+ * Props for the Injections component.
+ * @typedef {object} Props
+ * @property {Dispatch<SetStateAction<Injection>>} setInjectionToEdit - Function to set the injection to be edited.
+ * @property {(injection: Injection) => void} deleteInjection - Function to delete an injection.
+ */
 type Props = {
   setInjectionToEdit: Dispatch<SetStateAction<Injection>>,
   deleteInjection: (injection: Injection) => void
 };
 
+/**
+ * An array of Injection objects.
+ * @typedef {Injection[]} InjectionArr
+ */
 type InjectionArr = Array<Injection>;
 
+/**
+ * A component that displays and manages lists of custom footprints and templates.
+ * It reads injection data from the ConfigContext and provides functionality to add new injections.
+ *
+ * @param {Props} props - The props for the component.
+ * @returns {JSX.Element | null} The rendered component or null if context is not available.
+ */
 const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
   let footprints: InjectionArr = [];
   let templates: InjectionArr = [];
   const configContext = useConfigContext();
-  // const tabContext = useContext(TabContext);
   if (!configContext) return null;
 
   const { injectionInput } = configContext;
@@ -49,6 +71,11 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
     }
   }
 
+  /**
+   * Handles the creation of a new footprint.
+   * It creates a new injection object with a default template and calls `setInjectionToEdit`
+   * to open it in the editor.
+   */
   const handleNewFootprint = () => {
     const nextKey = configContext?.injectionInput?.length || 0;
     const newInjection = {
@@ -65,8 +92,8 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
       <h3>Custom Footprints</h3>
       {
         footprints.map(
-          (footprint, i) => {
-            return <InjectionRow injection={footprint} setInjectionToEdit={setInjectionToEdit} deleteInjection={deleteInjection} />;
+          (footprint) => {
+            return <InjectionRow key={footprint.key} injection={footprint} setInjectionToEdit={setInjectionToEdit} deleteInjection={deleteInjection} />;
           }
         )
       }
@@ -81,7 +108,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
       <StyledButton size={"small"}
         onClick={handleNewFootprint}
       >{/* @ts-ignore */}
-        <span class="material-symbols-outlined">add</span>
+        <span className="material-symbols-outlined">add</span>
       </StyledButton>
     </InjectionsContainer>
   );

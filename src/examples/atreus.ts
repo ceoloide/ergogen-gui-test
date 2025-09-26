@@ -1,5 +1,10 @@
 import {ConfigExample} from "./index";
 
+/**
+ * An example Ergogen configuration for the Atreus keyboard.
+ * This is a simplified version focusing on the points definition.
+ * @type {ConfigExample}
+ */
 const Atreus: ConfigExample = {
     label: "Atreus (simplified)",
     author: "MrZealot",
