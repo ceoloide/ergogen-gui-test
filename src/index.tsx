@@ -1,12 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import styled from "styled-components";
 import './index.css';
-
-import Ergogen from './Ergogen';
-import Header from "./atoms/Header";
-import ConfigContextProvider from "./context/ConfigContext";
-import Absolem from "./examples/absolem";
+import App from './App';
 
 /**
  * The main container for the entire application.
@@ -23,19 +20,15 @@ const AppContainer = styled.div`
 
 // This is the main entry point for the React application.
 // It sets up the root container and renders the main App component,
-// wrapping it with the necessary context providers.
-// The application is initialized with a default example configuration (Absolem).
+// wrapping it with the router.
 const container = document.getElementById('root');
 const root = createRoot(container!); // createRoot(container!) if you use TypeScript
 root.render(
   <React.StrictMode>
-    <>
+    <BrowserRouter>
       <AppContainer>
-        <ConfigContextProvider initialInput={Absolem.value} initialInjectionInput={[]}>
-          <Header />
-          <Ergogen />
-        </ConfigContextProvider>
+        <App />
       </AppContainer>
-    </>
+    </BrowserRouter>
   </React.StrictMode>
 );

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Button from "./Button";
 import styled from "styled-components";
 import {useConfigContext} from "../context/ConfigContext";
@@ -170,6 +171,11 @@ const Header = (): JSX.Element => {
                 <ErgogenLogo><AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText></ErgogenLogo>
             </LeftContainer>
             <RightContainer>
+                <Link to="/new">
+                    <OutlineIconButton>
+                        <span className="material-symbols-outlined">add</span>
+                    </OutlineIconButton>
+                </Link>
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
                     <span className="material-symbols-outlined">description</span>
                     <span>Docs</span>
