@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useLocalStorage } from 'react-use';
 
 import Ergogen from './Ergogen';
@@ -13,21 +13,12 @@ const App = () => {
   const initialConfig = storedConfigValue ? JSON.parse(storedConfigValue) : '';
 
   // The useLocalStorage hook now manages the config state in the App component.
+  // This ensures that any component that updates the config will trigger a re-render here,
+  // which in turn makes the routing logic reactive.
   const [configInput, setConfigInput] = useLocalStorage<string>(
     CONFIG_LOCAL_STORAGE_KEY,
     initialConfig
   );
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    // When a config is selected on the welcome page, the configInput state will be updated.
-    // This effect will then trigger the navigation to the main app.
-    if (configInput && location.pathname === '/new') {
-      navigate('/');
-    }
-  }, [configInput, location.pathname, navigate]);
 
   return (
     // Pass the state and the setter function down to the context provider.
