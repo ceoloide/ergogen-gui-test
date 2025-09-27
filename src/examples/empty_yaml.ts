@@ -8,7 +8,16 @@ import {ConfigExample} from "./index";
 const EmptyYAML: ConfigExample = {
     label: "Empty YAML configuration",
     author: "ceoloide",
-    value: '{}'
+    value: `meta:
+  engine: 4.1.0
+units:
+points:
+  zones:
+    matrix:
+outlines:
+pcbs:
+cases:
+`
 };
 
 export default EmptyYAML;

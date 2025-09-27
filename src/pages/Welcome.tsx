@@ -14,8 +14,10 @@ const WelcomeContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   color: #fff;
-  height: 100%;
+  flex-grow: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Header = styled.h1`
