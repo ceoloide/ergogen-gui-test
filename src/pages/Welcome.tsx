@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import CreatableSelect from 'react-select/creatable';
-import { StylesConfig } from 'react-select';
-
 import { useConfigContext } from '../context/ConfigContext';
 import { exampleOptions, ConfigOption } from '../examples';
 import EmptyYAML from '../examples/empty_yaml';
 import { fetchConfigFromUrl } from '../utils/github';
 import Button from '../atoms/Button';
+import Input from '../atoms/Input';
 
 // Styled Components
 const WelcomeContainer = styled.div`
@@ -68,54 +66,11 @@ const OptionBox = styled.div`
 `;
 
 const GitHubInputContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
   width: 100%;
   max-width: 400px;
 `;
-
-const StyledSelect = styled(CreatableSelect)`
-    color: black;
-    white-space: nowrap;
-    width: 100%;
-`;
-
-const customSelectStyles: StylesConfig = {
-  control: (provided) => ({
-    ...provided,
-    border: '1px solid #3f3f3f',
-    color: 'white',
-    borderRadius: '6px',
-    minHeight: '40px',
-    backgroundColor: '#1e1e1e',
-    '&:hover': {
-      borderColor: '#555',
-    },
-  }),
-  input: (provided) => ({
-    ...provided,
-    color: 'white',
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    color: 'white',
-  }),
-  placeholder: (provided) => ({
-    ...provided,
-    color: '#888',
-  }),
-  menu: (provided) => ({
-    ...provided,
-    backgroundColor: '#2a2a2a',
-    border: '1px solid #3f3f3f',
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isFocused ? '#3f3f3f' : '#2a2a2a',
-    color: 'white',
-    '&:hover': {
-      backgroundColor: '#3f3f3f',
-    },
-  }),
-};
 
 const ExamplesGrid = styled.div`
   display: grid;
@@ -172,6 +127,7 @@ const allExamples: ConfigOption[] = exampleOptions
 const Welcome = () => {
   const navigate = useNavigate();
   const configContext = useConfigContext();
+  const [githubUrl, setGithubUrl] = useState('');
   const [githubError, setGithubError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -180,10 +136,11 @@ const Welcome = () => {
     navigate('/');
   };
 
-  const handleLoadFromGithub = (url: string) => {
+  const handleLoadFromGithub = () => {
+    if (!githubUrl) return;
     setIsLoading(true);
     setGithubError(null);
-    fetchConfigFromUrl(url)
+    fetchConfigFromUrl(githubUrl)
       .then((data) => {
         configContext?.setConfigInput(data);
         navigate('/');
@@ -217,18 +174,15 @@ const Welcome = () => {
           <h2>From the Web</h2>
           <p>Load a configuration from a GitHub repository.</p>
           <GitHubInputContainer>
-            <StyledSelect
-              isClearable={false}
-              styles={customSelectStyles}
-              options={[]}
-              isLoading={isLoading}
-              onChange={(newValue: any) => {
-                if (newValue.__isNew__) {
-                  handleLoadFromGithub(newValue.value);
-                }
-              }}
-              placeholder={"Paste a GitHub URL..."}
+            <Input
+              placeholder="Paste a GitHub URL..."
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              disabled={isLoading}
             />
+            <Button onClick={handleLoadFromGithub} disabled={isLoading || !githubUrl}>
+              {isLoading ? 'Loading...' : 'Load'}
+            </Button>
           </GitHubInputContainer>
           {githubError && <ErrorMessage>{githubError}</ErrorMessage>}
         </OptionBox>
