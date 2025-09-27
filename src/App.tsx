@@ -1,40 +1,52 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { useLocalStorage } from 'react-use';
 
 import Ergogen from './Ergogen';
 import Welcome from './pages/Welcome';
 import Header from './atoms/Header';
 import ConfigContextProvider, { CONFIG_LOCAL_STORAGE_KEY } from './context/ConfigContext';
 
-const MainAppLayout = () => (
-  <>
-    <Header />
-    <Ergogen />
-  </>
-);
-
 const App = () => {
-  // Read directly from localStorage for the initial routing decision to avoid race conditions.
-  // The useLocalStorage hook in the context can cause a delay, leading to incorrect initial routing.
+  // Synchronously get the initial value to avoid race conditions on first render.
   const storedConfigValue = localStorage.getItem(CONFIG_LOCAL_STORAGE_KEY);
-
-  // If a stored config exists, use it as the initial input for the context.
-  // Otherwise, start with an empty string.
   const initialConfig = storedConfigValue ? JSON.parse(storedConfigValue) : '';
 
+  // The useLocalStorage hook now manages the config state in the App component.
+  const [configInput, setConfigInput] = useLocalStorage<string>(
+    CONFIG_LOCAL_STORAGE_KEY,
+    initialConfig
+  );
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // When a config is selected on the welcome page, the configInput state will be updated.
+    // This effect will then trigger the navigation to the main app.
+    if (configInput && location.pathname === '/new') {
+      navigate('/');
+    }
+  }, [configInput, location.pathname, navigate]);
+
   return (
-    <ConfigContextProvider initialInput={initialConfig} initialInjectionInput={[]}>
+    // Pass the state and the setter function down to the context provider.
+    <ConfigContextProvider
+      configInput={configInput}
+      setConfigInput={setConfigInput}
+      initialInjectionInput={[]}
+    >
+      <Header />
       <Routes>
         <Route
           path="/"
-          // The routing decision is now based on the synchronous read from local storage.
-          element={storedConfigValue ? <MainAppLayout /> : <Navigate to="/new" replace />}
+          // The routing decision is now based on the reactive `configInput` state.
+          element={configInput ? <Ergogen /> : <Navigate to="/new" replace />}
         />
         <Route
           path="/new"
           element={<Welcome />}
         />
-        {/* Redirect any unknown paths to the root, which will then handle the routing logic. */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ConfigContextProvider>

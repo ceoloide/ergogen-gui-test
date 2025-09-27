@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import CreatableSelect from 'react-select/creatable';
 import { StylesConfig } from 'react-select';
@@ -170,14 +169,12 @@ const allExamples: ConfigOption[] = exampleOptions
   .filter(ex => ex.label !== 'Empty');
 
 const Welcome = () => {
-  const navigate = useNavigate();
   const configContext = useConfigContext();
   const [githubError, setGithubError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectExample = (configValue: string) => {
     configContext?.setConfigInput(configValue);
-    navigate('/');
   };
 
   const handleLoadFromGithub = (url: string) => {
@@ -186,7 +183,6 @@ const Welcome = () => {
     fetchConfigFromUrl(url)
       .then((data) => {
         configContext?.setConfigInput(data);
-        navigate('/');
       })
       .catch((e) => {
         setGithubError(`Failed to fetch config from GitHub: ${e.message}`);

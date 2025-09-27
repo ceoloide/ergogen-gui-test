@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import styled from "styled-components";
 import {useConfigContext} from "../context/ConfigContext";
@@ -7,7 +7,7 @@ import DiscordIcon from "./DiscordIcon";
 /**
  * A styled container for the entire header.
  */
-const HeaderContainer = styled.div`
+const HeaderContainer = styled.header`
       width: 100%;
       height: 3em;
       display: flex;
@@ -158,6 +158,7 @@ const AccentIconButton = styled(Button)`
 const Header = (): JSX.Element => {
     const configContext = useConfigContext();
     const navigate = useNavigate();
+    const location = useLocation();
 
     /**
      * Toggles the visibility of the settings panel.
@@ -177,9 +178,11 @@ const Header = (): JSX.Element => {
                 <ErgogenLogo><AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText></ErgogenLogo>
             </LeftContainer>
             <RightContainer>
-                <AccentIconButton size="small" onClick={handleNewClick}>
-                    <span className="material-symbols-outlined">add</span>
-                </AccentIconButton>
+                {location.pathname === '/' &&
+                  <AccentIconButton size="small" onClick={handleNewClick}>
+                      <span className="material-symbols-outlined">add</span>
+                  </AccentIconButton>
+                }
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
                     <span className="material-symbols-outlined">description</span>
                     <span>Docs</span>
