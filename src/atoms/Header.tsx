@@ -14,6 +14,7 @@ const HeaderContainer = styled.div`
       justify-content: space-between;
       padding: 0 1rem;
       background-color: #222222;
+      flex-shrink: 0;
 `;
 
 /**

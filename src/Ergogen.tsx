@@ -33,6 +33,7 @@ const SubHeaderContainer = styled.div`
       flex-direction: row;
       gap: 16px;
       padding: 0 1rem;
+      flex-shrink: 0;
 
       @media (max-width: 639px) {
           display: flex;
