@@ -66,7 +66,8 @@ const OutlineIconButton = styled.button`
         font-size: 16px !important;
     }
 
-    &:hover {
+    &:hover,
+    &.active {
         background-color: #3f3f3f;
     }
 `;
@@ -474,7 +475,9 @@ const Ergogen = () => {
   return (<ErgogenWrapper>
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
-    {!configContext.showSettings && <SubHeaderContainer><OutlineIconButton>Config</OutlineIconButton><OutlineIconButton>Outputs</OutlineIconButton>
+    {!configContext.showSettings && <SubHeaderContainer>
+              <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
+              <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
               <StyledSelect
                 styles={customSelectStyles}
                 isClearable={false}
@@ -501,6 +504,7 @@ const Ergogen = () => {
           minSize={100}
           gutterSize={5}
           snapOffset={0}
+          className={configContext.showConfig ? 'show-config' : 'show-outputs'}
         >
           <LeftSplitPane>
             <EditorContainer>
