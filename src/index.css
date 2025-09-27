@@ -16,10 +16,6 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-.active {
-  background-color: #3f3f3f;
-}
-
 @media (max-width: 639px) {
   .show-config > .gutter,
   .show-config > div:last-of-type {

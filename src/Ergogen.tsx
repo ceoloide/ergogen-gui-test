@@ -66,7 +66,8 @@ const OutlineIconButton = styled.button`
         font-size: 16px !important;
     }
 
-    &:hover {
+    &:hover,
+    &.active {
         background-color: #3f3f3f;
     }
 `;
