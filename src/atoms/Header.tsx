@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import styled from "styled-components";
 import {useConfigContext} from "../context/ConfigContext";
@@ -157,6 +157,7 @@ const AccentIconButton = styled(Button)`
  */
 const Header = (): JSX.Element => {
     const configContext = useConfigContext();
+    const navigate = useNavigate();
 
     /**
      * Toggles the visibility of the settings panel.
@@ -164,6 +165,11 @@ const Header = (): JSX.Element => {
     const toggleSettings = () => {
       configContext?.setShowSettings(!configContext?.showSettings);
     };
+
+    const handleNewClick = () => {
+      navigate('/new');
+    }
+
     return (
         <HeaderContainer>
             <LeftContainer>
@@ -171,11 +177,9 @@ const Header = (): JSX.Element => {
                 <ErgogenLogo><AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText></ErgogenLogo>
             </LeftContainer>
             <RightContainer>
-                <Link to="/new">
-                    <OutlineIconButton>
-                        <span className="material-symbols-outlined">add</span>
-                    </OutlineIconButton>
-                </Link>
+                <AccentIconButton size="small" onClick={handleNewClick}>
+                    <span className="material-symbols-outlined">add</span>
+                </AccentIconButton>
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
                     <span className="material-symbols-outlined">description</span>
                     <span>Docs</span>
