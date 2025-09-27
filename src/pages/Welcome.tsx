@@ -18,6 +18,10 @@ const WelcomeContainer = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const Header = styled.h1`
