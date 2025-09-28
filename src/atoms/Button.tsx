@@ -12,6 +12,7 @@ type Props = {
     size?: string,
     children: React.ReactNode,
     onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+    disabled?: boolean;
 };
 
 /**
@@ -45,6 +46,11 @@ const Button = styled.button`
     transform: scale(0.98);
     outline: 2px solid #fff;
     outline-offset: -5px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 

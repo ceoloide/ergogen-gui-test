@@ -19,7 +19,6 @@ import CreatableSelect from "react-select/creatable";
 import { StylesConfig } from 'react-select';
 import GenOption from "./atoms/GenOption";
 import { fetchConfigFromUrl } from "./utils/github";
-import { ConfigOption, exampleOptions } from "./examples";
 
 /**
  * A container for a sub-header, designed to be displayed on smaller screens.
@@ -344,19 +343,7 @@ const Ergogen = () => {
    * State for the selected example from the dropdown menu.
    * @type {ConfigOption | null}
    */
-  const [selectedOption, setSelectedOption] = useState<ConfigOption | null>(null);
-
   const configContext = useConfigContext();
-
-  /**
-   * Effect to update the config input when a new example is selected from the dropdown.
-   */
-  useEffect(() => {
-    if (selectedOption?.value) {
-      configContext?.setConfigInput(selectedOption.value)
-    }
-    // eslint-disable-next-line
-  }, [selectedOption]);
 
   /**
    * Effect to handle changes to the injection being edited.
@@ -479,24 +466,7 @@ const Ergogen = () => {
     {!configContext.showSettings && <SubHeaderContainer>
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
-              <StyledSelect
-                styles={customSelectStyles}
-                isClearable={false}
-                options={exampleOptions}
-                value={selectedOption}
-                onChange={(newValue:any) => {
-                  if (newValue.__isNew__) {
-                    fetchConfigFromUrl(newValue.value)
-                      .then(configContext.setConfigInput)
-                      .catch((e) => {
-                        configContext.setError(`Failed to fetch config from GitHub: ${e.message}`);
-                      });
-                  } else {
-                    setSelectedOption(newValue)
-                  }
-                }}
-                placeholder={"Paste a GitHub URL here, or select an example"}
-              /></SubHeaderContainer>}
+            </SubHeaderContainer>}
     <FlexContainer>
       {!configContext.showSettings ?
         (<StyledSplit
@@ -509,24 +479,6 @@ const Ergogen = () => {
         >
           <LeftSplitPane>
             <EditorContainer>
-              <DesktopOnlyContainer><StyledSelect
-                isClearable={false}
-                styles={customSelectStyles}
-                options={exampleOptions}
-                value={selectedOption}
-                onChange={(newValue:any) => {
-                  if (newValue.__isNew__) {
-                    fetchConfigFromUrl(newValue.value)
-                      .then(configContext.setConfigInput)
-                      .catch((e) => {
-                        configContext.setError(`Failed to fetch config from GitHub: ${e.message}`);
-                      });
-                  } else {
-                    setSelectedOption(newValue)
-                  }
-                }}
-                placeholder={"Paste a GitHub URL here, or select an example"}
-              /></DesktopOnlyContainer>
               <StyledConfigEditor data-testid="config-editor" />
               <ButtonContainer>
                 <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>

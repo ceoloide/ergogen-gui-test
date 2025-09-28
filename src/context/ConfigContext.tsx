@@ -8,14 +8,16 @@ import { fetchConfigFromUrl } from '../utils/github';
 /**
  * Props for the ConfigContextProvider component.
  * @typedef {object} Props
- * @property {string} initialInput - The initial configuration input string.
+ * @property {string | undefined} configInput - The current YAML/JSON configuration string.
+ * @property {Dispatch<SetStateAction<string | undefined>>} setConfigInput - Function to update the config input.
  * @property {string[][]} [initialInjectionInput] - The initial array of code injections.
  * @property {React.ReactNode[] | React.ReactNode} children - The child components to be wrapped by the provider.
  */
 type Props = {
-  initialInput: string,
-  initialInjectionInput?: string[][],
-  children: React.ReactNode[] | React.ReactNode,
+  configInput: string | undefined;
+  setConfigInput: Dispatch<SetStateAction<string | undefined>>;
+  initialInjectionInput?: string[][];
+  children: React.ReactNode[] | React.ReactNode;
 };
 
 /**
@@ -126,8 +128,7 @@ const localStorageOrDefault = (key: string, defaultValue: any) => {
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} The context provider wrapping the children.
  */
-const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }: Props) => {
-  const [configInput, setConfigInput] = useLocalStorage<string>(CONFIG_LOCAL_STORAGE_KEY, initialInput);
+const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionInput, children }: Props) => {
   const [injectionInput, setInjectionInput] = useLocalStorage<string[][]>("ergogen:injection", initialInjectionInput);
   const [error, setError] = useState<string | null>(null);
   const [deprecationWarning, setDeprecationWarning] = useState<string | null>(null);
@@ -297,7 +298,7 @@ const ConfigContextProvider = ({ initialInput, initialInjectionInput, children }
         });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
+  }, [setConfigInput]); // Run only once on mount
 
   return (
     <ConfigContext.Provider

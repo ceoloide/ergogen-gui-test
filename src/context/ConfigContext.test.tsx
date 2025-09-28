@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import ConfigContextProvider, { ConfigContext } from './ConfigContext';
+import ConfigContextProvider from './ConfigContext';
 
 const mockConfig = 'points: {}';
 
@@ -13,23 +13,16 @@ describe('ConfigContextProvider', () => {
     // Set the URL for the test
     window.history.pushState({}, 'Test page', '/?github=https://github.com/ceoloide/corney-island/blob/main/ergogen/config.yaml');
 
-    let configValue: string | undefined;
+    const setConfigInputMock = jest.fn();
 
     render(
-      <ConfigContextProvider initialInput="">
-        <ConfigContext.Consumer>
-          {(value) => {
-            if (value) {
-              configValue = value.configInput;
-            }
-            return null;
-          }}
-        </ConfigContext.Consumer>
+      <ConfigContextProvider configInput="" setConfigInput={setConfigInputMock}>
+        <div></div>
       </ConfigContextProvider>
     );
 
     await waitFor(() => {
-      expect(configValue).toBe(mockConfig);
+      expect(setConfigInputMock).toHaveBeenCalledWith(mockConfig);
     });
 
     expect(fetchSpy).toHaveBeenCalledWith('https://raw.githubusercontent.com/ceoloide/corney-island/main/ergogen/config.yaml');
@@ -45,23 +38,16 @@ describe('ConfigContextProvider', () => {
     // Set the URL for the test
     window.history.pushState({}, 'Test page', '/?github=github.com/ceoloide/corney-island/blob/main/ergogen/config.yaml');
 
-    let configValue: string | undefined;
+    const setConfigInputMock = jest.fn();
 
     render(
-      <ConfigContextProvider initialInput="">
-        <ConfigContext.Consumer>
-          {(value) => {
-            if (value) {
-              configValue = value.configInput;
-            }
-            return null;
-          }}
-        </ConfigContext.Consumer>
+      <ConfigContextProvider configInput="" setConfigInput={setConfigInputMock}>
+          <div></div>
       </ConfigContextProvider>
     );
 
     await waitFor(() => {
-      expect(configValue).toBe(mockConfig);
+      expect(setConfigInputMock).toHaveBeenCalledWith(mockConfig);
     });
 
     expect(fetchSpy).toHaveBeenCalledWith('https://raw.githubusercontent.com/ceoloide/corney-island/main/ergogen/config.yaml');
