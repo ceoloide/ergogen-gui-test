@@ -6,6 +6,16 @@ import { useConfigContext } from "../context/ConfigContext";
 import { Dispatch, SetStateAction, useContext } from "react";
 import { TabContext } from "../organisms/Tabs";
 
+const Title = styled.h3`
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+
+  @media (max-width: 639px) {
+    display: none;
+  }
+`;
+
 /**
  * A styled container for the list of downloads.
  * It allows for vertical scrolling if the content overflows.
@@ -23,7 +33,8 @@ const DownloadsContainer = styled.div`
  * @property {Dispatch<SetStateAction<Preview>>} setPreview - Function to set the active file preview.
  */
 type Props = {
-  setPreview: Dispatch<SetStateAction<Preview>>
+  setPreview: Dispatch<SetStateAction<Preview>>,
+  previewKey: string
 };
 
 /**
@@ -56,7 +67,7 @@ type DownloadArr = Array<DownloadObj>;
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element | null} A list of downloads or null if the context is not available.
  */
-const Downloads = ({ setPreview }: Props) => {
+const Downloads = ({ setPreview, previewKey }: Props) => {
   let downloads: DownloadArr = [];
   const configContext = useConfigContext();
   const tabContext = useContext(TabContext);
@@ -67,7 +78,13 @@ const Downloads = ({ setPreview }: Props) => {
     downloads.push({
       fileName: 'raw',
       extension: 'txt',
-      content: configInput ?? ''
+      content: configInput ?? '',
+      previewKey: 'raw',
+      preview: {
+        key: 'raw',
+        extension: 'txt',
+        content: configInput ?? ''
+      }
     }, {
       fileName: 'canonical',
       extension: 'yaml',
@@ -182,7 +199,7 @@ const Downloads = ({ setPreview }: Props) => {
 
   return (
     <DownloadsContainer>
-      <h3>Outputs</h3>
+      <Title>Outputs</Title>
       {
         downloads.map(
           (download, i) => {
@@ -193,13 +210,12 @@ const Downloads = ({ setPreview }: Props) => {
               const ignore : {[key:string]:string} = {
                 "units": "yaml",
                 "points": "yaml",
-                "canonical": "yaml",
-                "raw": "txt",
+                "canonical": "yaml"
               };
               if(ignore[download.fileName] === download.extension) return false;
             }
 
-            return <DownloadRow key={i} {...download} setPreview={setPreview} setTabIndex={tabContext?.setTabIndex} />;
+            return <DownloadRow key={i} {...download} setPreview={setPreview} previewKey={previewKey} setTabIndex={tabContext?.setTabIndex} />;
           }
         )
       }

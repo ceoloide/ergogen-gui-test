@@ -407,6 +407,9 @@ const Ergogen = () => {
       case 'yaml':
         preview.content = yaml.dump(result);
         break;
+      case 'txt':
+        preview.content = configContext.configInput || '';
+        break;
       default:
         preview.content = ""
     };
@@ -501,7 +504,7 @@ const Ergogen = () => {
                 <StyledFilePreview data-testid="file-preview" previewExtension={preview.extension} previewKey={`${preview.key}-${configContext.resultsVersion}`} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
               </LeftSplitPane>
               <RightSplitPane>
-                <Downloads setPreview={setPreviewKey} />
+                <Downloads setPreview={setPreviewKey} previewKey={preview.key} />
               </RightSplitPane>
             </StyledSplit>
           </RightSplitPane>

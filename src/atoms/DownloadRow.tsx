@@ -31,6 +31,7 @@ type Props = {
     content: string,
     preview?: Preview,
     setPreview: (preview: Preview) => void,
+    previewKey: string,
     setTabIndex: Dispatch<SetStateAction<number>> | undefined
 };
 
@@ -41,14 +42,19 @@ const Row = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 5px;
 `;
 
 /**
  * A styled div for displaying the file name, with ellipsis for overflow.
  */
-const FileName = styled.div`
+const FileName = styled.div<{ active: boolean, hasPreview: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 13px;
+    cursor: ${props => props.hasPreview ? 'pointer' : 'default'};
+    border-bottom: ${props => props.active ? '2px solid #28a745' : '2px solid transparent'};
+    padding-bottom: 3px;
 `;
 
 /**
@@ -59,7 +65,6 @@ const Buttons = styled.div`
     display: flex;
     gap: 10px;
     align-items: center;
-    padding-bottom: 5px;
 `;
 
 /**
@@ -114,22 +119,22 @@ const StyledLinkButton = styled.a`
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A row with the file name and action buttons.
  */
-const DownloadRow = ({fileName, extension, content, preview, setPreview, setTabIndex}: Props): JSX.Element => {
+const DownloadRow = ({fileName, extension, content, preview, setPreview, previewKey, setTabIndex}: Props): JSX.Element => {
+    const isActive = preview?.key === previewKey;
+
+    const handlePreviewClick = () => {
+        if (preview) {
+            setPreview(preview);
+            setTabIndex?.(0)
+        }
+    }
+
     return (
         <Row>
-            <FileName>{fileName}.{extension}</FileName>
+            <FileName active={isActive} hasPreview={!!preview} onClick={handlePreviewClick}>
+                {fileName}.{extension}
+            </FileName>
             <Buttons>
-                {preview && (
-
-                <StyledLinkButton 
-                        onClick={()=>{
-                            setPreview(preview);
-                            setTabIndex?.(0)
-                        }}>
-                    <span className="material-symbols-outlined">visibility</span>
-                </StyledLinkButton>
-                )}
-
                 <StyledLinkButton target={"_blank"}
                    rel={"noreferrer"}
                    download={`${fileName}.${extension}`}
