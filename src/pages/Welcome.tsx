@@ -19,8 +19,8 @@ const WelcomeContainer = styled.div`
   display: flex;
   flex-direction: column;
 
-  @media (max-width: 768px) {
-    padding: 1rem;
+  @media (max-width: 640px) {
+    padding: 1rem 0.5rem;
   }
 `;
 
@@ -132,7 +132,7 @@ const ErrorMessage = styled.div`
 // Flatten examples into a single list, excluding the "Empty" one which has a dedicated button
 const allExamples: ConfigOption[] = exampleOptions
   .flatMap(group => group.options)
-  .filter(ex => ex.label !== 'Empty');
+  .filter(ex => ex.label !== 'Empty YAML configuration');
 
 const Welcome = () => {
   const navigate = useNavigate();
