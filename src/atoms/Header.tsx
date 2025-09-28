@@ -127,6 +127,16 @@ const OutlineIconButton = styled.button`
     }
 `;
 
+const AccentIconButton = styled(OutlineIconButton)`
+  background-color: #28a745;
+  border-color: #28a745;
+
+  &:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+  }
+`;
+
 /**
  * A responsive button that is only visible on smaller screens.
  * Note: This component is defined but not currently used in the Header.
@@ -168,9 +178,9 @@ const Header = (): JSX.Element => {
             </LeftContainer>
             <RightContainer>
                 {location.pathname === '/' &&
-                  <OutlineIconButton onClick={handleNewClick}>
+                  <AccentIconButton onClick={handleNewClick}>
                       <span className="material-symbols-outlined">add_2</span>
-                  </OutlineIconButton>
+                  </AccentIconButton>
                 }
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
                     <span className="material-symbols-outlined">description</span>
