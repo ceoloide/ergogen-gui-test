@@ -59,6 +59,10 @@ const OptionBox = styled.div`
   align-items: center;
   text-align: center;
 
+  @media (max-width: 768px) {
+    padding: 1.5rem 1rem;
+  }
+
   h2 {
     margin-top: 0;
     margin-bottom: 1rem;

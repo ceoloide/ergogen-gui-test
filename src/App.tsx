@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useLocalStorage } from 'react-use';
+import styled from 'styled-components';
 
 import Ergogen from './Ergogen';
 import Welcome from './pages/Welcome';
@@ -28,20 +29,29 @@ const App = () => {
       initialInjectionInput={[]}
     >
       <Header />
-      <Routes>
-        <Route
-          path="/"
-          // The routing decision is now based on the reactive `configInput` state.
-          element={configInput ? <Ergogen /> : <Navigate to="/new" replace />}
-        />
-        <Route
-          path="/new"
-          element={<Welcome />}
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <PageWrapper>
+        <Routes>
+          <Route
+            path="/"
+            // The routing decision is now based on the reactive `configInput` state.
+            element={configInput ? <Ergogen /> : <Navigate to="/new" replace />}
+          />
+          <Route
+            path="/new"
+            element={<Welcome />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </PageWrapper>
     </ConfigContextProvider>
   );
 };
+
+const PageWrapper = styled.div`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+`;
 
 export default App;
