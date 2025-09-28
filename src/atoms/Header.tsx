@@ -169,7 +169,7 @@ const Header = (): JSX.Element => {
             <RightContainer>
                 {location.pathname === '/' &&
                   <OutlineIconButton onClick={handleNewClick}>
-                      <span className="material-symbols-outlined">add</span>
+                      <span className="material-symbols-outlined">add_2</span>
                   </OutlineIconButton>
                 }
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
