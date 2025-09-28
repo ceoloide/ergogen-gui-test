@@ -46,7 +46,7 @@ const RightContainer = styled.div`
 const ErgogenLogo = styled.div`
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
 `;
 
 /**
@@ -149,8 +149,8 @@ const LeftPanelButton = styled(OutlineIconButton)`
 
 const LogoButton = styled(Link)`
     display: block;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
     flex-shrink: 0;
 `;
