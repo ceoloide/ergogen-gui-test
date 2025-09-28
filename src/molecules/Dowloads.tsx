@@ -210,7 +210,8 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
               const ignore : {[key:string]:string} = {
                 "units": "yaml",
                 "points": "yaml",
-                "canonical": "yaml"
+                "canonical": "yaml",
+                "raw": "txt"
               };
               if(ignore[download.fileName] === download.extension) return false;
             }
