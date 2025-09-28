@@ -53,7 +53,7 @@ const FileName = styled.div<{ active: boolean, hasPreview: boolean }>`
     text-overflow: ellipsis;
     font-size: 13px;
     cursor: ${props => props.hasPreview ? 'pointer' : 'default'};
-    border-bottom: ${props => props.active ? '2px solid #3f3f3f' : '2px solid transparent'};
+    border-bottom: ${props => props.active ? '2px solid #28a745' : '2px solid transparent'};
     padding-bottom: 3px;
 `;
 
