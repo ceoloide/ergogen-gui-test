@@ -466,24 +466,7 @@ const Ergogen = () => {
     {!configContext.showSettings && <SubHeaderContainer>
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
-              <StyledSelect
-                styles={customSelectStyles}
-                isClearable={false}
-                options={exampleOptions}
-                value={selectedOption}
-                onChange={(newValue:any) => {
-                  if (newValue.__isNew__) {
-                    fetchConfigFromUrl(newValue.value)
-                      .then(configContext.setConfigInput)
-                      .catch((e) => {
-                        configContext.setError(`Failed to fetch config from GitHub: ${e.message}`);
-                      });
-                  } else {
-                    setSelectedOption(newValue)
-                  }
-                }}
-                placeholder={"Paste a GitHub URL here, or select an example"}
-              /></SubHeaderContainer>}
+            </SubHeaderContainer>}
     <FlexContainer>
       {!configContext.showSettings ?
         (<StyledSplit

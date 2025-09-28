@@ -168,9 +168,9 @@ const Header = (): JSX.Element => {
             </LeftContainer>
             <RightContainer>
                 {location.pathname === '/' &&
-                  <AccentIconButton size="small" onClick={handleNewClick}>
+                  <OutlineIconButton onClick={handleNewClick}>
                       <span className="material-symbols-outlined">add</span>
-                  </AccentIconButton>
+                  </OutlineIconButton>
                 }
                 <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
                     <span className="material-symbols-outlined">description</span>
