@@ -32,6 +32,7 @@ const SubHeaderContainer = styled.div`
       flex-direction: row;
       gap: 16px;
       padding: 0 1rem;
+      flex-shrink: 0;
 
       @media (max-width: 639px) {
           display: flex;
@@ -65,7 +66,8 @@ const OutlineIconButton = styled.button`
         font-size: 16px !important;
     }
 
-    &:hover {
+    &:hover,
+    &.active {
         background-color: #3f3f3f;
     }
 `;
@@ -461,7 +463,27 @@ const Ergogen = () => {
   return (<ErgogenWrapper>
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
-    {!configContext.showSettings && <SubHeaderContainer><OutlineIconButton>Config</OutlineIconButton><OutlineIconButton>Outputs</OutlineIconButton></SubHeaderContainer>}
+    {!configContext.showSettings && <SubHeaderContainer>
+              <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
+              <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
+              <StyledSelect
+                styles={customSelectStyles}
+                isClearable={false}
+                options={exampleOptions}
+                value={selectedOption}
+                onChange={(newValue:any) => {
+                  if (newValue.__isNew__) {
+                    fetchConfigFromUrl(newValue.value)
+                      .then(configContext.setConfigInput)
+                      .catch((e) => {
+                        configContext.setError(`Failed to fetch config from GitHub: ${e.message}`);
+                      });
+                  } else {
+                    setSelectedOption(newValue)
+                  }
+                }}
+                placeholder={"Paste a GitHub URL here, or select an example"}
+              /></SubHeaderContainer>}
     <FlexContainer>
       {!configContext.showSettings ?
         (<StyledSplit
@@ -470,6 +492,7 @@ const Ergogen = () => {
           minSize={100}
           gutterSize={5}
           snapOffset={0}
+          className={configContext.showConfig ? 'show-config' : 'show-outputs'}
         >
           <LeftSplitPane>
             <EditorContainer>

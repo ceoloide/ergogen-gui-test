@@ -15,6 +15,7 @@ const HeaderContainer = styled.header`
       justify-content: space-between;
       padding: 0 1rem;
       background-color: #222222;
+      flex-shrink: 0;
 `;
 
 /**
@@ -137,18 +138,6 @@ const LeftPanelButton = styled(OutlineIconButton)`
 `;
 
 /**
- * A styled button with an accent color, extending the base Button component.
- */
-const AccentIconButton = styled(Button)`
-    height: 34px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    .material-symbols-outlined {
-        font-size: 16px !important;
-    }
-`;
-
-/**
  * The main header component for the application.
  * It displays the application logo, name, version, and navigation links.
  * It also includes a button to toggle the settings panel.
@@ -190,8 +179,8 @@ const Header = (): JSX.Element => {
                 <StyledLinkButton href="https://discord.gg/nbKcAZB" target="_blank" rel="noreferrer">
                     <DiscordIcon />
                 </StyledLinkButton>
-                <AccentIconButton size="small" onClick={toggleSettings}><span className="material-symbols-outlined">
-                {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></AccentIconButton>
+                <OutlineIconButton onClick={toggleSettings}><span className="material-symbols-outlined">
+                {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></OutlineIconButton>
             </RightContainer>
         </HeaderContainer>
     );
