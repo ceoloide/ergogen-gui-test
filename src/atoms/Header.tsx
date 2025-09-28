@@ -147,11 +147,19 @@ const LeftPanelButton = styled(OutlineIconButton)`
 }
 `;
 
+const LogoButton = styled(Link)`
+    display: block;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    flex-shrink: 0;
+`;
+
 const LogoImage = styled.img`
-  width: 34px;
-  height: 34px;
+  width: 100%;
+  height: 100%;
   border-radius: 6px;
-`
+`;
 
 /**
  * The main header component for the application.
@@ -181,9 +189,9 @@ const Header = (): JSX.Element => {
             <LeftContainer>
                 {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
                 <ErgogenLogo>
-                    <Link to="/">
+                    <LogoButton to="/">
                         <LogoImage src={"ergogen.png"} />
-                    </Link>
+                    </LogoButton>
                     <AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText>
                 </ErgogenLogo>
             </LeftContainer>
