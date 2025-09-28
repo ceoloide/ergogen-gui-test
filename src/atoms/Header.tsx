@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import styled from "styled-components";
 import {useConfigContext} from "../context/ConfigContext";
@@ -45,7 +45,8 @@ const RightContainer = styled.div`
  */
 const ErgogenLogo = styled.div`
     display: flex;
-    height: 18px;
+    align-items: center;
+    gap: 6px;
 `;
 
 /**
@@ -55,7 +56,6 @@ const AppName = styled.div`
     font-size: 1rem;
     font-weight: 600;
     color: white;
-    margin-right: 0.5rem;
 `;
 
 /**
@@ -147,6 +147,20 @@ const LeftPanelButton = styled(OutlineIconButton)`
 }
 `;
 
+const LogoButton = styled(Link)`
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    flex-shrink: 0;
+`;
+
+const LogoImage = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+`;
+
 /**
  * The main header component for the application.
  * It displays the application logo, name, version, and navigation links.
@@ -174,7 +188,12 @@ const Header = (): JSX.Element => {
         <HeaderContainer>
             <LeftContainer>
                 {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
-                <ErgogenLogo><AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText></ErgogenLogo>
+                <ErgogenLogo>
+                    <LogoButton to="/">
+                        <LogoImage src={"ergogen.png"} />
+                    </LogoButton>
+                    <AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText>
+                </ErgogenLogo>
             </LeftContainer>
             <RightContainer>
                 {location.pathname === '/' &&
