@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 
 import ConfigEditor from "./molecules/ConfigEditor";
 import InjectionEditor from "./molecules/InjectionEditor";
-import Downloads from "./molecules/Dowloads";
+import Downloads from "./molecules/Downloads";
 import Injections from "./molecules/Injections";
 import FilePreview from "./molecules/FilePreview";
 
