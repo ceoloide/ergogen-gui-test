@@ -199,6 +199,7 @@ const Welcome = () => {
             <Button onClick={handleGitHub} disabled={isLoading || !githubInput}>
               {isLoading ? 'Loading...' : 'Load'}
             </Button>
+          </GitHubInputContainer>
           </OptionBox>
         </OptionsContainer>
 
