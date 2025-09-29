@@ -9,15 +9,20 @@ import Button from '../atoms/Button';
 import Input from '../atoms/Input';
 
 // Styled Components
-const WelcomeContainer = styled.div`
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+const WelcomePageWrapper = styled.div`
+  background-color: #222222;
   color: #fff;
   flex-grow: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+`;
+
+const WelcomeContainer = styled.div`
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 
   @media (max-width: 640px) {
     padding: 1rem 0.5rem;
@@ -164,6 +169,7 @@ const Welcome = () => {
   };
 
   return (
+  <WelcomePageWrapper>
     <WelcomeContainer>
       <Header>Welcome to Ergogen Web UI</Header>
       <SubHeader>
@@ -193,25 +199,23 @@ const Welcome = () => {
             <Button onClick={handleGitHub} disabled={isLoading || !githubInput}>
               {isLoading ? 'Loading...' : 'Load'}
             </Button>
-          </GitHubInputContainer>
-          {githubError && <ErrorMessage>{githubError}</ErrorMessage>}
-        </OptionBox>
-      </OptionsContainer>
+          </OptionBox>
+        </OptionsContainer>
 
-      <h2 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2rem' }}>Or start from an example</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2rem' }}>Or start from an example</h2>
 
-      <ExamplesGrid>
-        {allExamples.map((example) => (
-          <ExampleCard key={example.label} onClick={() => handleSelectExample(example.value)}>
-            <PlaceholderImage>
-              <span>Placeholder</span>
-            </PlaceholderImage>
-            <ExampleName>{example.label}</ExampleName>
-          </ExampleCard>
-        ))}
-      </ExamplesGrid>
-
-    </WelcomeContainer>
+        <ExamplesGrid>
+          {allExamples.map((example) => (
+            <ExampleCard key={example.label} onClick={() => handleSelectExample(example.value)}>
+              <PlaceholderImage>
+                <span>Placeholder</span>
+              </PlaceholderImage>
+              <ExampleName>{example.label}</ExampleName>
+            </ExampleCard>
+          ))}
+        </ExamplesGrid>
+      </WelcomeContainer>
+    </WelcomePageWrapper>
   );
 };
 
