@@ -54,7 +54,7 @@ const FileName = styled.div<{ active: boolean, hasPreview: boolean }>`
     font-size: 13px;
     cursor: ${props => props.hasPreview ? 'pointer' : 'default'};
     border-bottom: ${props => props.active ? '2px solid #28a745' : '2px solid transparent'};
-    padding-bottom: 3px;
+    border-top: 2px solid transparent;
 `;
 
 /**
