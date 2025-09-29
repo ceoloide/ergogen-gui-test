@@ -137,7 +137,7 @@ const allExamples: ConfigOption[] = exampleOptions
 const Welcome = () => {
   const navigate = useNavigate();
   const configContext = useConfigContext();
-  const [githubUrl, setGithubUrl] = useState('');
+  const [githubInput, setGithubInput] = useState('');
   const [githubError, setGithubError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -146,11 +146,11 @@ const Welcome = () => {
     navigate('/');
   };
 
-  const handleLoadFromGithub = () => {
-    if (!githubUrl) return;
+  const handleGitHub = () => {
+    if (!githubInput) return;
     setIsLoading(true);
     setGithubError(null);
-    fetchConfigFromUrl(githubUrl)
+    fetchConfigFromUrl(githubInput)
       .then((data) => {
         configContext?.setConfigInput(data);
         navigate('/');
@@ -181,16 +181,16 @@ const Welcome = () => {
           </Button>
         </OptionBox>
         <OptionBox>
-          <h2>From the Web</h2>
-          <p>Load a configuration from a GitHub repository.</p>
+          <h2>From GitHub</h2>
+          <p>Link to a YAML config file on GitHub, or simply a repo like "user/repo".</p>
           <GitHubInputContainer>
             <Input
-              placeholder="Paste a GitHub URL..."
-              value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder="github.com/ceoloide/corney-island"
+              value={githubInput}
+              onChange={(e) => setGithubInput(e.target.value)}
               disabled={isLoading}
             />
-            <Button onClick={handleLoadFromGithub} disabled={isLoading || !githubUrl}>
+            <Button onClick={handleGitHub} disabled={isLoading || !githubInput}>
               {isLoading ? 'Loading...' : 'Load'}
             </Button>
           </GitHubInputContainer>
