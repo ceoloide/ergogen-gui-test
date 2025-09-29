@@ -20,7 +20,11 @@ export const getRawUrl = (url: string) => {
  */
 export const fetchConfigFromUrl = async (url: string): Promise<string> => {
     let newUrl = url.trim();
-    if (!newUrl.match(/^(https?:\/\/)/i)) {
+
+    const repoPattern = /^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/;
+    if (repoPattern.test(newUrl)) {
+        newUrl = `https://github.com/${newUrl}`;
+    } else if (!newUrl.match(/^(https?:\/\/)/i)) {
         newUrl = `https://${newUrl}`;
     }
 

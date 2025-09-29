@@ -142,7 +142,7 @@ const allExamples: ConfigOption[] = exampleOptions
 const Welcome = () => {
   const navigate = useNavigate();
   const configContext = useConfigContext();
-  const [githubUrl, setGithubUrl] = useState('');
+  const [githubInput, setGithubInput] = useState('');
   const [githubError, setGithubError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -151,11 +151,11 @@ const Welcome = () => {
     navigate('/');
   };
 
-  const handleLoadFromGithub = () => {
-    if (!githubUrl) return;
+  const handleGitHub = () => {
+    if (!githubInput) return;
     setIsLoading(true);
     setGithubError(null);
-    fetchConfigFromUrl(githubUrl)
+    fetchConfigFromUrl(githubInput)
       .then((data) => {
         configContext?.setConfigInput(data);
         navigate('/');
@@ -169,38 +169,37 @@ const Welcome = () => {
   };
 
   return (
-    <WelcomePageWrapper>
-      <WelcomeContainer>
-        <Header>Welcome to Ergogen Web UI</Header>
-        <SubHeader>
-          A web-based interface for Ergogen, the ergonomic keyboard generator.
-          <br />
-          Start a new design below.
-        </SubHeader>
+  <WelcomePageWrapper>
+    <WelcomeContainer>
+      <Header>Welcome to Ergogen Web UI</Header>
+      <SubHeader>
+        A web-based interface for Ergogen, the ergonomic keyboard generator.
+        <br />
+        Start a new design below.
+      </SubHeader>
 
-        <OptionsContainer>
-          <OptionBox>
-            <h2>Start Fresh</h2>
-            <p>Begin with a completely blank slate.</p>
-            <Button onClick={() => handleSelectExample(EmptyYAML.value)}>
-              Empty Configuration
+      <OptionsContainer>
+        <OptionBox>
+          <h2>Start Fresh</h2>
+          <p>Begin with a completely blank slate.</p>
+          <Button onClick={() => handleSelectExample(EmptyYAML.value)}>
+            Empty Configuration
+          </Button>
+        </OptionBox>
+        <OptionBox>
+          <h2>From GitHub</h2>
+          <p>Link to a YAML config file on GitHub, or simply a repo like "user/repo".</p>
+          <GitHubInputContainer>
+            <Input
+              placeholder="github.com/ceoloide/corney-island"
+              value={githubInput}
+              onChange={(e) => setGithubInput(e.target.value)}
+              disabled={isLoading}
+            />
+            <Button onClick={handleGitHub} disabled={isLoading || !githubInput}>
+              {isLoading ? 'Loading...' : 'Load'}
             </Button>
-          </OptionBox>
-          <OptionBox>
-            <h2>From the Web</h2>
-            <p>Load a configuration from a GitHub repository.</p>
-            <GitHubInputContainer>
-              <Input
-                placeholder="Paste a GitHub URL..."
-                value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
-                disabled={isLoading}
-              />
-              <Button onClick={handleLoadFromGithub} disabled={isLoading || !githubUrl}>
-                {isLoading ? 'Loading...' : 'Load'}
-              </Button>
-            </GitHubInputContainer>
-            {githubError && <ErrorMessage>{githubError}</ErrorMessage>}
+          </GitHubInputContainer>
           </OptionBox>
         </OptionsContainer>
 
