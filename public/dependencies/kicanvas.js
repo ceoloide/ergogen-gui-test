@@ -1895,7 +1895,7 @@ void main() {
                 width: 100%;
                 max-height: 100%;
                 aspect-ratio: 1.414;
-                background-color: aqua;
+                background-color: #2f2f2f;
                 color: var(--fg);
                 font-family: "Nunito", ui-rounded, "Hiragino Maru Gothic ProN",
                     Quicksand, Comfortaa, Manjari, "Arial Rounded MT Bold",
