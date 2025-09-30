@@ -472,11 +472,13 @@ const Ergogen = () => {
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
               <Spacer />
-              <OutlineIconButton onClick={() => configContext.setShowDownloads(!configContext.showDownloads)}>
-                <span className="material-symbols-outlined">
-                  {configContext.showDownloads ? 'expand_content' : 'collapse_content'}
-                </span>
-              </OutlineIconButton>
+              {!configContext.showConfig && (
+                <OutlineIconButton onClick={() => configContext.setShowDownloads(!configContext.showDownloads)}>
+                  <span className="material-symbols-outlined">
+                    {configContext.showDownloads ? 'expand_content' : 'collapse_content'}
+                  </span>
+                </OutlineIconButton>
+              )}
             </SubHeaderContainer>}
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
