@@ -45,6 +45,8 @@ type Results = { [key: string]: any | Results };
  * @property {Dispatch<SetStateAction<boolean>>} setShowSettings - Function to toggle the settings panel.
  * @property {boolean} showConfig - Flag to control the visibility of the configuration editor.
  * @property {Dispatch<SetStateAction<boolean>>} setShowConfig - Function to toggle the config editor.
+ * @property {boolean} showDownloads - Flag to control the visibility of the downloads panel.
+ * @property {Dispatch<SetStateAction<boolean>>} setShowDownloads - Function to toggle the downloads panel.
  * @property {boolean} debug - Flag to enable debug mode.
  * @property {Dispatch<SetStateAction<boolean>>} setDebug - Function to set debug mode.
  * @property {boolean} autoGen - Flag to enable automatic regeneration of previews.
@@ -73,6 +75,8 @@ type ContextProps = {
   setShowSettings: Dispatch<SetStateAction<boolean>>,
   showConfig: boolean,
   setShowConfig: Dispatch<SetStateAction<boolean>>,
+  showDownloads: boolean,
+  setShowDownloads: Dispatch<SetStateAction<boolean>>,
   debug: boolean,
   setDebug: Dispatch<SetStateAction<boolean>>,
   autoGen: boolean,
@@ -141,6 +145,7 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   const [jscadPreview, setJscadPreview] = useState<boolean>(localStorageOrDefault("ergogen:config:jscadPreview", false));
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
+  const [showDownloads, setShowDownloads] = useState<boolean>(true);
   
   /**
    * Effect to save user settings to local storage whenever they change.
@@ -318,6 +323,8 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
         setShowSettings,
         showConfig,
         setShowConfig,
+        showDownloads,
+        setShowDownloads,
         debug,
         setDebug,
         autoGen,
