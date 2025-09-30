@@ -120,12 +120,9 @@ const ErgogenWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: hidden;
-  padding: 0 1em 1em;
-  
-  @media (max-width: 639px) {
-    padding: 0 0 1em 0;
-  }
+  height: 100%;
+  overflow: hidden; 
+  padding: 0;
 `;
 
 /**
@@ -165,10 +162,11 @@ const Warning = styled.div`
  */
 const StyledFilePreview = styled(FilePreview)`
   height: 100%;
+`;
 
-  @media (max-width: 639px) {
-      padding-top: 16px;
-  }
+const ScrollablePanelContainer = styled.div`
+  height: 100%;
+  overflow-y: auto;
 `;
 
 /**
@@ -252,6 +250,7 @@ const StyledSplit = styled(Split)`
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: row;
 
   .gutter {
     background-color: #3f3f3f;
@@ -313,8 +312,8 @@ const findResult = (resultToFind: string, resultsToSearch: any): (any | undefine
  */
 const FlexContainer = styled.div`
   display: flex;
-  flex-flow: wrap;
-  flex-grow: 1;
+  height: 100%;
+  width: 100%;
 `;
 
 /**
@@ -462,12 +461,12 @@ const Ergogen = () => {
   }
 
   return (<ErgogenWrapper>
-    {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
-    {configContext.error && <Error>{configContext.error?.toString()}</Error>}
     {!configContext.showSettings && <SubHeaderContainer>
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
             </SubHeaderContainer>}
+    {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
+    {configContext.error && <Error>{configContext.error?.toString()}</Error>}
     <FlexContainer>
       {!configContext.showSettings ?
         (<StyledSplit
@@ -501,9 +500,9 @@ const Ergogen = () => {
               <LeftSplitPane>
                 <StyledFilePreview data-testid="file-preview" previewExtension={preview.extension} previewKey={`${preview.key}-${configContext.resultsVersion}`} previewContent={preview.content} jscadPreview={configContext.jscadPreview} />
               </LeftSplitPane>
-              <RightSplitPane>
+              <RightSplitPane><ScrollablePanelContainer>
                 <Downloads setPreview={setPreviewKey} previewKey={preview.key} />
-              </RightSplitPane>
+              </ScrollablePanelContainer></RightSplitPane>
             </StyledSplit>
           </RightSplitPane>
         </StyledSplit>) : (
