@@ -275,7 +275,6 @@ const StyledSplit = styled(Split)`
  * A container for the left pane in a split layout.
  */
 const LeftSplitPane = styled.div`
-    padding-right: 1rem;
     position: relative; 
     @media (min-width: 640px) {
       min-width: 300px;
@@ -286,7 +285,6 @@ const LeftSplitPane = styled.div`
  * A container for the right pane in a split layout.
  */
 const RightSplitPane = styled.div`
-    padding-left: 1rem;
     position: relative;
 `;
 
