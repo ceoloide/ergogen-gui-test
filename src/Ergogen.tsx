@@ -40,6 +40,13 @@ const SubHeaderContainer = styled.div`
 `;
 
 /**
+ * A spacer component that grows to fill available space in a flex container.
+ */
+const Spacer = styled.div`
+  flex-grow: 1;
+`;
+
+/**
  * A styled button with an outline, used for secondary actions.
  */
 const OutlineIconButton = styled.button`
@@ -464,6 +471,12 @@ const Ergogen = () => {
     {!configContext.showSettings && <SubHeaderContainer>
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
+              <Spacer />
+              <OutlineIconButton onClick={() => configContext.setShowDownloads(!configContext.showDownloads)}>
+                <span className="material-symbols-outlined">
+                  {configContext.showDownloads ? 'expand_content' : 'collapse_content'}
+                </span>
+              </OutlineIconButton>
             </SubHeaderContainer>}
     {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
     {configContext.error && <Error>{configContext.error?.toString()}</Error>}
@@ -492,9 +505,9 @@ const Ergogen = () => {
           <RightSplitPane>
             <StyledSplit
               direction={"horizontal"}
-              sizes={[70, 30]}
-              minSize={100}
-              gutterSize={5}
+              sizes={configContext.showDownloads ? [70, 30] : [100, 0]}
+              minSize={configContext.showDownloads ? 100 : 0}
+              gutterSize={configContext.showDownloads ? 5 : 0}
               snapOffset={0}
             >
               <LeftSplitPane>
