@@ -121,7 +121,7 @@ const ErgogenWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
-  padding: 1em;
+  padding: 0 1em 1em;
   
   @media (max-width: 639px) {
     padding: 0 0 1em 0;
