@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useConfigContext } from '../context/ConfigContext';
+import { useBanners } from '../context/BannerContext';
 import { exampleOptions, ConfigOption } from '../examples';
 import EmptyYAML from '../examples/empty_yaml';
 import { fetchConfigFromUrl } from '../utils/github';
@@ -142,6 +143,7 @@ const allExamples: ConfigOption[] = exampleOptions
 const Welcome = () => {
   const navigate = useNavigate();
   const configContext = useConfigContext();
+  const { setWarning, setError } = useBanners();
   const [githubInput, setGithubInput] = useState('');
   const [githubError, setGithubError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -177,6 +179,15 @@ const Welcome = () => {
         <br />
         Start a new design below.
       </SubHeader>
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+        <Button onClick={() => setWarning('This is a test warning banner.')}>
+          Show Warning Banner
+        </Button>
+        <Button onClick={() => setError('This is a test error banner.')}>
+          Show Error Banner
+        </Button>
+      </div>
 
       <OptionsContainer>
         <OptionBox>
