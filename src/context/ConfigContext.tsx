@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { DebouncedFunc } from "lodash-es";
 import yaml from "js-yaml";
 import debounce from "lodash.debounce";
@@ -37,7 +37,9 @@ type Results = { [key: string]: any | Results };
  * @property {DebouncedFunc<...>} processInput - Debounced function to process the configuration.
  * @property {string | null} error - Any error message from the Ergogen process.
  * @property {Dispatch<SetStateAction<string | null>>} setError - Function to set an error message.
+ * @property {() => void} clearError - Function to clear the current error message.
  * @property {string | null} deprecationWarning - Any deprecation warnings from the process.
+ * @property {() => void} clearWarning - Function to clear the current deprecation warning.
  * @property {Results | null} results - The results from the Ergogen process.
  * @property {number} resultsVersion - A version number that increments with each new result.
  * @property {Dispatch<SetStateAction<number>>} setResultsVersion - Function to update the results version.
@@ -140,9 +142,6 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   const [deprecationWarning, setDeprecationWarning] = useState<string | null>(null);
   const [results, setResults] = useState<Results | null>(null);
   const [resultsVersion, setResultsVersion] = useState<number>(0);
-
-  const clearError = () => setError(null);
-  const clearWarning = () => setDeprecationWarning(null);
   const [debug, setDebug] = useState<boolean>(localStorageOrDefault("ergogen:config:debug", false));
   const [autoGen, setAutoGen] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen", true));
   const [autoGen3D, setAutoGen3D] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen3D", true));
@@ -151,6 +150,9 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
   const [showDownloads, setShowDownloads] = useState<boolean>(true);
+
+  const clearError = useCallback(() => setError(null), []);
+  const clearWarning = useCallback(() => setDeprecationWarning(null), []);
   
   /**
    * Effect to save user settings to local storage whenever they change.
@@ -310,41 +312,72 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setConfigInput]); // Run only once on mount
 
+  const contextValue = useMemo(() => ({
+    configInput,
+    setConfigInput,
+    injectionInput,
+    setInjectionInput,
+    processInput,
+    error,
+    setError,
+    clearError,
+    deprecationWarning,
+    clearWarning,
+    results,
+    resultsVersion,
+    setResultsVersion,
+    showSettings,
+    setShowSettings,
+    showConfig,
+    setShowConfig,
+    showDownloads,
+    setShowDownloads,
+    debug,
+    setDebug,
+    autoGen,
+    setAutoGen,
+    autoGen3D,
+    setAutoGen3D,
+    kicanvasPreview,
+    setKicanvasPreview,
+    jscadPreview,
+    setJscadPreview,
+    experiment,
+  }), [
+    configInput,
+    setConfigInput,
+    injectionInput,
+    setInjectionInput,
+    processInput,
+    error,
+    setError,
+    clearError,
+    deprecationWarning,
+    clearWarning,
+    results,
+    resultsVersion,
+    setResultsVersion,
+    showSettings,
+    setShowSettings,
+    showConfig,
+    setShowConfig,
+    showDownloads,
+    setShowDownloads,
+    debug,
+    setDebug,
+    autoGen,
+    setAutoGen,
+    autoGen3D,
+    setAutoGen3D,
+    kicanvasPreview,
+    setKicanvasPreview,
+    jscadPreview,
+    setJscadPreview,
+    experiment,
+  ]);
+
   return (
-    <ConfigContext.Provider
-      value={{
-        configInput,
-        setConfigInput,
-        injectionInput,
-        setInjectionInput,
-        processInput,
-        error,
-        setError,
-        clearError,
-        deprecationWarning,
-        clearWarning,
-        results,
-        resultsVersion,
-        setResultsVersion,
-        showSettings,
-        setShowSettings,
-        showConfig,
-        setShowConfig,
-        showDownloads,
-        setShowDownloads,
-        debug,
-        setDebug,
-        autoGen,
-        setAutoGen,
-        autoGen3D,
-        setAutoGen3D,
-        kicanvasPreview,
-        setKicanvasPreview,
-        jscadPreview,
-        setJscadPreview,
-        experiment,
-      }}
-    >
+    <ConfigContext.Provider value={contextValue}>
       {children}
     </ConfigContext.Provider>
   );

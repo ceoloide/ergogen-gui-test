@@ -31,7 +31,7 @@ const Banners = () => {
 
 const BannersContainer = styled.div`
   position: fixed;
-  top: 80px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
