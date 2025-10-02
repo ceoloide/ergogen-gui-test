@@ -55,7 +55,7 @@ const SubHeaderContainer = styled.div`
       align-items: center;
       border-bottom: 1px solid #3f3f3f;
       flex-direction: row;
-      gap: 16px;
+      gap: 10px;
       padding: 0 1rem;
       flex-shrink: 0;
 
@@ -101,6 +101,33 @@ const OutlineIconButton = styled.button`
     &:hover,
     &.active {
         background-color: #3f3f3f;
+    }
+`;
+
+/**
+ * A styled button with a green background, used for primary actions on mobile.
+ */
+const GenerateIconButton = styled.button`
+    background-color: #239923;
+    transition: background-color .15s ease-in-out;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 34px;
+    width: 34px;
+    font-family: 'Roboto', sans-serif;
+
+    .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+
+    &:hover {
+        background-color: #1e8e1e;
     }
 `;
 
@@ -474,6 +501,16 @@ const Ergogen = () => {
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
               <Spacer />
+              {configContext.showConfig && (
+                <>
+                  <GenerateIconButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>
+                    <span className="material-symbols-outlined">refresh</span>
+                  </GenerateIconButton>
+                  <OutlineIconButton onClick={handleDownload}>
+                    <span className="material-symbols-outlined">download</span>
+                  </OutlineIconButton>
+                </>
+              )}
               {!configContext.showConfig && (
                 <OutlineIconButton onClick={() => configContext.setShowDownloads(!configContext.showDownloads)}>
                   <span className="material-symbols-outlined">

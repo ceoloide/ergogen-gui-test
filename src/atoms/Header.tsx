@@ -24,7 +24,7 @@ const HeaderContainer = styled.header`
 const LeftContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
     flex-direction: row;
     flex-grow: 1;
     min-width: 0;
