@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import Ergogen from './Ergogen';
 import Welcome from './pages/Welcome';
 import Header from './atoms/Header';
+import Banners from './organisms/Banners';
 import ConfigContextProvider, { CONFIG_LOCAL_STORAGE_KEY } from './context/ConfigContext';
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
       initialInjectionInput={[]}
     >
       <Header />
+      <Banners />
       <PageWrapper>
         <Routes>
           <Route

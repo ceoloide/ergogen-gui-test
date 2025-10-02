@@ -143,7 +143,6 @@ const Welcome = () => {
   const navigate = useNavigate();
   const configContext = useConfigContext();
   const [githubInput, setGithubInput] = useState('');
-  const [githubError, setGithubError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectExample = (configValue: string) => {
@@ -152,16 +151,17 @@ const Welcome = () => {
   };
 
   const handleGitHub = () => {
-    if (!githubInput) return;
+    if (!githubInput || !configContext) return;
+    const { setConfigInput, setError, clearError } = configContext;
     setIsLoading(true);
-    setGithubError(null);
+    clearError();
     fetchConfigFromUrl(githubInput)
       .then((data) => {
-        configContext?.setConfigInput(data);
+        setConfigInput(data);
         navigate('/');
       })
       .catch((e) => {
-        setGithubError(`Failed to fetch config from GitHub: ${e.message}`);
+        setError(`Failed to fetch config from GitHub: ${e.message}`);
       })
       .finally(() => {
         setIsLoading(false);
