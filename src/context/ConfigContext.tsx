@@ -291,6 +291,27 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   }, [processInput, runGeneration]);
 
   /**
+   * Effect to process the input configuration on the initial load.
+   */
+  useEffect(() => {
+    const queryParameters = new URLSearchParams(window.location.search);
+    const githubUrl = queryParameters.get("github");
+    if (githubUrl) {
+      fetchConfigFromUrl(githubUrl)
+        .then((data) => {
+          setConfigInput(data);
+          generateNow(data, injectionInput, { pointsonly: false });
+        })
+        .catch((e) => {
+          setError(`Failed to fetch config from GitHub: ${e.message}`);
+        });
+    } else if (configInput) {
+      generateNow(configInput, injectionInput, { pointsonly: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
    * Effect to process the input configuration whenever it or the auto-generation settings change.
    * Also persists the injection input to local storage.
    */
@@ -299,27 +320,12 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
     if (autoGen) {
       processInput(configInput, injectionInput, { pointsonly: !autoGen3D });
     }
-  }, [processInput, configInput, injectionInput, autoGen, autoGen3D]);
+  }, [configInput, injectionInput, autoGen, autoGen3D, processInput]);
 
-  const queryParameters = new URLSearchParams(window.location.search);
-  const experiment = queryParameters.get("exp");
-
-  /**
-   * Effect to fetch a configuration from a GitHub URL specified in the query parameters on initial component mount.
-   */
-  useEffect(() => {
-    const githubUrl = queryParameters.get("github");
-    if (githubUrl) {
-      fetchConfigFromUrl(githubUrl)
-        .then((data) => {
-          setConfigInput(data);
-        })
-        .catch((e) => {
-          setError(`Failed to fetch config from GitHub: ${e.message}`);
-        });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setConfigInput]); // Run only once on mount
+  const experiment = useMemo(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("exp");
+  }, []);
 
   const contextValue = useMemo(() => ({
     configInput,

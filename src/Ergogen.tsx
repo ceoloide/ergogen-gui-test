@@ -2,6 +2,7 @@ import { useEffect, useState, ChangeEvent } from "react";
 import styled from "styled-components";
 import Split from "react-split";
 import yaml from 'js-yaml';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import ConfigEditor from "./molecules/ConfigEditor";
 import InjectionEditor from "./molecules/InjectionEditor";
@@ -11,6 +12,7 @@ import FilePreview from "./molecules/FilePreview";
 
 import { useConfigContext } from "./context/ConfigContext";
 import Button from "./atoms/Button";
+import { isMacOS } from "./utils/platform";
 import DownloadButton from "./atoms/DownloadButton";
 import DownloadIcon from "./atoms/DownloadIcon";
 import Input from "./atoms/Input";
@@ -19,6 +21,29 @@ import CreatableSelect from "react-select/creatable";
 import { StylesConfig } from 'react-select';
 import GenOption from "./atoms/GenOption";
 import { fetchConfigFromUrl } from "./utils/github";
+
+// Shortcut key sub-label styled component
+const ShortcutKey = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #239923;
+  border-radius: 6px;
+  padding: 0 0.5em;
+  margin-left: 1em;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  height: 1.7em;
+  min-width: 2.2em;
+  color: #fff;
+  box-sizing: border-box;
+  user-select: none;
+`;
+// Utility to get the correct shortcut for the user's OS
+function getShortcutLabel() {
+  return (<><span>{isMacOS() ? '⌘' : 'Ctrl'}&nbsp;⏎</span></>);
+}
+
 
 /**
  * A container for a sub-header, designed to be displayed on smaller screens.
@@ -317,6 +342,15 @@ const Ergogen = () => {
    */
   const configContext = useConfigContext();
 
+  useHotkeys(isMacOS() ? 'meta+enter' : 'ctrl+enter', () => {
+    if (configContext) {
+      configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })
+    }
+  }, {
+    enableOnFormTags: true,
+    preventDefault: true
+  });
+
   /**
    * Effect to handle changes to the injection being edited.
    * It updates the main injection list in the context when an injection is created or modified.
@@ -462,7 +496,12 @@ const Ergogen = () => {
             <EditorContainer>
               <StyledConfigEditor data-testid="config-editor" />
               <ButtonContainer>
-                <GrowButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
+                <GrowButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>
+                  <span style={{display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center'}}>
+                    <span>Generate</span>
+                    <ShortcutKey>{getShortcutLabel()}</ShortcutKey>
+                  </span>
+                </GrowButton>
                 <DownloadButton onClick={handleDownload}>
                   <DownloadIcon />
                 </DownloadButton>
