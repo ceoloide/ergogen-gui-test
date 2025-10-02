@@ -462,7 +462,7 @@ const Ergogen = () => {
             <EditorContainer>
               <StyledConfigEditor data-testid="config-editor" />
               <ButtonContainer>
-                <GrowButton onClick={() => configContext.processInput(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
+                <GrowButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>Generate</GrowButton>
                 <DownloadButton onClick={handleDownload}>
                   <DownloadIcon />
                 </DownloadButton>
