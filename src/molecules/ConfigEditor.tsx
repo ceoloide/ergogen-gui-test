@@ -1,4 +1,4 @@
-import {Editor, OnMount} from "@monaco-editor/react";
+import {Editor} from "@monaco-editor/react";
 import React, {useEffect} from "react";
 import {useConfigContext} from "../context/ConfigContext";
 
@@ -36,7 +36,7 @@ const ConfigEditor = ({className, options, "data-testid": dataTestId}: Props) =>
     const configContext = useConfigContext();
 
     // @ts-ignore
-    const {configInput, setConfigInput, injectionInput, generateNow} = configContext;
+    const {configInput, setConfigInput} = configContext;
 
     /**
      * Handles changes in the editor's content.
@@ -53,17 +53,6 @@ const ConfigEditor = ({className, options, "data-testid": dataTestId}: Props) =>
         handleChange(configInput);
     }, [configInput, handleChange]);
 
-    const handleEditorDidMount: OnMount = (editor, monaco) => {
-        editor.addAction({
-            id: 'generate-config',
-            label: 'Generate',
-            keybindings: [
-                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter
-            ],
-            run: () => generateNow(configInput, injectionInput, {pointsonly: false})
-        })
-    }
-
     return (
         <div className={className} data-testid={dataTestId}>
             <Editor
@@ -71,7 +60,6 @@ const ConfigEditor = ({className, options, "data-testid": dataTestId}: Props) =>
                 defaultLanguage="yaml"
                 language="yaml"
                 onChange={handleChange}
-                onMount={handleEditorDidMount}
                 value={configInput}
                 theme={"vs-dark"}
                 defaultValue={configInput}
