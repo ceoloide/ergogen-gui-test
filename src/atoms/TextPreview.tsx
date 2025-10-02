@@ -16,7 +16,7 @@ const TextPreview = ({content, language, className, height, options}: Props) => 
                 height={height || "80vh"}
                 language={language}
                 value={content}
-                theme={"vs-dark"}
+                theme={"ergogen-theme"}
                 options={options || {readOnly: true}}
             />
         </div>

@@ -78,7 +78,7 @@ const ConfigEditor = ({className, options, "data-testid": dataTestId}: Props) =>
                 onChange={handleChange}
                 onMount={handleEditorDidMount}
                 value={configInput}
-                theme={"vs-dark"}
+                theme={"ergogen-theme"}
                 defaultValue={configInput}
                 options={options || undefined}
             />

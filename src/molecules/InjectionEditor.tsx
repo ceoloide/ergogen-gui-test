@@ -58,7 +58,7 @@ const InjectionEditor = ({ className, options, injection, setInjection }: Props)
         language="javascript"
         onChange={handleChange}
         value={injection.content}
-        theme={"vs-dark"}
+        theme={"ergogen-theme"}
         options={options || undefined}
       />
     </div>

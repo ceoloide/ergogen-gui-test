@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import styled from "styled-components";
+import { loader } from '@monaco-editor/react';
 import './index.css';
 import App from './App';
 
@@ -18,17 +19,28 @@ const AppContainer = styled.div`
   font-family: 'Roboto', sans-serif;
 `;
 
-// This is the main entry point for the React application.
-// It sets up the root container and renders the main App component,
-// wrapping it with the router.
-const container = document.getElementById('root');
-const root = createRoot(container!); // createRoot(container!) if you use TypeScript
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AppContainer>
-        <App />
-      </AppContainer>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+loader.init().then((monaco) => {
+  monaco.editor.defineTheme('ergogen-theme', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#2d2d2d',
+    },
+  });
+
+  // This is the main entry point for the React application.
+  // It sets up the root container and renders the main App component,
+  // wrapping it with the router.
+  const container = document.getElementById('root');
+  const root = createRoot(container!); // createRoot(container!) if you use TypeScript
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <AppContainer>
+          <App />
+        </AppContainer>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+});
