@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { DebouncedFunc } from "lodash-es";
 import yaml from "js-yaml";
 import debounce from "lodash.debounce";
@@ -35,9 +35,12 @@ type Results = { [key: string]: any | Results };
  * @property {string[][] | undefined} injectionInput - The current array of code injections.
  * @property {Dispatch<SetStateAction<string[][] | undefined>>} setInjectionInput - Function to update the injections.
  * @property {DebouncedFunc<...>} processInput - Debounced function to process the configuration.
+ * @property {(textInput: string | undefined, injectionInput: string[][] | undefined, options?: ProcessOptions) => Promise<void>} generateNow - Immediate function to process the configuration.
  * @property {string | null} error - Any error message from the Ergogen process.
  * @property {Dispatch<SetStateAction<string | null>>} setError - Function to set an error message.
+ * @property {() => void} clearError - Function to clear the current error message.
  * @property {string | null} deprecationWarning - Any deprecation warnings from the process.
+ * @property {() => void} clearWarning - Function to clear the current deprecation warning.
  * @property {Results | null} results - The results from the Ergogen process.
  * @property {number} resultsVersion - A version number that increments with each new result.
  * @property {Dispatch<SetStateAction<number>>} setResultsVersion - Function to update the results version.
@@ -65,9 +68,12 @@ type ContextProps = {
   injectionInput: string[][] | undefined,
   setInjectionInput: Dispatch<SetStateAction<string[][] | undefined>>,
   processInput: DebouncedFunc<(textInput: string | undefined, injectionInput: string[][] | undefined, options?: ProcessOptions) => Promise<void>>,
+  generateNow: (textInput: string | undefined, injectionInput: string[][] | undefined, options?: ProcessOptions) => Promise<void>,
   error: string | null,
   setError: Dispatch<SetStateAction<string | null>>,
+  clearError: () => void,
   deprecationWarning: string | null,
+  clearWarning: () => void,
   results: Results | null,
   resultsVersion: number,
   setResultsVersion: Dispatch<SetStateAction<number>>,
@@ -146,6 +152,9 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
   const [showDownloads, setShowDownloads] = useState<boolean>(true);
+
+  const clearError = useCallback(() => setError(null), []);
+  const clearWarning = useCallback(() => setDeprecationWarning(null), []);
   
   /**
    * Effect to save user settings to local storage whenever they change.
@@ -185,94 +194,101 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   };
 
   /**
-   * Debounced function to process the Ergogen configuration.
-   * This function is wrapped in `useCallback` and `debounce` to prevent excessive processing on every keystroke.
+   * The core function that runs the Ergogen generation process.
    */
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const processInput = useCallback(
-    debounce(async (textInput: string | undefined, injectionInput: string[][] | undefined, options: ProcessOptions = { pointsonly: true }) => {
-      let results = null;
-      let inputConfig: string | {} = textInput ?? '';
-      let inputInjection: [][] | {} = injectionInput ?? '';
-      const [, parsedConfig] = parseConfig(textInput ?? '');
+  const runGeneration = useCallback(async (textInput: string | undefined, injectionInput: string[][] | undefined, options: ProcessOptions = { pointsonly: true }) => {
+    let results = null;
+    let inputConfig: string | {} = textInput ?? '';
+    let inputInjection: [][] | {} = injectionInput ?? '';
+    const [, parsedConfig] = parseConfig(textInput ?? '');
 
-      setError(null);
-      setDeprecationWarning(null);
+    setError(null);
+    setDeprecationWarning(null);
 
-      if (parsedConfig && parsedConfig.pcbs) {
-        const pcbs = Object.values(parsedConfig.pcbs) as any[];
-        let warningFound = false;
-        for (const pcb of pcbs) {
-          if (!pcb.template || pcb.template === 'kicad5') {
-            if (pcb.footprints) {
-              const footprints = Object.values(pcb.footprints) as any[];
-              for (const footprint of footprints) {
-                if (footprint && typeof footprint.what === 'string' && footprint.what.startsWith('ceoloide')) {
-                  setDeprecationWarning(
-                    'KiCad 5 is deprecated. Please add "template: kicad8" to your PCB definitions to avoid errors when opening PCB files with KiCad 8 or newer.'
-                  );
-                  warningFound = true;
-                  break;
-                }
+    if (parsedConfig && parsedConfig.pcbs) {
+      const pcbs = Object.values(parsedConfig.pcbs) as any[];
+      let warningFound = false;
+      for (const pcb of pcbs) {
+        if (!pcb.template || pcb.template === 'kicad5') {
+          if (pcb.footprints) {
+            const footprints = Object.values(pcb.footprints) as any[];
+            for (const footprint of footprints) {
+              if (footprint && typeof footprint.what === 'string' && footprint.what.startsWith('ceoloide')) {
+                setDeprecationWarning(
+                  'KiCad 5 is deprecated. Please add "template: kicad8" to your PCB definitions to avoid errors when opening PCB files with KiCad 8 or newer.'
+                );
+                warningFound = true;
+                break;
               }
             }
           }
-          if (warningFound) {
-            break;
+        }
+        if (warningFound) {
+          break;
+        }
+      }
+    }
+
+    // When running this as part of onChange we remove `pcbs` and `cases` properties to generate
+    // a simplified preview.
+    // If there is no 'points' key we send the input to Ergogen as-is, it could be KLE or invalid.
+    if (parsedConfig?.points && options?.pointsonly) {
+      inputConfig = {
+        ...parsedConfig,
+        ['pcbs']: undefined,
+        ['cases']: undefined,
+      };
+    }
+
+    try {
+      if (inputInjection !== undefined && Array.isArray(inputInjection)) {
+        for (let i = 0; i < inputInjection.length; i++) {
+          let injection = inputInjection[i];
+          if (Array.isArray(injection) && injection.length === 3) {
+            const inj_type = injection[0];
+            const inj_name = injection[1];
+            const inj_text = injection[2];
+            const module_prefix = 'const module = {};\n\n'
+            const module_suffix = '\n\nreturn module.exports;'
+            const inj_value = new Function("require", module_prefix + inj_text + module_suffix)();
+            (window as any).ergogen.inject(inj_type, inj_name, inj_value);
           }
         }
       }
+      results = await (window as any).ergogen.process(
+        inputConfig,
+        true, // Set debug to true or no SVGs are generated
+        (m: string) => console.log(m) // logger
+      );
+    } catch (e: unknown) {
+      if (!e) return;
 
-      // When running this as part of onChange we remove `pcbs` and `cases` properties to generate
-      // a simplified preview.
-      // If there is no 'points' key we send the input to Ergogen as-is, it could be KLE or invalid.
-      if (parsedConfig?.points && options?.pointsonly) {
-        inputConfig = {
-          ...parsedConfig,
-          ['pcbs']: undefined,
-          ['cases']: undefined,
-        };
+      if (typeof e === "string") {
+        setError(e);
       }
-
-      try {
-        if (inputInjection !== undefined && Array.isArray(inputInjection)) {
-          for (let i = 0; i < inputInjection.length; i++) {
-            let injection = inputInjection[i];
-            if (Array.isArray(injection) && injection.length === 3) {
-              const inj_type = injection[0];
-              const inj_name = injection[1];
-              const inj_text = injection[2];
-              const module_prefix = 'const module = {};\n\n'
-              const module_suffix = '\n\nreturn module.exports;'
-              const inj_value = new Function("require", module_prefix + inj_text + module_suffix)();
-              (window as any).ergogen.inject(inj_type, inj_name, inj_value);
-            }
-          }
-        }
-        results = await (window as any).ergogen.process(
-          inputConfig,
-          true, // Set debug to true or no SVGs are generated
-          (m: string) => console.log(m) // logger
-        );
-      } catch (e: unknown) {
-        if (!e) return;
-
-        if (typeof e === "string") {
-          setError(e);
-        }
-        if (typeof e === "object") {
-          // @ts-ignore
-          setError(e.toString());
-        }
-        return;
+      if (typeof e === "object") {
+        // @ts-ignore
+        setError(e.toString());
       }
+      return;
+    }
 
-      setResults(results);
-      setResultsVersion(v => v + 1)
+    setResults(results);
+    setResultsVersion(v => v + 1)
+  }, []);
 
-    }, 300),
-    [(window as any).ergogen]
-  );
+  /**
+   * A debounced version of runGeneration for auto-generation.
+   */
+  const processInput = useCallback(debounce(runGeneration, 300), [runGeneration]);
+
+  /**
+   * An immediate version for the "Generate" button that cancels any pending auto-generations.
+   */
+  const generateNow = useCallback(async (textInput: string | undefined, injectionInput: string[][] | undefined, options: ProcessOptions = { pointsonly: true }) => {
+    processInput.cancel();
+    await runGeneration(textInput, injectionInput, options);
+  }, [processInput, runGeneration]);
 
   /**
    * Effect to process the input configuration whenever it or the auto-generation settings change.
@@ -305,39 +321,74 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setConfigInput]); // Run only once on mount
 
+  const contextValue = useMemo(() => ({
+    configInput,
+    setConfigInput,
+    injectionInput,
+    setInjectionInput,
+    processInput,
+    generateNow,
+    error,
+    setError,
+    clearError,
+    deprecationWarning,
+    clearWarning,
+    results,
+    resultsVersion,
+    setResultsVersion,
+    showSettings,
+    setShowSettings,
+    showConfig,
+    setShowConfig,
+    showDownloads,
+    setShowDownloads,
+    debug,
+    setDebug,
+    autoGen,
+    setAutoGen,
+    autoGen3D,
+    setAutoGen3D,
+    kicanvasPreview,
+    setKicanvasPreview,
+    jscadPreview,
+    setJscadPreview,
+    experiment,
+  }), [
+    configInput,
+    setConfigInput,
+    injectionInput,
+    setInjectionInput,
+    processInput,
+    generateNow,
+    error,
+    setError,
+    clearError,
+    deprecationWarning,
+    clearWarning,
+    results,
+    resultsVersion,
+    setResultsVersion,
+    showSettings,
+    setShowSettings,
+    showConfig,
+    setShowConfig,
+    showDownloads,
+    setShowDownloads,
+    debug,
+    setDebug,
+    autoGen,
+    setAutoGen,
+    autoGen3D,
+    setAutoGen3D,
+    kicanvasPreview,
+    setKicanvasPreview,
+    jscadPreview,
+    setJscadPreview,
+    experiment,
+  ]);
+
   return (
-    <ConfigContext.Provider
-      value={{
-        configInput,
-        setConfigInput,
-        injectionInput,
-        setInjectionInput,
-        processInput,
-        error,
-        setError,
-        deprecationWarning,
-        results,
-        resultsVersion,
-        setResultsVersion,
-        showSettings,
-        setShowSettings,
-        showConfig,
-        setShowConfig,
-        showDownloads,
-        setShowDownloads,
-        debug,
-        setDebug,
-        autoGen,
-        setAutoGen,
-        autoGen3D,
-        setAutoGen3D,
-        kicanvasPreview,
-        setKicanvasPreview,
-        jscadPreview,
-        setJscadPreview,
-        experiment,
-      }}
-    >
+    <ConfigContext.Provider value={contextValue}>
       {children}
     </ConfigContext.Provider>
   );
