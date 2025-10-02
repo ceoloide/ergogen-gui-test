@@ -11,7 +11,6 @@ import Injections from "./molecules/Injections";
 import FilePreview from "./molecules/FilePreview";
 
 import { useConfigContext } from "./context/ConfigContext";
-import Button from "./atoms/Button";
 import { isMacOS } from "./utils/platform";
 import DownloadButton from "./atoms/DownloadButton";
 import DownloadIcon from "./atoms/DownloadIcon";
@@ -148,8 +147,9 @@ const EditorContainer = styled.div`
  */
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 10px;
   align-items: stretch;
+  padding: 10px;
 
   @media (max-width: 639px) {
       display: none;
@@ -168,8 +168,28 @@ const DesktopOnlyContainer = styled.div`
 /**
  * A button that expands to fill the available horizontal space.
  */
-const GrowButton = styled(Button)`
-  flex-grow: 1;
+const GrowButton = styled.button`
+    background-color: #239923;
+    transition: background-color .15s ease-in-out;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 34px;
+    font-family: 'Roboto', sans-serif;
+    flex-grow: 1;
+
+    .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+
+    &:hover {
+        background-color: #1e8e1e;
+    }
 `;
 
 /**
@@ -539,9 +559,9 @@ const Ergogen = () => {
                     <ShortcutKey>{getShortcutLabel()}</ShortcutKey>
                   </span>
                 </GrowButton>
-                <DownloadButton onClick={handleDownload}>
-                  <DownloadIcon />
-                </DownloadButton>
+                  <OutlineIconButton onClick={handleDownload}>
+                    <span className="material-symbols-outlined">download</span>
+                  </OutlineIconButton>
               </ButtonContainer>
             </EditorContainer>
           </LeftSplitPane>
