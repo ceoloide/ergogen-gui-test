@@ -502,9 +502,14 @@ const Ergogen = () => {
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
               <Spacer />
               {configContext.showConfig && (
-                <GenerateIconButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>
-                  <span className="material-symbols-outlined">refresh</span>
-                </GenerateIconButton>
+                <>
+                  <GenerateIconButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>
+                    <span className="material-symbols-outlined">refresh</span>
+                  </GenerateIconButton>
+                  <OutlineIconButton onClick={handleDownload}>
+                    <span className="material-symbols-outlined">download</span>
+                  </OutlineIconButton>
+                </>
               )}
               {!configContext.showConfig && (
                 <OutlineIconButton onClick={() => configContext.setShowDownloads(!configContext.showDownloads)}>
