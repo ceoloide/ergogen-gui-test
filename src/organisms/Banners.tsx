@@ -59,6 +59,32 @@ const Banner = styled.div<{ type: 'warning' | 'error' }>`
   }
 `;
 
+const BannersContainer = styled.div`
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 800px;
+  padding: 0 1rem;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: ${procoreColors.gray15};
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-left: auto;
+  padding-left: 1rem;
+`;
+
 const Banners = () => {
   const configContext = useConfigContext();
 
@@ -93,31 +119,5 @@ const Banners = () => {
     </BannersContainer>
   );
 };
-
-const BannersContainer = styled.div`
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-  max-width: 800px;
-  padding: 0 1rem;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: ${procoreColors.gray15};
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  margin-left: auto;
-  padding-left: 1rem;
-`;
 
 export default Banners;
