@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import { useConfigContext } from '../context/ConfigContext';
 
 const procoreColors = {
-  red50: '#d9534f',
-  red98: '#fdf7f7',
-  yellow40: '#f0ad4e',
-  yellow94: '#fffbf5',
-  gray15: '#333333'
+  red50: 'hsl(360, 70%, 50%)',
+  red98: 'hsl(360, 70%, 98%)',
+  yellow40: 'hsl(45, 85%, 40%)',
+  yellow94: 'hsl(45, 85%, 94%)',
+  gray15: 'hsl(200, 8%, 15%)'
 };
 
 const BannerIcon = styled.span.attrs({
