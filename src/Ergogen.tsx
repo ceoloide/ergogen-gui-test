@@ -19,7 +19,6 @@ import CreatableSelect from "react-select/creatable";
 import { StylesConfig } from 'react-select';
 import GenOption from "./atoms/GenOption";
 import { fetchConfigFromUrl } from "./utils/github";
-import Banners from './organisms/Banners';
 
 /**
  * A container for a sub-header, designed to be displayed on smaller screens.
@@ -449,7 +448,6 @@ const Ergogen = () => {
                 </OutlineIconButton>
               )}
             </SubHeaderContainer>}
-    <Banners />
     <FlexContainer>
       {!configContext.showSettings ?
         (<StyledSplit
