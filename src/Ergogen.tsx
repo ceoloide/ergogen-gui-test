@@ -343,7 +343,7 @@ const Ergogen = () => {
    */
   const configContext = useConfigContext();
 
-  useHotkeys('mod+enter', () => {
+  useHotkeys(isMacOS() ? 'meta+enter' : 'ctrl+enter', () => {
     if (configContext) {
       configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })
     }
