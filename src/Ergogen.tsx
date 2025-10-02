@@ -2,6 +2,7 @@ import { useEffect, useState, ChangeEvent } from "react";
 import styled from "styled-components";
 import Split from "react-split";
 import yaml from 'js-yaml';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import ConfigEditor from "./molecules/ConfigEditor";
 import InjectionEditor from "./molecules/InjectionEditor";
@@ -317,6 +318,15 @@ const Ergogen = () => {
    * @type {ConfigOption | null}
    */
   const configContext = useConfigContext();
+
+  useHotkeys('mod+enter', () => {
+    if (configContext) {
+      configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })
+    }
+  }, {
+    enableOnFormTags: true,
+    preventDefault: true
+  });
 
   /**
    * Effect to handle changes to the injection being edited.
