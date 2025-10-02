@@ -145,8 +145,11 @@ const Welcome = () => {
   const [githubInput, setGithubInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSelectExample = (configValue: string) => {
-    configContext?.setConfigInput(configValue);
+  const handleSelectExample = async (configValue: string) => {
+    if (configContext) {
+      configContext.setConfigInput(configValue);
+      await configContext.generateNow(configValue, configContext.injectionInput, { pointsonly: false });
+    }
     navigate('/');
   };
 
@@ -156,8 +159,11 @@ const Welcome = () => {
     setIsLoading(true);
     clearError();
     fetchConfigFromUrl(githubInput)
-      .then((data) => {
-        setConfigInput(data);
+      .then(async (data) => {
+        if (configContext) {
+          configContext.setConfigInput(data);
+          await configContext.generateNow(data, configContext.injectionInput, { pointsonly: false });
+        }
         navigate('/');
       })
       .catch((e) => {
