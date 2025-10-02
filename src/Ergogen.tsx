@@ -133,38 +133,6 @@ const ErgogenWrapper = styled.div`
 `;
 
 /**
- * A styled component for displaying error messages.
- */
-const Error = styled.div`
-  background: #ff6d6d;
-  color: #a31111;
-  border: 1px solid #a31111;
-  padding: 1em;
-  margin: 0.5em 0 0.5em 0;
-  width: 100%;
-  min-height: 4em;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-/**
- * A styled component for displaying warning messages.
- */
-const Warning = styled.div`
-  background: #ffc107;
-  color: #000000;
-  border: 1px solid #e0a800;
-  padding: 1em;
-  margin: 0.5em 0 0.5em 0;
-  width: 100%;
-  min-height: 4em;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-/**
  * A styled version of the FilePreview component.
  */
 const StyledFilePreview = styled(FilePreview)`
@@ -480,8 +448,6 @@ const Ergogen = () => {
                 </OutlineIconButton>
               )}
             </SubHeaderContainer>}
-    {configContext.deprecationWarning && <Warning>{configContext.deprecationWarning}</Warning>}
-    {configContext.error && <Error>{configContext.error?.toString()}</Error>}
     <FlexContainer>
       {!configContext.showSettings ?
         (<StyledSplit

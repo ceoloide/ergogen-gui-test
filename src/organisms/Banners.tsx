@@ -1,22 +1,28 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useBanners } from '../context/BannerContext';
+import { useConfigContext } from '../context/ConfigContext';
 
 const Banners = () => {
-  const { warning, error, setWarning, setError } = useBanners();
+  const configContext = useConfigContext();
+
+  if (!configContext) {
+    return null;
+  }
+
+  const { error, deprecationWarning, clearError, clearWarning } = configContext;
 
   return (
     <BannersContainer>
-      {warning && (
+      {deprecationWarning && (
         <Banner type="warning">
-          <BannerText>{warning}</BannerText>
-          <CloseButton onClick={() => setWarning(null)}>&times;</CloseButton>
+          <BannerText>{deprecationWarning}</BannerText>
+          <CloseButton onClick={clearWarning}>&times;</CloseButton>
         </Banner>
       )}
       {error && (
         <Banner type="error">
           <BannerText>{error}</BannerText>
-          <CloseButton onClick={() => setError(null)}>&times;</CloseButton>
+          <CloseButton onClick={clearError}>&times;</CloseButton>
         </Banner>
       )}
     </BannersContainer>

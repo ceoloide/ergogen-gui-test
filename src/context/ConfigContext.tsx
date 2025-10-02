@@ -67,7 +67,9 @@ type ContextProps = {
   processInput: DebouncedFunc<(textInput: string | undefined, injectionInput: string[][] | undefined, options?: ProcessOptions) => Promise<void>>,
   error: string | null,
   setError: Dispatch<SetStateAction<string | null>>,
+  clearError: () => void,
   deprecationWarning: string | null,
+  clearWarning: () => void,
   results: Results | null,
   resultsVersion: number,
   setResultsVersion: Dispatch<SetStateAction<number>>,
@@ -138,6 +140,9 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   const [deprecationWarning, setDeprecationWarning] = useState<string | null>(null);
   const [results, setResults] = useState<Results | null>(null);
   const [resultsVersion, setResultsVersion] = useState<number>(0);
+
+  const clearError = () => setError(null);
+  const clearWarning = () => setDeprecationWarning(null);
   const [debug, setDebug] = useState<boolean>(localStorageOrDefault("ergogen:config:debug", false));
   const [autoGen, setAutoGen] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen", true));
   const [autoGen3D, setAutoGen3D] = useState<boolean>(localStorageOrDefault("ergogen:config:autoGen3D", true));
@@ -315,7 +320,9 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
         processInput,
         error,
         setError,
+        clearError,
         deprecationWarning,
+        clearWarning,
         results,
         resultsVersion,
         setResultsVersion,

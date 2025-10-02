@@ -7,7 +7,6 @@ import Ergogen from './Ergogen';
 import Welcome from './pages/Welcome';
 import Header from './atoms/Header';
 import ConfigContextProvider, { CONFIG_LOCAL_STORAGE_KEY } from './context/ConfigContext';
-import { BannerProvider } from './context/BannerContext';
 import Banners from './organisms/Banners';
 
 const App = () => {
@@ -30,24 +29,22 @@ const App = () => {
       setConfigInput={setConfigInput}
       initialInjectionInput={[]}
     >
-      <BannerProvider>
-        <Header />
-        <Banners />
-        <PageWrapper>
-          <Routes>
-            <Route
-              path="/"
-              // The routing decision is now based on the reactive `configInput` state.
-              element={configInput ? <Ergogen /> : <Navigate to="/new" replace />}
-            />
-            <Route
-              path="/new"
-              element={<Welcome />}
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </PageWrapper>
-      </BannerProvider>
+      <Header />
+      <Banners />
+      <PageWrapper>
+        <Routes>
+          <Route
+            path="/"
+            // The routing decision is now based on the reactive `configInput` state.
+            element={configInput ? <Ergogen /> : <Navigate to="/new" replace />}
+          />
+          <Route
+            path="/new"
+            element={<Welcome />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </PageWrapper>
     </ConfigContextProvider>
   );
 };
