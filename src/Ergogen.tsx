@@ -105,6 +105,33 @@ const OutlineIconButton = styled.button`
 `;
 
 /**
+ * A styled button with a green background, used for primary actions on mobile.
+ */
+const GenerateIconButton = styled.button`
+    background-color: #239923;
+    transition: background-color .15s ease-in-out;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 34px;
+    width: 34px;
+    font-family: 'Roboto', sans-serif;
+
+    .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+
+    &:hover {
+        background-color: #1e8e1e;
+    }
+`;
+
+/**
  * A container for editor components, ensuring it fills available space.
  */
 const EditorContainer = styled.div`
@@ -474,6 +501,11 @@ const Ergogen = () => {
               <OutlineIconButton className={configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(true)}>Config</OutlineIconButton>
               <OutlineIconButton className={!configContext.showConfig ? 'active' : ''} onClick={() => configContext.setShowConfig(false)}>Outputs</OutlineIconButton>
               <Spacer />
+              {configContext.showConfig && (
+                <GenerateIconButton onClick={() => configContext.generateNow(configContext.configInput, configContext.injectionInput, { pointsonly: false })}>
+                  <span className="material-symbols-outlined">refresh</span>
+                </GenerateIconButton>
+              )}
               {!configContext.showConfig && (
                 <OutlineIconButton onClick={() => configContext.setShowDownloads(!configContext.showDownloads)}>
                   <span className="material-symbols-outlined">
