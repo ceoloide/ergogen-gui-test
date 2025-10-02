@@ -10,6 +10,7 @@ const Title = styled.h3`
   font-size: 1rem;
   font-weight: 600;
   color: white;
+  margin: 0 0 1rem;
 
   @media (max-width: 639px) {
     display: none;
@@ -25,6 +26,11 @@ const DownloadsContainer = styled.div`
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
+  padding: 1rem;
+
+  @media (max-width: 639px) {
+    padding: 0.5rem;
+  }
 `;
 
 /**
