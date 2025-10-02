@@ -55,7 +55,7 @@ const SubHeaderContainer = styled.div`
       align-items: center;
       border-bottom: 1px solid #3f3f3f;
       flex-direction: row;
-      gap: 16px;
+      gap: 10px;
       padding: 0 1rem;
       flex-shrink: 0;
 
