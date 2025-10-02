@@ -25,6 +25,11 @@ const DownloadsContainer = styled.div`
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
+  padding: 1rem 0.5rem;
+
+  @media (max-width: 639px) {
+    padding: 0.5rem;
+  }
 `;
 
 /**

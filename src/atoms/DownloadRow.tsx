@@ -90,13 +90,13 @@ const StyledButton = styled(Button)`
  * Used for preview and download actions.
  */
 const StyledLinkButton = styled.a`
-    background-color: transparent;
-    border: 1px solid #3f3f3f;
+    background-color: #222222;
+    border: none;
     border-radius: 6px;
     color: white;
     display: flex;
     align-items: center;
-    padding: 8px 12px;
+    padding: 4px 6px;
     text-decoration: none;
     cursor: pointer;
     font-size: 13px;
