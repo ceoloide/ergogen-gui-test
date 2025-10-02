@@ -42,7 +42,11 @@ const Row = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 5px;
+  padding-bottom: 0.75rem;
+
+  @media (max-width: 639px) {
+    padding-bottom: 0.75rem;
+  }
 `;
 
 /**
