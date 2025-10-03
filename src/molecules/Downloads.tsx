@@ -3,8 +3,7 @@ import { Preview } from '../atoms/DownloadRow';
 import yaml from 'js-yaml';
 import styled from 'styled-components';
 import { useConfigContext } from '../context/ConfigContext';
-import { Dispatch, SetStateAction, useContext } from 'react';
-import { TabContext } from '../organisms/Tabs';
+import { Dispatch, SetStateAction } from 'react';
 
 const Title = styled.h3`
   font-size: 1rem;
@@ -76,7 +75,6 @@ type DownloadArr = Array<DownloadObj>;
 const Downloads = ({ setPreview, previewKey }: Props) => {
   const downloads: DownloadArr = [];
   const configContext = useConfigContext();
-  const tabContext = useContext(TabContext);
   if (!configContext) return null;
 
   const { configInput, results } = configContext;
@@ -145,13 +143,13 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       downloads.push({
         fileName: name,
         extension: 'dxf',
-        // @ts-ignore
+        // @ts-expect-error-next-line
         content: outline.dxf,
         previewKey: `outlines.${name}.svg`,
         preview: {
           key: `outlines.${name}.svg`,
           extension: 'svg',
-          // @ts-ignore
+          // @ts-expect-error-next-line
           content: outline.svg,
         },
       });
@@ -163,13 +161,13 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       downloads.push({
         fileName: name,
         extension: 'jscad',
-        // @ts-ignore
+        // @ts-expect-error-next-line
         content: caseObj.jscad,
         previewKey: `cases.${name}`,
         preview: {
           key: `cases.${name}`,
           extension: 'jscad',
-          // @ts-ignore
+          // @ts-expect-error-next-line
           content: caseObj.jscad,
         },
       });
@@ -184,13 +182,13 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       downloads.push({
         fileName: name,
         extension: 'kicad_pcb',
-        // @ts-ignore
+        // @ts-expect-error-next-line
         content: pcb,
         previewKey:
           configContext.kicanvasPreview && version > 20240101
             ? `pcbs.${name}`
             : '',
-        // @ts-ignore
+        // @ts-expect-error-next-line
         preview:
           configContext.kicanvasPreview && version > 20240101
             ? {
@@ -226,7 +224,6 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
             {...download}
             setPreview={setPreview}
             previewKey={previewKey}
-            setTabIndex={tabContext?.setTabIndex}
           />
         );
       })}

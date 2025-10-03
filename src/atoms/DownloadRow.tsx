@@ -1,6 +1,4 @@
-import Button from './Button';
 import styled from 'styled-components';
-import { Dispatch, SetStateAction } from 'react';
 
 /**
  * Interface for a preview object.
@@ -23,7 +21,6 @@ export interface Preview {
  * @property {string} content - The content of the file.
  * @property {Preview} [preview] - An optional preview object. If provided, a preview button is shown.
  * @property {(preview: Preview) => void} setPreview - Function to set the active preview.
- * @property {Dispatch<SetStateAction<number>>} [setTabIndex] - Optional function to set the active tab index.
  */
 type Props = {
   fileName: string;
@@ -32,7 +29,6 @@ type Props = {
   preview?: Preview;
   setPreview: (preview: Preview) => void;
   previewKey: string;
-  setTabIndex: Dispatch<SetStateAction<number>> | undefined;
 };
 
 /**
@@ -70,24 +66,6 @@ const Buttons = styled.div`
   display: flex;
   gap: 10px;
   align-items: center;
-`;
-
-/**
- * A styled button with specific dimensions and hover effects.
- * Note: This component is currently unused in the DownloadRow component.
- */
-const StyledButton = styled(Button)`
-  height: 34px;
-  padding: 8px 12px;
-  border-radius: 6px;
-
-  .material-symbols-outlined {
-    font-size: 16px !important;
-  }
-
-  &:hover {
-    background-color: #3f3f3f;
-  }
 `;
 
 /**
@@ -131,35 +109,33 @@ const DownloadRow = ({
   preview,
   setPreview,
   previewKey,
-  setTabIndex,
-}: Props): JSX.Element => {
-  const isActive = preview?.key === previewKey;
+}: Props) => {
+  const handleDownload = () => {
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'octet/stream' });
+    element.href = URL.createObjectURL(file);
+    element.download = `${fileName}.${extension}`;
+    document.body.appendChild(element);
+    element.click();
+  };
 
-  const handlePreviewClick = () => {
+  const handlePreview = () => {
     if (preview) {
       setPreview(preview);
-      setTabIndex?.(0);
     }
   };
 
   return (
     <Row>
       <FileName
-        active={isActive}
+        active={previewKey === preview?.key}
         hasPreview={!!preview}
-        onClick={handlePreviewClick}
+        onClick={handlePreview}
       >
         {fileName}.{extension}
       </FileName>
       <Buttons>
-        <StyledLinkButton
-          target={'_blank'}
-          rel={'noreferrer'}
-          download={`${fileName}.${extension}`}
-          href={window.URL.createObjectURL(
-            new Blob([content], { type: 'octet/stream' })
-          )}
-        >
+        <StyledLinkButton onClick={handleDownload}>
           <span className="material-symbols-outlined">download</span>
         </StyledLinkButton>
       </Buttons>
