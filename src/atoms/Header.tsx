@@ -1,9 +1,8 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import Button from "./Button";
-import styled from "styled-components";
-import {useConfigContext} from "../context/ConfigContext";
-import DiscordIcon from "./DiscordIcon";
-import GithubIcon from "./GithubIcon";
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { useConfigContext } from '../context/ConfigContext'
+import DiscordIcon from './DiscordIcon'
+import GithubIcon from './GithubIcon'
 
 /**
  * A styled container for the entire header.
@@ -97,6 +96,18 @@ const StyledLinkButton = styled.a`
     }
 `
 
+const DocsButton = styled(StyledLinkButton)`
+  @media (max-width: 639px) {
+    .material-symbols-outlined {
+      margin-right: 0;
+    }
+
+    span:not(.material-symbols-outlined) {
+      display: none;
+    }
+  }
+`
+
 /**
  * A styled button with an outline style, typically for icons.
  */
@@ -142,12 +153,6 @@ const AccentIconButton = styled(OutlineIconButton)`
  * A responsive button that is only visible on smaller screens.
  * Note: This component is defined but not currently used in the Header.
  */
-const LeftPanelButton = styled(OutlineIconButton)`
-  @media (min-width: 640px) {
-    display: none;
-  }
-`
-
 const LogoButton = styled(Link)`
   display: block;
   width: 32px;
@@ -185,38 +190,60 @@ const Header = (): JSX.Element => {
     navigate('/new')
   }
 
-    return (
-        <HeaderContainer>
-            <LeftContainer>
-                {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
-                <ErgogenLogo>
-                    <LogoButton to="/">
-                        <LogoImage src={"ergogen.png"} />
-                    </LogoButton>
-                    <AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText>
-                </ErgogenLogo>
-            </LeftContainer>
-            <RightContainer>
-                {location.pathname === '/' &&
-                  <AccentIconButton onClick={handleNewClick}>
-                      <span className="material-symbols-outlined">add_2</span>
-                  </AccentIconButton>
-                }
-                <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
-                    <span className="material-symbols-outlined">description</span>
-                    <span>Docs</span>
-                </StyledLinkButton>
-                <StyledLinkButton href="https://discord.gg/nbKcAZB" target="_blank" rel="noreferrer">
-                    <DiscordIcon />
-                </StyledLinkButton>
-                <StyledLinkButton href="https://github.com/ceoloide/ergogen-gui" target="_blank" rel="noreferrer">
-                    <GithubIcon />
-                </StyledLinkButton>
-                <OutlineIconButton onClick={toggleSettings}><span className="material-symbols-outlined">
-                {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></OutlineIconButton>
-            </RightContainer>
-        </HeaderContainer>
-    );
+  return (
+    <HeaderContainer>
+      <LeftContainer>
+        {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
+        <ErgogenLogo>
+          <LogoButton to="/">
+            <LogoImage src={'ergogen.png'} />
+          </LogoButton>
+          <AppName>Ergogen</AppName>
+          <VersionText
+            href="https://github.com/ergogen/ergogen"
+            target="_blank"
+            rel="noreferrer"
+          >
+            v4.1.0
+          </VersionText>
+        </ErgogenLogo>
+      </LeftContainer>
+      <RightContainer>
+        {location.pathname === '/' && (
+          <AccentIconButton onClick={handleNewClick}>
+            <span className="material-symbols-outlined">add_2</span>
+          </AccentIconButton>
+        )}
+        <DocsButton
+          href="https://docs.ergogen.xyz/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span className="material-symbols-outlined">description</span>
+          <span>Docs</span>
+        </DocsButton>
+        <StyledLinkButton
+          href="https://discord.gg/nbKcAZB"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <DiscordIcon />
+        </StyledLinkButton>
+        <StyledLinkButton
+          href="https://github.com/ceoloide/ergogen-gui"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <GithubIcon />
+        </StyledLinkButton>
+        <OutlineIconButton onClick={toggleSettings}>
+          <span className="material-symbols-outlined">
+            {configContext?.showSettings ? 'keyboard_alt' : 'settings'}
+          </span>
+        </OutlineIconButton>
+      </RightContainer>
+    </HeaderContainer>
+  )
 }
 
 export default Header
