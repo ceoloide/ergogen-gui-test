@@ -1,4 +1,4 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An empty Ergogen configuration skeleton.
@@ -6,9 +6,9 @@ import {ConfigExample} from "./index";
  * @type {ConfigExample}
  */
 const EmptyYAML: ConfigExample = {
-    label: "Empty YAML configuration",
-    author: "ceoloide",
-    value: `meta:
+  label: 'Empty YAML configuration',
+  author: 'ceoloide',
+  value: `meta:
   engine: 4.1.0
 units:
 points:
@@ -17,7 +17,7 @@ points:
 outlines:
 pcbs:
 cases:
-`
-};
+`,
+}
 
-export default EmptyYAML;
+export default EmptyYAML

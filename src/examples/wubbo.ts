@@ -1,4 +1,4 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for the Wubbo keyboard.
@@ -6,9 +6,9 @@ import {ConfigExample} from "./index";
  * @type {ConfigExample}
  */
 const Wubbo: ConfigExample = {
-    label: "Wubbo (outlines, switchplate)",
-    author: "cache.works",
-    value: `meta:
+  label: 'Wubbo (outlines, switchplate)',
+  author: 'cache.works',
+  value: `meta:
   engine: 4.1.0
 units:
   # Parameters
@@ -218,7 +218,7 @@ cases:
     - what: outline
       name: combined
       extrude: choc_plate_thickness
-`
-};
+`,
+}
 
-export default Wubbo;
+export default Wubbo

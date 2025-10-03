@@ -5,9 +5,9 @@
  * @property {string} key - A unique key for the component, important for React's rendering logic.
  */
 type Props = {
-  pcb: string,
-  key: string,
-};
+  pcb: string
+  key: string
+}
 
 /**
  * A React component that embeds a KiCad PCB preview using the `<kicanvas-embed>` custom element.
@@ -16,17 +16,15 @@ type Props = {
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A `<kicanvas-embed>` element containing the PCB source.
  */
-const PcbPreview = ({pcb, key}: Props): JSX.Element => (
+const PcbPreview = ({ pcb, key }: Props): JSX.Element => (
   <kicanvas-embed
     key={key}
     controls="full"
     controlslist="nodownload nooverlay"
     theme="kicad"
-    >
-      <kicanvas-source type="board">
-        {pcb}
-      </kicanvas-source>
-    </kicanvas-embed>
-);
+  >
+    <kicanvas-source type="board">{pcb}</kicanvas-source>
+  </kicanvas-embed>
+)
 
-export default PcbPreview;
+export default PcbPreview

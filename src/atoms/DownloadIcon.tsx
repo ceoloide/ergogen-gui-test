@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 /**
  * A React component that renders a download icon as an SVG.
@@ -22,6 +22,6 @@ const DownloadIcon = () => (
     <polyline points="7 10 12 15 17 10" />
     <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
-);
+)
 
-export default DownloadIcon;
+export default DownloadIcon

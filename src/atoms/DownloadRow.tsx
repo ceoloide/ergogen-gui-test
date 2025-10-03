@@ -1,6 +1,6 @@
-import Button from "./Button";
-import styled from "styled-components";
-import {Dispatch, SetStateAction} from "react";
+import Button from './Button'
+import styled from 'styled-components'
+import { Dispatch, SetStateAction } from 'react'
 
 /**
  * Interface for a preview object.
@@ -10,8 +10,8 @@ import {Dispatch, SetStateAction} from "react";
  * @property {string} content - The content of the preview.
  */
 export interface Preview {
-  extension: string,
-  key: string,
+  extension: string
+  key: string
   content: string
 }
 
@@ -26,14 +26,14 @@ export interface Preview {
  * @property {Dispatch<SetStateAction<number>>} [setTabIndex] - Optional function to set the active tab index.
  */
 type Props = {
-    fileName: string,
-    extension: string,
-    content: string,
-    preview?: Preview,
-    setPreview: (preview: Preview) => void,
-    previewKey: string,
-    setTabIndex: Dispatch<SetStateAction<number>> | undefined
-};
+  fileName: string
+  extension: string
+  content: string
+  preview?: Preview
+  setPreview: (preview: Preview) => void
+  previewKey: string
+  setTabIndex: Dispatch<SetStateAction<number>> | undefined
+}
 
 /**
  * A styled div for the row layout.
@@ -47,47 +47,48 @@ const Row = styled.div`
   @media (max-width: 639px) {
     padding-bottom: 0.75rem;
   }
-`;
+`
 
 /**
  * A styled div for displaying the file name, with ellipsis for overflow.
  */
-const FileName = styled.div<{ active: boolean, hasPreview: boolean }>`
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13px;
-    cursor: ${props => props.hasPreview ? 'pointer' : 'default'};
-    border-bottom: ${props => props.active ? '2px solid #28a745' : '2px solid transparent'};
-    border-top: 2px solid transparent;
-`;
+const FileName = styled.div<{ active: boolean; hasPreview: boolean }>`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  cursor: ${(props) => (props.hasPreview ? 'pointer' : 'default')};
+  border-bottom: ${(props) =>
+    props.active ? '2px solid #28a745' : '2px solid transparent'};
+  border-top: 2px solid transparent;
+`
 
 /**
  * A styled div to contain the action buttons.
  */
 const Buttons = styled.div`
-    white-space: nowrap;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-`;
+  white-space: nowrap;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+`
 
 /**
  * A styled button with specific dimensions and hover effects.
  * Note: This component is currently unused in the DownloadRow component.
  */
 const StyledButton = styled(Button)`
-    height: 34px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    
-    .material-symbols-outlined {
-        font-size: 16px !important;
-    }
-        
-    &:hover {
-        background-color: #3f3f3f;
-    }
-`;
+  height: 34px;
+  padding: 8px 12px;
+  border-radius: 6px;
+
+  .material-symbols-outlined {
+    font-size: 16px !important;
+  }
+
+  &:hover {
+    background-color: #3f3f3f;
+  }
+`
 
 /**
  * A styled anchor tag that looks like a button.
@@ -115,7 +116,7 @@ const StyledLinkButton = styled.a`
     &:hover {
         background-color: #3f3f3f;
     }
-`;
+`
 
 /**
  * A component that displays a file name and provides buttons for previewing and downloading.
@@ -123,31 +124,47 @@ const StyledLinkButton = styled.a`
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A row with the file name and action buttons.
  */
-const DownloadRow = ({fileName, extension, content, preview, setPreview, previewKey, setTabIndex}: Props): JSX.Element => {
-    const isActive = preview?.key === previewKey;
+const DownloadRow = ({
+  fileName,
+  extension,
+  content,
+  preview,
+  setPreview,
+  previewKey,
+  setTabIndex,
+}: Props): JSX.Element => {
+  const isActive = preview?.key === previewKey
 
-    const handlePreviewClick = () => {
-        if (preview) {
-            setPreview(preview);
-            setTabIndex?.(0)
-        }
+  const handlePreviewClick = () => {
+    if (preview) {
+      setPreview(preview)
+      setTabIndex?.(0)
     }
+  }
 
-    return (
-        <Row>
-            <FileName active={isActive} hasPreview={!!preview} onClick={handlePreviewClick}>
-                {fileName}.{extension}
-            </FileName>
-            <Buttons>
-                <StyledLinkButton target={"_blank"}
-                   rel={"noreferrer"}
-                   download={`${fileName}.${extension}`}
-                   href={window.URL.createObjectURL(new Blob([content], {type: "octet/stream"}))}>
-                    <span className="material-symbols-outlined">download</span>
-                </StyledLinkButton>
-            </Buttons>
-        </Row>
-    );
-};
+  return (
+    <Row>
+      <FileName
+        active={isActive}
+        hasPreview={!!preview}
+        onClick={handlePreviewClick}
+      >
+        {fileName}.{extension}
+      </FileName>
+      <Buttons>
+        <StyledLinkButton
+          target={'_blank'}
+          rel={'noreferrer'}
+          download={`${fileName}.${extension}`}
+          href={window.URL.createObjectURL(
+            new Blob([content], { type: 'octet/stream' })
+          )}
+        >
+          <span className="material-symbols-outlined">download</span>
+        </StyledLinkButton>
+      </Buttons>
+    </Row>
+  )
+}
 
-export default DownloadRow;
+export default DownloadRow

@@ -1,13 +1,13 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for the A. dux keyboard.
  * @type {ConfigExample}
  */
 const ADux: ConfigExample = {
-    label: "A. dux",
-    author: "tapioki",
-    value: `meta:
+  label: 'A. dux',
+  author: 'tapioki',
+  value: `meta:
   engine: 4.1.0
 points:
   zones:
@@ -209,7 +209,7 @@ pcbs:
           reversible: true
         adjust:
           shift: [0,-1u]  
-`
-};
+`,
+}
 
-export default ADux;
+export default ADux

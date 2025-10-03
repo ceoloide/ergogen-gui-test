@@ -1,6 +1,6 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 // @ts-ignore
-import { PanZoom } from 'react-easy-panzoom';
+import { PanZoom } from 'react-easy-panzoom'
 
 /**
  * Props for the SvgPreview component.
@@ -10,23 +10,23 @@ import { PanZoom } from 'react-easy-panzoom';
  * @property {number | string} height - The height of the SVG image.
  */
 type Props = {
-  svg: string,
-  width: number | string,
+  svg: string
+  width: number | string
   height: number | string
-};
+}
 
 /**
  * An img element styled to invert its colors and disable dragging.
  * This is used to make the SVG preview visible in a dark theme.
  */
 const InvertedImage = styled.img`
-      filter: invert();
-      -webkit-user-drag: none;
-      -khtml-user-drag: none;
-      -moz-user-drag: none;
-      -o-user-drag: none;
-      user-drag: none;
-`;
+  filter: invert();
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+`
 
 /**
  * A styled PanZoom component to provide panning and zooming functionality.
@@ -39,7 +39,7 @@ const StyledPanZoom = styled(PanZoom)`
   &:focus-visible {
     outline: none;
   }
-`;
+`
 
 /**
  * A component that displays an SVG preview with panning and zooming capabilities.
@@ -48,16 +48,16 @@ const StyledPanZoom = styled(PanZoom)`
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A pan-and-zoom container with the inverted SVG image.
  */
-const SvgPreview = ({svg, width, height}: Props): JSX.Element => (
-    <StyledPanZoom enableBoundingBox={true} minZoom={0.8} maxZoom={5}>
-        <InvertedImage
-            width={width || '100%'}
-            height={height || '100%'}
-            src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`}
-            alt={'Ergogen SVG Output preview'}
-            draggable="false"
-        />
-    </StyledPanZoom>
-);
+const SvgPreview = ({ svg, width, height }: Props): JSX.Element => (
+  <StyledPanZoom enableBoundingBox={true} minZoom={0.8} maxZoom={5}>
+    <InvertedImage
+      width={width || '100%'}
+      height={height || '100%'}
+      src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`}
+      alt={'Ergogen SVG Output preview'}
+      draggable="false"
+    />
+  </StyledPanZoom>
+)
 
-export default SvgPreview;
+export default SvgPreview
