@@ -15,7 +15,7 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 * Prefer test-drive development; first write the tests for the bug fix or new feature, make sure they fail in the expected way, then make them pass.
 * Try to make tests fast, for example by mocking heavy operations or other similar things when appropriate.
 * Use `yarn knip` to tidy up dependencies before finishing. Always ignore unusued files warning for files in the `patch` of `public` directories.
-* Use `yarn format` and `yarn lint` to check and fix formatting errors before finishing.
+* Use `yarn format` and `yarn lint` to check and fix formatting errors before finishing and committing files. You MUST always run `yarn format` before committing any file.
 
 ## Design principles
 
