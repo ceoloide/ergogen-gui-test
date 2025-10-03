@@ -3,6 +3,7 @@ import Button from "./Button";
 import styled from "styled-components";
 import {useConfigContext} from "../context/ConfigContext";
 import DiscordIcon from "./DiscordIcon";
+import GithubIcon from "./GithubIcon";
 
 /**
  * A styled container for the entire header.
@@ -207,6 +208,9 @@ const Header = (): JSX.Element => {
                 </StyledLinkButton>
                 <StyledLinkButton href="https://discord.gg/nbKcAZB" target="_blank" rel="noreferrer">
                     <DiscordIcon />
+                </StyledLinkButton>
+                <StyledLinkButton href="https://github.com/ceoloide/ergogen-gui" target="_blank" rel="noreferrer">
+                    <GithubIcon />
                 </StyledLinkButton>
                 <OutlineIconButton onClick={toggleSettings}><span className="material-symbols-outlined">
                 {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></OutlineIconButton>
