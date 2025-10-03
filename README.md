@@ -34,26 +34,28 @@ To run the Ergogen GUI on your local machine, please follow these steps.
 
 ### Installation and Setup
 
-1.  **Clone the repository:**
+1. **Clone the repository:**
 
-    ```shell
-    git clone https://github.com/ceoloide/ergogen-gui.git
-    cd ergogen-gui
-    ```
+   ```shell
+   git clone https://github.com/ceoloide/ergogen-gui.git
+   cd ergogen-gui
+   ```
 
-2.  **Install dependencies:**
+2. **Install dependencies:**
 
-    ```shell
-    yarn install
-    ```
+   ```shell
+   yarn install
+   ```
 
-    This command will also build a local copy of Ergogen from the patched source in the `patch/` directory.
+   This command will also build a local copy of Ergogen from the patched source in the `patch/` directory.
 
-3.  **Start the development server:**
-    ```shell
-    yarn start
-    ```
-    This will start a development server and open the application in your default browser at `http://localhost:3000`.
+3. **Start the development server:**
+
+   ```shell
+   yarn start
+   ```
+
+   This will start a development server and open the application in your default browser at `http://localhost:3000`.
 
 ## How to Use
 
@@ -82,15 +84,18 @@ The codebase is organized into the following main directories:
 
 To test this GUI with a specific branch of Ergogen from GitHub:
 
-1.  Open the `package.json` file.
-2.  Find the `dependencies` section and modify the `ergogen` entry to point to your desired branch using the format `<username>/<repo>#<branch>`:
-    ```json
-    "ergogen": "ergogen/ergogen#develop",
-    ```
-3.  Re-install dependencies and start the application:
-    ```shell
-    yarn install && yarn start
-    ```
+1. Open the `package.json` file.
+2. Find the `dependencies` section and modify the `ergogen` entry to point to your desired branch using the format `<username>/<repo>#<branch>`:
+
+   ```json
+   "ergogen": "ergogen/ergogen#develop",
+   ```
+
+3. Re-install dependencies and start the application:
+
+   ```shell
+   yarn install && yarn start
+   ```
 
 ## Contributing
 
