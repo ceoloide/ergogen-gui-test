@@ -74,7 +74,7 @@ type DownloadArr = Array<DownloadObj>;
  * @returns {JSX.Element | null} A list of downloads or null if the context is not available.
  */
 const Downloads = ({ setPreview, previewKey }: Props) => {
-  let downloads: DownloadArr = [];
+  const downloads: DownloadArr = [];
   const configContext = useConfigContext();
   const tabContext = useContext(TabContext);
   if (!configContext) return null;

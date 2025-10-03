@@ -199,7 +199,7 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
   const runGeneration = useCallback(async (textInput: string | undefined, injectionInput: string[][] | undefined, options: ProcessOptions = { pointsonly: true }) => {
     let results = null;
     let inputConfig: string | {} = textInput ?? '';
-    let inputInjection: [][] | {} = injectionInput ?? '';
+    const inputInjection: [][] | {} = injectionInput ?? '';
     const [, parsedConfig] = parseConfig(textInput ?? '');
 
     setError(null);
@@ -243,7 +243,7 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
     try {
       if (inputInjection !== undefined && Array.isArray(inputInjection)) {
         for (let i = 0; i < inputInjection.length; i++) {
-          let injection = inputInjection[i];
+          const injection = inputInjection[i];
           if (Array.isArray(injection) && injection.length === 3) {
             const inj_type = injection[0];
             const inj_name = injection[1];
@@ -308,7 +308,7 @@ const ConfigContextProvider = ({ configInput, setConfigInput, initialInjectionIn
     } else if (configInput) {
       generateNow(configInput, injectionInput, { pointsonly: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   /**

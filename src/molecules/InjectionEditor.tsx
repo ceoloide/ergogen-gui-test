@@ -44,7 +44,7 @@ const InjectionEditor = ({ className, options, injection, setInjection }: Props)
    */
   const handleChange = async (textInput: string | undefined) => {
     if (!textInput) return null;
-    let newInjection = { ...injection, content: textInput };
+    const newInjection = { ...injection, content: textInput };
     setInjection(newInjection);
   };
 

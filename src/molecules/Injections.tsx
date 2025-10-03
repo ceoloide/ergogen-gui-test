@@ -48,8 +48,8 @@ type InjectionArr = Array<Injection>;
  * @returns {JSX.Element | null} The rendered component or null if context is not available.
  */
 const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
-  let footprints: InjectionArr = [];
-  let templates: InjectionArr = [];
+  const footprints: InjectionArr = [];
+  const templates: InjectionArr = [];
   const configContext = useConfigContext();
   if (!configContext) return null;
 
@@ -58,7 +58,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
     for (let i = 0; i < injectionInput.length; i++) {
       const injection = injectionInput[i];
       if (injection.length === 3) {
-        let collection = (injection[0] === "footprint" ? footprints : templates);
+        const collection = (injection[0] === "footprint" ? footprints : templates);
         collection.push(
           {
             key: i,
@@ -107,7 +107,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
       } */}
       <StyledButton size={"small"}
         onClick={handleNewFootprint}
-      >{/* @ts-ignore */}
+      >
         <span className="material-symbols-outlined">add</span>
       </StyledButton>
     </InjectionsContainer>
