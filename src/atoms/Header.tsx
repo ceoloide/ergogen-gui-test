@@ -1,8 +1,9 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import Button from './Button'
-import styled from 'styled-components'
-import { useConfigContext } from '../context/ConfigContext'
-import DiscordIcon from './DiscordIcon'
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Button from "./Button";
+import styled from "styled-components";
+import {useConfigContext} from "../context/ConfigContext";
+import DiscordIcon from "./DiscordIcon";
+import GithubIcon from "./GithubIcon";
 
 /**
  * A styled container for the entire header.
@@ -184,53 +185,38 @@ const Header = (): JSX.Element => {
     navigate('/new')
   }
 
-  return (
-    <HeaderContainer>
-      <LeftContainer>
-        {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
-        <ErgogenLogo>
-          <LogoButton to="/">
-            <LogoImage src={'ergogen.png'} />
-          </LogoButton>
-          <AppName>Ergogen</AppName>
-          <VersionText
-            href="https://github.com/ergogen/ergogen"
-            target="_blank"
-            rel="noreferrer"
-          >
-            v4.1.0
-          </VersionText>
-        </ErgogenLogo>
-      </LeftContainer>
-      <RightContainer>
-        {location.pathname === '/' && (
-          <AccentIconButton onClick={handleNewClick}>
-            <span className="material-symbols-outlined">add_2</span>
-          </AccentIconButton>
-        )}
-        <StyledLinkButton
-          href="https://docs.ergogen.xyz/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span className="material-symbols-outlined">description</span>
-          <span>Docs</span>
-        </StyledLinkButton>
-        <StyledLinkButton
-          href="https://discord.gg/nbKcAZB"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <DiscordIcon />
-        </StyledLinkButton>
-        <OutlineIconButton onClick={toggleSettings}>
-          <span className="material-symbols-outlined">
-            {configContext?.showSettings ? 'keyboard_alt' : 'settings'}
-          </span>
-        </OutlineIconButton>
-      </RightContainer>
-    </HeaderContainer>
-  )
+    return (
+        <HeaderContainer>
+            <LeftContainer>
+                {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
+                <ErgogenLogo>
+                    <LogoButton to="/">
+                        <LogoImage src={"ergogen.png"} />
+                    </LogoButton>
+                    <AppName>Ergogen</AppName><VersionText href="https://github.com/ergogen/ergogen" target="_blank" rel="noreferrer">v4.1.0</VersionText>
+                </ErgogenLogo>
+            </LeftContainer>
+            <RightContainer>
+                {location.pathname === '/' &&
+                  <AccentIconButton onClick={handleNewClick}>
+                      <span className="material-symbols-outlined">add_2</span>
+                  </AccentIconButton>
+                }
+                <StyledLinkButton href="https://docs.ergogen.xyz/" target="_blank" rel="noreferrer">
+                    <span className="material-symbols-outlined">description</span>
+                    <span>Docs</span>
+                </StyledLinkButton>
+                <StyledLinkButton href="https://discord.gg/nbKcAZB" target="_blank" rel="noreferrer">
+                    <DiscordIcon />
+                </StyledLinkButton>
+                <StyledLinkButton href="https://github.com/ceoloide/ergogen-gui" target="_blank" rel="noreferrer">
+                    <GithubIcon />
+                </StyledLinkButton>
+                <OutlineIconButton onClick={toggleSettings}><span className="material-symbols-outlined">
+                {configContext?.showSettings ? "keyboard_alt" : "settings"}</span></OutlineIconButton>
+            </RightContainer>
+        </HeaderContainer>
+    );
 }
 
 export default Header
