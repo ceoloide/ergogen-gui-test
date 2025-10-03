@@ -9,14 +9,6 @@
   "private": false,
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
-    "@svgdotjs/svg.js": "^3.2.0",
-    "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^15.0.2",
-    "@testing-library/user-event": "^14.5.2",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20",
-    "@types/react": "^18.2.79",
-    "@types/react-dom": "^18.2.25",
     "ergogen": "ceoloide/ergogen#bezier",
     "js-yaml": "^4.1.0",
     "lodash.debounce": "^4.0.8",
@@ -30,10 +22,7 @@
     "react-split": "^2.0.14",
     "react-use": "^17.5.0",
     "styled-components": "^6.1.8",
-    "three-dxf": "^1.0.1",
-    "typescript": "^5.4.5",
-    "web-vitals": "^3.5.2",
-    "yaml-js": "^0.3.1"
+    "typescript": "^5.4.5"
   },
   "scripts": {
     "build-ergogen": "./patch/patch_ergogen.sh && cd node_modules/ergogen && yarn install && yarn run build && cp dist/ergogen.js ../../public/dependencies/ergogen.js",
@@ -68,6 +57,10 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.55.1",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^15.0.2",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash-es": "^4.17.12",
     "@types/lodash.debounce": "^4.0.9",
