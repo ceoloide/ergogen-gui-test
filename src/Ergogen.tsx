@@ -12,14 +12,11 @@ import FilePreview from './molecules/FilePreview';
 
 import { useConfigContext } from './context/ConfigContext';
 import { isMacOS } from './utils/platform';
-import DownloadButton from './atoms/DownloadButton';
-import DownloadIcon from './atoms/DownloadIcon';
 import Input from './atoms/Input';
 import { Injection } from './atoms/InjectionRow';
 import CreatableSelect from 'react-select/creatable';
 import { StylesConfig } from 'react-select';
 import GenOption from './atoms/GenOption';
-import { fetchConfigFromUrl } from './utils/github';
 
 // Shortcut key sub-label styled component
 const ShortcutKey = styled.span`
