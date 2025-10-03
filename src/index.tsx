@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { loader } from '@monaco-editor/react'
 import './index.css'
 import App from './App'
+import { defineErgogenTheme } from './utils/monaco'
 
 /**
  * The main container for the entire application.
@@ -20,14 +21,7 @@ const AppContainer = styled.div`
 `
 
 loader.init().then((monaco) => {
-  monaco.editor.defineTheme('ergogen-theme', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': '#2d2d2d',
-    },
-  })
+  defineErgogenTheme(monaco)
 
   // This is the main entry point for the React application.
   // It sets up the root container and renders the main App component,
