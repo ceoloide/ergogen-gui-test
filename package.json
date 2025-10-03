@@ -47,7 +47,7 @@
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format": "prettier --write \"*.{js,ts,json,md}\" \"{src,e2e,patch}/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "lint": "eslint --fix \"src/**/*.{ts,tsx,js,jsx}\""
   },
   "browserslist": {
