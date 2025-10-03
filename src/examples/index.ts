@@ -73,5 +73,3 @@ export const exampleOptions: readonly GroupedOption[] = [
     options: miscExamples,
   },
 ];
-
-export default exampleOptions;
