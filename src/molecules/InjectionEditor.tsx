@@ -1,7 +1,7 @@
-import { Editor } from "@monaco-editor/react";
-import { Dispatch, SetStateAction } from "react";
-import { useConfigContext } from "../context/ConfigContext";
-import { Injection } from "../atoms/InjectionRow";
+import { Editor } from '@monaco-editor/react'
+import { Dispatch, SetStateAction } from 'react'
+import { useConfigContext } from '../context/ConfigContext'
+import { Injection } from '../atoms/InjectionRow'
 
 /**
  * Defines the options for the Monaco Editor instance.
@@ -9,8 +9,8 @@ import { Injection } from "../atoms/InjectionRow";
  * @property {boolean} [readOnly] - If true, the editor will be in read-only mode.
  */
 type EditorOptions = {
-  readOnly?: boolean,
-};
+  readOnly?: boolean
+}
 
 /**
  * Props for the InjectionEditor component.
@@ -21,11 +21,11 @@ type EditorOptions = {
  * @property {Dispatch<SetStateAction<Injection>>} setInjection - Function to update the injection state.
  */
 type Props = {
-  className?: string,
-  options?: EditorOptions,
-  injection: Injection,
+  className?: string
+  options?: EditorOptions
+  injection: Injection
   setInjection: Dispatch<SetStateAction<Injection>>
-};
+}
 
 /**
  * A component that provides a JavaScript editor for editing code injections.
@@ -34,8 +34,13 @@ type Props = {
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element | null} A container with the Monaco Editor or null if the context is missing.
  */
-const InjectionEditor = ({ className, options, injection, setInjection }: Props) => {
-  const configContext = useConfigContext();
+const InjectionEditor = ({
+  className,
+  options,
+  injection,
+  setInjection,
+}: Props) => {
+  const configContext = useConfigContext()
 
   /**
    * Handles changes in the editor's content.
@@ -43,12 +48,12 @@ const InjectionEditor = ({ className, options, injection, setInjection }: Props)
    * @param {string | undefined} textInput - The new text content from the editor.
    */
   const handleChange = async (textInput: string | undefined) => {
-    if (!textInput) return null;
-    const newInjection = { ...injection, content: textInput };
-    setInjection(newInjection);
-  };
+    if (!textInput) return null
+    const newInjection = { ...injection, content: textInput }
+    setInjection(newInjection)
+  }
 
-  if (!configContext) return null;
+  if (!configContext) return null
 
   return (
     <div className={className}>
@@ -58,11 +63,11 @@ const InjectionEditor = ({ className, options, injection, setInjection }: Props)
         language="javascript"
         onChange={handleChange}
         value={injection.content}
-        theme={"ergogen-theme"}
+        theme={'ergogen-theme'}
         options={options || undefined}
       />
     </div>
-  );
-};
+  )
+}
 
-export default InjectionEditor;
+export default InjectionEditor

@@ -1,13 +1,13 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for the Tiny20 keyboard.
  * @type {ConfigExample}
  */
 const Tiny20: ConfigExample = {
-    label: "Tiny20",
-    author: "enzocoralc",
-    value: `meta:
+  label: 'Tiny20',
+  author: 'enzocoralc',
+  value: `meta:
   engine: 4.1.0
 points:
   zones:
@@ -191,7 +191,7 @@ pcbs:
           reversible: true
         adjust:
           shift: [0,-1.25u]
-`
-};
+`,
+}
 
-export default Tiny20;
+export default Tiny20

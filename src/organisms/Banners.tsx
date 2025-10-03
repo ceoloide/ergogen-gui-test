@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useConfigContext } from '../context/ConfigContext';
+import React from 'react'
+import styled from 'styled-components'
+import { useConfigContext } from '../context/ConfigContext'
 
 const bannerColors = {
   info: {
@@ -20,23 +20,23 @@ const bannerColors = {
     text: 'hsl(120, 50%, 35%)',
   },
   text: 'hsl(200, 8%, 15%)',
-};
+}
 
 const BannerIcon = styled.span.attrs({
-  className: 'material-symbols-outlined'
+  className: 'material-symbols-outlined',
 })`
   font-size: 24px;
   margin-right: 1rem;
-`;
+`
 
 const BannerContent = styled.div`
   display: flex;
   align-items: center;
-`;
+`
 
 const BannerText = styled.p`
   margin: 0;
-`;
+`
 
 const Banner = styled.div<{ type: 'info' | 'warning' | 'error' | 'success' }>`
   padding: 1rem 1.5rem;
@@ -51,7 +51,7 @@ const Banner = styled.div<{ type: 'info' | 'warning' | 'error' | 'success' }>`
   .material-symbols-outlined {
     color: ${({ type }) => bannerColors[type].text};
   }
-`;
+`
 
 const BannersContainer = styled.div`
   position: fixed;
@@ -65,7 +65,7 @@ const BannersContainer = styled.div`
   width: 100%;
   max-width: 800px;
   padding: 0 1rem;
-`;
+`
 
 const CloseButton = styled.button`
   background: none;
@@ -77,16 +77,16 @@ const CloseButton = styled.button`
   line-height: 1;
   margin-left: auto;
   padding-left: 1rem;
-`;
+`
 
 const Banners = () => {
-  const configContext = useConfigContext();
+  const configContext = useConfigContext()
 
   if (!configContext) {
-    return null;
+    return null
   }
 
-  const { error, deprecationWarning, clearError, clearWarning } = configContext;
+  const { error, deprecationWarning, clearError, clearWarning } = configContext
 
   return (
     <BannersContainer>
@@ -109,7 +109,7 @@ const Banners = () => {
         </Banner>
       )}
     </BannersContainer>
-  );
-};
+  )
+}
 
-export default Banners;
+export default Banners

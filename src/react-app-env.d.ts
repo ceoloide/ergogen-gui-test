@@ -1,20 +1,20 @@
 /// <reference types="react-scripts" />
 declare namespace JSX {
   interface IntrinsicElements {
-      'kicanvas-embed': { 
-        'children'?: Element,
-        'src'?: string | null,
-        'controls'?: string,
-        'controlslist'?: string,
-        'theme'?: string,
-        'zoom'?: string,
-        'key'?: string
-      };
-      'kicanvas-source': { 
-        'children'?: string,
-        'type': string,
-        'originname'?: string,
-        'src'?: string
-      };
+    'kicanvas-embed': {
+      children?: Element
+      src?: string | null
+      controls?: string
+      controlslist?: string
+      theme?: string
+      zoom?: string
+      key?: string
+    }
+    'kicanvas-source': {
+      children?: string
+      type: string
+      originname?: string
+      src?: string
+    }
   }
 }

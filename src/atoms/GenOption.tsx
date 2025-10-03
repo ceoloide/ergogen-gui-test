@@ -1,5 +1,5 @@
-import React, {Dispatch, SetStateAction} from "react";
-import styled from "styled-components";
+import React, { Dispatch, SetStateAction } from 'react'
+import styled from 'styled-components'
 
 /**
  * Props for the GenOption component.
@@ -10,21 +10,21 @@ import styled from "styled-components";
  * @property {Dispatch<SetStateAction<boolean>>} setSelected - A function to update the checked state.
  */
 type Props = {
-  optionId: string;
-  label: React.ReactNode;
-  checked: boolean;
-  setSelected: Dispatch<SetStateAction<boolean>>;
-};
+  optionId: string
+  label: React.ReactNode
+  checked: boolean
+  setSelected: Dispatch<SetStateAction<boolean>>
+}
 
 /**
  * A styled span container for the generation option.
  * It prevents text wrapping and uses an ellipsis for overflow.
  */
 const OptionContainer = styled.span`
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-`;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
 
 /**
  * A component that renders a checkbox option for generation settings.
@@ -33,18 +33,23 @@ const OptionContainer = styled.span`
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A container with a checkbox and a label.
  */
-const GenOption = ({optionId, label, setSelected, checked}: Props): JSX.Element => {
-    return (
-        <OptionContainer>
-            <input
-                type={"checkbox"}
-                id={optionId}
-                checked={checked}
-                onChange={(e)=>setSelected(e.target.checked)}
-            />
-            <label htmlFor={optionId}>{label}</label>
-        </OptionContainer>
-    );
-};
+const GenOption = ({
+  optionId,
+  label,
+  setSelected,
+  checked,
+}: Props): JSX.Element => {
+  return (
+    <OptionContainer>
+      <input
+        type={'checkbox'}
+        id={optionId}
+        checked={checked}
+        onChange={(e) => setSelected(e.target.checked)}
+      />
+      <label htmlFor={optionId}>{label}</label>
+    </OptionContainer>
+  )
+}
 
-export default GenOption;
+export default GenOption

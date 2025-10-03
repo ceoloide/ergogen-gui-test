@@ -1,4 +1,4 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for the Absolem keyboard.
@@ -6,9 +6,9 @@ import {ConfigExample} from "./index";
  * @type {ConfigExample}
  */
 const Absolem: ConfigExample = {
-    label: "Absolem (simplified)",
-    author: "MrZealot",
-    value: `meta:
+  label: 'Absolem (simplified)',
+  author: 'MrZealot',
+  value: `meta:
   engine: 4.1.0
 points:
   zones:
@@ -50,7 +50,7 @@ points:
   rotate: -20
   mirror:
     ref: matrix_pinky_home
-    distance: 223.7529778`
-};
+    distance: 223.7529778`,
+}
 
-export default Absolem;
+export default Absolem

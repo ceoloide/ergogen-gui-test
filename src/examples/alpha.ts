@@ -1,4 +1,4 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for the Alpha keyboard layout.
@@ -6,9 +6,9 @@ import {ConfigExample} from "./index";
  * @type {ConfigExample}
  */
 const Alpha: ConfigExample = {
-    label: "Alpha (staggered bottom row)",
-    author: "jcmkk3",
-    value: `points:
+  label: 'Alpha (staggered bottom row)',
+  author: 'jcmkk3',
+  value: `points:
   mirror:
     ref: ortho_inner_home
     distance: 1U
@@ -40,7 +40,7 @@ const Alpha: ConfigExample = {
             width: 2*(u-1)
       rows:
         bottom.padding: 1U
-`
-};
+`,
+}
 
-export default Alpha;
+export default Alpha

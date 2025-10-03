@@ -1,13 +1,13 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for a minimal Sweep-like keyboard.
  * @type {ConfigExample}
  */
 const Sweeplike: ConfigExample = {
-    label: "Sweep-like (minimal)",
-    author: "jcmkk3",
-    value: `meta:
+  label: 'Sweep-like (minimal)',
+  author: 'jcmkk3',
+  value: `meta:
   engine: 4.1.0
 # U is a predefined unit of measure that means 19.05mm, which is MX spacing (u is 19.00mm)
 points:
@@ -92,7 +92,7 @@ pcbs:
           P8_label: P8
           P9: thumb_reachy
           P9_label: P9
-`
-};
+`,
+}
 
-export default Sweeplike;
+export default Sweeplike

@@ -1,4 +1,4 @@
-import {ConfigExample} from "./index";
+import { ConfigExample } from './index'
 
 /**
  * An example Ergogen configuration for a Plank-like ortholinear keyboard.
@@ -6,9 +6,9 @@ import {ConfigExample} from "./index";
  * @type {ConfigExample}
  */
 const Plank: ConfigExample = {
-    label: "Plank (ortholinear, 2u space)",
-    author: "cache.works",
-    value: `meta:
+  label: 'Plank (ortholinear, 2u space)',
+  author: 'cache.works',
+  value: `meta:
   engine: 4.1.0
 units:
   visual_x: 17.5
@@ -201,7 +201,7 @@ pcbs:
           reversible: true
         adjust:
           shift: [0,-1.5cy-2]
-`
-};
+`,
+}
 
-export default Plank;
+export default Plank
