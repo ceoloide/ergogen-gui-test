@@ -7,13 +7,13 @@ import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
   {
-    ignores: ['build', 'node_modules', 'patch', 'public']
+    ignores: ['build', 'node_modules', 'patch', 'public'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
     ...reactRecommended,
-    files: ["src/**/*.{ts,tsx}"],
+    files: ['src/**/*.{ts,tsx}'],
     settings: {
       react: {
         version: 'detect',
@@ -22,7 +22,7 @@ export default tseslint.config(
   },
   prettierConfig,
   {
-    files: ["src/**/*.{ts,tsx}"],
+    files: ['src/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,
     },
@@ -33,17 +33,17 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          'argsIgnorePattern': '^_',
-          'varsIgnorePattern': '^_',
-          'caughtErrorsIgnorePattern': '^_'
-        }
-      ]
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
     languageOptions: {
-        globals: {
-            ...globals.browser,
-            ...globals.node
-        }
-    }
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
   }
 );

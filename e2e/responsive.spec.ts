@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Responsive Layout', () => {
-  test('should show/hide panels correctly on mobile and resize', async ({ page }) => {
+  test('should show/hide panels correctly on mobile and resize', async ({
+    page,
+  }) => {
     // Set viewport to a mobile size
     await page.setViewportSize({ width: 390, height: 844 });
 
@@ -19,8 +21,12 @@ test.describe('Responsive Layout', () => {
     // 2. Click "Outputs" button
     await outputsButton.click();
 
-    const configEditorAfterClick = page.locator('.show-outputs > div:first-of-type');
-    const outputPanelAfterClick = page.locator('.show-outputs > div:last-of-type');
+    const configEditorAfterClick = page.locator(
+      '.show-outputs > div:first-of-type'
+    );
+    const outputPanelAfterClick = page.locator(
+      '.show-outputs > div:last-of-type'
+    );
 
     // 3. Editor is hidden, output is visible
     await expect(configEditorAfterClick).toBeHidden();
@@ -29,7 +35,9 @@ test.describe('Responsive Layout', () => {
     // 4. Resize to desktop
     await page.setViewportSize({ width: 1280, height: 720 });
 
-    const configEditorDesktop = page.locator('.show-outputs > div:first-of-type');
+    const configEditorDesktop = page.locator(
+      '.show-outputs > div:first-of-type'
+    );
     const outputPanelDesktop = page.locator('.show-outputs > div:last-of-type');
 
     // 5. Both panels are visible on desktop
@@ -39,8 +47,12 @@ test.describe('Responsive Layout', () => {
     // 6. Click "Config" button on desktop
     await configButton.click();
 
-    const configEditorDesktopAfterClick = page.locator('.show-config > div:first-of-type');
-    const outputPanelDesktopAfterClick = page.locator('.show-config > div:last-of-type');
+    const configEditorDesktopAfterClick = page.locator(
+      '.show-config > div:first-of-type'
+    );
+    const outputPanelDesktopAfterClick = page.locator(
+      '.show-config > div:last-of-type'
+    );
 
     // 7. Both panels should still be visible
     await expect(configEditorDesktopAfterClick).toBeVisible();

@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for a minimal Sweep-like keyboard.
@@ -93,6 +93,6 @@ pcbs:
           P9: thumb_reachy
           P9_label: P9
 `,
-}
+};
 
-export default Sweeplike
+export default Sweeplike;

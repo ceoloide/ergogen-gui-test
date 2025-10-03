@@ -1,5 +1,5 @@
-import React, { Dispatch, SetStateAction } from 'react'
-import styled from 'styled-components'
+import React, { Dispatch, SetStateAction } from 'react';
+import styled from 'styled-components';
 
 /**
  * Props for the GenOption component.
@@ -10,11 +10,11 @@ import styled from 'styled-components'
  * @property {Dispatch<SetStateAction<boolean>>} setSelected - A function to update the checked state.
  */
 type Props = {
-  optionId: string
-  label: React.ReactNode
-  checked: boolean
-  setSelected: Dispatch<SetStateAction<boolean>>
-}
+  optionId: string;
+  label: React.ReactNode;
+  checked: boolean;
+  setSelected: Dispatch<SetStateAction<boolean>>;
+};
 
 /**
  * A styled span container for the generation option.
@@ -24,7 +24,7 @@ const OptionContainer = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
 /**
  * A component that renders a checkbox option for generation settings.
@@ -49,7 +49,7 @@ const GenOption = ({
       />
       <label htmlFor={optionId}>{label}</label>
     </OptionContainer>
-  )
-}
+  );
+};
 
-export default GenOption
+export default GenOption;

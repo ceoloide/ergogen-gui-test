@@ -1,5 +1,5 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
 /**
  * Props for the Button component.
@@ -9,11 +9,11 @@ import styled from 'styled-components'
  * @property {React.MouseEventHandler<HTMLButtonElement>} [onClick] - Optional click handler.
  */
 type Props = {
-  size?: string
-  children: React.ReactNode
-  onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined
-  disabled?: boolean
-}
+  size?: string;
+  children: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+  disabled?: boolean;
+};
 
 /**
  * A standard styled button component.
@@ -53,7 +53,7 @@ const Button = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
-`
+`;
 
 /**
  * A medium-sized variant of the Button.
@@ -61,7 +61,7 @@ const Button = styled.button`
 const MediumButton = styled(Button)`
   padding: 0.7rem 1.4rem;
   font-size: 1rem;
-`
+`;
 
 /**
  * A small-sized variant of the Button.
@@ -69,7 +69,7 @@ const MediumButton = styled(Button)`
 const SmallButton = styled(Button)`
   padding: 8px 12px;
   font-size: 0.8rem;
-`
+`;
 
 /**
  * An icon-sized variant of the Button.
@@ -77,7 +77,7 @@ const SmallButton = styled(Button)`
 const IconButton = styled(Button)`
   padding: 8px 12px;
   font-size: 0.4rem;
-`
+`;
 
 /**
  * Renders a button component with a specified size.
@@ -93,18 +93,18 @@ const IconButton = styled(Button)`
 const styledButton = ({ size, ...rest }: Props): JSX.Element => {
   switch (size) {
     case 'icon':
-      return <IconButton {...rest} />
+      return <IconButton {...rest} />;
     case 'sm':
     case 'small':
-      return <SmallButton {...rest} />
+      return <SmallButton {...rest} />;
     case 'md':
     case 'medium':
-      return <MediumButton {...rest} />
+      return <MediumButton {...rest} />;
     case 'lg':
     case 'large':
     default:
-      return <Button {...rest} />
+      return <Button {...rest} />;
   }
-}
+};
 
-export default styledButton
+export default styledButton;

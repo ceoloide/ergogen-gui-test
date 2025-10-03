@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for the A. dux keyboard.
@@ -210,6 +210,6 @@ pcbs:
         adjust:
           shift: [0,-1u]  
 `,
-}
+};
 
-export default ADux
+export default ADux;

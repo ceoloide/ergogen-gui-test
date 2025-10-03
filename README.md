@@ -35,15 +35,18 @@ To run the Ergogen GUI on your local machine, please follow these steps.
 ### Installation and Setup
 
 1.  **Clone the repository:**
+
     ```shell
     git clone https://github.com/ceoloide/ergogen-gui.git
     cd ergogen-gui
     ```
 
 2.  **Install dependencies:**
+
     ```shell
     yarn install
     ```
+
     This command will also build a local copy of Ergogen from the patched source in the `patch/` directory.
 
 3.  **Start the development server:**
@@ -56,24 +59,24 @@ To run the Ergogen GUI on your local machine, please follow these steps.
 
 The Ergogen GUI is divided into three main sections: the configuration editor on the left, the file preview in the middle, and the downloads/outputs list on the right.
 
--   **Configuration Editor**: Write or paste your Ergogen YAML configuration here. The previews will update automatically as you type (if auto-generation is enabled).
--   **File Preview**: This panel shows a preview of the selected output file. You can switch between different outputs, like outlines (SVG) or PCBs (via KiCanvas), by clicking the "Preview" button next to the file name in the "Outputs" list.
--   **Outputs**: This section lists all the files generated from your configuration. You can download any file by clicking the download icon next to it.
--   **Settings**: Click the gear icon in the header to open the settings panel. Here, you can manage custom footprints and adjust generation options.
+- **Configuration Editor**: Write or paste your Ergogen YAML configuration here. The previews will update automatically as you type (if auto-generation is enabled).
+- **File Preview**: This panel shows a preview of the selected output file. You can switch between different outputs, like outlines (SVG) or PCBs (via KiCanvas), by clicking the "Preview" button next to the file name in the "Outputs" list.
+- **Outputs**: This section lists all the files generated from your configuration. You can download any file by clicking the download icon next to it.
+- **Settings**: Click the gear icon in the header to open the settings panel. Here, you can manage custom footprints and adjust generation options.
 
 ## Project Structure
 
 The codebase is organized into the following main directories:
 
--   `public/`: Contains the main `index.html` file and static assets, including the Ergogen and KiCanvas libraries.
--   `src/`: Contains the main React application source code.
-    -   `atoms/`: Individual, reusable UI components (e.g., `Button`, `Input`).
-    -   `molecules/`: More complex components composed of atoms (e.g., `ConfigEditor`, `FilePreview`).
-    -   `organisms/`: Large UI sections composed of molecules and atoms (e.g., `Tabs`).
-    -   `context/`: React context providers, primarily for managing the global configuration state (`ConfigContext`).
-    -   `examples/`: Contains built-in example configurations.
-    -   `utils/`: Utility functions, such as for fetching data from GitHub.
--   `patch/`: Contains scripts and patches for customizing the `ergogen` dependency.
+- `public/`: Contains the main `index.html` file and static assets, including the Ergogen and KiCanvas libraries.
+- `src/`: Contains the main React application source code.
+  - `atoms/`: Individual, reusable UI components (e.g., `Button`, `Input`).
+  - `molecules/`: More complex components composed of atoms (e.g., `ConfigEditor`, `FilePreview`).
+  - `organisms/`: Large UI sections composed of molecules and atoms (e.g., `Tabs`).
+  - `context/`: React context providers, primarily for managing the global configuration state (`ConfigContext`).
+  - `examples/`: Contains built-in example configurations.
+  - `utils/`: Utility functions, such as for fetching data from GitHub.
+- `patch/`: Contains scripts and patches for customizing the `ergogen` dependency.
 
 ## Using a Custom Ergogen Branch
 

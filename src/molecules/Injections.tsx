@@ -1,9 +1,9 @@
-import InjectionRow from '../atoms/InjectionRow'
-import Button from '../atoms/Button'
-import { Injection } from '../atoms/InjectionRow'
-import styled from 'styled-components'
-import { useConfigContext } from '../context/ConfigContext'
-import { Dispatch, SetStateAction } from 'react'
+import InjectionRow from '../atoms/InjectionRow';
+import Button from '../atoms/Button';
+import { Injection } from '../atoms/InjectionRow';
+import styled from 'styled-components';
+import { useConfigContext } from '../context/ConfigContext';
+import { Dispatch, SetStateAction } from 'react';
 
 /**
  * A styled container for the injections list.
@@ -12,7 +12,7 @@ const InjectionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-`
+`;
 
 /**
  * A styled button for adding new injections.
@@ -21,7 +21,7 @@ const StyledButton = styled(Button)`
   margin-right: 0.5em;
   margin-left: 1em;
   display: block;
-`
+`;
 
 /**
  * Props for the Injections component.
@@ -30,15 +30,15 @@ const StyledButton = styled(Button)`
  * @property {(injection: Injection) => void} deleteInjection - Function to delete an injection.
  */
 type Props = {
-  setInjectionToEdit: Dispatch<SetStateAction<Injection>>
-  deleteInjection: (injection: Injection) => void
-}
+  setInjectionToEdit: Dispatch<SetStateAction<Injection>>;
+  deleteInjection: (injection: Injection) => void;
+};
 
 /**
  * An array of Injection objects.
  * @typedef {Injection[]} InjectionArr
  */
-type InjectionArr = Array<Injection>
+type InjectionArr = Array<Injection>;
 
 /**
  * A component that displays and manages lists of custom footprints and templates.
@@ -48,27 +48,28 @@ type InjectionArr = Array<Injection>
  * @returns {JSX.Element | null} The rendered component or null if context is not available.
  */
 const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
-  const footprints: InjectionArr = []
-  const templates: InjectionArr = []
-  const configContext = useConfigContext()
-  if (!configContext) return null
+  const footprints: InjectionArr = [];
+  const templates: InjectionArr = [];
+  const configContext = useConfigContext();
+  if (!configContext) return null;
 
-  const { injectionInput } = configContext
+  const { injectionInput } = configContext;
   if (
     injectionInput &&
     Array.isArray(injectionInput) &&
     injectionInput.length > 0
   ) {
     for (let i = 0; i < injectionInput.length; i++) {
-      const injection = injectionInput[i]
+      const injection = injectionInput[i];
       if (injection.length === 3) {
-        const collection = injection[0] === 'footprint' ? footprints : templates
+        const collection =
+          injection[0] === 'footprint' ? footprints : templates;
         collection.push({
           key: i,
           type: injection[0],
           name: injection[1],
           content: injection[2],
-        })
+        });
       }
     }
   }
@@ -79,16 +80,16 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
    * to open it in the editor.
    */
   const handleNewFootprint = () => {
-    const nextKey = configContext?.injectionInput?.length || 0
+    const nextKey = configContext?.injectionInput?.length || 0;
     const newInjection = {
       key: nextKey,
       type: 'footprint',
       name: `custom_footprint_${nextKey + 1}`,
       content:
         "module.exports = {\n  params: {\n    designator: '',\n  },\n  body: p => ``\n}",
-    }
-    setInjectionToEdit(newInjection)
-  }
+    };
+    setInjectionToEdit(newInjection);
+  };
 
   return (
     <InjectionsContainer>
@@ -101,7 +102,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
             setInjectionToEdit={setInjectionToEdit}
             deleteInjection={deleteInjection}
           />
-        )
+        );
       })}
       {/* <h3>Custom Templates</h3>
       {
@@ -115,7 +116,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
         <span className="material-symbols-outlined">add</span>
       </StyledButton>
     </InjectionsContainer>
-  )
-}
+  );
+};
 
-export default Injections
+export default Injections;

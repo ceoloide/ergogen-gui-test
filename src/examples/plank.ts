@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for a Plank-like ortholinear keyboard.
@@ -202,6 +202,6 @@ pcbs:
         adjust:
           shift: [0,-1.5cy-2]
 `,
-}
+};
 
-export default Plank
+export default Plank;

@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An empty Ergogen configuration skeleton.
@@ -18,6 +18,6 @@ outlines:
 pcbs:
 cases:
 `,
-}
+};
 
-export default EmptyYAML
+export default EmptyYAML;

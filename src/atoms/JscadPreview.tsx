@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react';
 
 // De-facto dependency injection
 // See public/index.html
-declare const myjscad: any
+declare const myjscad: any;
 
 /**
  * Props for the JscadPreview component.
@@ -10,7 +10,7 @@ declare const myjscad: any
  * @property {string} jscad - The JSCAD script to be rendered.
  */
 interface JscadPreviewProps {
-  jscad: string
+  jscad: string;
 }
 
 /**
@@ -22,31 +22,31 @@ interface JscadPreviewProps {
  * @returns {JSX.Element} A div element that will contain the JSCAD viewer.
  */
 const JscadPreview: React.FC<JscadPreviewProps> = ({ jscad }) => {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log('JscadPreview: useEffect called')
+    console.log('JscadPreview: useEffect called');
     if (containerRef.current) {
-      console.log('JscadPreview: containerRef.current is not null')
+      console.log('JscadPreview: containerRef.current is not null');
       // Clear the container before creating a new viewer
       while (containerRef.current.firstChild) {
-        containerRef.current.removeChild(containerRef.current.firstChild)
+        containerRef.current.removeChild(containerRef.current.firstChild);
       }
       try {
         const viewer = new myjscad.Viewer(containerRef.current, {
           name: 'jscad-preview',
           color: [0.2, 0.2, 0.2, 1],
-        })
-        console.log('JscadPreview: viewer created')
-        viewer.add(jscad)
-        console.log('JscadPreview: jscad added to viewer')
+        });
+        console.log('JscadPreview: viewer created');
+        viewer.add(jscad);
+        console.log('JscadPreview: jscad added to viewer');
       } catch (e) {
-        console.error('JscadPreview: error creating viewer', e)
+        console.error('JscadPreview: error creating viewer', e);
       }
     }
-  }, [jscad])
+  }, [jscad]);
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-}
+  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
+};
 
-export default JscadPreview
+export default JscadPreview;

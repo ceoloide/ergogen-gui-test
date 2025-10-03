@@ -1,8 +1,8 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
-import { useConfigContext } from '../context/ConfigContext'
-import DiscordIcon from './DiscordIcon'
-import GithubIcon from './GithubIcon'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { useConfigContext } from '../context/ConfigContext';
+import DiscordIcon from './DiscordIcon';
+import GithubIcon from './GithubIcon';
 
 /**
  * A styled container for the entire header.
@@ -16,7 +16,7 @@ const HeaderContainer = styled.header`
   padding: 0 1rem;
   background-color: #222222;
   flex-shrink: 0;
-`
+`;
 
 /**
  * A styled container for the left section of the header.
@@ -29,7 +29,7 @@ const LeftContainer = styled.div`
   flex-grow: 1;
   min-width: 0;
   width: 100%;
-`
+`;
 
 /**
  * A styled container for the right section of the header.
@@ -38,7 +38,7 @@ const RightContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-`
+`;
 
 /**
  * A styled container for the Ergogen logo and name.
@@ -47,7 +47,7 @@ const ErgogenLogo = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-`
+`;
 
 /**
  * A styled div for the application name.
@@ -56,7 +56,7 @@ const AppName = styled.div`
   font-size: 1rem;
   font-weight: 600;
   color: white;
-`
+`;
 
 /**
  * A styled anchor tag for displaying the version number.
@@ -66,7 +66,7 @@ const VersionText = styled.a`
   color: #28a745;
   text-decoration: none;
   align-items: center;
-`
+`;
 
 /**
  * A styled anchor tag that functions as a link button.
@@ -94,7 +94,7 @@ const StyledLinkButton = styled.a`
     &:hover {
         background-color: #3f3f3f;
     }
-`
+`;
 
 const DocsButton = styled(StyledLinkButton)`
   @media (max-width: 639px) {
@@ -106,7 +106,7 @@ const DocsButton = styled(StyledLinkButton)`
       display: none;
     }
   }
-`
+`;
 
 /**
  * A styled button with an outline style, typically for icons.
@@ -137,7 +137,7 @@ const OutlineIconButton = styled.button`
     &:hover {
         background-color: #3f3f3f;
     }
-`
+`;
 
 const AccentIconButton = styled(OutlineIconButton)`
   background-color: #28a745;
@@ -147,7 +147,7 @@ const AccentIconButton = styled(OutlineIconButton)`
     background-color: #218838;
     border-color: #1e7e34;
   }
-`
+`;
 
 /**
  * A responsive button that is only visible on smaller screens.
@@ -159,13 +159,13 @@ const LogoButton = styled(Link)`
   height: 32px;
   border-radius: 6px;
   flex-shrink: 0;
-`
+`;
 
 const LogoImage = styled.img`
   width: 100%;
   height: 100%;
   border-radius: 6px;
-`
+`;
 
 /**
  * The main header component for the application.
@@ -175,20 +175,20 @@ const LogoImage = styled.img`
  * @returns {JSX.Element} The rendered header component.
  */
 const Header = (): JSX.Element => {
-  const configContext = useConfigContext()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const configContext = useConfigContext();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   /**
    * Toggles the visibility of the settings panel.
    */
   const toggleSettings = () => {
-    configContext?.setShowSettings(!configContext?.showSettings)
-  }
+    configContext?.setShowSettings(!configContext?.showSettings);
+  };
 
   const handleNewClick = () => {
-    navigate('/new')
-  }
+    navigate('/new');
+  };
 
   return (
     <HeaderContainer>
@@ -243,7 +243,7 @@ const Header = (): JSX.Element => {
         </OutlineIconButton>
       </RightContainer>
     </HeaderContainer>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

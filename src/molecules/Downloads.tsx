@@ -1,10 +1,10 @@
-import DownloadRow from '../atoms/DownloadRow'
-import { Preview } from '../atoms/DownloadRow'
-import yaml from 'js-yaml'
-import styled from 'styled-components'
-import { useConfigContext } from '../context/ConfigContext'
-import { Dispatch, SetStateAction, useContext } from 'react'
-import { TabContext } from '../organisms/Tabs'
+import DownloadRow from '../atoms/DownloadRow';
+import { Preview } from '../atoms/DownloadRow';
+import yaml from 'js-yaml';
+import styled from 'styled-components';
+import { useConfigContext } from '../context/ConfigContext';
+import { Dispatch, SetStateAction, useContext } from 'react';
+import { TabContext } from '../organisms/Tabs';
 
 const Title = styled.h3`
   font-size: 1rem;
@@ -15,7 +15,7 @@ const Title = styled.h3`
   @media (max-width: 639px) {
     display: none;
   }
-`
+`;
 
 /**
  * A styled container for the list of downloads.
@@ -31,7 +31,7 @@ const DownloadsContainer = styled.div`
   @media (max-width: 639px) {
     padding: 0.5rem;
   }
-`
+`;
 
 /**
  * Props for the Downloads component.
@@ -39,9 +39,9 @@ const DownloadsContainer = styled.div`
  * @property {Dispatch<SetStateAction<Preview>>} setPreview - Function to set the active file preview.
  */
 type Props = {
-  setPreview: Dispatch<SetStateAction<Preview>>
-  previewKey: string
-}
+  setPreview: Dispatch<SetStateAction<Preview>>;
+  previewKey: string;
+};
 
 /**
  * Represents a single downloadable file object.
@@ -53,18 +53,18 @@ type Props = {
  * @property {Preview} [preview] - An optional preview object.
  */
 type DownloadObj = {
-  fileName: string
-  extension: string
-  content: string
-  previewKey?: string
-  preview?: Preview
-}
+  fileName: string;
+  extension: string;
+  content: string;
+  previewKey?: string;
+  preview?: Preview;
+};
 
 /**
  * An array of DownloadObj.
  * @typedef {DownloadObj[]} DownloadArr
  */
-type DownloadArr = Array<DownloadObj>
+type DownloadArr = Array<DownloadObj>;
 
 /**
  * A component that generates and displays a list of downloadable files from the Ergogen results.
@@ -74,12 +74,12 @@ type DownloadArr = Array<DownloadObj>
  * @returns {JSX.Element | null} A list of downloads or null if the context is not available.
  */
 const Downloads = ({ setPreview, previewKey }: Props) => {
-  const downloads: DownloadArr = []
-  const configContext = useConfigContext()
-  const tabContext = useContext(TabContext)
-  if (!configContext) return null
+  const downloads: DownloadArr = [];
+  const configContext = useConfigContext();
+  const tabContext = useContext(TabContext);
+  if (!configContext) return null;
 
-  const { configInput, results } = configContext
+  const { configInput, results } = configContext;
   if (results?.demo) {
     downloads.push(
       {
@@ -137,7 +137,7 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
           content: yaml.dump(results.units),
         },
       }
-    )
+    );
   }
 
   if (results?.outlines) {
@@ -154,7 +154,7 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
           // @ts-ignore
           content: outline.svg,
         },
-      })
+      });
     }
   }
 
@@ -172,15 +172,15 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
           // @ts-ignore
           content: caseObj.jscad,
         },
-      })
+      });
     }
   }
 
   if (results?.pcbs) {
     for (const [name, pcb] of Object.entries(results.pcbs)) {
-      const pcbString = String(pcb)
-      const match = pcbString.match(/version "?([0-9]+)"?/)
-      const version = match && match.length > 1 ? Number(match[1]) : -1
+      const pcbString = String(pcb);
+      const match = pcbString.match(/version "?([0-9]+)"?/);
+      const version = match && match.length > 1 ? Number(match[1]) : -1;
       downloads.push({
         fileName: name,
         extension: 'kicad_pcb',
@@ -199,7 +199,7 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
                 content: pcb,
               }
             : undefined,
-      })
+      });
     }
   }
 
@@ -208,7 +208,7 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       <Title>Outputs</Title>
       {downloads.map((download, i) => {
         if (!configContext.debug) {
-          if (download.fileName.startsWith('_')) return false
+          if (download.fileName.startsWith('_')) return false;
 
           // Ignore the following combinations of file names and extensions:
           const ignore: { [key: string]: string } = {
@@ -216,8 +216,8 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
             points: 'yaml',
             canonical: 'yaml',
             raw: 'txt',
-          }
-          if (ignore[download.fileName] === download.extension) return false
+          };
+          if (ignore[download.fileName] === download.extension) return false;
         }
 
         return (
@@ -228,10 +228,10 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
             previewKey={previewKey}
             setTabIndex={tabContext?.setTabIndex}
           />
-        )
+        );
       })}
     </DownloadsContainer>
-  )
-}
+  );
+};
 
-export default Downloads
+export default Downloads;

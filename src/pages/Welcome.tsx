@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
-import { useConfigContext } from '../context/ConfigContext'
-import { exampleOptions, ConfigOption } from '../examples'
-import EmptyYAML from '../examples/empty_yaml'
-import { fetchConfigFromUrl } from '../utils/github'
-import Button from '../atoms/Button'
-import Input from '../atoms/Input'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { useConfigContext } from '../context/ConfigContext';
+import { exampleOptions, ConfigOption } from '../examples';
+import EmptyYAML from '../examples/empty_yaml';
+import { fetchConfigFromUrl } from '../utils/github';
+import Button from '../atoms/Button';
+import Input from '../atoms/Input';
 
 // Styled Components
 const WelcomePageWrapper = styled.div`
@@ -16,7 +16,7 @@ const WelcomePageWrapper = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-`
+`;
 
 const WelcomeContainer = styled.div`
   padding: 2rem;
@@ -27,20 +27,20 @@ const WelcomeContainer = styled.div`
   @media (max-width: 640px) {
     padding: 1rem 0.5rem;
   }
-`
+`;
 
 const Header = styled.h1`
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 1rem;
-`
+`;
 
 const SubHeader = styled.p`
   font-size: 1.2rem;
   text-align: center;
   margin-bottom: 3rem;
   color: #ccc;
-`
+`;
 
 const OptionsContainer = styled.div`
   display: flex;
@@ -51,7 +51,7 @@ const OptionsContainer = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
   }
-`
+`;
 
 const OptionBox = styled.div`
   background-color: #2a2a2a;
@@ -78,20 +78,20 @@ const OptionBox = styled.div`
     margin-bottom: 1.5rem;
     flex-grow: 1;
   }
-`
+`;
 
 const GitHubInputContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   width: 100%;
   max-width: 400px;
-`
+`;
 
 const ExamplesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
-`
+`;
 
 const ExampleCard = styled.div`
   background-color: #2a2a2a;
@@ -107,7 +107,7 @@ const ExampleCard = styled.div`
     transform: translateY(-5px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
-`
+`;
 
 const PlaceholderImage = styled.div`
   width: 100%;
@@ -118,13 +118,13 @@ const PlaceholderImage = styled.div`
   justify-content: center;
   color: #666;
   font-style: italic;
-`
+`;
 
 const ExampleName = styled.div`
   padding: 1rem;
   font-weight: 600;
   text-align: center;
-`
+`;
 
 const ErrorMessage = styled.div`
   background: #ff6d6d;
@@ -134,53 +134,53 @@ const ErrorMessage = styled.div`
   margin-top: 1em;
   border-radius: 6px;
   text-align: center;
-`
+`;
 
 // Flatten examples into a single list, excluding the "Empty" one which has a dedicated button
 const allExamples: ConfigOption[] = exampleOptions
   .flatMap((group) => group.options)
-  .filter((ex) => ex.label !== 'Empty YAML configuration')
+  .filter((ex) => ex.label !== 'Empty YAML configuration');
 
 const Welcome = () => {
-  const navigate = useNavigate()
-  const configContext = useConfigContext()
-  const [githubInput, setGithubInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const configContext = useConfigContext();
+  const [githubInput, setGithubInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectExample = async (configValue: string) => {
     if (configContext) {
-      configContext.setConfigInput(configValue)
+      configContext.setConfigInput(configValue);
       await configContext.generateNow(
         configValue,
         configContext.injectionInput,
         { pointsonly: false }
-      )
+      );
     }
-    navigate('/')
-  }
+    navigate('/');
+  };
 
   const handleGitHub = () => {
-    if (!githubInput || !configContext) return
-    const { setConfigInput, setError, clearError } = configContext
-    setIsLoading(true)
-    clearError()
+    if (!githubInput || !configContext) return;
+    const { setConfigInput, setError, clearError } = configContext;
+    setIsLoading(true);
+    clearError();
     fetchConfigFromUrl(githubInput)
       .then(async (data) => {
         if (configContext) {
-          configContext.setConfigInput(data)
+          configContext.setConfigInput(data);
           await configContext.generateNow(data, configContext.injectionInput, {
             pointsonly: false,
-          })
+          });
         }
-        navigate('/')
+        navigate('/');
       })
       .catch((e) => {
-        setError(`Failed to fetch config from GitHub: ${e.message}`)
+        setError(`Failed to fetch config from GitHub: ${e.message}`);
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   return (
     <WelcomePageWrapper>
@@ -248,7 +248,7 @@ const Welcome = () => {
         </ExamplesGrid>
       </WelcomeContainer>
     </WelcomePageWrapper>
-  )
-}
+  );
+};
 
-export default Welcome
+export default Welcome;

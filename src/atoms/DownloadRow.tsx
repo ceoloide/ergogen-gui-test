@@ -1,6 +1,6 @@
-import Button from './Button'
-import styled from 'styled-components'
-import { Dispatch, SetStateAction } from 'react'
+import Button from './Button';
+import styled from 'styled-components';
+import { Dispatch, SetStateAction } from 'react';
 
 /**
  * Interface for a preview object.
@@ -10,9 +10,9 @@ import { Dispatch, SetStateAction } from 'react'
  * @property {string} content - The content of the preview.
  */
 export interface Preview {
-  extension: string
-  key: string
-  content: string
+  extension: string;
+  key: string;
+  content: string;
 }
 
 /**
@@ -26,14 +26,14 @@ export interface Preview {
  * @property {Dispatch<SetStateAction<number>>} [setTabIndex] - Optional function to set the active tab index.
  */
 type Props = {
-  fileName: string
-  extension: string
-  content: string
-  preview?: Preview
-  setPreview: (preview: Preview) => void
-  previewKey: string
-  setTabIndex: Dispatch<SetStateAction<number>> | undefined
-}
+  fileName: string;
+  extension: string;
+  content: string;
+  preview?: Preview;
+  setPreview: (preview: Preview) => void;
+  previewKey: string;
+  setTabIndex: Dispatch<SetStateAction<number>> | undefined;
+};
 
 /**
  * A styled div for the row layout.
@@ -47,7 +47,7 @@ const Row = styled.div`
   @media (max-width: 639px) {
     padding-bottom: 0.75rem;
   }
-`
+`;
 
 /**
  * A styled div for displaying the file name, with ellipsis for overflow.
@@ -60,7 +60,7 @@ const FileName = styled.div<{ active: boolean; hasPreview: boolean }>`
   border-bottom: ${(props) =>
     props.active ? '2px solid #28a745' : '2px solid transparent'};
   border-top: 2px solid transparent;
-`
+`;
 
 /**
  * A styled div to contain the action buttons.
@@ -70,7 +70,7 @@ const Buttons = styled.div`
   display: flex;
   gap: 10px;
   align-items: center;
-`
+`;
 
 /**
  * A styled button with specific dimensions and hover effects.
@@ -88,7 +88,7 @@ const StyledButton = styled(Button)`
   &:hover {
     background-color: #3f3f3f;
   }
-`
+`;
 
 /**
  * A styled anchor tag that looks like a button.
@@ -116,7 +116,7 @@ const StyledLinkButton = styled.a`
     &:hover {
         background-color: #3f3f3f;
     }
-`
+`;
 
 /**
  * A component that displays a file name and provides buttons for previewing and downloading.
@@ -133,14 +133,14 @@ const DownloadRow = ({
   previewKey,
   setTabIndex,
 }: Props): JSX.Element => {
-  const isActive = preview?.key === previewKey
+  const isActive = preview?.key === previewKey;
 
   const handlePreviewClick = () => {
     if (preview) {
-      setPreview(preview)
-      setTabIndex?.(0)
+      setPreview(preview);
+      setTabIndex?.(0);
     }
-  }
+  };
 
   return (
     <Row>
@@ -164,7 +164,7 @@ const DownloadRow = ({
         </StyledLinkButton>
       </Buttons>
     </Row>
-  )
-}
+  );
+};
 
-export default DownloadRow
+export default DownloadRow;

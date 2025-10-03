@@ -1,25 +1,25 @@
-import { useEffect, useState, ChangeEvent } from 'react'
-import styled from 'styled-components'
-import Split from 'react-split'
-import yaml from 'js-yaml'
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useEffect, useState, ChangeEvent } from 'react';
+import styled from 'styled-components';
+import Split from 'react-split';
+import yaml from 'js-yaml';
+import { useHotkeys } from 'react-hotkeys-hook';
 
-import ConfigEditor from './molecules/ConfigEditor'
-import InjectionEditor from './molecules/InjectionEditor'
-import Downloads from './molecules/Downloads'
-import Injections from './molecules/Injections'
-import FilePreview from './molecules/FilePreview'
+import ConfigEditor from './molecules/ConfigEditor';
+import InjectionEditor from './molecules/InjectionEditor';
+import Downloads from './molecules/Downloads';
+import Injections from './molecules/Injections';
+import FilePreview from './molecules/FilePreview';
 
-import { useConfigContext } from './context/ConfigContext'
-import { isMacOS } from './utils/platform'
-import DownloadButton from './atoms/DownloadButton'
-import DownloadIcon from './atoms/DownloadIcon'
-import Input from './atoms/Input'
-import { Injection } from './atoms/InjectionRow'
-import CreatableSelect from 'react-select/creatable'
-import { StylesConfig } from 'react-select'
-import GenOption from './atoms/GenOption'
-import { fetchConfigFromUrl } from './utils/github'
+import { useConfigContext } from './context/ConfigContext';
+import { isMacOS } from './utils/platform';
+import DownloadButton from './atoms/DownloadButton';
+import DownloadIcon from './atoms/DownloadIcon';
+import Input from './atoms/Input';
+import { Injection } from './atoms/InjectionRow';
+import CreatableSelect from 'react-select/creatable';
+import { StylesConfig } from 'react-select';
+import GenOption from './atoms/GenOption';
+import { fetchConfigFromUrl } from './utils/github';
 
 // Shortcut key sub-label styled component
 const ShortcutKey = styled.span`
@@ -37,14 +37,14 @@ const ShortcutKey = styled.span`
   color: #fff;
   box-sizing: border-box;
   user-select: none;
-`
+`;
 // Utility to get the correct shortcut for the user's OS
 function getShortcutLabel() {
   return (
     <>
       <span>{isMacOS() ? '⌘' : 'Ctrl'}&nbsp;⏎</span>
     </>
-  )
+  );
 }
 
 /**
@@ -64,14 +64,14 @@ const SubHeaderContainer = styled.div`
   @media (max-width: 639px) {
     display: flex;
   }
-`
+`;
 
 /**
  * A spacer component that grows to fill available space in a flex container.
  */
 const Spacer = styled.div`
   flex-grow: 1;
-`
+`;
 
 /**
  * A styled button with an outline, used for secondary actions.
@@ -104,7 +104,7 @@ const OutlineIconButton = styled.button`
     &.active {
         background-color: #3f3f3f;
     }
-`
+`;
 
 /**
  * A styled button with a green background, used for primary actions on mobile.
@@ -131,7 +131,7 @@ const GenerateIconButton = styled.button`
   &:hover {
     background-color: #1e8e1e;
   }
-`
+`;
 
 /**
  * A container for editor components, ensuring it fills available space.
@@ -143,7 +143,7 @@ const EditorContainer = styled.div`
   flex-direction: column;
   width: 100%;
   flex-grow: 1;
-`
+`;
 
 /**
  * A container for action buttons, hidden on smaller screens.
@@ -157,7 +157,7 @@ const ButtonContainer = styled.div`
   @media (max-width: 639px) {
     display: none;
   }
-`
+`;
 
 /**
  * A container for elements that should only be visible on desktop-sized screens.
@@ -166,7 +166,7 @@ const DesktopOnlyContainer = styled.div`
   @media (max-width: 639px) {
     display: none;
   }
-`
+`;
 
 /**
  * A button that expands to fill the available horizontal space.
@@ -193,7 +193,7 @@ const GrowButton = styled.button`
   &:hover {
     background-color: #1e8e1e;
   }
-`
+`;
 
 /**
  * The main wrapper for the entire Ergogen application UI.
@@ -205,19 +205,19 @@ const ErgogenWrapper = styled.div`
   height: 100%;
   overflow: hidden;
   padding: 0;
-`
+`;
 
 /**
  * A styled version of the FilePreview component.
  */
 const StyledFilePreview = styled(FilePreview)`
   height: 100%;
-`
+`;
 
 const ScrollablePanelContainer = styled.div`
   height: 100%;
   overflow-y: auto;
-`
+`;
 
 /**
  * A styled version of the ConfigEditor component.
@@ -225,7 +225,7 @@ const ScrollablePanelContainer = styled.div`
 const StyledConfigEditor = styled(ConfigEditor)`
   position: relative;
   flex-grow: 1;
-`
+`;
 
 /**
  * A container for settings and options.
@@ -233,7 +233,7 @@ const StyledConfigEditor = styled(ConfigEditor)`
 const OptionContainer = styled.div`
   display: inline-grid;
   justify-content: space-between;
-`
+`;
 
 /**
  * A styled CreatableSelect component from `react-select`.
@@ -246,7 +246,7 @@ const StyledSelect = styled(CreatableSelect)`
   @media (min-width: 640px) {
     padding: 0 0 10px 0;
   }
-`
+`;
 
 /**
  * Custom styles object for the `react-select` component to match the application's theme.
@@ -290,7 +290,7 @@ const customSelectStyles: StylesConfig = {
     ...provided,
     height: '34px',
   }),
-}
+};
 
 /**
  * A styled version of the `react-split` component, providing resizable panes.
@@ -318,7 +318,7 @@ const StyledSplit = styled(Split)`
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
     }
   }
-`
+`;
 
 /**
  * A container for the left pane in a split layout.
@@ -328,14 +328,14 @@ const LeftSplitPane = styled.div`
   @media (min-width: 640px) {
     min-width: 300px;
   }
-`
+`;
 
 /**
  * A container for the right pane in a split layout.
  */
 const RightSplitPane = styled.div`
   position: relative;
-`
+`;
 
 /**
  * Recursively finds a nested property within an object using a dot-separated string.
@@ -347,15 +347,15 @@ const findResult = (
   resultToFind: string,
   resultsToSearch: any
 ): any | undefined => {
-  if (resultsToSearch === null) return null
-  if (resultToFind === '') return resultsToSearch
-  const properties = resultToFind.split('.')
-  const currentProperty = properties[0] as keyof typeof resultsToSearch
-  const remainingProperties = properties.slice(1).join('.')
+  if (resultsToSearch === null) return null;
+  if (resultToFind === '') return resultsToSearch;
+  const properties = resultToFind.split('.');
+  const currentProperty = properties[0] as keyof typeof resultsToSearch;
+  const remainingProperties = properties.slice(1).join('.');
   return resultsToSearch.hasOwnProperty(currentProperty)
     ? findResult(remainingProperties, resultsToSearch[currentProperty])
-    : undefined
-}
+    : undefined;
+};
 
 /**
  * A flex container that allows its children to wrap and grow.
@@ -364,7 +364,7 @@ const FlexContainer = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
-`
+`;
 
 /**
  * The main component of the Ergogen application.
@@ -382,7 +382,7 @@ const Ergogen = () => {
     key: 'demo.svg',
     extension: 'svg',
     content: '',
-  })
+  });
 
   /**
    * State for the custom injection currently being edited in the settings panel.
@@ -393,13 +393,13 @@ const Ergogen = () => {
     type: '',
     name: '',
     content: '',
-  })
+  });
 
   /**
    * State for the selected example from the dropdown menu.
    * @type {ConfigOption | null}
    */
-  const configContext = useConfigContext()
+  const configContext = useConfigContext();
 
   useHotkeys(
     isMacOS() ? 'meta+enter' : 'ctrl+enter',
@@ -409,86 +409,86 @@ const Ergogen = () => {
           configContext.configInput,
           configContext.injectionInput,
           { pointsonly: false }
-        )
+        );
       }
     },
     {
       enableOnFormTags: true,
       preventDefault: true,
     }
-  )
+  );
 
   /**
    * Effect to handle changes to the injection being edited.
    * It updates the main injection list in the context when an injection is created or modified.
    */
   useEffect(() => {
-    if (injectionToEdit.key === -1) return
-    if (injectionToEdit.name === '') return
-    if (injectionToEdit.content === '') return
+    if (injectionToEdit.key === -1) return;
+    if (injectionToEdit.name === '') return;
+    if (injectionToEdit.content === '') return;
     const editedInjection = [
       injectionToEdit.type,
       injectionToEdit.name,
       injectionToEdit.content,
-    ]
-    let injections: string[][] = []
+    ];
+    let injections: string[][] = [];
     if (Array.isArray(configContext?.injectionInput)) {
-      injections = [...configContext.injectionInput]
+      injections = [...configContext.injectionInput];
     }
-    const nextIndex = injections.length
+    const nextIndex = injections.length;
     if (nextIndex === 0 || nextIndex === injectionToEdit.key) {
       // This is a new injection to add
-      injections.push(editedInjection)
-      setInjectionToEdit({ ...injectionToEdit, key: nextIndex })
+      injections.push(editedInjection);
+      setInjectionToEdit({ ...injectionToEdit, key: nextIndex });
     } else {
-      const existingInjection = injections[injectionToEdit.key]
+      const existingInjection = injections[injectionToEdit.key];
       if (
         existingInjection[0] === injectionToEdit.type &&
         existingInjection[1] === injectionToEdit.name &&
         existingInjection[2] === injectionToEdit.content
       ) {
         // Nothing was changed
-        return
+        return;
       }
       injections = injections.map((existingInjection, i) => {
         if (i === injectionToEdit.key) {
-          return editedInjection
+          return editedInjection;
         } else {
-          return existingInjection
+          return existingInjection;
         }
-      })
+      });
     }
-    configContext?.setInjectionInput(injections)
-  }, [configContext, injectionToEdit])
+    configContext?.setInjectionInput(injections);
+  }, [configContext, injectionToEdit]);
 
-  if (!configContext) return null
-  let result = null
+  if (!configContext) return null;
+  let result = null;
   if (configContext.results) {
-    result = findResult(preview.key, configContext.results)
+    result = findResult(preview.key, configContext.results);
     // Fallback to the default demo SVG if the current preview key is not found.
     if (result === undefined && preview.key !== 'demo.svg') {
-      preview.key = 'demo.svg'
-      preview.extension = 'svg'
-      result = findResult(preview.key, configContext.results)
+      preview.key = 'demo.svg';
+      preview.extension = 'svg';
+      result = findResult(preview.key, configContext.results);
     }
 
     // Process the result based on the file extension to format it for the preview component.
     switch (preview.extension) {
       case 'svg':
       case 'kicad_pcb':
-        preview.content = typeof result === 'string' ? result : ''
-        break
+        preview.content = typeof result === 'string' ? result : '';
+        break;
       case 'jscad':
-        preview.content = typeof result?.jscad === 'string' ? result.jscad : ''
-        break
+        preview.content = typeof result?.jscad === 'string' ? result.jscad : '';
+        break;
       case 'yaml':
-        preview.content = yaml.dump(result)
-        break
+        preview.content = yaml.dump(result);
+        break;
       case 'txt':
-        preview.content = configContext.configInput || ''
-        break
+        preview.content = configContext.configInput || '';
+        break;
       default:
-        preview.content = ''
+        preview.content = '';
     }
   }
 
@@ -500,50 +500,50 @@ const Ergogen = () => {
     const newInjectionToEdit = {
       ...injectionToEdit,
       name: e.target.value,
-    }
-    setInjectionToEdit(newInjectionToEdit)
-  }
+    };
+    setInjectionToEdit(newInjectionToEdit);
+  };
 
   /**
    * Handles the deletion of a custom injection from the list.
    * @param {Injection} injectionToDelete - The injection object to be deleted.
    */
   const handleDeleteInjection = (injectionToDelete: Injection) => {
-    if (!Array.isArray(configContext?.injectionInput)) return
+    if (!Array.isArray(configContext?.injectionInput)) return;
     const injections = [...configContext.injectionInput].filter((e, i) => {
-      return i !== injectionToDelete.key
-    })
+      return i !== injectionToDelete.key;
+    });
     // @ts-ignore
-    configContext.setInjectionInput(injections)
+    configContext.setInjectionInput(injections);
     // Reset or re-index the currently edited injection if it was affected by the deletion.
     if (injectionToEdit.key === injectionToDelete.key) {
-      const emptyInjection = { key: -1, type: '', name: '', content: '' }
-      setInjectionToEdit(emptyInjection)
+      const emptyInjection = { key: -1, type: '', name: '', content: '' };
+      setInjectionToEdit(emptyInjection);
     } else if (injectionToEdit.key >= injectionToDelete.key) {
       const reIndexedInjection = {
         ...injectionToEdit,
         key: injectionToEdit.key - 1,
-      }
-      setInjectionToEdit(reIndexedInjection)
+      };
+      setInjectionToEdit(reIndexedInjection);
     }
-  }
+  };
 
   /**
    * Triggers a browser download of the current configuration as a 'config.yaml' file.
    */
   const handleDownload = () => {
     if (configContext.configInput === undefined) {
-      return
+      return;
     }
-    const element = document.createElement('a')
-    const file = new Blob([configContext.configInput], { type: 'text/yaml' })
-    element.href = URL.createObjectURL(file)
-    element.download = 'config.yaml'
-    document.body.appendChild(element)
-    element.click()
-    URL.revokeObjectURL(element.href)
-    document.body.removeChild(element)
-  }
+    const element = document.createElement('a');
+    const file = new Blob([configContext.configInput], { type: 'text/yaml' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'config.yaml';
+    document.body.appendChild(element);
+    element.click();
+    URL.revokeObjectURL(element.href);
+    document.body.removeChild(element);
+  };
 
   return (
     <ErgogenWrapper>
@@ -746,7 +746,7 @@ const Ergogen = () => {
         )}
       </FlexContainer>
     </ErgogenWrapper>
-  )
-}
+  );
+};
 
-export default Ergogen
+export default Ergogen;

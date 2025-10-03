@@ -1,5 +1,5 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
 /**
  * Props for the TabPane component.
@@ -8,9 +8,9 @@ import styled from 'styled-components'
  * @property {string} [className] - An optional CSS class name for the pane.
  */
 type TabPaneProps = {
-  content: React.ReactComponentElement<any>
-  className?: string
-}
+  content: React.ReactComponentElement<any>;
+  className?: string;
+};
 
 /**
  * A styled div that serves as the container for the tab content.
@@ -19,7 +19,7 @@ type TabPaneProps = {
 const Pane = styled.div`
   position: relative;
   height: 100%;
-`
+`;
 
 /**
  * A component that represents a single pane within a tabbed interface.
@@ -29,7 +29,7 @@ const Pane = styled.div`
  * @returns {JSX.Element} The rendered tab pane with its content.
  */
 const TabPane = ({ content, className }: TabPaneProps) => {
-  return <Pane className={className}>{content}</Pane>
-}
+  return <Pane className={className}>{content}</Pane>;
+};
 
-export default TabPane
+export default TabPane;

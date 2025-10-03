@@ -1,20 +1,20 @@
-import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useLocalStorage } from 'react-use'
-import styled from 'styled-components'
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useLocalStorage } from 'react-use';
+import styled from 'styled-components';
 
-import Ergogen from './Ergogen'
-import Welcome from './pages/Welcome'
-import Header from './atoms/Header'
-import Banners from './organisms/Banners'
+import Ergogen from './Ergogen';
+import Welcome from './pages/Welcome';
+import Header from './atoms/Header';
+import Banners from './organisms/Banners';
 import ConfigContextProvider, {
   CONFIG_LOCAL_STORAGE_KEY,
-} from './context/ConfigContext'
+} from './context/ConfigContext';
 
 const App = () => {
   // Synchronously get the initial value to avoid race conditions on first render.
-  const storedConfigValue = localStorage.getItem(CONFIG_LOCAL_STORAGE_KEY)
-  const initialConfig = storedConfigValue ? JSON.parse(storedConfigValue) : ''
+  const storedConfigValue = localStorage.getItem(CONFIG_LOCAL_STORAGE_KEY);
+  const initialConfig = storedConfigValue ? JSON.parse(storedConfigValue) : '';
 
   // The useLocalStorage hook now manages the config state in the App component.
   // This ensures that any component that updates the config will trigger a re-render here,
@@ -22,7 +22,7 @@ const App = () => {
   const [configInput, setConfigInput] = useLocalStorage<string>(
     CONFIG_LOCAL_STORAGE_KEY,
     initialConfig
-  )
+  );
 
   return (
     // Pass the state and the setter function down to the context provider.
@@ -45,14 +45,14 @@ const App = () => {
         </Routes>
       </PageWrapper>
     </ConfigContextProvider>
-  )
-}
+  );
+};
 
 const PageWrapper = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   overflow: auto;
-`
+`;
 
-export default App
+export default App;

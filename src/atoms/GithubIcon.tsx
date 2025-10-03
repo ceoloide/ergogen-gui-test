@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 /**
  * A React component that renders the Github logo as an SVG icon.
@@ -22,6 +22,6 @@ const GithubIcon = () => (
       fill="#fff"
     />
   </svg>
-)
+);
 
-export default GithubIcon
+export default GithubIcon;

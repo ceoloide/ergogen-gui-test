@@ -58,4 +58,4 @@ module.exports = {
   'infused-kim/switch_reset': require('./infused-kim/switch_reset.js'),
   'infused-kim/text': require('./infused-kim/text.js'),
   'infused-kim/trackpoint_mount': require('./infused-kim/trackpoint_mount.js'),
-}
+};

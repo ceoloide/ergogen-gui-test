@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for the Reviung41 keyboard.
@@ -133,6 +133,6 @@ pcbs:
           shift: [0, 22]
           rotate: angle + 90  
 `,
-}
+};
 
-export default Reviung41
+export default Reviung41;

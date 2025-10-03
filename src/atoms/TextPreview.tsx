@@ -1,13 +1,13 @@
-import IEditorOptions from '@monaco-editor/react'
-import Editor from '@monaco-editor/react'
+import IEditorOptions from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 
 type Props = {
-  content: string
-  language?: string
-  className?: string
-  height?: string
-  options?: typeof IEditorOptions
-}
+  content: string;
+  language?: string;
+  className?: string;
+  height?: string;
+  options?: typeof IEditorOptions;
+};
 
 const TextPreview = ({
   content,
@@ -26,7 +26,7 @@ const TextPreview = ({
         options={options || { readOnly: true }}
       />
     </div>
-  )
-}
+  );
+};
 
-export default TextPreview
+export default TextPreview;

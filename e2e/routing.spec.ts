@@ -12,12 +12,9 @@ test.describe('Routing and Welcome Page', () => {
   test('existing user is routed to /', async ({ page }) => {
     await page.goto('/');
     // Set local storage to simulate an existing user
-    await page.evaluate(
-      (key) => {
-        localStorage.setItem(key, JSON.stringify({ points: {} }));
-      },
-      CONFIG_LOCAL_STORAGE_KEY
-    );
+    await page.evaluate((key) => {
+      localStorage.setItem(key, JSON.stringify({ points: {} }));
+    }, CONFIG_LOCAL_STORAGE_KEY);
     await page.reload();
     await expect(page).toHaveURL(/.*\/$/);
     await expect(page.getByTestId('config-editor')).toBeVisible();
@@ -26,12 +23,9 @@ test.describe('Routing and Welcome Page', () => {
   test('"New Design" button navigates to /new', async ({ page }) => {
     // Start as an existing user
     await page.goto('/');
-    await page.evaluate(
-      (key) => {
-        localStorage.setItem(key, JSON.stringify({ points: {} }));
-      },
-      CONFIG_LOCAL_STORAGE_KEY
-    );
+    await page.evaluate((key) => {
+      localStorage.setItem(key, JSON.stringify({ points: {} }));
+    }, CONFIG_LOCAL_STORAGE_KEY);
     await page.reload();
 
     // Click the "New Design" button
@@ -40,7 +34,9 @@ test.describe('Routing and Welcome Page', () => {
     await expect(page.getByText('Welcome to Ergogen Grafica')).toBeVisible();
   });
 
-  test('"Empty Configuration" button loads empty config and navigates to /', async ({ page }) => {
+  test('"Empty Configuration" button loads empty config and navigates to /', async ({
+    page,
+  }) => {
     await page.goto('/new');
     await page.getByRole('button', { name: 'Empty Configuration' }).click();
 
@@ -51,7 +47,9 @@ test.describe('Routing and Welcome Page', () => {
     expect(editorContent).toContain('points:');
   });
 
-  test('clicking an example loads the config and navigates to /', async ({ page }) => {
+  test('clicking an example loads the config and navigates to /', async ({
+    page,
+  }) => {
     await page.goto('/new');
     await page.getByText('Absolem').click();
 

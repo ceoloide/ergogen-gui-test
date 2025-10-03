@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for the Atreus keyboard.
@@ -36,6 +36,6 @@ const Atreus: ConfigExample = {
     ref: matrix_thumb_home
     distance: 22
 `,
-}
+};
 
-export default Atreus
+export default Atreus;

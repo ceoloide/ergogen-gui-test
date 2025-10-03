@@ -1,13 +1,13 @@
-import Absolem from './absolem'
-import Atreus from './atreus'
-import Adux from './adux'
-import EmptyYAML from './empty_yaml'
-import Wubbo from './wubbo'
-import Sweeplike from './sweeplike'
-import Reviung41 from './reviung41'
-import Tiny20 from './tiny20'
-import Alpha from './alpha'
-import Plank from './plank'
+import Absolem from './absolem';
+import Atreus from './atreus';
+import Adux from './adux';
+import EmptyYAML from './empty_yaml';
+import Wubbo from './wubbo';
+import Sweeplike from './sweeplike';
+import Reviung41 from './reviung41';
+import Tiny20 from './tiny20';
+import Alpha from './alpha';
+import Plank from './plank';
 
 /**
  * Represents a group of configuration options for the react-select component.
@@ -16,8 +16,8 @@ import Plank from './plank'
  * @property {readonly ConfigOption[]} options - An array of configuration options within this group.
  */
 export interface GroupedOption {
-  readonly label: string
-  readonly options: readonly ConfigOption[]
+  readonly label: string;
+  readonly options: readonly ConfigOption[];
 }
 
 /**
@@ -27,8 +27,8 @@ export interface GroupedOption {
  * @property {string} label - The display name for the option.
  */
 export interface ConfigOption {
-  readonly value: string
-  readonly label: string
+  readonly value: string;
+  readonly label: string;
 }
 
 /**
@@ -38,18 +38,18 @@ export interface ConfigOption {
  * @property {string} author - The author or source of the example.
  */
 export interface ConfigExample extends ConfigOption {
-  readonly label: string
-  readonly value: string
-  readonly author: string
+  readonly label: string;
+  readonly value: string;
+  readonly author: string;
 }
 
-const emptyExamples = [EmptyYAML]
+const emptyExamples = [EmptyYAML];
 
-const simpleExamples = [Absolem, Atreus]
+const simpleExamples = [Absolem, Atreus];
 
-const completeExamples = [Adux, Sweeplike, Reviung41, Tiny20]
+const completeExamples = [Adux, Sweeplike, Reviung41, Tiny20];
 
-const miscExamples = [Wubbo, Alpha, Plank]
+const miscExamples = [Wubbo, Alpha, Plank];
 
 /**
  * An array of grouped example configurations to be displayed in the select dropdown.
@@ -72,6 +72,6 @@ export const exampleOptions: readonly GroupedOption[] = [
     label: 'Miscellaneous',
     options: miscExamples,
   },
-]
+];
 
-export default exampleOptions
+export default exampleOptions;

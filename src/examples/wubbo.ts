@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for the Wubbo keyboard.
@@ -219,6 +219,6 @@ cases:
       name: combined
       extrude: choc_plate_thickness
 `,
-}
+};
 
-export default Wubbo
+export default Wubbo;

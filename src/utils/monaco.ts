@@ -1,10 +1,10 @@
-import { Monaco } from '@monaco-editor/react'
+import { Monaco } from '@monaco-editor/react';
 
-let themeDefined = false
+let themeDefined = false;
 
 export const defineErgogenTheme = (monaco: Monaco) => {
   if (themeDefined) {
-    return
+    return;
   }
   monaco.editor.defineTheme('ergogen-theme', {
     base: 'vs-dark',
@@ -13,6 +13,6 @@ export const defineErgogenTheme = (monaco: Monaco) => {
     colors: {
       'editor.background': '#2d2d2d',
     },
-  })
-  themeDefined = true
-}
+  });
+  themeDefined = true;
+};

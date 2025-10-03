@@ -6,9 +6,9 @@
 export const getRawUrl = (url: string) => {
   const rawUrl = url
     .replace('github.com', 'raw.githubusercontent.com')
-    .replace('/blob/', '/')
-  return rawUrl
-}
+    .replace('/blob/', '/');
+  return rawUrl;
+};
 
 /**
  * Fetches a configuration file (`config.yaml`) from a given GitHub URL.
@@ -19,16 +19,16 @@ export const getRawUrl = (url: string) => {
  * @throws {Error} Throws an error if the fetch fails for all attempted locations.
  */
 export const fetchConfigFromUrl = async (url: string): Promise<string> => {
-  let newUrl = url.trim()
+  let newUrl = url.trim();
 
-  const repoPattern = /^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/
+  const repoPattern = /^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/;
   if (repoPattern.test(newUrl)) {
-    newUrl = `https://github.com/${newUrl}`
+    newUrl = `https://github.com/${newUrl}`;
   } else if (!newUrl.match(/^(https?:\/\/)/i)) {
-    newUrl = `https://${newUrl}`
+    newUrl = `https://${newUrl}`;
   }
 
-  const baseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl
+  const baseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl;
 
   /**
    * Checks if a given URL points to the root of a GitHub repository.
@@ -37,14 +37,14 @@ export const fetchConfigFromUrl = async (url: string): Promise<string> => {
    */
   const isRepoRoot = (url: string) => {
     try {
-      const urlObject = new URL(url)
+      const urlObject = new URL(url);
       if (urlObject.hostname !== 'github.com') {
-        return false
+        return false;
       }
 
-      const pathSegments = urlObject.pathname.split('/').filter(Boolean)
+      const pathSegments = urlObject.pathname.split('/').filter(Boolean);
       if (pathSegments.length !== 2) {
-        return false
+        return false;
       }
 
       const reservedFirstSegments = [
@@ -64,24 +64,24 @@ export const fetchConfigFromUrl = async (url: string): Promise<string> => {
         'discussions',
         'codespaces',
         'organizations',
-      ]
+      ];
       if (reservedFirstSegments.includes(pathSegments[0].toLowerCase())) {
-        return false
+        return false;
       }
 
-      return true
+      return true;
     } catch (e) {
-      return false
+      return false;
     }
-  }
+  };
 
   // If the URL is not a repository root, assume it's a direct file link.
   if (!isRepoRoot(baseUrl)) {
-    const response = await fetch(getRawUrl(baseUrl))
+    const response = await fetch(getRawUrl(baseUrl));
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return response.text()
+    return response.text();
   }
 
   /**
@@ -92,31 +92,31 @@ export const fetchConfigFromUrl = async (url: string): Promise<string> => {
    */
   const fetchWithBranch = async (branch: string): Promise<string> => {
     // First, try the root directory
-    const firstUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`)
-    let response = await fetch(firstUrl)
+    const firstUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
+    let response = await fetch(firstUrl);
 
     if (response.ok) {
-      return response.text()
+      return response.text();
     }
 
     // If not found, try the /ergogen/ directory
     if (response.status === 400 || response.status === 404) {
       const secondUrl = getRawUrl(
         `${baseUrl}/blob/${branch}/ergogen/config.yaml`
-      )
-      response = await fetch(secondUrl)
+      );
+      response = await fetch(secondUrl);
       if (response.ok) {
-        return response.text()
+        return response.text();
       }
     }
     // If still not found or another error occurred, throw.
-    throw new Error(`HTTP error! status: ${response.status}`)
-  }
+    throw new Error(`HTTP error! status: ${response.status}`);
+  };
 
   // Try fetching from the 'main' branch first, then fall back to 'master'.
   try {
-    return await fetchWithBranch('main')
+    return await fetchWithBranch('main');
   } catch (e) {
-    return await fetchWithBranch('master')
+    return await fetchWithBranch('master');
   }
-}
+};

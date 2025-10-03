@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for the Absolem keyboard.
@@ -51,6 +51,6 @@ points:
   mirror:
     ref: matrix_pinky_home
     distance: 223.7529778`,
-}
+};
 
-export default Absolem
+export default Absolem;

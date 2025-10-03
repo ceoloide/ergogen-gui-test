@@ -1,4 +1,4 @@
-import { ConfigExample } from './index'
+import { ConfigExample } from './index';
 
 /**
  * An example Ergogen configuration for the Tiny20 keyboard.
@@ -192,6 +192,6 @@ pcbs:
         adjust:
           shift: [0,-1.25u]
 `,
-}
+};
 
-export default Tiny20
+export default Tiny20;

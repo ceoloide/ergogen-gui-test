@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 /**
  * A styled text input component.
@@ -25,6 +25,6 @@ const styledInput = styled.input.attrs<{ $size?: string }>((props) => ({
   /* here we use the dynamically computed prop */
   margin: ${(props) => props.$size};
   padding: ${(props) => props.$size};
-`
+`;
 
-export default styledInput
+export default styledInput;

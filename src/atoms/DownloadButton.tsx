@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import Button from './Button'
+import styled from 'styled-components';
+import Button from './Button';
 
 /**
  * A styled download button, extending the base Button component.
@@ -17,6 +17,6 @@ const DownloadButton = styled(Button)`
   width: 3.7rem;
   height: 3.7rem;
   padding: 1rem;
-`
+`;
 
-export default DownloadButton
+export default DownloadButton;

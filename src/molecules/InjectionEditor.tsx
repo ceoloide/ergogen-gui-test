@@ -1,7 +1,7 @@
-import { Editor } from '@monaco-editor/react'
-import { Dispatch, SetStateAction } from 'react'
-import { useConfigContext } from '../context/ConfigContext'
-import { Injection } from '../atoms/InjectionRow'
+import { Editor } from '@monaco-editor/react';
+import { Dispatch, SetStateAction } from 'react';
+import { useConfigContext } from '../context/ConfigContext';
+import { Injection } from '../atoms/InjectionRow';
 
 /**
  * Defines the options for the Monaco Editor instance.
@@ -9,8 +9,8 @@ import { Injection } from '../atoms/InjectionRow'
  * @property {boolean} [readOnly] - If true, the editor will be in read-only mode.
  */
 type EditorOptions = {
-  readOnly?: boolean
-}
+  readOnly?: boolean;
+};
 
 /**
  * Props for the InjectionEditor component.
@@ -21,11 +21,11 @@ type EditorOptions = {
  * @property {Dispatch<SetStateAction<Injection>>} setInjection - Function to update the injection state.
  */
 type Props = {
-  className?: string
-  options?: EditorOptions
-  injection: Injection
-  setInjection: Dispatch<SetStateAction<Injection>>
-}
+  className?: string;
+  options?: EditorOptions;
+  injection: Injection;
+  setInjection: Dispatch<SetStateAction<Injection>>;
+};
 
 /**
  * A component that provides a JavaScript editor for editing code injections.
@@ -40,7 +40,7 @@ const InjectionEditor = ({
   injection,
   setInjection,
 }: Props) => {
-  const configContext = useConfigContext()
+  const configContext = useConfigContext();
 
   /**
    * Handles changes in the editor's content.
@@ -48,12 +48,12 @@ const InjectionEditor = ({
    * @param {string | undefined} textInput - The new text content from the editor.
    */
   const handleChange = async (textInput: string | undefined) => {
-    if (!textInput) return null
-    const newInjection = { ...injection, content: textInput }
-    setInjection(newInjection)
-  }
+    if (!textInput) return null;
+    const newInjection = { ...injection, content: textInput };
+    setInjection(newInjection);
+  };
 
-  if (!configContext) return null
+  if (!configContext) return null;
 
   return (
     <div className={className}>
@@ -67,7 +67,7 @@ const InjectionEditor = ({
         options={options || undefined}
       />
     </div>
-  )
-}
+  );
+};
 
-export default InjectionEditor
+export default InjectionEditor;
