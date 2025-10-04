@@ -1,9 +1,9 @@
 import InjectionRow from '../atoms/InjectionRow';
-import Button from '../atoms/Button';
 import { Injection } from '../atoms/InjectionRow';
 import styled from 'styled-components';
 import { useConfigContext } from '../context/ConfigContext';
 import { Dispatch, SetStateAction } from 'react';
+import GrowButton from '../atoms/GrowButton';
 
 /**
  * A styled container for the injections list.
@@ -14,14 +14,8 @@ const InjectionsContainer = styled.div`
   flex-grow: 1;
 `;
 
-/**
- * A styled button for adding new injections.
- */
-const StyledButton = styled(Button)`
-  margin-right: 0.5em;
-  margin-left: 1em;
-  display: block;
-`;
+// Use the shared Title component from atoms
+import Title from '../atoms/Title';
 
 /**
  * Props for the Injections component.
@@ -32,6 +26,7 @@ const StyledButton = styled(Button)`
 type Props = {
   setInjectionToEdit: Dispatch<SetStateAction<Injection>>;
   deleteInjection: (injection: Injection) => void;
+  injectionToEdit: Injection;
 };
 
 /**
@@ -47,7 +42,11 @@ type InjectionArr = Array<Injection>;
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element | null} The rendered component or null if context is not available.
  */
-const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
+const Injections = ({
+  setInjectionToEdit,
+  deleteInjection,
+  injectionToEdit,
+}: Props) => {
   const footprints: InjectionArr = [];
   const templates: InjectionArr = [];
   const configContext = useConfigContext();
@@ -93,7 +92,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
 
   return (
     <InjectionsContainer>
-      <h3>Custom Footprints</h3>
+      <Title>Custom Footprints</Title>
       {footprints.map((footprint) => {
         return (
           <InjectionRow
@@ -101,6 +100,7 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
             injection={footprint}
             setInjectionToEdit={setInjectionToEdit}
             deleteInjection={deleteInjection}
+            previewKey={injectionToEdit.name}
           />
         );
       })}
@@ -112,9 +112,9 @@ const Injections = ({ setInjectionToEdit, deleteInjection }: Props) => {
           }
         )
       } */}
-      <StyledButton size={'small'} onClick={handleNewFootprint}>
+      <GrowButton onClick={handleNewFootprint} data-testid="add-footprint">
         <span className="material-symbols-outlined">add</span>
-      </StyledButton>
+      </GrowButton>
     </InjectionsContainer>
   );
 };
