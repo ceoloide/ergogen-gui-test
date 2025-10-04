@@ -94,7 +94,7 @@ const Banners = () => {
         <Banner type="warning">
           <BannerContent>
             <BannerIcon>warning</BannerIcon>
-            <BannerText>Warning: {deprecationWarning}</BannerText>
+            <BannerText>{deprecationWarning}</BannerText>
           </BannerContent>
           <CloseButton onClick={clearWarning}>&times;</CloseButton>
         </Banner>
@@ -103,7 +103,7 @@ const Banners = () => {
         <Banner type="error">
           <BannerContent>
             <BannerIcon>error</BannerIcon>
-            <BannerText>Error: {error}</BannerText>
+            <BannerText>{error}</BannerText>
           </BannerContent>
           <CloseButton onClick={clearError}>&times;</CloseButton>
         </Banner>
