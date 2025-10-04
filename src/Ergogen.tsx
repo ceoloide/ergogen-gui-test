@@ -14,8 +14,6 @@ import { useConfigContext } from './context/ConfigContext';
 import { isMacOS } from './utils/platform';
 import Input from './atoms/Input';
 import { Injection } from './atoms/InjectionRow';
-import CreatableSelect from 'react-select/creatable';
-import { StylesConfig } from 'react-select';
 import GenOption from './atoms/GenOption';
 
 // Shortcut key sub-label styled component
@@ -60,6 +58,7 @@ const SubHeaderContainer = styled.div`
 
   @media (max-width: 639px) {
     display: flex;
+    padding: 0 0.5rem;
   }
 `;
 
@@ -118,8 +117,8 @@ const GenerateIconButton = styled.button`
   text-decoration: none;
   cursor: pointer;
   height: 34px;
-  width: 34px;
   font-family: 'Roboto', sans-serif;
+  padding: 8px 12px !important;
 
   .material-symbols-outlined {
     font-size: 16px !important;
@@ -151,15 +150,6 @@ const ButtonContainer = styled.div`
   align-items: stretch;
   padding: 10px;
 
-  @media (max-width: 639px) {
-    display: none;
-  }
-`;
-
-/**
- * A container for elements that should only be visible on desktop-sized screens.
- */
-const DesktopOnlyContainer = styled.div`
   @media (max-width: 639px) {
     display: none;
   }
@@ -233,66 +223,8 @@ const OptionContainer = styled.div`
 `;
 
 /**
- * A styled CreatableSelect component from `react-select`.
- */
-const StyledSelect = styled(CreatableSelect)`
-  color: black;
-  white-space: nowrap;
-  width: 100%;
-
-  @media (min-width: 640px) {
-    padding: 0 0 10px 0;
-  }
-`;
-
-/**
- * Custom styles object for the `react-select` component to match the application's theme.
- */
-const customSelectStyles: StylesConfig = {
-  // Styles for the main input control
-  control: (provided, state) => ({
-    ...provided,
-    border: '1px solid #3f3f3f',
-    color: 'white',
-    borderRadius: '6px',
-    minHeight: '34px',
-    height: '34px',
-    fontSize: '13px',
-    lineHeight: '16px',
-    backgroundColor: 'transparent',
-    fontFamily: "'Roboto', sans-serif",
-    '&:hover': {
-      backgroundColor: '3f3f3f',
-    },
-  }),
-
-  // Styles for the container that holds the value or placeholder
-  valueContainer: (provided) => ({
-    ...provided,
-    height: '34px',
-    padding: '0px 12px',
-  }),
-
-  // Styles for the text of the selected value
-  singleValue: (provided) => ({
-    ...provided,
-    color: 'white',
-    whiteSpace: 'nowrap',
-  }),
-
-  indicatorSeparator: () => ({
-    display: 'none', // Hides the vertical line separator
-  }),
-  indicatorsContainer: (provided) => ({
-    ...provided,
-    height: '34px',
-  }),
-};
-
-/**
  * A styled version of the `react-split` component, providing resizable panes.
  */
-// @ts-ignore
 const StyledSplit = styled(Split)`
   width: 100%;
   height: 100%;

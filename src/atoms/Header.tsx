@@ -16,6 +16,10 @@ const HeaderContainer = styled.header`
   padding: 0 1rem;
   background-color: #222222;
   flex-shrink: 0;
+
+  @media (max-width: 639px) {
+    padding: 0 0.5rem;
+  }
 `;
 
 /**
