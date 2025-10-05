@@ -25,11 +25,12 @@ export interface Preview {
  */
 type Props = {
   fileName: string;
-  extension: string;
+  extension:string;
   content: string;
   preview?: Preview;
   setPreview: (preview: Preview) => void;
   previewKey: string;
+  'data-testid'?: string;
 };
 
 /**
@@ -112,6 +113,7 @@ const DownloadRow = ({
   preview,
   setPreview,
   previewKey,
+  'data-testid': dataTestId,
 }: Props) => {
   const handleDownload = () => {
     const element = document.createElement('a');
@@ -129,16 +131,21 @@ const DownloadRow = ({
   };
 
   return (
-    <Row>
+    <Row data-testid={dataTestId}>
       <FileName
         active={previewKey === preview?.key}
         hasPreview={!!preview}
         onClick={handlePreview}
+        data-testid={dataTestId && `${dataTestId}-preview`}
       >
         {fileName}.{extension}
       </FileName>
       <Buttons>
-        <StyledLinkButton onClick={handleDownload}>
+        <StyledLinkButton
+          onClick={handleDownload}
+          aria-label={`Download ${fileName}.${extension}`}
+          data-testid={dataTestId && `${dataTestId}-download`}
+        >
           <span className="material-symbols-outlined">download</span>
         </StyledLinkButton>
       </Buttons>

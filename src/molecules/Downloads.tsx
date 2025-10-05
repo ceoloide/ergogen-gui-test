@@ -41,6 +41,7 @@ const DownloadsContainer = styled.div`
 type Props = {
   setPreview: Dispatch<SetStateAction<Preview>>;
   previewKey: string;
+  'data-testid'?: string;
 };
 
 /**
@@ -73,7 +74,7 @@ type DownloadArr = Array<DownloadObj>;
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element | null} A list of downloads or null if the context is not available.
  */
-const Downloads = ({ setPreview, previewKey }: Props) => {
+const Downloads = ({ setPreview, previewKey, 'data-testid': dataTestId }: Props) => {
   const downloads: DownloadArr = [];
   const configContext = useConfigContext();
   if (!configContext) return null;
@@ -197,7 +198,7 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
   }
 
   return (
-    <DownloadsContainer>
+    <DownloadsContainer data-testid={dataTestId}>
       <Title>Outputs</Title>
       {downloads.map((download, i) => {
         if (!configContext.debug) {
@@ -219,6 +220,7 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
             {...download}
             setPreview={setPreview}
             previewKey={previewKey}
+            data-testid={dataTestId && `${dataTestId}-${download.fileName}`}
           />
         );
       })}

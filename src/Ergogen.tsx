@@ -518,6 +518,7 @@ const Ergogen = () => {
                     <Downloads
                       setPreview={setPreviewKey}
                       previewKey={preview.key}
+                      data-testid="downloads-container"
                     />
                   </ScrollablePanelContainer>
                 </RightSplitPane>
@@ -582,6 +583,7 @@ const Ergogen = () => {
                 setInjectionToEdit={setInjectionToEdit}
                 deleteInjection={handleDeleteInjection}
                 injectionToEdit={injectionToEdit}
+                data-testid="injections-container"
               />
             </LeftSplitPane>
             <RightSplitPane>

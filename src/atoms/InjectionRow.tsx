@@ -29,6 +29,7 @@ type Props = {
   setInjectionToEdit: (injection: Injection) => void;
   deleteInjection: (injection: Injection) => void;
   previewKey: string;
+  'data-testid'?: string;
 };
 
 /**
@@ -107,11 +108,12 @@ const InjectionRow = ({
   setInjectionToEdit,
   deleteInjection,
   previewKey,
+  'data-testid': dataTestId,
 }: Props): JSX.Element => {
   return (
-    <Row>
+    <Row data-testid={dataTestId}>
       <InjectionName
-        data-testid="injection-name"
+        data-testid={dataTestId && `${dataTestId}-name`}
         $active={previewKey === injection.name}
         onClick={() => setInjectionToEdit(injection)}
       >
@@ -124,7 +126,8 @@ const InjectionRow = ({
             e.preventDefault();
             deleteInjection(injection);
           }}
-          aria-label="delete injection"
+          aria-label={`delete injection ${injection.name}`}
+          data-testid={dataTestId && `${dataTestId}-delete`}
         >
           <span className="material-symbols-outlined">delete</span>
         </StyledLinkButton>
@@ -135,7 +138,8 @@ const InjectionRow = ({
           href={window.URL.createObjectURL(
             new Blob([injection.content], { type: 'octet/stream' })
           )}
-          aria-label="download injection"
+          aria-label={`download injection ${injection.name}`}
+          data-testid={dataTestId && `${dataTestId}-download`}
         >
           <span className="material-symbols-outlined">download</span>
         </StyledLinkButton>

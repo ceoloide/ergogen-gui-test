@@ -24,6 +24,7 @@ type Props = {
   className?: string;
   jscadPreview?: boolean;
   'data-testid'?: string;
+  'aria-label'?: string;
 };
 
 /**
@@ -42,6 +43,7 @@ const FilePreview = ({
   className,
   jscadPreview,
   'data-testid': dataTestId,
+  'aria-label': ariaLabel,
 }: Props) => {
   /**
    * Renders the correct preview component based on the file extension.
@@ -72,7 +74,7 @@ const FilePreview = ({
   };
 
   return (
-    <div className={className} data-testid={dataTestId}>
+    <div className={className} data-testid={dataTestId} aria-label={ariaLabel}>
       {renderFilePreview(previewExtension)}
     </div>
   );

@@ -25,6 +25,8 @@ type Props = {
   options?: EditorOptions;
   injection: Injection;
   setInjection: Dispatch<SetStateAction<Injection>>;
+  'data-testid'?: string;
+  'aria-label'?: string;
 };
 
 /**
@@ -39,6 +41,8 @@ const InjectionEditor = ({
   options,
   injection,
   setInjection,
+  'data-testid': dataTestId,
+  'aria-label': ariaLabel,
 }: Props) => {
   const configContext = useConfigContext();
 
@@ -56,7 +60,7 @@ const InjectionEditor = ({
   if (!configContext) return null;
 
   return (
-    <div className={className}>
+    <div className={className} data-testid={dataTestId} aria-label={ariaLabel}>
       <Editor
         height="60vh"
         defaultLanguage="javascript"
