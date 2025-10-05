@@ -19,6 +19,10 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 - Run `yarn precommit` before any commit, which formats, lints, checks for dependencies, and runs tests. You MUST address all errors before proceeding. You can ignore warnings, just mentioning them to the user as a proposal for future refactoring.
 - Global test setup for Jest should be placed in `src/setupTests.js`. This file is automatically loaded by the test runner and does not require manual configuration.
 
+### Commit Procedure
+
+**CRITICAL:** You **MUST** run `yarn precommit` before every commit. This command formats, lints, checks for unused dependencies, and runs the entire test suite. Address all errors before proceeding. Warnings can be ignored, but should be mentioned as potential follow-up tasks.
+
 ## Design principles
 
 - When writing unit tests, follow the "Arrange, Act, Assert" pattern and clearly delineate the three.
@@ -112,3 +116,15 @@ Proposed Fix: I will move the useState hook for configInput directly into the Co
 Description: The runGeneration function is a critical part of the application, but it has grown to be very long and complex. It currently handles multiple distinct responsibilities: parsing the configuration, checking for deprecation warnings, preparing a simplified config for previews, and finally executing the generation process. This makes the function difficult to read, test, and debug.
 
 Proposed Fix: I will break down the runGeneration function into several smaller, more focused functions. For example, I can create separate utility functions for parseConfig, checkForDeprecationWarnings, preparePreviewConfig, and executeGeneration. This will make the main runGeneration function a much simpler coordinator of these smaller functions, improving readability, maintainability, and making it much easier to write targeted unit tests.
+
+### [TASK-004] Replace Resizable Panel Library
+
+**Context:** The application currently uses an unspecified or custom implementation for resizable panels. The user has expressed a desire to switch to a more robust and feature-rich solution, specifically `react-resizable-panels`, to better emulate the UI behavior of modern editors like VS Code.
+
+**Task:** Replace the existing resizable panel implementation throughout the application with `react-resizable-panels`. This will involve:
+
+1. Adding `react-resizable-panels` as a project dependency.
+2. Identifying all components that use the current resizable panel system.
+3. Refactoring these components to use the `PanelGroup`, `Panel`, and `PanelResizeHandle` components from the new library.
+4. Ensuring that the new implementation is styled consistently with the application's theme and provides a smooth, VS Code-like user experience.
+5. Verifying that all related functionality, including E2E tests, remains intact after the migration.
