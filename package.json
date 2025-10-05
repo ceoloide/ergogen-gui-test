@@ -30,7 +30,7 @@
     "build": "react-scripts --openssl-legacy-provider build",
     "postbuild": "yarn run build-ergogen",
     "test": "CI=true react-scripts --openssl-legacy-provider test --env=jsdom",
-    "test:e2e": "playwright test",
+    "test:e2e": "CI=true playwright test",
     "test:ci": "yarn test && yarn test:e2e",
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
