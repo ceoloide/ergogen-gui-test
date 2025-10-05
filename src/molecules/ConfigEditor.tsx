@@ -22,6 +22,7 @@ type Props = {
   className?: string;
   options?: EditorOptions;
   'data-testid'?: string;
+  'aria-label'?: string;
 };
 
 /**
@@ -36,6 +37,7 @@ const ConfigEditor = ({
   className,
   options,
   'data-testid': dataTestId,
+  'aria-label': ariaLabel,
 }: Props) => {
   const configContext = useConfigContext();
 
@@ -90,7 +92,7 @@ const ConfigEditor = ({
   if (!configContext) return null;
 
   return (
-    <div className={className} data-testid={dataTestId}>
+    <div className={className} data-testid={dataTestId} aria-label={ariaLabel}>
       <Editor
         height="100%"
         defaultLanguage="yaml"

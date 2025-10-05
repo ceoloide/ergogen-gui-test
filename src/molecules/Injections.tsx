@@ -27,6 +27,7 @@ type Props = {
   setInjectionToEdit: Dispatch<SetStateAction<Injection>>;
   deleteInjection: (injection: Injection) => void;
   injectionToEdit: Injection;
+  'data-testid'?: string;
 };
 
 /**
@@ -46,6 +47,7 @@ const Injections = ({
   setInjectionToEdit,
   deleteInjection,
   injectionToEdit,
+  'data-testid': dataTestId,
 }: Props) => {
   const footprints: InjectionArr = [];
   const templates: InjectionArr = [];
@@ -91,7 +93,7 @@ const Injections = ({
   };
 
   return (
-    <InjectionsContainer>
+    <InjectionsContainer data-testid={dataTestId}>
       <Title>Custom Footprints</Title>
       {footprints.map((footprint) => {
         return (
@@ -101,6 +103,7 @@ const Injections = ({
             setInjectionToEdit={setInjectionToEdit}
             deleteInjection={deleteInjection}
             previewKey={injectionToEdit.name}
+            data-testid={dataTestId && `${dataTestId}-${footprint.name}`}
           />
         );
       })}
@@ -112,7 +115,11 @@ const Injections = ({
           }
         )
       } */}
-      <GrowButton onClick={handleNewFootprint} data-testid="add-footprint">
+      <GrowButton
+        onClick={handleNewFootprint}
+        data-testid="add-footprint"
+        aria-label="Add new custom footprint"
+      >
         <span className="material-symbols-outlined">add</span>
       </GrowButton>
     </InjectionsContainer>

@@ -14,6 +14,8 @@ type Props = {
   children: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
   disabled?: boolean;
+  'aria-label'?: string;
+  'data-testid'?: string;
 };
 
 /**

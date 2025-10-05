@@ -15,6 +15,7 @@ const setup = (
     setInjectionToEdit: jest.fn(),
     deleteInjection: jest.fn(),
     previewKey: '',
+    'data-testid': 'injection-row',
   };
   return render(<InjectionRow {...defaultProps} {...props} />);
 };
@@ -69,7 +70,7 @@ describe('InjectionRow', () => {
     setup({ previewKey: 'test-injection' });
 
     // Act & Assert
-    expect(screen.getByTestId('injection-name')).toHaveStyle(
+    expect(screen.getByTestId('injection-row-name')).toHaveStyle(
       `border-bottom: 2px solid ${theme.colors.accent}`
     );
   });
@@ -79,7 +80,7 @@ describe('InjectionRow', () => {
     setup({ previewKey: 'another-injection' });
 
     // Act & Assert
-    expect(screen.getByTestId('injection-name')).not.toHaveStyle(
+    expect(screen.getByTestId('injection-row-name')).not.toHaveStyle(
       `border-bottom: 2px solid ${theme.colors.accent}`
     );
   });
@@ -99,12 +100,13 @@ describe('InjectionRow', () => {
     setup({ injection });
 
     // Act
-    const downloadLink = screen.getByRole('link', {
-      name: /download injection/i,
-    });
+    const downloadLink = screen.getByTestId('injection-row-download');
 
     // Assert
-    expect(downloadLink).toHaveAttribute('aria-label', 'download injection');
+    expect(downloadLink).toHaveAttribute(
+      'aria-label',
+      'download injection test-injection'
+    );
     expect(downloadLink).toHaveAttribute('download', 'test-injection.js');
     expect(downloadLink).toHaveAttribute(
       'href',
