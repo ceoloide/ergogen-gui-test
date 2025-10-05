@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { theme } from '../theme/theme';
 
 /**
  * Props for the Button component.
@@ -24,28 +25,28 @@ const Button = styled.button`
   padding: 1rem 2rem;
   margin: 0;
   text-decoration: none;
-  background-color: #28a745;
+  background-color: ${theme.colors.accent};
   border-radius: 0.25rem;
   transition:
     color 0.15s ease-in-out,
     background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out,
     box-shadow 0.15s ease-in-out;
-  color: #ffffff;
-  font-family: 'Roboto', sans-serif;
+  color: ${theme.colors.white};
+  font-family: ${theme.fonts.body};
   cursor: pointer;
   text-align: center;
   -webkit-appearance: none;
   -moz-appearance: none;
 
   &:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
+    background-color: ${theme.colors.accentDark};
+    border-color: ${theme.colors.accentDarker};
   }
 
   &:active {
     transform: scale(0.98);
-    outline: 2px solid #fff;
+    outline: 2px solid ${theme.colors.white};
     outline-offset: -5px;
   }
 
@@ -60,7 +61,7 @@ const Button = styled.button`
  */
 const MediumButton = styled(Button)`
   padding: 0.7rem 1.4rem;
-  font-size: 1rem;
+  font-size: ${theme.fontSizes.base};
 `;
 
 /**
@@ -68,7 +69,7 @@ const MediumButton = styled(Button)`
  */
 const SmallButton = styled(Button)`
   padding: 8px 12px;
-  font-size: 0.8rem;
+  font-size: ${theme.fontSizes.sm};
 `;
 
 /**
@@ -76,7 +77,7 @@ const SmallButton = styled(Button)`
  */
 const IconButton = styled(Button)`
   padding: 8px 12px;
-  font-size: 0.4rem;
+  font-size: ${theme.fontSizes.xs};
 `;
 
 /**

@@ -1,31 +1,32 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useConfigContext } from '../context/ConfigContext';
+import { theme } from '../theme/theme';
 
 const bannerColors = {
   info: {
-    background: 'hsl(206, 94%, 92%)',
-    text: 'hsl(206, 100%, 30%)',
+    background: theme.colors.info,
+    text: theme.colors.infoDark,
   },
   warning: {
-    background: 'hsl(45, 100%, 90%)',
-    text: 'hsl(32, 79%, 40%)',
+    background: theme.colors.warning,
+    text: theme.colors.warningDark,
   },
   error: {
-    background: 'hsl(360, 100%, 94%)',
-    text: 'hsl(360, 70%, 50%)',
+    background: theme.colors.error,
+    text: theme.colors.errorDark,
   },
   success: {
-    background: 'hsl(120, 73%, 92%)',
-    text: 'hsl(120, 50%, 35%)',
+    background: theme.colors.success,
+    text: theme.colors.successDark,
   },
-  text: 'hsl(200, 8%, 15%)',
+  text: theme.colors.text,
 };
 
 const BannerIcon = styled.span.attrs({
   className: 'material-symbols-outlined',
 })`
-  font-size: 24px;
+  font-size: ${theme.fontSizes.iconLarge};
   margin-right: 1rem;
 `;
 
@@ -71,7 +72,7 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   color: ${bannerColors.text};
-  font-size: 1.5rem;
+  font-size: ${theme.fontSizes.h3};
   cursor: pointer;
   padding: 0;
   line-height: 1;

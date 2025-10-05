@@ -1,11 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { loader } from '@monaco-editor/react';
-import './index.css';
 import App from './App';
 import { defineErgogenTheme } from './utils/monaco';
+import { theme } from './theme/theme';
 
 /**
  * The main container for the entire application.
@@ -20,6 +20,34 @@ const AppContainer = styled.div`
   font-family: 'Roboto', sans-serif;
 `;
 
+const GlobalStyle = createGlobalStyle`
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    display: flex;
+  }
+
+  body {
+    margin: 0;
+    font-family: ${theme.fonts.body};
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: ${theme.colors.text};
+  }
+
+  code {
+    font-family: ${theme.fonts.code};
+  }
+`;
+
 loader.init().then((monaco) => {
   defineErgogenTheme(monaco);
 
@@ -32,6 +60,7 @@ loader.init().then((monaco) => {
     <React.StrictMode>
       <BrowserRouter>
         <AppContainer>
+          <GlobalStyle />
           <App />
         </AppContainer>
       </BrowserRouter>

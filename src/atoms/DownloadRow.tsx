@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../theme/theme';
 
 /**
  * Interface for a preview object.
@@ -51,10 +52,12 @@ const Row = styled.div`
 const FileName = styled.div<{ active: boolean; hasPreview: boolean }>`
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 13px;
+  font-size: ${theme.fontSizes.bodySmall};
   cursor: ${(props) => (props.hasPreview ? 'pointer' : 'default')};
   border-bottom: ${(props) =>
-    props.active ? '2px solid #28a745' : '2px solid transparent'};
+    props.active
+      ? `2px solid ${theme.colors.accent}`
+      : '2px solid transparent'};
   border-top: 2px solid transparent;
 `;
 
@@ -73,26 +76,26 @@ const Buttons = styled.div`
  * Used for preview and download actions.
  */
 const StyledLinkButton = styled.a`
-    background-color: #222222;
+    background-color: ${theme.colors.background};
     border: none;
     border-radius: 6px;
-    color: white;
+    color: ${theme.colors.white};
     display: flex;
     align-items: center;
     padding: 4px 6px;
     text-decoration: none;
     cursor: pointer;
-    font-size: 13px;
+    font-size: ${theme.fontSizes.bodySmall};
     line-height: 16px;
     gap: 6px
     height: 34px;
 
     .material-symbols-outlined {
-        font-size: 16px !important;
+        font-size: ${theme.fontSizes.iconMedium} !important;
     }
 
     &:hover {
-        background-color: #3f3f3f;
+        background-color: ${theme.colors.buttonHover};
     }
 `;
 

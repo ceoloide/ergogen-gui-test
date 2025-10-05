@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../theme/theme';
 
 /**
  * A styled text input component.
@@ -17,11 +18,11 @@ const styledInput = styled.input.attrs<{ $size?: string }>((props) => ({
   // or we can define dynamic ones
   $size: props.$size || '0.5em',
 }))`
-  font-size: 1em;
-  border: 2px solid rgb(193, 193, 193);
+  font-size: ${theme.fontSizes.base};
+  border: 2px solid ${theme.colors.borderLight};
   border-radius: 3px;
-  background: #2d2d2d;
-  color: #fff;
+  background: ${theme.colors.backgroundLight};
+  color: ${theme.colors.white};
   /* here we use the dynamically computed prop */
   margin: ${(props) => props.$size};
   padding: ${(props) => props.$size};

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { theme } from '../theme/theme';
 import { useConfigContext } from '../context/ConfigContext';
 import { exampleOptions, ConfigOption } from '../examples';
 import EmptyYAML from '../examples/empty_yaml';
@@ -10,8 +11,8 @@ import Input from '../atoms/Input';
 
 // Styled Components
 const WelcomePageWrapper = styled.div`
-  background-color: #222222;
-  color: #fff;
+  background-color: ${theme.colors.background};
+  color: ${theme.colors.white};
   flex-grow: 1;
   overflow-y: auto;
   display: flex;
@@ -30,16 +31,16 @@ const WelcomeContainer = styled.div`
 `;
 
 const Header = styled.h1`
-  font-size: 2.5rem;
+  font-size: ${theme.fontSizes.h1};
   text-align: center;
   margin-bottom: 1rem;
 `;
 
 const SubHeader = styled.p`
-  font-size: 1.2rem;
+  font-size: ${theme.fontSizes.lg};
   text-align: center;
   margin-bottom: 3rem;
-  color: #ccc;
+  color: ${theme.colors.textDark};
 `;
 
 const OptionsContainer = styled.div`
@@ -54,10 +55,10 @@ const OptionsContainer = styled.div`
 `;
 
 const OptionBox = styled.div`
-  background-color: #2a2a2a;
+  background-color: ${theme.colors.backgroundLight};
   padding: 2rem;
   border-radius: 8px;
-  border: 1px solid #3f3f3f;
+  border: 1px solid ${theme.colors.border};
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -74,7 +75,7 @@ const OptionBox = styled.div`
   }
 
   p {
-    color: #aaa;
+    color: ${theme.colors.textDarker};
     margin-bottom: 1.5rem;
     flex-grow: 1;
   }
@@ -94,9 +95,9 @@ const ExamplesGrid = styled.div`
 `;
 
 const ExampleCard = styled.div`
-  background-color: #2a2a2a;
+  background-color: ${theme.colors.backgroundLight};
   border-radius: 8px;
-  border: 1px solid #3f3f3f;
+  border: 1px solid ${theme.colors.border};
   cursor: pointer;
   transition:
     transform 0.2s,
@@ -112,24 +113,24 @@ const ExampleCard = styled.div`
 const PlaceholderImage = styled.div`
   width: 100%;
   height: 150px;
-  background-color: #333;
+  background-color: ${theme.colors.backgroundLighter};
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: ${theme.colors.textDarkest};
   font-style: italic;
 `;
 
 const ExampleName = styled.div`
   padding: 1rem;
-  font-weight: 600;
+  font-weight: ${theme.fontWeights.semiBold};
   text-align: center;
 `;
 
 const ErrorMessage = styled.div`
-  background: #ff6d6d;
-  color: #a31111;
-  border: 1px solid #a31111;
+  background: ${theme.colors.error};
+  color: ${theme.colors.errorDark};
+  border: 1px solid ${theme.colors.errorDark};
   padding: 1em;
   margin-top: 1em;
   border-radius: 6px;
@@ -227,7 +228,7 @@ const Welcome = () => {
           style={{
             textAlign: 'center',
             marginBottom: '2rem',
-            fontSize: '2rem',
+            fontSize: theme.fontSizes.h2,
           }}
         >
           Or start from an example

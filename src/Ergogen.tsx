@@ -18,21 +18,22 @@ import GenOption from './atoms/GenOption';
 import OutlineIconButton from './atoms/OutlineIconButton';
 import GrowButton from './atoms/GrowButton';
 import Title from './atoms/Title';
+import { theme } from './theme/theme';
 
 // Shortcut key sub-label styled component
 const ShortcutKey = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #239923;
+  background: ${theme.colors.accentSecondary};
   border-radius: 6px;
   padding: 0 0.5em;
   margin-left: 1em;
-  font-family: 'Roboto', sans-serif;
-  font-size: 13px;
+  font-family: ${theme.fonts.body};
+  font-size: ${theme.fontSizes.bodySmall};
   height: 1.7em;
   min-width: 2.2em;
-  color: #fff;
+  color: ${theme.colors.white};
   box-sizing: border-box;
   user-select: none;
 `;
@@ -53,7 +54,7 @@ const SubHeaderContainer = styled.div`
   height: 3em;
   display: none;
   align-items: center;
-  border-bottom: 1px solid #3f3f3f;
+  border-bottom: 1px solid ${theme.colors.border};
   flex-direction: row;
   gap: 10px;
   padding: 0 1rem;
@@ -76,7 +77,7 @@ const Spacer = styled.div`
  * A styled button with a green background, used for primary actions on mobile.
  */
 const GenerateIconButton = styled.button`
-  background-color: #239923;
+  background-color: ${theme.colors.accentSecondary};
   transition: background-color 0.15s ease-in-out;
   border: none;
   border-radius: 6px;
@@ -87,15 +88,15 @@ const GenerateIconButton = styled.button`
   text-decoration: none;
   cursor: pointer;
   height: 34px;
-  font-family: 'Roboto', sans-serif;
+  font-family: ${theme.fonts.body};
   padding: 8px 12px !important;
 
   .material-symbols-outlined {
-    font-size: 16px !important;
+    font-size: ${theme.fontSizes.iconMedium} !important;
   }
 
   &:hover {
-    background-color: #1e8e1e;
+    background-color: ${theme.colors.accentDark};
   }
 `;
 
@@ -175,14 +176,14 @@ const StyledSplit = styled(Split)`
   flex-direction: row;
 
   .gutter {
-    background-color: #3f3f3f;
+    background-color: ${theme.colors.border};
     border-radius: 0.15rem;
 
     background-repeat: no-repeat;
     background-position: 50%;
 
     &:hover {
-      background-color: #676767;
+      background-color: ${theme.colors.buttonSecondaryHover};
     }
 
     &.gutter-horizontal {

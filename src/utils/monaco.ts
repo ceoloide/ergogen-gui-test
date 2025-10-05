@@ -1,4 +1,5 @@
 import { Monaco } from '@monaco-editor/react';
+import { theme } from '../theme/theme';
 
 let themeDefined = false;
 
@@ -11,7 +12,7 @@ export const defineErgogenTheme = (monaco: Monaco) => {
     inherit: true,
     rules: [],
     colors: {
-      'editor.background': '#2d2d2d',
+      'editor.background': theme.colors.backgroundLight,
     },
   });
   themeDefined = true;

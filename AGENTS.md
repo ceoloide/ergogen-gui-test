@@ -23,6 +23,7 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 - When writing unit tests, follow the "Arrange, Act, Assert" pattern and clearly delineate the three.
 - Components should be accessible. Use semantic HTML and ARIA attributes (e.g., `aria-label`) where appropriate to ensure a good user experience for everyone, including users of assistive technologies. This also improves testability.
 - Tests should be robust and user-centric. Prefer selecting elements by user-facing attributes (like accessible name, text, or role) over implementation details (like class names or DOM structure). Use `data-testid` for elements where no other stable, user-facing selector is available.
+- **Centralized Theming**: All colors and other theme-related properties (e.g., font sizes, spacing) should be centralized in `src/theme/theme.ts`. Components should import and use variables from this theme file instead of using hardcoded values.
 
 ## Development environment
 
@@ -50,8 +51,9 @@ Your task is to record important information in this file (`AGENTS.md`), which a
 - **Always run tests in headless/CI mode.** When running tests, ensure they are configured to execute once and exit, without entering interactive watch mode.
 - **Propose a plan before complex refactoring.** For non-trivial changes, especially concerning tests or core logic, present a plan of action before implementing it. This allows for feedback and ensures alignment.
 - **Critique your work and log follow-up tasks.** After making significant changes, provide a critique of the work, identifying areas for improvement. Log these areas as actionable items in the AGENTS.md "Future Tasks" section. This formalizes the process we followed after the test refactoring.
-- **Confirm task completion before removal.** After completing a task from the "Future Tasks" list, always confirm with the user before removing it from this document. Once confirmed, the task should be removed from the "Future Tasks" section.
+- **CRITICAL: Confirm task completion before removal.** You **MUST** always confirm with the user that a task from the "Future Tasks" list is complete before removing it from this document. Once the user confirms, and only then, the task should be removed from the "Future Tasks" section.
 - **Focus on relevant lint errors.** When running the linter, only address errors that are directly related to the files and code you have modified. It is acceptable to ignore pre-existing, unrelated errors in other parts of the codebase.
+- **Use the Theme File**: When implementing or modifying UI components, you **MUST** use variables from the theme file (`src/theme/theme.ts`) for all colors and other theme-related properties. If a required value is not present in the theme, you **MUST** add it.
 
 ### Instructions on proposals to change the knowlege base
 
@@ -77,12 +79,6 @@ When creating proposals for the knowledge base, primarily focus on extracting in
     - **DO NOT record**: "I have completed the task to create a new welcome page for the web app."
 
 ## Future Tasks
-
-### TASK-001: Eliminate Magic Values in Tests
-
-**Context:** During a refactoring of the `InjectionRow.tsx` component, the test suite was improved to check for the presence of a green highlight when a row is active. The test currently asserts that the border color is a hardcoded hex value (`#28a745`).
-
-**Task:** Refactor the test to remove this "magic value." This can be achieved by defining theme colors in a central location (e.g., a `theme.ts` file), exporting them, and importing the color variable into both the `InjectionRow.tsx` component and its test file, `InjectionRow.test.tsx`.
 
 ### TASK-002: Adopt a Stricter TDD Process
 

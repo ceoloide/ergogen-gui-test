@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useConfigContext } from '../context/ConfigContext';
 import DiscordIcon from './DiscordIcon';
 import GithubIcon from './GithubIcon';
+import { theme } from '../theme/theme';
 
 /**
  * A styled container for the entire header.
@@ -14,7 +15,7 @@ const HeaderContainer = styled.header`
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  background-color: #222222;
+  background-color: ${theme.colors.background};
   flex-shrink: 0;
 
   @media (max-width: 639px) {
@@ -57,17 +58,17 @@ const ErgogenLogo = styled.div`
  * A styled div for the application name.
  */
 const AppName = styled.div`
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
+  font-size: ${theme.fontSizes.base};
+  font-weight: ${theme.fontWeights.semiBold};
+  color: ${theme.colors.white};
 `;
 
 /**
  * A styled anchor tag for displaying the version number.
  */
 const VersionText = styled.a`
-  font-size: 0.75rem;
-  color: #28a745;
+  font-size: ${theme.fontSizes.sm};
+  color: ${theme.colors.accent};
   text-decoration: none;
   align-items: center;
 `;
@@ -77,26 +78,26 @@ const VersionText = styled.a`
  */
 const StyledLinkButton = styled.a`
     background-color: transparent;
-    border: 1px solid #3f3f3f;
+    border: 1px solid ${theme.colors.border};
     border-radius: 6px;
-    color: white;
+    color: ${theme.colors.white};
     display: flex;
     align-items: center;
     padding: 8px 12px;
     text-decoration: none;
     cursor: pointer;
-    font-size: 13px;
+    font-size: ${theme.fontSizes.bodySmall};
     line-height: 16px;
     gap: 6px
     height: 34px;
 
     .material-symbols-outlined {
         margin-right: 6px;
-        font-size: 16px !important;
+        font-size: ${theme.fontSizes.iconMedium} !important;
     }
 
     &:hover {
-        background-color: #3f3f3f;
+        background-color: ${theme.colors.buttonHover};
     }
 `;
 
@@ -121,35 +122,35 @@ const OutlineIconButton = styled.button`
     background-color .15s ease-in-out,
     border-color .15s ease-in-out,
     box-shadow .15s ease-in-out;
-    border: 1px solid #3f3f3f;
+    border: 1px solid ${theme.colors.border};
     border-radius: 6px;
-    color: white;
+    color: ${theme.colors.white};
     display: flex;
     align-items: center;
     padding: 8px 12px;
     text-decoration: none;
     cursor: pointer;
-    font-size: 13px;
+    font-size: ${theme.fontSizes.bodySmall};
     line-height: 16px;
     gap: 6px
     height: 34px;
 
     .material-symbols-outlined {
-        font-size: 16px !important;
+        font-size: ${theme.fontSizes.iconMedium} !important;
     }
 
     &:hover {
-        background-color: #3f3f3f;
+        background-color: ${theme.colors.buttonHover};
     }
 `;
 
 const AccentIconButton = styled(OutlineIconButton)`
-  background-color: #28a745;
-  border-color: #28a745;
+  background-color: ${theme.colors.accent};
+  border-color: ${theme.colors.accent};
 
   &:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
+    background-color: ${theme.colors.accentDark};
+    border-color: ${theme.colors.accentDarker};
   }
 `;
 

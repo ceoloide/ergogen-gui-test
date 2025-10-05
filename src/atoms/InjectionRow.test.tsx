@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import InjectionRow from './InjectionRow';
+import { theme } from '../theme/theme';
 
 const setup = (
   props: Partial<React.ComponentProps<typeof InjectionRow>> = {}
@@ -69,7 +70,7 @@ describe('InjectionRow', () => {
 
     // Act & Assert
     expect(screen.getByTestId('injection-name')).toHaveStyle(
-      'border-bottom: 2px solid #28a745'
+      `border-bottom: 2px solid ${theme.colors.accent}`
     );
   });
 
@@ -79,7 +80,7 @@ describe('InjectionRow', () => {
 
     // Act & Assert
     expect(screen.getByTestId('injection-name')).not.toHaveStyle(
-      'border-bottom: 2px solid #28a745'
+      `border-bottom: 2px solid ${theme.colors.accent}`
     );
   });
 
@@ -91,16 +92,23 @@ describe('InjectionRow', () => {
       name: 'test-injection',
       content: 'test-content',
     };
-    const createObjectURL = jest.fn().mockReturnValue('blob:http://localhost/mock-url');
+    const createObjectURL = jest
+      .fn()
+      .mockReturnValue('blob:http://localhost/mock-url');
     global.URL.createObjectURL = createObjectURL;
     setup({ injection });
 
     // Act
-    const downloadLink = screen.getByRole('link', { name: /download injection/i });
+    const downloadLink = screen.getByRole('link', {
+      name: /download injection/i,
+    });
 
     // Assert
     expect(downloadLink).toHaveAttribute('aria-label', 'download injection');
     expect(downloadLink).toHaveAttribute('download', 'test-injection.js');
-    expect(downloadLink).toHaveAttribute('href', 'blob:http://localhost/mock-url');
+    expect(downloadLink).toHaveAttribute(
+      'href',
+      'blob:http://localhost/mock-url'
+    );
   });
 });

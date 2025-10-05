@@ -1,29 +1,30 @@
 import styled from 'styled-components';
+import { theme } from '../theme/theme';
 
 /**
  * A button that expands to fill the available horizontal space.
  */
 const GrowButton = styled.button`
-  background-color: #239923;
+  background-color: ${theme.colors.accentSecondary};
   transition: background-color 0.15s ease-in-out;
   border: none;
   border-radius: 6px;
-  color: white;
+  color: ${theme.colors.white};
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   cursor: pointer;
   height: 34px;
-  font-family: 'Roboto', sans-serif;
+  font-family: ${theme.fonts.body};
   flex-grow: 1;
 
   .material-symbols-outlined {
-    font-size: 16px !important;
+    font-size: ${theme.fontSizes.iconMedium} !important;
   }
 
   &:hover {
-    background-color: #1e8e1e;
+    background-color: ${theme.colors.accentDark};
   }
 `;
 
