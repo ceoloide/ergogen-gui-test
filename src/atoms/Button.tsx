@@ -24,7 +24,7 @@ type Props = {
 const Button = styled.button`
   display: inline-block;
   border: none;
-  padding: 1rem 2rem;
+  padding: ${theme.buttonSizes.large.padding};
   margin: 0;
   text-decoration: none;
   background-color: ${theme.colors.accent};
@@ -36,6 +36,7 @@ const Button = styled.button`
     box-shadow 0.15s ease-in-out;
   color: ${theme.colors.white};
   font-family: ${theme.fonts.body};
+  font-size: ${theme.buttonSizes.large.fontSize};
   cursor: pointer;
   text-align: center;
   -webkit-appearance: none;
@@ -62,24 +63,24 @@ const Button = styled.button`
  * A medium-sized variant of the Button.
  */
 const MediumButton = styled(Button)`
-  padding: 0.7rem 1.4rem;
-  font-size: ${theme.fontSizes.base};
+  padding: ${theme.buttonSizes.medium.padding};
+  font-size: ${theme.buttonSizes.medium.fontSize};
 `;
 
 /**
  * A small-sized variant of the Button.
  */
 const SmallButton = styled(Button)`
-  padding: 8px 12px;
-  font-size: ${theme.fontSizes.sm};
+  padding: ${theme.buttonSizes.small.padding};
+  font-size: ${theme.buttonSizes.small.fontSize};
 `;
 
 /**
  * An icon-sized variant of the Button.
  */
 const IconButton = styled(Button)`
-  padding: 8px 12px;
-  font-size: ${theme.fontSizes.xs};
+  padding: ${theme.buttonSizes.icon.padding};
+  font-size: ${theme.buttonSizes.icon.fontSize};
 `;
 
 /**
