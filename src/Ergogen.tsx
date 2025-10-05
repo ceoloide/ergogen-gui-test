@@ -168,9 +168,13 @@ const OptionContainer = styled.div`
 `;
 
 const SettingsPaneContainer = styled.div`
-  padding: 10px;
   height: 100%;
   overflow-y: auto;
+  padding: 0.5rem;
+
+  @media (min-width: 640px) {
+    padding: 1rem;
+  }
 `;
 
 /**
