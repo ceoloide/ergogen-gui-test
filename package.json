@@ -8,6 +8,8 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "@jscad/csg": "0.7.0",
+    "@jscad/stl-serializer": "0.1.3",
     "@monaco-editor/react": "^4.6.0",
     "ergogen": "ceoloide/ergogen#bezier",
     "js-yaml": "^4.1.0",

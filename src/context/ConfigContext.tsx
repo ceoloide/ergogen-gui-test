@@ -13,6 +13,7 @@ import yaml from 'js-yaml';
 import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
+import { convertJscadToStl } from '../utils/jscad';
 
 // Strongly-typed shape for Ergogen results used in the UI
 type DemoOutput = {
@@ -25,6 +26,7 @@ type OutlineOutput = {
 };
 type CaseOutput = {
   jscad?: string;
+  stl?: string;
 };
 type PcbsOutput = Record<string, string>;
 
@@ -369,6 +371,23 @@ const ConfigContextProvider = ({
           setError(e.toString());
         }
         return;
+      }
+
+      // Convert JSCAD cases to STL format
+      if (results && (results as Results).cases) {
+        const casesWithStl: Record<string, CaseOutput> = {};
+        for (const [name, caseObj] of Object.entries(
+          (results as Results).cases as Record<string, CaseOutput>
+        )) {
+          const stl = caseObj.jscad
+            ? await convertJscadToStl(caseObj.jscad)
+            : null;
+          casesWithStl[name] = {
+            ...caseObj,
+            stl: stl ?? undefined,
+          };
+        }
+        (results as Results).cases = casesWithStl;
       }
 
       setResults(results as Results);
