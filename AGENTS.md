@@ -111,9 +111,3 @@ Proposed Fix: I will move the useState hook for configInput directly into the Co
 Description: The runGeneration function is a critical part of the application, but it has grown to be very long and complex. It currently handles multiple distinct responsibilities: parsing the configuration, checking for deprecation warnings, preparing a simplified config for previews, and finally executing the generation process. This makes the function difficult to read, test, and debug.
 
 Proposed Fix: I will break down the runGeneration function into several smaller, more focused functions. For example, I can create separate utility functions for parseConfig, checkForDeprecationWarnings, preparePreviewConfig, and executeGeneration. This will make the main runGeneration function a much simpler coordinator of these smaller functions, improving readability, maintainability, and making it much easier to write targeted unit tests.
-
-### [TASK-004] Lack of a Centralized Theme Definition for Sizes
-
-Description: In Button.tsx, the padding values for different button sizes (1rem 2rem, 0.7rem 1.4rem, 8px 12px) are hardcoded directly into the styled-components. These values are not defined in the central theme file (src/theme/theme.ts), which goes against the principles of a consistent design system. If another component needed to use similar sizing, it would have to duplicate these magic numbers.
-
-Proposed Fix: I will add a new buttonSizes or a more generic sizes object to the theme.ts file. This object will store the padding and font-size values for different component sizes (e.g., small, medium, large). The Button component will then be updated to reference these values from the theme. This will ensure consistency, remove hardcoded values, and make it much easier to update the application's design system from a single, centralized location.
