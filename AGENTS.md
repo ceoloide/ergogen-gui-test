@@ -15,7 +15,7 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 - Prefer test-drive development; first write the tests for the bug fix or new feature, make sure they fail in the expected way, then make them pass.
 - Try to make tests fast, for example by mocking heavy operations or other similar things when appropriate.
 - Use `yarn knip` to tidy up dependencies before finishing. Always ignore unusued files warning for files in the `patch` of `public` directories.
-- Use `yarn format` and `yarn lint` to check and fix formatting errors before finishing and committing files. You MUST always run `yarn format` before committing any file.
+- Use `yarn format` and `yarn lint` to check and fix formatting errors before finishing. You MUST always run `yarn format` and `yarn lint` before committing any file.
 - Global test setup for Jest should be placed in `src/setupTests.js`. This file is automatically loaded by the test runner and does not require manual configuration.
 
 ## Design principles
@@ -50,6 +50,8 @@ Your task is to record important information in this file (`AGENTS.md`), which a
 - **Always run tests in headless/CI mode.** When running tests, ensure they are configured to execute once and exit, without entering interactive watch mode.
 - **Propose a plan before complex refactoring.** For non-trivial changes, especially concerning tests or core logic, present a plan of action before implementing it. This allows for feedback and ensures alignment.
 - **Critique your work and log follow-up tasks.** After making significant changes, provide a critique of the work, identifying areas for improvement. Log these areas as actionable items in the AGENTS.md "Future Tasks" section. This formalizes the process we followed after the test refactoring.
+- **Confirm task completion before removal.** After completing a task from the "Future Tasks" list, always confirm with the user before removing it from this document. Once confirmed, the task should be removed from the "Future Tasks" section.
+- **Focus on relevant lint errors.** When running the linter, only address errors that are directly related to the files and code you have modified. It is acceptable to ignore pre-existing, unrelated errors in other parts of the codebase.
 
 ### Instructions on proposals to change the knowlege base
 
@@ -93,9 +95,3 @@ When creating proposals for the knowledge base, primarily focus on extracting in
 **Context:** The test suite for the `InjectionRow.tsx` component currently lacks coverage for the download link. While other interactions (delete, select) are tested, there is no test to verify that the download link is correctly configured.
 
 **Task:** Add a test to `InjectionRow.test.tsx` that asserts the download link has the correct `aria-label`, `download` filename, and `href` attributes. This will prevent regressions in the download functionality.
-
-### TASK-004: Resolve ESLint Compatibility Issues
-
-**Context:** The linting process is failing due to an incompatibility between ESLint v9 and the `eslint-plugin-react-hooks` plugin (v4.6.0), which is a dependency of `eslint-config-react-app`. The error `TypeError: context.getSource is not a function` is thrown because this function was removed in ESLint v9.
-
-**Task:** Update the ESLint configuration to resolve these compatibility issues. This will involve removing outdated packages like `eslint-config-react-app`, `babel-eslint`, and `eslint-plugin-flowtype`, and replacing them with modern, compatible alternatives. The `eslint.config.js` file will need to be updated to reflect these changes.
