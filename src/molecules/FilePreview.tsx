@@ -1,5 +1,6 @@
 import JscadPreview from '../atoms/JscadPreview';
 import PcbPreview from '../atoms/PcbPreview';
+import StlPreview from '../atoms/StlPreview';
 import SvgPreview from '../atoms/SvgPreview';
 import TextPreview from '../atoms/TextPreview';
 
@@ -102,6 +103,14 @@ const FilePreview = ({
             key={previewKey}
             aria-label={ariaLabel || `PCB preview for ${previewKey}`}
             data-testid={dataTestId && `${dataTestId}-pcb`}
+          />
+        );
+      case 'stl':
+        return (
+          <StlPreview
+            stl={previewContent}
+            aria-label={ariaLabel || `STL preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-stl`}
           />
         );
       default:

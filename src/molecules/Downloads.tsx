@@ -179,8 +179,12 @@ const Downloads = ({
           fileName: name,
           extension: 'stl',
           content: caseObj.stl,
-          previewKey: '',
-          preview: undefined,
+          previewKey: `cases.${name}.stl`,
+          preview: {
+            key: `cases.${name}.stl`,
+            extension: 'stl',
+            content: caseObj.stl,
+          },
         });
       }
     }
