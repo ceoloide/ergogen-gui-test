@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-// @ts-ignore
+// @ts-expect-error -- react-easy-panzoom doesn't have type definitions
 import { PanZoom } from 'react-easy-panzoom';
 
 /**

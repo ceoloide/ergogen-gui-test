@@ -213,20 +213,24 @@ const RightSplitPane = styled.div`
 /**
  * Recursively finds a nested property within an object using a dot-separated string.
  * @param {string} resultToFind - The dot-separated path to the desired property (e.g., "outlines.top.svg").
- * @param {any} resultsToSearch - The object to search within.
- * @returns {any | undefined} The found property value, or undefined if not found.
+ * @param {unknown} resultsToSearch - The object to search within.
+ * @returns {unknown | undefined} The found property value, or undefined if not found.
  */
 const findResult = (
   resultToFind: string,
-  resultsToSearch: any
-): any | undefined => {
+  resultsToSearch: unknown
+): unknown | undefined => {
   if (resultsToSearch === null) return null;
   if (resultToFind === '') return resultsToSearch;
+  if (typeof resultsToSearch !== 'object') return undefined;
   const properties = resultToFind.split('.');
-  const currentProperty = properties[0] as keyof typeof resultsToSearch;
+  const currentProperty = properties[0];
   const remainingProperties = properties.slice(1).join('.');
-  return resultsToSearch.hasOwnProperty(currentProperty)
-    ? findResult(remainingProperties, resultsToSearch[currentProperty])
+  return Object.prototype.hasOwnProperty.call(resultsToSearch, currentProperty)
+    ? findResult(
+        remainingProperties,
+        (resultsToSearch as Record<string, unknown>)[currentProperty]
+      )
     : undefined;
 };
 
@@ -352,7 +356,10 @@ const Ergogen = () => {
         preview.content = typeof result === 'string' ? result : '';
         break;
       case 'jscad':
-        preview.content = typeof result?.jscad === 'string' ? result.jscad : '';
+        preview.content =
+          typeof (result as Record<string, unknown>)?.jscad === 'string'
+            ? ((result as Record<string, unknown>).jscad as string)
+            : '';
         break;
       case 'yaml':
         preview.content = yaml.dump(result);

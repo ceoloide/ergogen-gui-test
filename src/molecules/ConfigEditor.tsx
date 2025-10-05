@@ -39,9 +39,24 @@ const ConfigEditor = ({
 }: Props) => {
   const configContext = useConfigContext();
 
-  // @ts-ignore
+  // Provide safe defaults when context is null to avoid conditional hooks
+  const defaults = {
+    configInput: undefined as string | undefined,
+    setConfigInput: ((
+      _val: string | undefined
+    ) => {}) as unknown as React.Dispatch<
+      React.SetStateAction<string | undefined>
+    >,
+    injectionInput: undefined as string[][] | undefined,
+    generateNow: (async () => {}) as (
+      textInput: string | undefined,
+      injectionInput: string[][] | undefined,
+      options?: { pointsonly: boolean }
+    ) => Promise<void>,
+  };
+
   const { configInput, setConfigInput, injectionInput, generateNow } =
-    configContext;
+    configContext ?? defaults;
 
   /**
    * Handles changes in the editor's content.
@@ -63,7 +78,7 @@ const ConfigEditor = ({
       id: 'generate-config',
       label: 'Generate',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      run: (editor: any) => {
+      run: () => {
         const currentConfig = editor.getValue();
         // Also update the context state so the UI is in sync
         setConfigInput(currentConfig);
@@ -71,6 +86,8 @@ const ConfigEditor = ({
       },
     });
   };
+
+  if (!configContext) return null;
 
   return (
     <div className={className} data-testid={dataTestId}>

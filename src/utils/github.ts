@@ -70,7 +70,7 @@ export const fetchConfigFromUrl = async (url: string): Promise<string> => {
       }
 
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   };
@@ -116,7 +116,7 @@ export const fetchConfigFromUrl = async (url: string): Promise<string> => {
   // Try fetching from the 'main' branch first, then fall back to 'master'.
   try {
     return await fetchWithBranch('main');
-  } catch (e) {
+  } catch (_e) {
     return await fetchWithBranch('master');
   }
 };

@@ -127,16 +127,6 @@ const ExampleName = styled.div`
   text-align: center;
 `;
 
-const ErrorMessage = styled.div`
-  background: ${theme.colors.error};
-  color: ${theme.colors.errorDark};
-  border: 1px solid ${theme.colors.errorDark};
-  padding: 1em;
-  margin-top: 1em;
-  border-radius: 6px;
-  text-align: center;
-`;
-
 // Flatten examples into a single list, excluding the "Empty" one which has a dedicated button
 const allExamples: ConfigOption[] = exampleOptions
   .flatMap((group) => group.options)
@@ -162,7 +152,7 @@ const Welcome = () => {
 
   const handleGitHub = () => {
     if (!githubInput || !configContext) return;
-    const { setConfigInput, setError, clearError } = configContext;
+    const { setError, clearError } = configContext;
     setIsLoading(true);
     clearError();
     fetchConfigFromUrl(githubInput)
@@ -205,7 +195,7 @@ const Welcome = () => {
             <h2>From GitHub</h2>
             <p>
               Link to a YAML config file on GitHub, or simply a repo like
-              "user/repo".
+              &quot;user/repo&quot;.
             </p>
             <GitHubInputContainer>
               <Input

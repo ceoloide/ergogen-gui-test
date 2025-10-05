@@ -106,12 +106,12 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       {
         fileName: 'demo',
         extension: 'dxf',
-        content: results?.demo?.dxf,
+        content: results.demo?.dxf ?? '',
         previewKey: 'demo.svg',
         preview: {
           key: 'demo.svg',
           extension: 'svg',
-          content: results?.demo?.svg,
+          content: results.demo?.svg ?? '',
         },
       },
       {
@@ -144,14 +144,12 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       downloads.push({
         fileName: name,
         extension: 'dxf',
-        // @ts-expect-error-next-line
-        content: outline.dxf,
+        content: outline.dxf ?? '',
         previewKey: `outlines.${name}.svg`,
         preview: {
           key: `outlines.${name}.svg`,
           extension: 'svg',
-          // @ts-expect-error-next-line
-          content: outline.svg,
+          content: outline.svg ?? '',
         },
       });
     }
@@ -162,14 +160,12 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       downloads.push({
         fileName: name,
         extension: 'jscad',
-        // @ts-expect-error-next-line
-        content: caseObj.jscad,
+        content: caseObj.jscad ?? '',
         previewKey: `cases.${name}`,
         preview: {
           key: `cases.${name}`,
           extension: 'jscad',
-          // @ts-expect-error-next-line
-          content: caseObj.jscad,
+          content: caseObj.jscad ?? '',
         },
       });
     }
@@ -183,13 +179,11 @@ const Downloads = ({ setPreview, previewKey }: Props) => {
       downloads.push({
         fileName: name,
         extension: 'kicad_pcb',
-        // @ts-expect-error-next-line
         content: pcb,
         previewKey:
           configContext.kicanvasPreview && version > 20240101
             ? `pcbs.${name}`
             : '',
-        // @ts-expect-error-next-line
         preview:
           configContext.kicanvasPreview && version > 20240101
             ? {

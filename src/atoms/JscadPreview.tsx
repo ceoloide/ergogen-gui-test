@@ -2,7 +2,15 @@ import React, { useEffect, useRef } from 'react';
 
 // De-facto dependency injection
 // See public/index.html
-declare const myjscad: any;
+interface MyJscad {
+  Viewer: new (
+    container: HTMLDivElement,
+    options: { name: string; color: number[] }
+  ) => {
+    add: (script: string) => void;
+  };
+}
+declare const myjscad: MyJscad;
 
 /**
  * Props for the JscadPreview component.

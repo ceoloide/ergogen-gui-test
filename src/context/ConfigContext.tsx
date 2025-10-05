@@ -14,6 +14,45 @@ import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 
+// Strongly-typed shape for Ergogen results used in the UI
+export type DemoOutput = {
+  dxf?: string;
+  svg?: string;
+};
+export type OutlineOutput = {
+  dxf?: string;
+  svg?: string;
+};
+export type CaseOutput = {
+  jscad?: string;
+};
+export type PcbsOutput = Record<string, string>;
+
+// Backward-compatible results type with known top-level keys and an index signature
+export type Results = {
+  canonical?: unknown;
+  points?: unknown;
+  units?: unknown;
+  demo?: DemoOutput;
+  outlines?: Record<string, OutlineOutput>;
+  cases?: Record<string, CaseOutput>;
+  pcbs?: PcbsOutput;
+  [key: string]: unknown;
+};
+
+declare global {
+  interface Window {
+    ergogen: {
+      process: (
+        config: unknown,
+        debug: boolean,
+        logger: (m: string) => void
+      ) => unknown;
+      inject: (type: string, name: string, value: unknown) => void;
+    };
+  }
+}
+
 /**
  * Props for the ConfigContextProvider component.
  * @typedef {object} Props
@@ -28,13 +67,6 @@ type Props = {
   initialInjectionInput?: string[][];
   children: React.ReactNode[] | React.ReactNode;
 };
-
-/**
- * Represents the structure of the Ergogen processing results.
- * @typedef {object} Results
- * @property {any | Results} [key] - Can contain any value or be recursively nested.
- */
-type Results = { [key: string]: any | Results };
 
 /**
  * Defines the shape of the data and functions provided by the ConfigContext.
@@ -140,7 +172,7 @@ export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG';
  * @param {any} defaultValue - The default value to return if the key is not found.
  * @returns {any} The parsed value from local storage or the default value.
  */
-const localStorageOrDefault = (key: string, defaultValue: any) => {
+const localStorageOrDefault = (key: string, defaultValue: unknown) => {
   const storedValue = localStorage.getItem(key);
   if (storedValue) {
     return JSON.parse(storedValue);
@@ -219,21 +251,21 @@ const ConfigContextProvider = ({
    */
   const parseConfig = (
     inputString: string
-  ): [string, { [key: string]: any[] } | null] => {
+  ): [string, { [key: string]: unknown[] } | null] => {
     let type = 'UNKNOWN';
     let parsedConfig = null;
 
     try {
       parsedConfig = JSON.parse(inputString);
       type = 'json';
-    } catch (e: unknown) {
+    } catch (_e: unknown) {
       // Input is not valid JSON
     }
 
     try {
       parsedConfig = yaml.load(inputString);
       type = 'yaml';
-    } catch (e: unknown) {
+    } catch (_e: unknown) {
       // Input is not valid YAML
     }
 
@@ -250,20 +282,25 @@ const ConfigContextProvider = ({
       options: ProcessOptions = { pointsonly: true }
     ) => {
       let results = null;
-      let inputConfig: string | {} = textInput ?? '';
-      const inputInjection: [][] | {} = injectionInput ?? '';
+      let inputConfig: string | object = textInput ?? '';
+      const inputInjection: string[][] | undefined = injectionInput;
       const [, parsedConfig] = parseConfig(textInput ?? '');
 
       setError(null);
       setDeprecationWarning(null);
 
       if (parsedConfig && parsedConfig.pcbs) {
-        const pcbs = Object.values(parsedConfig.pcbs) as any[];
+        const pcbs = Object.values(parsedConfig.pcbs) as Record<
+          string,
+          unknown
+        >[];
         let warningFound = false;
         for (const pcb of pcbs) {
           if (!pcb.template || pcb.template === 'kicad5') {
             if (pcb.footprints) {
-              const footprints = Object.values(pcb.footprints) as any[];
+              const footprints = Object.values(
+                pcb.footprints as Record<string, unknown>
+              ) as Record<string, unknown>[];
               for (const footprint of footprints) {
                 if (
                   footprint &&
@@ -291,8 +328,8 @@ const ConfigContextProvider = ({
       if (parsedConfig?.points && options?.pointsonly) {
         inputConfig = {
           ...parsedConfig,
-          ['pcbs']: undefined,
-          ['cases']: undefined,
+          pcbs: undefined,
+          cases: undefined,
         };
       }
 
@@ -310,11 +347,11 @@ const ConfigContextProvider = ({
                 'require',
                 module_prefix + inj_text + module_suffix
               )();
-              (window as any).ergogen.inject(inj_type, inj_name, inj_value);
+              window.ergogen.inject(inj_type, inj_name, inj_value);
             }
           }
         }
-        results = await (window as any).ergogen.process(
+        results = await window.ergogen.process(
           inputConfig,
           true, // Set debug to true or no SVGs are generated
           (m: string) => console.log(m) // logger
@@ -325,14 +362,13 @@ const ConfigContextProvider = ({
         if (typeof e === 'string') {
           setError(e);
         }
-        if (typeof e === 'object') {
-          // @ts-ignore
+        if (typeof e === 'object' && e !== null) {
           setError(e.toString());
         }
         return;
       }
 
-      setResults(results);
+      setResults(results as Results);
       setResultsVersion((v) => v + 1);
     },
     []
