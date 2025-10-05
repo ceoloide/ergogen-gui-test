@@ -46,6 +46,28 @@ const GlobalStyle = createGlobalStyle`
   code {
     font-family: ${theme.fonts.code};
   }
+
+  @media (max-width: 639px) {
+    .show-config > .gutter,
+    .show-config > div:last-of-type {
+      display: none;
+    }
+
+    .show-config > div:first-of-type {
+      width: 100% !important;
+      padding-right: 0 !important;
+    }
+
+    .show-outputs > .gutter,
+    .show-outputs > div:first-of-type {
+      display: none;
+    }
+
+    .show-outputs > div:last-of-type {
+      width: 100% !important;
+      padding-left: 0 !important;
+    }
+  }
 `;
 
 loader.init().then((monaco) => {
