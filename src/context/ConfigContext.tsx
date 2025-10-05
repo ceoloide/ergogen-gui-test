@@ -15,21 +15,21 @@ import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 
 // Strongly-typed shape for Ergogen results used in the UI
-export type DemoOutput = {
+type DemoOutput = {
   dxf?: string;
   svg?: string;
 };
-export type OutlineOutput = {
+type OutlineOutput = {
   dxf?: string;
   svg?: string;
 };
-export type CaseOutput = {
+type CaseOutput = {
   jscad?: string;
 };
-export type PcbsOutput = Record<string, string>;
+type PcbsOutput = Record<string, string>;
 
 // Backward-compatible results type with known top-level keys and an index signature
-export type Results = {
+type Results = {
   canonical?: unknown;
   points?: unknown;
   units?: unknown;
@@ -159,7 +159,7 @@ type ProcessOptions = {
 /**
  * The main React context for managing Ergogen configuration and results.
  */
-export const ConfigContext = createContext<ContextProps | null>(null);
+const ConfigContext = createContext<ContextProps | null>(null);
 
 /**
  * The key used to store the main configuration in local storage.

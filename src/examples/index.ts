@@ -15,7 +15,7 @@ import Plank from './plank';
  * @property {string} label - The label for the group.
  * @property {readonly ConfigOption[]} options - An array of configuration options within this group.
  */
-export interface GroupedOption {
+interface GroupedOption {
   readonly label: string;
   readonly options: readonly ConfigOption[];
 }

@@ -3,7 +3,7 @@
  * @param {string} url - The GitHub URL (e.g., "https://github.com/user/repo/blob/main/file.txt").
  * @returns {string} The raw content URL (e.g., "https://raw.githubusercontent.com/user/repo/main/file.txt").
  */
-export const getRawUrl = (url: string) => {
+const getRawUrl = (url: string) => {
   const rawUrl = url
     .replace('github.com', 'raw.githubusercontent.com')
     .replace('/blob/', '/');

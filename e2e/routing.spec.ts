@@ -63,7 +63,6 @@ test.describe('Routing and Welcome Page', () => {
     await expect(page).toHaveURL(/.*\/$/);
     await expect(page.getByTestId('config-editor')).toBeVisible();
 
-    const editorContent = await page.locator('.monaco-editor').textContent();
     await expect(async () => {
       const editorContent = await page.locator('.monaco-editor').textContent();
       expect(editorContent).toContain('points:');
