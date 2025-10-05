@@ -5,6 +5,8 @@ import prettierConfig from 'eslint-config-prettier';
 import eslint from '@eslint/js';
 import reactHooks from 'eslint-plugin-react-hooks';
 import jest from 'eslint-plugin-jest';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import importPlugin from 'eslint-plugin-import';
 
 export default tseslint.config(
   {
@@ -26,6 +28,8 @@ export default tseslint.config(
     files: ['src/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,
+      'jsx-a11y': jsxA11y,
+      import: importPlugin,
     },
     rules: {
       'react-hooks/rules-of-hooks': 'error',
@@ -39,8 +43,11 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+      ...jsxA11y.configs.recommended.rules,
     },
     languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
       globals: {
         ...globals.browser,
         ...globals.node,
