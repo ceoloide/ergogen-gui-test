@@ -1,69 +1,65 @@
-import { serialize as serializeSTL } from '@jscad/stl-serializer';
+// Global interface for the myjscad library loaded from openjscad.js
+interface MyJscad {
+  setup: () => void;
+  compile: (code: string) => Promise<string>;
+  generateOutput: (
+    format: string,
+    geometry: unknown
+  ) => {
+    asBuffer: () => {
+      toString: () => string;
+    };
+  };
+}
 
-// Import the @jscad/csg library for type references
-// The actual execution uses the global openjscad library
-declare const require: (module: string) => unknown;
+declare global {
+  interface Window {
+    myjscad: MyJscad;
+  }
+}
 
 /**
  * Converts a JSCAD script to STL format.
- * This function executes the JSCAD script to generate CSG geometry,
- * then serializes it to ASCII STL format using @jscad/stl-serializer 0.1.3
- * (matching the version used by @jscad/cli 1.10.0).
+ * This function uses the global myjscad library (from openjscad.js)
+ * to compile the JSCAD script and generate STL output.
+ * The output format is ASCII STL, matching the behavior of @jscad/cli 1.10.0.
  *
  * @param jscadScript - The JSCAD script as a string
- * @returns The STL content as a string, or null if conversion fails
+ * @returns A promise that resolves to the STL content as a string, or null if conversion fails
  */
-export const convertJscadToStl = (jscadScript: string): string | null => {
+export const convertJscadToStl = async (
+  jscadScript: string
+): Promise<string | null> => {
   try {
-    // Load the CSG library from @jscad/csg
-    const { CSG, CAG } = require('@jscad/csg');
-    const oscad = require('@jscad/csg/api');
-
-    // Create a function from the JSCAD script
-    // JSCAD scripts typically use 'function main()' pattern
-    const scriptFunction = new Function(
-      'CSG',
-      'CAG',
-      ...Object.keys(oscad),
-      `
-      ${jscadScript}
-      // If the script defines a main() function, call it
-      if (typeof main === 'function') {
-        return main();
-      }
-      // Otherwise, return undefined
-      return undefined;
-      `
-    );
-
-    // Execute the script with the CSG/CAG constructors and API functions
-    const geometries = scriptFunction(CSG, CAG, ...Object.values(oscad));
-
-    if (!geometries) {
-      console.error('JSCAD script did not return any geometry');
+    if (!window.myjscad) {
+      console.error('myjscad library is not loaded');
       return null;
     }
 
-    // Ensure we have an array of geometries
-    const geomArray = Array.isArray(geometries) ? geometries : [geometries];
-
-    if (geomArray.length === 0) {
-      console.error('JSCAD script returned empty geometry array');
+    if (!jscadScript || jscadScript.trim() === '') {
+      console.error('JSCAD script is empty');
       return null;
     }
 
-    // Convert to ASCII STL format
-    // The serialize function returns an array buffer or string
-    const stlData = serializeSTL(geomArray, { binary: false });
+    // Initialize the processor
+    window.myjscad.setup();
 
-    // If stlData is a string, return it directly
-    if (typeof stlData === 'string') {
-      return stlData;
+    // Compile the JSCAD script
+    await window.myjscad.compile(jscadScript);
+
+    // Generate STL output (ASCII format)
+    // Format 'stla' is ASCII STL
+    const output = window.myjscad.generateOutput('stla', null);
+
+    // Extract the string from the wrapped result
+    const stlContent = output.asBuffer().toString();
+
+    if (!stlContent || stlContent.trim() === '') {
+      console.error('Generated STL content is empty');
+      return null;
     }
 
-    // If it's an array buffer, convert it to string
-    const decoder = new TextDecoder('utf-8');
-    return decoder.decode(stlData);
+    return stlContent;
   } catch (error) {
     console.error('Error converting JSCAD to STL:', error);
     return null;

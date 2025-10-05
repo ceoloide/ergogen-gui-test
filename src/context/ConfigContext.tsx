@@ -379,7 +379,9 @@ const ConfigContextProvider = ({
         for (const [name, caseObj] of Object.entries(
           (results as Results).cases as Record<string, CaseOutput>
         )) {
-          const stl = caseObj.jscad ? convertJscadToStl(caseObj.jscad) : null;
+          const stl = caseObj.jscad
+            ? await convertJscadToStl(caseObj.jscad)
+            : null;
           casesWithStl[name] = {
             ...caseObj,
             stl: stl ?? undefined,
