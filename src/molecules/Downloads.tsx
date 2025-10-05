@@ -173,6 +173,16 @@ const Downloads = ({
           content: caseObj.jscad ?? '',
         },
       });
+      // Add STL download if available
+      if (caseObj.stl) {
+        downloads.push({
+          fileName: name,
+          extension: 'stl',
+          content: caseObj.stl,
+          previewKey: '',
+          preview: undefined,
+        });
+      }
     }
   }
 
