@@ -16,9 +16,13 @@ declare const myjscad: MyJscad;
  * Props for the JscadPreview component.
  * @interface JscadPreviewProps
  * @property {string} jscad - The JSCAD script to be rendered.
+ * @property {string} [aria-label] - An optional aria-label for the preview container.
+ * @property {string} [data-testid] - An optional data-testid for testing purposes.
  */
 interface JscadPreviewProps {
   jscad: string;
+  'aria-label'?: string;
+  'data-testid'?: string;
 }
 
 /**
@@ -29,7 +33,11 @@ interface JscadPreviewProps {
  * @param {JscadPreviewProps} props - The props for the component.
  * @returns {JSX.Element} A div element that will contain the JSCAD viewer.
  */
-const JscadPreview: React.FC<JscadPreviewProps> = ({ jscad }) => {
+const JscadPreview: React.FC<JscadPreviewProps> = ({
+  jscad,
+  'aria-label': ariaLabel,
+  'data-testid': dataTestId,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,7 +62,14 @@ const JscadPreview: React.FC<JscadPreviewProps> = ({ jscad }) => {
     }
   }, [jscad]);
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div
+      ref={containerRef}
+      style={{ width: '100%', height: '100%' }}
+      aria-label={ariaLabel}
+      data-testid={dataTestId}
+    />
+  );
 };
 
 export default JscadPreview;

@@ -3,10 +3,14 @@
  * @typedef {object} Props
  * @property {string} pcb - The KiCad PCB file content as a string.
  * @property {string} key - A unique key for the component, important for React's rendering logic.
+ * @property {string} [aria-label] - An optional aria-label for the preview container.
+ * @property {string} [data-testid] - An optional data-testid for testing purposes.
  */
 type Props = {
   pcb: string;
   key: string;
+  'aria-label'?: string;
+  'data-testid'?: string;
 };
 
 /**
@@ -16,12 +20,19 @@ type Props = {
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A `<kicanvas-embed>` element containing the PCB source.
  */
-const PcbPreview = ({ pcb, key }: Props): JSX.Element => (
+const PcbPreview = ({
+  pcb,
+  key,
+  'aria-label': ariaLabel,
+  'data-testid': dataTestId,
+}: Props): JSX.Element => (
   <kicanvas-embed
     key={key}
     controls="full"
     controlslist="nodownload nooverlay"
     theme="kicad"
+    aria-label={ariaLabel}
+    data-testid={dataTestId}
   >
     <kicanvas-source type="board">{pcb}</kicanvas-source>
   </kicanvas-embed>

@@ -25,7 +25,7 @@ export interface Preview {
  */
 type Props = {
   fileName: string;
-  extension:string;
+  extension: string;
   content: string;
   preview?: Preview;
   setPreview: (preview: Preview) => void;

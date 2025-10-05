@@ -8,11 +8,15 @@ import { PanZoom } from 'react-easy-panzoom';
  * @property {string} svg - The SVG content as a string.
  * @property {number | string} width - The width of the SVG image.
  * @property {number | string} height - The height of the SVG image.
+ * @property {string} [aria-label] - An optional aria-label for the preview container.
+ * @property {string} [data-testid] - An optional data-testid for testing purposes.
  */
 type Props = {
   svg: string;
   width: number | string;
   height: number | string;
+  'aria-label'?: string;
+  'data-testid'?: string;
 };
 
 /**
@@ -48,8 +52,20 @@ const StyledPanZoom = styled(PanZoom)`
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element} A pan-and-zoom container with the inverted SVG image.
  */
-const SvgPreview = ({ svg, width, height }: Props): JSX.Element => (
-  <StyledPanZoom enableBoundingBox={true} minZoom={0.8} maxZoom={5}>
+const SvgPreview = ({
+  svg,
+  width,
+  height,
+  'aria-label': ariaLabel,
+  'data-testid': dataTestId,
+}: Props): JSX.Element => (
+  <StyledPanZoom
+    enableBoundingBox={true}
+    minZoom={0.8}
+    maxZoom={5}
+    aria-label={ariaLabel}
+    data-testid={dataTestId}
+  >
     <InvertedImage
       width={width || '100%'}
       height={height || '100%'}

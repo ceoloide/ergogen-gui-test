@@ -187,7 +187,11 @@ const Welcome = () => {
           <OptionBox>
             <h2>Start Fresh</h2>
             <p>Begin with a completely blank slate.</p>
-            <Button onClick={() => handleSelectExample(EmptyYAML.value)}>
+            <Button
+              onClick={() => handleSelectExample(EmptyYAML.value)}
+              aria-label="Start with empty configuration"
+              data-testid="empty-config-button"
+            >
               Empty Configuration
             </Button>
           </OptionBox>
@@ -203,10 +207,14 @@ const Welcome = () => {
                 value={githubInput}
                 onChange={(e) => setGithubInput(e.target.value)}
                 disabled={isLoading}
+                aria-label="GitHub repository URL"
+                data-testid="github-input"
               />
               <Button
                 onClick={handleGitHub}
                 disabled={isLoading || !githubInput}
+                aria-label="Load configuration from GitHub"
+                data-testid="github-load-button"
               >
                 {isLoading ? 'Loading...' : 'Load'}
               </Button>
@@ -229,6 +237,8 @@ const Welcome = () => {
             <ExampleCard
               key={example.label}
               onClick={() => handleSelectExample(example.value)}
+              aria-label={`Load ${example.label} example`}
+              data-testid={`example-${example.label.toLowerCase().replace(/\s+/g, '-')}`}
             >
               <PlaceholderImage>
                 <span>Placeholder</span>

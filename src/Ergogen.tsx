@@ -211,7 +211,6 @@ const RightSplitPane = styled.div`
   position: relative;
 `;
 
-
 /**
  * A flex container that allows its children to wrap and grow.
  */
@@ -409,12 +408,16 @@ const Ergogen = () => {
           <OutlineIconButton
             className={configContext.showConfig ? 'active' : ''}
             onClick={() => configContext.setShowConfig(true)}
+            aria-label="Show configuration panel"
+            data-testid="mobile-config-button"
           >
             Config
           </OutlineIconButton>
           <OutlineIconButton
             className={!configContext.showConfig ? 'active' : ''}
             onClick={() => configContext.setShowConfig(false)}
+            aria-label="Show outputs panel"
+            data-testid="mobile-outputs-button"
           >
             Outputs
           </OutlineIconButton>
@@ -429,10 +432,16 @@ const Ergogen = () => {
                     { pointsonly: false }
                   )
                 }
+                aria-label="Generate configuration"
+                data-testid="mobile-generate-button"
               >
                 <span className="material-symbols-outlined">refresh</span>
               </GenerateIconButton>
-              <OutlineIconButton onClick={handleDownload}>
+              <OutlineIconButton
+                onClick={handleDownload}
+                aria-label="Download configuration"
+                data-testid="mobile-download-button"
+              >
                 <span className="material-symbols-outlined">download</span>
               </OutlineIconButton>
             </>
@@ -442,6 +451,12 @@ const Ergogen = () => {
               onClick={() =>
                 configContext.setShowDownloads(!configContext.showDownloads)
               }
+              aria-label={
+                configContext.showDownloads
+                  ? 'Hide downloads panel'
+                  : 'Show downloads panel'
+              }
+              data-testid="mobile-downloads-toggle-button"
             >
               <span className="material-symbols-outlined">
                 {configContext.showDownloads
@@ -476,6 +491,8 @@ const Ergogen = () => {
                         { pointsonly: false }
                       )
                     }
+                    aria-label="Generate configuration"
+                    data-testid="generate-button"
                   >
                     <span
                       style={{
@@ -489,7 +506,11 @@ const Ergogen = () => {
                       <ShortcutKey>{getShortcutLabel()}</ShortcutKey>
                     </span>
                   </GrowButton>
-                  <OutlineIconButton onClick={handleDownload}>
+                  <OutlineIconButton
+                    onClick={handleDownload}
+                    aria-label="Download configuration"
+                    data-testid="download-config-button"
+                  >
                     <span className="material-symbols-outlined">download</span>
                   </OutlineIconButton>
                 </ButtonContainer>
@@ -541,12 +562,14 @@ const Ergogen = () => {
                   label={'Auto-generate'}
                   setSelected={configContext.setAutoGen}
                   checked={configContext.autoGen}
+                  aria-label="Enable auto-generate"
                 />
                 <GenOption
                   optionId={'debug'}
                   label={'Debug'}
                   setSelected={configContext.setDebug}
                   checked={configContext.debug}
+                  aria-label="Enable debug mode"
                 />
                 <GenOption
                   optionId={'autogen3d'}
@@ -557,6 +580,7 @@ const Ergogen = () => {
                   }
                   setSelected={configContext.setAutoGen3D}
                   checked={configContext.autoGen3D}
+                  aria-label="Enable auto-generate PCB and 3D (slow)"
                 />
                 <GenOption
                   optionId={'kicanvasPreview'}
@@ -567,6 +591,7 @@ const Ergogen = () => {
                   }
                   setSelected={configContext.setKicanvasPreview}
                   checked={configContext.kicanvasPreview}
+                  aria-label="Enable KiCad preview (experimental)"
                 />
                 <GenOption
                   optionId={'jscadPreview'}
@@ -577,6 +602,7 @@ const Ergogen = () => {
                   }
                   setSelected={configContext.setJscadPreview}
                   checked={configContext.jscadPreview}
+                  aria-label="Enable JSCAD preview (experimental)"
                 />
               </OptionContainer>
               <Injections
@@ -593,6 +619,7 @@ const Ergogen = () => {
                   value={injectionToEdit.name}
                   onChange={handleInjectionNameChange}
                   disabled={injectionToEdit.key === -1}
+                  aria-label="Footprint name"
                   data-testid="footprint-name-input"
                 />
                 <Title as="h4">Footprint code</Title>

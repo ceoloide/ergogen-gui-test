@@ -200,14 +200,20 @@ const Header = (): JSX.Element => {
       <LeftContainer>
         {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
         <ErgogenLogo>
-          <LogoButton to="/">
-            <LogoImage src={'ergogen.png'} />
+          <LogoButton
+            to="/"
+            aria-label="Go to home page"
+            data-testid="logo-button"
+          >
+            <LogoImage src={'ergogen.png'} alt="Ergogen logo" />
           </LogoButton>
           <AppName>Ergogen</AppName>
           <VersionText
             href="https://github.com/ergogen/ergogen"
             target="_blank"
             rel="noreferrer"
+            aria-label="View Ergogen v4.1.0 on GitHub"
+            data-testid="version-link"
           >
             v4.1.0
           </VersionText>
@@ -215,7 +221,11 @@ const Header = (): JSX.Element => {
       </LeftContainer>
       <RightContainer>
         {location.pathname === '/' && (
-          <AccentIconButton onClick={handleNewClick}>
+          <AccentIconButton
+            onClick={handleNewClick}
+            aria-label="Start new configuration"
+            data-testid="new-config-button"
+          >
             <span className="material-symbols-outlined">add_2</span>
           </AccentIconButton>
         )}
@@ -223,6 +233,8 @@ const Header = (): JSX.Element => {
           href="https://docs.ergogen.xyz/"
           target="_blank"
           rel="noreferrer"
+          aria-label="Open documentation"
+          data-testid="docs-button"
         >
           <span className="material-symbols-outlined">description</span>
           <span>Docs</span>
@@ -231,6 +243,8 @@ const Header = (): JSX.Element => {
           href="https://discord.gg/nbKcAZB"
           target="_blank"
           rel="noreferrer"
+          aria-label="Join Discord community"
+          data-testid="discord-button"
         >
           <DiscordIcon />
         </StyledLinkButton>
@@ -238,10 +252,20 @@ const Header = (): JSX.Element => {
           href="https://github.com/ceoloide/ergogen-gui"
           target="_blank"
           rel="noreferrer"
+          aria-label="View GitHub repository"
+          data-testid="github-button"
         >
           <GithubIcon />
         </StyledLinkButton>
-        <OutlineIconButton onClick={toggleSettings}>
+        <OutlineIconButton
+          onClick={toggleSettings}
+          aria-label={
+            configContext?.showSettings
+              ? 'Hide settings panel'
+              : 'Show settings panel'
+          }
+          data-testid="settings-button"
+        >
           <span className="material-symbols-outlined">
             {configContext?.showSettings ? 'keyboard_alt' : 'settings'}
           </span>
