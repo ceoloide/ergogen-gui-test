@@ -82,3 +82,38 @@ When creating proposals for the knowledge base, primarily focus on extracting in
     - **DO NOT record**: "I have completed the task to create a new welcome page for the web app."
 
 ## Future Tasks
+
+When adding a new future task, always structure them with a unique ID, a brief title, the context, and the task, for example:
+
+```md
+### TASK-001: Eliminate Magic Values in Tests
+
+**Context:** During a refactoring of the `InjectionRow.tsx` component, the test suite was improved to check for the presence of a green highlight when a row is active. The test currently asserts that the border color is a hardcoded hex value (`#28a745`).
+
+**Task:** Refactor the test to remove this "magic value." This can be achieved by defining theme colors in a central location (e.g., a `theme.ts` file), exporting them, and importing the color variable into both the `InjectionRow.tsx` component and its test file, `InjectionRow.test.tsx`.
+I also want you to add instructions on how to structure and add future tasks.
+```
+
+### [TASK-001] Redundant State in ConfigContextProvider
+
+Description: The ConfigContextProvider component uses multiple individual useState hooks for settings like debug, autoGen, autoGen3D, kicanvasPreview, and jscadPreview. It then manually saves each of these to localStorage in a useEffect hook. This approach is verbose and leads to a lot of boilerplate code.
+
+Proposed Fix: I will refactor this by consolidating all these settings into a single settings object, managed by a single useState hook. I can then use the useLocalStorage hook to automatically persist this entire settings object to local storage. This will significantly reduce the amount of code, eliminate the manual useEffect, and make the component cleaner and less error-prone.
+
+### [TASK-002] Unnecessary Prop Drilling
+
+Description: Currently, the main App.tsx component initializes the configInput state and then passes both the state and its setter function (setConfigInput) as props to the ConfigContextProvider. However, ConfigContextProvider is the component that actually uses and manages this state. This is a classic case of unnecessary prop drilling.
+
+Proposed Fix: I will move the useState hook for configInput directly into the ConfigContextProvider. This will make the context provider the single source of truth for the configuration, which is more aligned with its purpose. It will also simplify App.tsx and make the overall data flow of the application more logical and easier to follow.
+
+### [TASK-003] Complex runGeneration Function
+
+Description: The runGeneration function is a critical part of the application, but it has grown to be very long and complex. It currently handles multiple distinct responsibilities: parsing the configuration, checking for deprecation warnings, preparing a simplified config for previews, and finally executing the generation process. This makes the function difficult to read, test, and debug.
+
+Proposed Fix: I will break down the runGeneration function into several smaller, more focused functions. For example, I can create separate utility functions for parseConfig, checkForDeprecationWarnings, preparePreviewConfig, and executeGeneration. This will make the main runGeneration function a much simpler coordinator of these smaller functions, improving readability, maintainability, and making it much easier to write targeted unit tests.
+
+### [TASK-004] Lack of a Centralized Theme Definition for Sizes
+
+Description: In Button.tsx, the padding values for different button sizes (1rem 2rem, 0.7rem 1.4rem, 8px 12px) are hardcoded directly into the styled-components. These values are not defined in the central theme file (src/theme/theme.ts), which goes against the principles of a consistent design system. If another component needed to use similar sizing, it would have to duplicate these magic numbers.
+
+Proposed Fix: I will add a new buttonSizes or a more generic sizes object to the theme.ts file. This object will store the padding and font-size values for different component sizes (e.g., small, medium, large). The Button component will then be updated to reference these values from the theme. This will ensure consistency, remove hardcoded values, and make it much easier to update the application's design system from a single, centralized location.
