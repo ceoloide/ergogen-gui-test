@@ -11,6 +11,7 @@ import Injections from './molecules/Injections';
 import FilePreview from './molecules/FilePreview';
 
 import { useConfigContext } from './context/ConfigContext';
+import { findResult } from './utils/object';
 import { isMacOS } from './utils/platform';
 import Input from './atoms/Input';
 import { Injection } from './atoms/InjectionRow';
@@ -210,29 +211,6 @@ const RightSplitPane = styled.div`
   position: relative;
 `;
 
-/**
- * Recursively finds a nested property within an object using a dot-separated string.
- * @param {string} resultToFind - The dot-separated path to the desired property (e.g., "outlines.top.svg").
- * @param {unknown} resultsToSearch - The object to search within.
- * @returns {unknown | undefined} The found property value, or undefined if not found.
- */
-const findResult = (
-  resultToFind: string,
-  resultsToSearch: unknown
-): unknown | undefined => {
-  if (resultsToSearch === null) return null;
-  if (resultToFind === '') return resultsToSearch;
-  if (typeof resultsToSearch !== 'object') return undefined;
-  const properties = resultToFind.split('.');
-  const currentProperty = properties[0];
-  const remainingProperties = properties.slice(1).join('.');
-  return Object.prototype.hasOwnProperty.call(resultsToSearch, currentProperty)
-    ? findResult(
-        remainingProperties,
-        (resultsToSearch as Record<string, unknown>)[currentProperty]
-      )
-    : undefined;
-};
 
 /**
  * A flex container that allows its children to wrap and grow.
