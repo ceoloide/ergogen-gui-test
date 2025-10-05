@@ -21,6 +21,7 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 ## Design principles
 
 - When writing unit tests, follow the "Arrange, Act, Assert" pattern and clearly delineate the three.
+- **Test-Driven Development (TDD)**: Follow a strict "Red-Green-Refactor" cycle. Before implementing any new feature or bug fix, first write a failing test that clearly defines the expected outcome. Then, write the minimum amount of code required to make the test pass. Finally, refactor the code while ensuring the tests continue to pass.
 - Components should be accessible. Use semantic HTML and ARIA attributes (e.g., `aria-label`) where appropriate to ensure a good user experience for everyone, including users of assistive technologies. This also improves testability.
 - Tests should be robust and user-centric. Prefer selecting elements by user-facing attributes (like accessible name, text, or role) over implementation details (like class names or DOM structure). Use `data-testid` for elements where no other stable, user-facing selector is available.
 - **Centralized Theming**: All colors and other theme-related properties (e.g., font sizes, spacing) should be centralized in `src/theme/theme.ts`. Components should import and use variables from this theme file instead of using hardcoded values.
@@ -79,9 +80,3 @@ When creating proposals for the knowledge base, primarily focus on extracting in
     - **DO NOT record**: "I have completed the task to create a new welcome page for the web app."
 
 ## Future Tasks
-
-### TASK-002: Adopt a Stricter TDD Process
-
-**Context:** The development process for recent changes has been more "test-supported refactoring" than pure Test-Driven Development (TDD). While tests were written and improved, they were not always written _before_ the implementation.
-
-**Task:** For all future changes, adhere strictly to the "Red-Green-Refactor" TDD cycle. Before implementing any new feature or bug fix, first write a failing test that clearly defines the expected outcome. Then, write the minimum amount of code required to make the test pass. Finally, refactor the code while ensuring the tests continue to pass.
