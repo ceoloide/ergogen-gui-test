@@ -89,9 +89,3 @@ When creating proposals for the knowledge base, primarily focus on extracting in
 **Context:** The development process for recent changes has been more "test-supported refactoring" than pure Test-Driven Development (TDD). While tests were written and improved, they were not always written _before_ the implementation.
 
 **Task:** For all future changes, adhere strictly to the "Red-Green-Refactor" TDD cycle. Before implementing any new feature or bug fix, first write a failing test that clearly defines the expected outcome. Then, write the minimum amount of code required to make the test pass. Finally, refactor the code while ensuring the tests continue to pass.
-
-### TASK-003: Add Test Coverage for Download Functionality
-
-**Context:** The test suite for the `InjectionRow.tsx` component currently lacks coverage for the download link. While other interactions (delete, select) are tested, there is no test to verify that the download link is correctly configured.
-
-**Task:** Add a test to `InjectionRow.test.tsx` that asserts the download link has the correct `aria-label`, `download` filename, and `href` attributes. This will prevent regressions in the download functionality.

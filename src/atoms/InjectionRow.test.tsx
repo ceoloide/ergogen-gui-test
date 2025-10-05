@@ -82,4 +82,25 @@ describe('InjectionRow', () => {
       'border-bottom: 2px solid #28a745'
     );
   });
+
+  it('has a correctly configured download link', () => {
+    // Arrange
+    const injection = {
+      key: 0,
+      type: 'footprint',
+      name: 'test-injection',
+      content: 'test-content',
+    };
+    const createObjectURL = jest.fn().mockReturnValue('blob:http://localhost/mock-url');
+    global.URL.createObjectURL = createObjectURL;
+    setup({ injection });
+
+    // Act
+    const downloadLink = screen.getByRole('link', { name: /download injection/i });
+
+    // Assert
+    expect(downloadLink).toHaveAttribute('aria-label', 'download injection');
+    expect(downloadLink).toHaveAttribute('download', 'test-injection.js');
+    expect(downloadLink).toHaveAttribute('href', 'blob:http://localhost/mock-url');
+  });
 });
