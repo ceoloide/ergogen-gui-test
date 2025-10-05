@@ -2,9 +2,20 @@ import styled from 'styled-components';
 import { theme } from '../theme/theme';
 
 /**
+ * Props for the OutlineIconButton component.
+ * @typedef {object} Props
+ * @property {string} [aria-label] - An optional aria-label for the button.
+ * @property {string} [data-testid] - An optional data-testid for testing purposes.
+ */
+type Props = {
+  'aria-label'?: string;
+  'data-testid'?: string;
+};
+
+/**
  * A styled button with an outline, used for secondary actions.
  */
-const OutlineIconButton = styled.button`
+const OutlineIconButton = styled.button<Props>`
   background-color: transparent;
   transition:
     color 0.15s ease-in-out,

@@ -8,12 +8,14 @@ import styled from 'styled-components';
  * @property {React.ReactNode} label - The content to be displayed as the label for the checkbox.
  * @property {boolean} checked - The checked state of the checkbox.
  * @property {Dispatch<SetStateAction<boolean>>} setSelected - A function to update the checked state.
+ * @property {string} [aria-label] - An optional aria-label for the checkbox.
  */
 type Props = {
   optionId: string;
   label: React.ReactNode;
   checked: boolean;
   setSelected: Dispatch<SetStateAction<boolean>>;
+  'aria-label'?: string;
 };
 
 /**
@@ -38,6 +40,7 @@ const GenOption = ({
   label,
   setSelected,
   checked,
+  'aria-label': ariaLabel,
 }: Props): JSX.Element => {
   return (
     <OptionContainer>
@@ -47,6 +50,7 @@ const GenOption = ({
         checked={checked}
         onChange={(e) => setSelected(e.target.checked)}
         data-testid={`option-${optionId}`}
+        aria-label={ariaLabel}
       />
       <label htmlFor={optionId}>{label}</label>
     </OptionContainer>

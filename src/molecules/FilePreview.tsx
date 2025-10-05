@@ -54,20 +54,56 @@ const FilePreview = ({
     switch (extension) {
       case 'svg':
         return (
-          <SvgPreview svg={previewContent} width={width} height={height} />
+          <SvgPreview
+            svg={previewContent}
+            width={width}
+            height={height}
+            aria-label={ariaLabel || `SVG preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-svg`}
+          />
         );
       case 'yaml':
-        return <TextPreview language="yaml" content={previewContent} />;
+        return (
+          <TextPreview
+            language="yaml"
+            content={previewContent}
+            aria-label={ariaLabel || `YAML preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-yaml`}
+          />
+        );
       case 'txt':
-        return <TextPreview language="text" content={previewContent} />;
+        return (
+          <TextPreview
+            language="text"
+            content={previewContent}
+            aria-label={ariaLabel || `Text preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-txt`}
+          />
+        );
       case 'jscad':
         return jscadPreview ? (
-          <JscadPreview jscad={previewContent} />
+          <JscadPreview
+            jscad={previewContent}
+            aria-label={ariaLabel || `3D preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-jscad`}
+          />
         ) : (
-          <TextPreview language="javascript" content={previewContent} />
+          <TextPreview
+            language="javascript"
+            content={previewContent}
+            aria-label={ariaLabel || `JSCAD code preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-jscad-text`}
+          />
         );
       case 'kicad_pcb':
-        return <PcbPreview pcb={previewContent} key={previewKey} />;
+        return (
+          <PcbPreview
+            pcb={previewContent}
+            key={previewKey}
+            aria-label={ariaLabel || `PCB preview for ${previewKey}`}
+            data-testid={dataTestId && `${dataTestId}-pcb`}
+          />
+        );
       default:
         return 'No preview available';
     }

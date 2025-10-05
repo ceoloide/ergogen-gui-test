@@ -2,9 +2,20 @@ import styled from 'styled-components';
 import { theme } from '../theme/theme';
 
 /**
+ * Props for the GrowButton component.
+ * @typedef {object} Props
+ * @property {string} [aria-label] - An optional aria-label for the button.
+ * @property {string} [data-testid] - An optional data-testid for testing purposes.
+ */
+type Props = {
+  'aria-label'?: string;
+  'data-testid'?: string;
+};
+
+/**
  * A button that expands to fill the available horizontal space.
  */
-const GrowButton = styled.button`
+const GrowButton = styled.button<Props>`
   background-color: ${theme.colors.accentSecondary};
   transition: background-color 0.15s ease-in-out;
   border: none;
