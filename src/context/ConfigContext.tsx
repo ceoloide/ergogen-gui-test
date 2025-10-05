@@ -281,6 +281,9 @@ const ConfigContextProvider = ({
       injectionInput: string[][] | undefined,
       options: ProcessOptions = { pointsonly: true }
     ) => {
+      if (!textInput) {
+        return;
+      }
       let results = null;
       let inputConfig: string | object = textInput ?? '';
       const inputInjection: string[][] | undefined = injectionInput;
