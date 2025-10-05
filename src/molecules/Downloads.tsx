@@ -74,7 +74,11 @@ type DownloadArr = Array<DownloadObj>;
  * @param {Props} props - The props for the component.
  * @returns {JSX.Element | null} A list of downloads or null if the context is not available.
  */
-const Downloads = ({ setPreview, previewKey, 'data-testid': dataTestId }: Props) => {
+const Downloads = ({
+  setPreview,
+  previewKey,
+  'data-testid': dataTestId,
+}: Props) => {
   const downloads: DownloadArr = [];
   const configContext = useConfigContext();
   if (!configContext) return null;

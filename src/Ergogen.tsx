@@ -211,7 +211,6 @@ const RightSplitPane = styled.div`
   position: relative;
 `;
 
-
 /**
  * A flex container that allows its children to wrap and grow.
  */

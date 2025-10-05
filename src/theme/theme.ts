@@ -50,4 +50,22 @@ export const theme = {
     semiBold: 600,
     bold: 700,
   },
+  buttonSizes: {
+    large: {
+      padding: '1rem 2rem',
+      fontSize: '1rem',
+    },
+    medium: {
+      padding: '0.7rem 1.4rem',
+      fontSize: '1rem',
+    },
+    small: {
+      padding: '8px 12px',
+      fontSize: '0.8rem',
+    },
+    icon: {
+      padding: '8px 12px',
+      fontSize: '0.4rem',
+    },
+  },
 };
