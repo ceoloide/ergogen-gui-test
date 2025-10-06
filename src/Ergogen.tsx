@@ -348,6 +348,12 @@ const Ergogen = () => {
             ? ((result as Record<string, unknown>).jscad as string)
             : '';
         break;
+      case 'stl':
+        preview.content =
+          typeof (result as Record<string, unknown>)?.stl === 'string'
+            ? ((result as Record<string, unknown>).stl as string)
+            : '';
+        break;
       case 'yaml':
         preview.content = yaml.dump(result);
         break;
