@@ -24,7 +24,7 @@ interface StlPreviewProps {
 const CanvasContainer = styled.div`
   width: 100%;
   height: 100%;
-  background-color: ${theme.colors.background};
+  background-color: ${theme.colors.backgroundLight};
 `;
 
 /**
@@ -299,12 +299,19 @@ const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
     return null;
   }
 
+  const radius = geometry.boundingSphere?.radius || 10;
+  // Dynamically calculate grid size and divisions based on model's bounding sphere
+  const gridSize = Math.max(100, Math.ceil(radius / 25) * 50);
+  const gridDivisions = gridSize / 5;
+
   return (
     <>
       {/* eslint-disable-next-line react/no-unknown-property */}
       <mesh ref={meshRef} geometry={geometry}>
         <meshStandardMaterial color={theme.colors.accent} />
       </mesh>
+      {/* eslint-disable-next-line react/no-unknown-property */}
+      <gridHelper args={[gridSize, gridDivisions]} />
       <CameraController geometry={geometry} />
     </>
   );
@@ -318,10 +325,10 @@ const StlPreview: React.FC<StlPreviewProps> = ({
   return (
     <CanvasContainer aria-label={ariaLabel} data-testid={dataTestId}>
       <CanvasErrorBoundary>
-        <Canvas camera={{ position: [50, 50, 50], fov: 50 }}>
+        <Canvas camera={{ position: [50, 50, 50], fov: 30 }}>
           <Suspense fallback={null}>
             {/* eslint-disable-next-line react/no-unknown-property */}
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={1.0} />
             {/* eslint-disable-next-line react/no-unknown-property */}
             <directionalLight position={[10, 10, 5]} intensity={1} />
             {/* eslint-disable-next-line react/no-unknown-property */}
