@@ -1,9 +1,16 @@
 import { test, expect } from '@playwright/test';
+import fs from 'fs';
+import crypto from 'crypto';
 import { makeShooter } from './utils/screenshots';
 import ADux from '../src/examples/adux';
 import { CONFIG_LOCAL_STORAGE_KEY } from '../src/context/ConfigContext';
 
 test.describe('Ergogen Configuration Processing', () => {
+  const hashFile = async (filePath: string): Promise<string> => {
+    const buffer = await fs.promises.readFile(filePath);
+    return crypto.createHash('sha256').update(buffer).digest('hex');
+  };
+
   test('loads A. dux configuration from local storage and displays outputs', async ({
     page,
   }) => {
@@ -215,5 +222,33 @@ test.describe('Ergogen Configuration Processing', () => {
     await shoot('before-stl-file-preview-proto-visible');
     await expect(stlFilePreviewProto).toBeVisible({ timeout: 5000 });
     await shoot('after-stl-file-preview-proto-visible');
+
+    // Download both STL files and ensure they are different
+    const [downloadPlate] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('downloads-container-mounting_plate-stl-download').click(),
+    ]);
+    const platePath = test.info().outputPath('mounting_plate.stl');
+    await downloadPlate.saveAs(platePath);
+
+    const [downloadProto] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('downloads-container-prototype-stl-download').click(),
+    ]);
+    const protoPath = test.info().outputPath('prototype.stl');
+    await downloadProto.saveAs(protoPath);
+
+    // Basic sanity: files exist and non-empty
+    const plateStat = await fs.promises.stat(platePath);
+    const protoStat = await fs.promises.stat(protoPath);
+    expect(plateStat.size).toBeGreaterThan(0);
+    expect(protoStat.size).toBeGreaterThan(0);
+
+    // Hash and compare to verify they are different
+    const [plateHash, protoHash] = await Promise.all([
+      hashFile(platePath),
+      hashFile(protoPath),
+    ]);
+    expect(plateHash).not.toBe(protoHash);
   });
 });
