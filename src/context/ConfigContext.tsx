@@ -397,31 +397,32 @@ const ConfigContextProvider = ({
           (results as Results).cases as Record<string, CaseOutput>
         );
 
-        for (const [name, caseObj] of casesList) {
+        // Process each case asynchronously without await to allow parallel conversion
+        casesList.forEach(([caseName, caseObj]) => {
           if (caseObj.jscad) {
-            // Convert this case to STL
-            const stl = await convertJscadToStl(caseObj.jscad);
+            // Convert this case to STL asynchronously
+            convertJscadToStl(caseObj.jscad).then((stl) => {
+              // Update results with the new STL for this specific case
+              setResults((prevResults) => {
+                if (!prevResults?.cases) return prevResults;
 
-            // Update results with the new STL for this specific case
-            setResults((prevResults) => {
-              if (!prevResults?.cases) return prevResults;
-
-              return {
-                ...prevResults,
-                cases: {
-                  ...prevResults.cases,
-                  [name]: {
-                    ...prevResults.cases[name],
-                    stl: stl ?? undefined,
+                return {
+                  ...prevResults,
+                  cases: {
+                    ...prevResults.cases,
+                    [caseName]: {
+                      ...prevResults.cases[caseName],
+                      stl: stl ?? undefined,
+                    },
                   },
-                },
-              };
-            });
+                };
+              });
 
-            // Increment version to trigger re-render
-            setResultsVersion((v) => v + 1);
+              // Increment version to trigger re-render
+              setResultsVersion((v) => v + 1);
+            });
           }
-        }
+        });
       }
     },
     []

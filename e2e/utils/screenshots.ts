@@ -22,7 +22,10 @@ function safeSlug(s: string) {
  *
  * Filenames follow: <test-title-slug>-<counter>-<label>.png
  */
-export function makeShooter(page: Page, info: TestInfo): (label: string) => Promise<void> {
+export function makeShooter(
+  page: Page,
+  info: TestInfo
+): (label: string) => Promise<void> {
   const specBase = path.basename(info.file, path.extname(info.file));
   const folder = path.join(SCREENSHOTS_ROOT, specBase);
   ensureDir(folder);

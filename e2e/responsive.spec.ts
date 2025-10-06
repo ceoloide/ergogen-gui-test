@@ -13,10 +13,10 @@ test.describe('Responsive Layout', () => {
     const outputPanel = page.getByTestId('demo.svg-file-preview');
 
     // 1. On mobile, "Config" is active, editor is visible, output is hidden
-  await shoot('before-mobile-config-visible-output-hidden');
-  await expect(configEditor).toBeVisible();
-  await expect(outputPanel).toBeHidden();
-  await shoot('after-mobile-config-visible-output-hidden');
+    await shoot('before-mobile-config-visible-output-hidden');
+    await expect(configEditor).toBeVisible();
+    await expect(outputPanel).toBeHidden();
+    await shoot('after-mobile-config-visible-output-hidden');
 
     // 2. Click "Outputs" button
     await page.getByRole('button', { name: 'Outputs' }).click();

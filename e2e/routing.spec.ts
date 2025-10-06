@@ -56,9 +56,9 @@ test.describe('Routing and Welcome Page', () => {
     await page.goto('/');
 
     // 2. Now the button should be visible, click it
-  await shoot('before-new-config-button-visible');
-  await expect(newConfigButton).toBeVisible();
-  await shoot('after-new-config-button-visible');
+    await shoot('before-new-config-button-visible');
+    await expect(newConfigButton).toBeVisible();
+    await shoot('after-new-config-button-visible');
     await newConfigButton.click();
 
     // 3. Assert navigation to the /new page
