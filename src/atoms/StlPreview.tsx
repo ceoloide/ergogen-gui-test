@@ -123,13 +123,25 @@ const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
       const parseStl = (stlString: string) => {
         // Check if string starts with "solid" (ASCII STL)
         const trimmed = stlString.trim();
-        const isAscii = trimmed.toLowerCase().startsWith('solid');
+        const startsWithSolid = trimmed.toLowerCase().startsWith('solid');
 
-        console.log('STL format:', isAscii ? 'ASCII' : 'Binary');
+        // Additional check: ASCII STL should contain "facet" keyword
+        const hasRequiredKeywords =
+          startsWithSolid &&
+          (stlString.includes('facet') || stlString.includes('FACET'));
 
-        if (isAscii) {
+        console.log('STL format detection:', {
+          startsWithSolid,
+          hasRequiredKeywords,
+          length: stlString.length,
+          preview: stlString.substring(0, 100),
+        });
+
+        if (hasRequiredKeywords) {
+          console.log('Parsing as ASCII STL');
           return parseAsciiStl(stlString);
         } else {
+          console.log('Parsing as Binary STL');
           return parseBinaryStl(stlString);
         }
       };
@@ -190,8 +202,28 @@ const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
         const buffer = new TextEncoder().encode(stlString).buffer;
         const view = new DataView(buffer);
 
-        // Skip 80-byte header
+        // Validate minimum size for binary STL (80-byte header + 4-byte triangle count)
+        if (buffer.byteLength < 84) {
+          throw new Error(
+            `Binary STL too small: ${buffer.byteLength} bytes (minimum 84)`
+          );
+        }
+
+        // Skip 80-byte header and read triangle count
         const numTriangles = view.getUint32(80, true);
+
+        // Calculate expected file size
+        const expectedSize = 84 + numTriangles * 50; // header + count + (50 bytes per triangle)
+
+        console.log(
+          `Binary STL: ${numTriangles} triangles, buffer size: ${buffer.byteLength}, expected: ${expectedSize}`
+        );
+
+        if (buffer.byteLength < expectedSize) {
+          throw new Error(
+            `Binary STL size mismatch: got ${buffer.byteLength} bytes, expected ${expectedSize}`
+          );
+        }
 
         const vertices: number[] = [];
         const normals: number[] = [];
