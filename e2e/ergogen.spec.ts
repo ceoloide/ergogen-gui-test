@@ -22,59 +22,47 @@ test.describe('Ergogen Configuration Processing', () => {
 
     // Wait for the editor to be visible
     await expect(page.getByTestId('config-editor')).toBeVisible({
-      timeout: 30000,
+      timeout: 10000,
     });
 
     // Wait for the downloads section to be visible
-    const downloadsSection = page.getByTestId('downloads');
-    await expect(downloadsSection).toBeVisible({ timeout: 30000 });
+    const downloadsSection = page.getByTestId('downloads-container');
+    await expect(downloadsSection).toBeVisible({ timeout: 5000 });
 
     // Test DXF preview (demo output)
-    const demoDxfRow = page.getByTestId('downloads-demo');
-    await expect(demoDxfRow).toBeVisible({ timeout: 30000 });
+    const demoDxfRow = page.getByTestId('downloads-container-demo-dxf');
+    await expect(demoDxfRow).toBeVisible({ timeout: 5000 });
 
-    const dxfPreviewButton = page.getByTestId('downloads-demo-preview');
+    const dxfPreviewButton = page.getByTestId('downloads-container-demo-dxf-preview');
     await expect(dxfPreviewButton).toBeVisible();
 
     // Click to preview the DXF
     await dxfPreviewButton.click();
-    const filePreview = page.getByTestId('file-preview');
-    await expect(filePreview).toBeVisible({ timeout: 5000 });
+    const dxfFilePreview = page.getByTestId('demo.svg-file-preview');
+    await expect(dxfFilePreview).toBeVisible({ timeout: 5000 });
 
-    // Test JSCAD preview (switchplate case output)
-    // First switchplate row should be the JSCAD version
-    const switchplateJscadRows = page.getByTestId('downloads-switchplate');
-    await expect(switchplateJscadRows.first()).toBeVisible({ timeout: 30000 });
+    // Test JSCAD preview (bottom output)
+    const demoJscadRow = page.getByTestId('downloads-container-bottom-jscad');
+    await expect(demoJscadRow).toBeVisible({ timeout: 5000 });
 
-    // Look for .jscad extension to identify the JSCAD row
-    const jscadRow = page.locator('[data-testid="downloads-switchplate"]', {
-      hasText: 'switchplate.jscad',
-    });
-    await expect(jscadRow).toBeVisible({ timeout: 30000 });
-
-    const jscadPreviewButton = jscadRow.getByTestId(
-      'downloads-switchplate-preview'
-    );
+    const jscadPreviewButton = page.getByTestId('downloads-container-bottom-jscad-preview');
     await expect(jscadPreviewButton).toBeVisible();
 
     // Click to preview the JSCAD
     await jscadPreviewButton.click();
-    await expect(filePreview).toBeVisible({ timeout: 5000 });
+    const jscadFilePreview = page.getByTestId('cases.bottom-file-preview');
+    await expect(jscadFilePreview).toBeVisible({ timeout: 5000 });
 
-    // Test STL preview (STL files are generated from JSCAD cases)
-    // Look for the STL version of switchplate
-    const stlRow = page.locator('[data-testid="downloads-switchplate"]', {
-      hasText: 'switchplate.stl',
-    });
-    await expect(stlRow).toBeVisible({ timeout: 30000 });
+    // Test STL preview (bottom output)
+    const demoStlRow = page.getByTestId('downloads-container-bottom-stl');
+    await expect(demoStlRow).toBeVisible({ timeout: 5000 });
 
-    const stlPreviewButton = stlRow.getByTestId(
-      'downloads-switchplate-preview'
-    );
+    const stlPreviewButton = page.getByTestId('downloads-container-bottom-stl-preview');
     await expect(stlPreviewButton).toBeVisible();
 
     // Click to preview the STL
     await stlPreviewButton.click();
-    await expect(filePreview).toBeVisible({ timeout: 5000 });
+    const stlFilePreview = page.getByTestId('cases.bottom.stl-file-preview');
+    await expect(stlFilePreview).toBeVisible({ timeout: 5000 });
   });
 });

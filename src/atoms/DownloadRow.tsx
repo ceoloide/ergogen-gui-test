@@ -130,13 +130,15 @@ const DownloadRow = ({
     }
   };
 
+  const testId = dataTestId ? `${dataTestId}-${extension}` : undefined;
+
   return (
-    <Row data-testid={dataTestId}>
+    <Row data-testid={testId}>
       <FileName
         active={previewKey === preview?.key}
         hasPreview={!!preview}
         onClick={handlePreview}
-        data-testid={dataTestId && `${dataTestId}-preview`}
+        data-testid={testId && `${testId}-preview`}
       >
         {fileName}.{extension}
       </FileName>
@@ -144,7 +146,7 @@ const DownloadRow = ({
         <StyledLinkButton
           onClick={handleDownload}
           aria-label={`Download ${fileName}.${extension}`}
-          data-testid={dataTestId && `${dataTestId}-download`}
+          data-testid={testId && `${testId}-download`}
         >
           <span className="material-symbols-outlined">download</span>
         </StyledLinkButton>

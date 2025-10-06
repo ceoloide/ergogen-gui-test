@@ -543,7 +543,7 @@ const Ergogen = () => {
               >
                 <LeftSplitPane>
                   <StyledFilePreview
-                    data-testid="file-preview"
+                    data-testid={`${preview.key}-file-preview`}
                     previewExtension={preview.extension}
                     previewKey={`${preview.key}-${configContext.resultsVersion}`}
                     previewContent={preview.content}

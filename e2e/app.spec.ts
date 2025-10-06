@@ -7,6 +7,6 @@ test('renders editor and preview', async ({ page }) => {
   const editor = page.getByTestId('config-editor');
   await expect(editor).toBeVisible();
 
-  const preview = page.getByTestId('file-preview');
+  const preview = page.getByTestId('demo.svg-file-preview');
   await expect(preview).toBeVisible();
 });

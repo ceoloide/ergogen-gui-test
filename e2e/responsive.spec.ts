@@ -8,7 +8,7 @@ test.describe('Responsive Layout', () => {
     await page.getByRole('button', { name: 'Empty Configuration' }).click();
 
     const configEditor = page.getByTestId('config-editor');
-    const outputPanel = page.getByTestId('file-preview');
+    const outputPanel = page.getByTestId('demo.svg-file-preview');
 
     // 1. On mobile, "Config" is active, editor is visible, output is hidden
     await expect(configEditor).toBeVisible();
