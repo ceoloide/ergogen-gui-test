@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Html } from '@react-three/drei';
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import styled from 'styled-components';
 import { theme } from '../theme/theme';
 import * as THREE from 'three';
@@ -70,30 +71,121 @@ class CanvasErrorBoundary extends React.Component<
 }
 
 /**
- * Component to fit camera to the model
+ * Debug display component for camera orientation
  */
-const CameraController: React.FC<{ geometry: THREE.BufferGeometry | null }> = ({
-  geometry,
-}) => {
-  const { camera } = useThree();
+const DebugDisplay: React.FC = () => {
+  const { camera, controls } = useThree();
+  const [orientation, setOrientation] = React.useState('');
 
   React.useEffect(() => {
-    if (geometry && geometry.boundingSphere) {
-      const radius = geometry.boundingSphere.radius;
-      const distance = radius / Math.tan((Math.PI * 50) / 360) + radius * 2;
-
-      camera.position.set(distance, distance * 0.5, distance);
-      camera.lookAt(0, 0, 0);
-      camera.updateProjectionMatrix();
-
-      console.log(
-        'Camera positioned at distance:',
-        distance,
-        'radius:',
-        radius
+    const updateOrientation = () => {
+      const euler = new THREE.Euler().setFromQuaternion(
+        camera.quaternion,
+        'YXZ'
       );
+      const pitch = THREE.MathUtils.radToDeg(euler.x).toFixed(2);
+      const yaw = THREE.MathUtils.radToDeg(euler.y).toFixed(2);
+      const roll = THREE.MathUtils.radToDeg(euler.z).toFixed(2);
+      setOrientation(`Pitch: ${pitch}, Yaw: ${yaw}, Roll: ${roll}`);
+    };
+
+    if (controls) {
+      (controls as OrbitControlsImpl).addEventListener(
+        'change',
+        updateOrientation
+      );
+      updateOrientation(); // Initial update
     }
-  }, [geometry, camera]);
+
+    return () => {
+      if (controls) {
+        (controls as OrbitControlsImpl).removeEventListener(
+          'change',
+          updateOrientation
+        );
+      }
+    };
+  }, [camera, controls]);
+
+  return (
+    <Html>
+      <div
+        style={{
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          color: 'white',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          padding: '5px',
+          borderRadius: '3px',
+        }}
+      >
+        {orientation}
+      </div>
+    </Html>
+  );
+};
+
+/**
+ * Component to fit camera to the model
+ */
+const CameraController: React.FC<{
+  geometry: THREE.BufferGeometry | null;
+}> = ({ geometry }) => {
+  const { camera, size } = useThree();
+
+  React.useEffect(() => {
+    if (geometry && geometry.boundingBox) {
+      const perspectiveCamera = camera as THREE.PerspectiveCamera;
+      const box = geometry.boundingBox;
+      const boxSize = box.getSize(new THREE.Vector3());
+      const boxCenter = box.getCenter(new THREE.Vector3());
+
+      const customRotation = new THREE.Euler(
+        THREE.MathUtils.degToRad(-23),
+        THREE.MathUtils.degToRad(23),
+        0,
+        'YXZ'
+      );
+      const cameraDirection = new THREE.Vector3(0, 0, 1)
+        .applyEuler(customRotation)
+        .normalize();
+
+      // Project box size onto camera's view plane
+      const cameraUp = new THREE.Vector3(0, 1, 0).applyEuler(
+        perspectiveCamera.rotation
+      );
+      const cameraRight = new THREE.Vector3(1, 0, 0).applyEuler(
+        perspectiveCamera.rotation
+      );
+
+      const projectedWidth =
+        Math.abs(boxSize.x * cameraRight.x) +
+        Math.abs(boxSize.y * cameraRight.y) +
+        Math.abs(boxSize.z * cameraRight.z);
+      const projectedHeight =
+        Math.abs(boxSize.x * cameraUp.x) +
+        Math.abs(boxSize.y * cameraUp.y) +
+        Math.abs(boxSize.z * cameraUp.z);
+
+      const fovInRadians = THREE.MathUtils.degToRad(perspectiveCamera.fov);
+      const aspect = size.width / size.height;
+
+      const distanceForWidth =
+        projectedWidth / (2 * Math.tan(fovInRadians / 2) * aspect);
+      const distanceForHeight =
+        projectedHeight / (2 * Math.tan(fovInRadians / 2));
+
+      const distance = Math.max(distanceForWidth, distanceForHeight) * 1.25;
+
+      const cameraPosition = cameraDirection.multiplyScalar(distance);
+      perspectiveCamera.position.copy(cameraPosition);
+      perspectiveCamera.lookAt(boxCenter);
+      perspectiveCamera.updateProjectionMatrix();
+
+      console.log('Camera positioned at distance:', distance);
+    }
+  }, [geometry, camera, size]);
 
   return null;
 };
@@ -114,6 +206,12 @@ const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
   const [geometry, setGeometry] = React.useState<THREE.BufferGeometry | null>(
     null
   );
+  const [isDebug, setIsDebug] = React.useState(false);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsDebug(params.has('debug'));
+  }, []);
 
   React.useEffect(() => {
     try {
@@ -153,7 +251,7 @@ const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
         const patternVertex =
           /vertex\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g;
         const patternNormal =
-          /facet normal\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g;
+          /facet normal\s+([\d.eD+-]+)\s+([\d.eD+-]+)\s+([\d.eD+-]+)/g;
 
         let normalMatch;
         let vertexMatch;
@@ -310,8 +408,17 @@ const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
       <mesh ref={meshRef} geometry={geometry}>
         <meshStandardMaterial color={theme.colors.accent} />
       </mesh>
+      {isDebug && <DebugDisplay />}
+      {isDebug && geometry.boundingSphere && (
+        <mesh>
+          {/* eslint-disable-next-line react/no-unknown-property */}
+          <sphereGeometry args={[geometry.boundingSphere.radius, 32, 32]} />
+          {/* eslint-disable-next-line react/no-unknown-property */}
+          <meshBasicMaterial color="red" transparent opacity={0.2} wireframe />
+        </mesh>
+      )}
       {/* eslint-disable-next-line react/no-unknown-property */}
-      <gridHelper args={[gridSize, gridDivisions]} />
+      {isDebug && <gridHelper args={[gridSize, gridDivisions]} />}
       <CameraController geometry={geometry} />
     </>
   );
@@ -328,7 +435,7 @@ const StlPreview: React.FC<StlPreviewProps> = ({
         <Canvas camera={{ position: [50, 50, 50], fov: 30 }}>
           <Suspense fallback={null}>
             {/* eslint-disable-next-line react/no-unknown-property */}
-            <ambientLight intensity={1.0} />
+            <ambientLight intensity={1.5} />
             {/* eslint-disable-next-line react/no-unknown-property */}
             <directionalLight position={[10, 10, 5]} intensity={1} />
             {/* eslint-disable-next-line react/no-unknown-property */}
