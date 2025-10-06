@@ -340,18 +340,13 @@ const Ergogen = () => {
     switch (preview.extension) {
       case 'svg':
       case 'kicad_pcb':
+      case 'stl':
         preview.content = typeof result === 'string' ? result : '';
         break;
       case 'jscad':
         preview.content =
           typeof (result as Record<string, unknown>)?.jscad === 'string'
             ? ((result as Record<string, unknown>).jscad as string)
-            : '';
-        break;
-      case 'stl':
-        preview.content =
-          typeof (result as Record<string, unknown>)?.stl === 'string'
-            ? ((result as Record<string, unknown>).stl as string)
             : '';
         break;
       case 'yaml':

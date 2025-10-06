@@ -33,7 +33,9 @@ test.describe('Ergogen Configuration Processing', () => {
     const demoDxfRow = page.getByTestId('downloads-container-demo-dxf');
     await expect(demoDxfRow).toBeVisible({ timeout: 5000 });
 
-    const dxfPreviewButton = page.getByTestId('downloads-container-demo-dxf-preview');
+    const dxfPreviewButton = page.getByTestId(
+      'downloads-container-demo-dxf-preview'
+    );
     await expect(dxfPreviewButton).toBeVisible();
 
     // Click to preview the DXF
@@ -45,7 +47,9 @@ test.describe('Ergogen Configuration Processing', () => {
     const demoJscadRow = page.getByTestId('downloads-container-bottom-jscad');
     await expect(demoJscadRow).toBeVisible({ timeout: 5000 });
 
-    const jscadPreviewButton = page.getByTestId('downloads-container-bottom-jscad-preview');
+    const jscadPreviewButton = page.getByTestId(
+      'downloads-container-bottom-jscad-preview'
+    );
     await expect(jscadPreviewButton).toBeVisible();
 
     // Click to preview the JSCAD
@@ -57,7 +61,9 @@ test.describe('Ergogen Configuration Processing', () => {
     const demoStlRow = page.getByTestId('downloads-container-bottom-stl');
     await expect(demoStlRow).toBeVisible({ timeout: 5000 });
 
-    const stlPreviewButton = page.getByTestId('downloads-container-bottom-stl-preview');
+    const stlPreviewButton = page.getByTestId(
+      'downloads-container-bottom-stl-preview'
+    );
     await expect(stlPreviewButton).toBeVisible();
 
     // Click to preview the STL
