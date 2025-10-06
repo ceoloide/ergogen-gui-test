@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stage } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import styled from 'styled-components';
 import { theme } from '../theme/theme';
 import * as THREE from 'three';
@@ -36,125 +36,132 @@ const StlModel: React.FC<{ stl: string }> = ({ stl }) => {
 
   React.useEffect(() => {
     if (!meshRef.current) return;
-    // Parse STL data
-    const parseStl = (stlString: string) => {
-      // STL parser based on three.js STLLoader logic
-      const view = new Uint8Array(
-        new TextEncoder().encode(stlString).buffer
-      ).slice(0, 5);
-      const isBinary =
-        view[0] !== 115 || // 's'
-        view[1] !== 111 || // 'o'
-        view[2] !== 108 || // 'l'
-        view[3] !== 105 || // 'i'
-        view[4] !== 100; // 'd'
 
-      if (isBinary) {
-        return parseBinaryStl(stlString);
-      } else {
-        return parseAsciiStl(stlString);
-      }
-    };
+    try {
+      // Parse STL data
+      const parseStl = (stlString: string) => {
+        // Check if string starts with "solid" (ASCII STL)
+        const trimmed = stlString.trim();
+        const isAscii = trimmed.toLowerCase().startsWith('solid');
 
-    const parseAsciiStl = (stlString: string) => {
-      const vertices: number[] = [];
-      const normals: number[] = [];
-
-      const patternVertex =
-        /vertex\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g;
-      const patternNormal =
-        /facet normal\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g;
-
-      let normalMatch;
-      let vertexMatch;
-
-      // Parse normals
-      const normalMatches: number[][] = [];
-      while ((normalMatch = patternNormal.exec(stlString)) !== null) {
-        normalMatches.push([
-          parseFloat(normalMatch[1]),
-          parseFloat(normalMatch[2]),
-          parseFloat(normalMatch[3]),
-        ]);
-      }
-
-      // Parse vertices
-      let normalIndex = 0;
-      while ((vertexMatch = patternVertex.exec(stlString)) !== null) {
-        vertices.push(
-          parseFloat(vertexMatch[1]),
-          parseFloat(vertexMatch[2]),
-          parseFloat(vertexMatch[3])
-        );
-
-        // Assign normal to each vertex (3 vertices per facet)
-        if (normalMatches[normalIndex]) {
-          normals.push(
-            normalMatches[normalIndex][0],
-            normalMatches[normalIndex][1],
-            normalMatches[normalIndex][2]
-          );
+        if (isAscii) {
+          return parseAsciiStl(stlString);
+        } else {
+          return parseBinaryStl(stlString);
         }
-
-        // Move to next normal after 3 vertices
-        if ((vertices.length / 3) % 3 === 0) {
-          normalIndex++;
-        }
-      }
-
-      return {
-        vertices: new Float32Array(vertices),
-        normals: new Float32Array(normals),
       };
-    };
 
-    const parseBinaryStl = (stlString: string) => {
-      const buffer = new TextEncoder().encode(stlString).buffer;
-      const view = new DataView(buffer);
+      const parseAsciiStl = (stlString: string) => {
+        const vertices: number[] = [];
+        const normals: number[] = [];
 
-      // Skip 80-byte header
-      const numTriangles = view.getUint32(80, true);
+        const patternVertex =
+          /vertex\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g;
+        const patternNormal =
+          /facet normal\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/g;
 
-      const vertices: number[] = [];
-      const normals: number[] = [];
+        let normalMatch;
+        let vertexMatch;
 
-      let offset = 84;
-      for (let i = 0; i < numTriangles; i++) {
-        // Normal vector
-        const nx = view.getFloat32(offset, true);
-        const ny = view.getFloat32(offset + 4, true);
-        const nz = view.getFloat32(offset + 8, true);
-        offset += 12;
+        // Parse normals
+        const normalMatches: number[][] = [];
+        while ((normalMatch = patternNormal.exec(stlString)) !== null) {
+          normalMatches.push([
+            parseFloat(normalMatch[1]),
+            parseFloat(normalMatch[2]),
+            parseFloat(normalMatch[3]),
+          ]);
+        }
 
-        // Three vertices
-        for (let j = 0; j < 3; j++) {
+        // Parse vertices
+        let normalIndex = 0;
+        while ((vertexMatch = patternVertex.exec(stlString)) !== null) {
           vertices.push(
-            view.getFloat32(offset, true),
-            view.getFloat32(offset + 4, true),
-            view.getFloat32(offset + 8, true)
+            parseFloat(vertexMatch[1]),
+            parseFloat(vertexMatch[2]),
+            parseFloat(vertexMatch[3])
           );
-          normals.push(nx, ny, nz);
-          offset += 12;
+
+          // Assign normal to each vertex (3 vertices per facet)
+          if (normalMatches[normalIndex]) {
+            normals.push(
+              normalMatches[normalIndex][0],
+              normalMatches[normalIndex][1],
+              normalMatches[normalIndex][2]
+            );
+          }
+
+          // Move to next normal after 3 vertices
+          if ((vertices.length / 3) % 3 === 0) {
+            normalIndex++;
+          }
         }
 
-        // Skip attribute byte count
-        offset += 2;
+        return {
+          vertices: new Float32Array(vertices),
+          normals: new Float32Array(normals),
+        };
+      };
+
+      const parseBinaryStl = (stlString: string) => {
+        const buffer = new TextEncoder().encode(stlString).buffer;
+        const view = new DataView(buffer);
+
+        // Skip 80-byte header
+        const numTriangles = view.getUint32(80, true);
+
+        const vertices: number[] = [];
+        const normals: number[] = [];
+
+        let offset = 84;
+        for (let i = 0; i < numTriangles; i++) {
+          // Normal vector
+          const nx = view.getFloat32(offset, true);
+          const ny = view.getFloat32(offset + 4, true);
+          const nz = view.getFloat32(offset + 8, true);
+          offset += 12;
+
+          // Three vertices
+          for (let j = 0; j < 3; j++) {
+            vertices.push(
+              view.getFloat32(offset, true),
+              view.getFloat32(offset + 4, true),
+              view.getFloat32(offset + 8, true)
+            );
+            normals.push(nx, ny, nz);
+            offset += 12;
+          }
+
+          // Skip attribute byte count
+          offset += 2;
+        }
+
+        return {
+          vertices: new Float32Array(vertices),
+          normals: new Float32Array(normals),
+        };
+      };
+
+      const { vertices, normals } = parseStl(stl);
+
+      // Validate parsed data
+      if (vertices.length === 0) {
+        console.error('No vertices found in STL data');
+        return;
       }
 
-      return {
-        vertices: new Float32Array(vertices),
-        normals: new Float32Array(normals),
-      };
-    };
+      // Create Three.js BufferGeometry
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
 
-    const { vertices, normals } = parseStl(stl);
+      // Compute bounding sphere for proper camera positioning
+      geometry.computeBoundingSphere();
 
-    // Create Three.js BufferGeometry
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-
-    meshRef.current.geometry = geometry;
+      meshRef.current.geometry = geometry;
+    } catch (error) {
+      console.error('Error parsing STL:', error);
+    }
   }, [stl]);
 
   return (
@@ -163,6 +170,48 @@ const StlModel: React.FC<{ stl: string }> = ({ stl }) => {
     </mesh>
   );
 };
+
+/**
+ * Error boundary component for the Canvas
+ */
+class CanvasErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Canvas error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            color: theme.colors.text,
+          }}
+        >
+          Error loading 3D preview:{' '}
+          {this.state.error?.message || 'Unknown error'}
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 /**
  * A React component that renders a 3D preview of an STL file.
@@ -179,14 +228,18 @@ const StlPreview: React.FC<StlPreviewProps> = ({
 }) => {
   return (
     <CanvasContainer aria-label={ariaLabel} data-testid={dataTestId}>
-      <Canvas camera={{ position: [0, 0, 100], fov: 50 }}>
-        <Suspense fallback={null}>
-          <Stage environment="city" intensity={0.6}>
+      <CanvasErrorBoundary>
+        <Canvas camera={{ position: [0, 0, 100], fov: 50 }}>
+          <Suspense fallback={null}>
+            {/* eslint-disable-next-line react/no-unknown-property */}
+            <ambientLight intensity={0.5} />
+            {/* eslint-disable-next-line react/no-unknown-property */}
+            <directionalLight position={[10, 10, 5]} intensity={1} />
             <StlModel stl={stl} />
-          </Stage>
-          <OrbitControls makeDefault />
-        </Suspense>
-      </Canvas>
+            <OrbitControls makeDefault />
+          </Suspense>
+        </Canvas>
+      </CanvasErrorBoundary>
     </CanvasContainer>
   );
 };
