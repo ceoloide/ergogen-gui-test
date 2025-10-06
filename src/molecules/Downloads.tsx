@@ -173,18 +173,22 @@ const Downloads = ({
           content: caseObj.jscad ?? '',
         },
       });
-      // Add STL download if available
-      if (caseObj.stl) {
+      // Always add STL entry if there's JSCAD
+      // STL might be pending (undefined) or ready (string)
+      if (caseObj.jscad) {
+        const stlReady = !!caseObj.stl;
         downloads.push({
           fileName: name,
           extension: 'stl',
-          content: caseObj.stl,
-          previewKey: `cases.${name}.stl`,
-          preview: {
-            key: `cases.${name}.stl`,
-            extension: 'stl',
-            content: caseObj.stl,
-          },
+          content: caseObj.stl ?? '',
+          previewKey: stlReady ? `cases.${name}.stl` : '',
+          preview: stlReady
+            ? {
+                key: `cases.${name}.stl`,
+                extension: 'stl',
+                content: caseObj.stl ?? '',
+              }
+            : undefined,
         });
       }
     }

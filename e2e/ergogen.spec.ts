@@ -29,9 +29,7 @@ test.describe('Ergogen Configuration Processing', () => {
     const downloadsSection = page.getByTestId('downloads-container');
     await expect(downloadsSection).toBeVisible({ timeout: 5000 });
   });
-  test('loads A. dux demo.dxf preview', async ({
-    page,
-  }) => {
+  test('loads A. dux demo.dxf preview', async ({ page }) => {
     // Set A. dux config directly in local storage
     await page.addInitScript(
       ({ config, key }) => {
@@ -42,7 +40,7 @@ test.describe('Ergogen Configuration Processing', () => {
 
     // Navigate to the main page
     await page.goto('/');
-    
+
     // Test DXF preview (demo output)
     const demoDxfRow = page.getByTestId('downloads-container-demo-dxf');
     await expect(demoDxfRow).toBeVisible({ timeout: 5000 });
@@ -57,9 +55,7 @@ test.describe('Ergogen Configuration Processing', () => {
     const dxfFilePreview = page.getByTestId('demo.svg-file-preview');
     await expect(dxfFilePreview).toBeVisible({ timeout: 5000 });
   });
-  test('loads A. dux KiCad PCB', async ({
-    page,
-  }) => {
+  test('loads A. dux KiCad PCB', async ({ page }) => {
     // Set A. dux config directly in local storage
     await page.addInitScript(
       ({ config, key }) => {
@@ -89,9 +85,7 @@ test.describe('Ergogen Configuration Processing', () => {
     );
     await expect(pcbFilePreview).toBeVisible({ timeout: 5000 });
   });
-  test('loads A. dux JSCAD preview', async ({
-    page,
-  }) => {
+  test('loads A. dux JSCAD preview', async ({ page }) => {
     // Set A. dux config directly in local storage
     await page.addInitScript(
       ({ config, key }) => {
@@ -104,7 +98,9 @@ test.describe('Ergogen Configuration Processing', () => {
     await page.goto('/');
 
     // Test JSCAD preview (bottom output)
-    const demoJscadRow = page.getByTestId('downloads-container-prototype-jscad');
+    const demoJscadRow = page.getByTestId(
+      'downloads-container-prototype-jscad'
+    );
     await expect(demoJscadRow).toBeVisible({ timeout: 5000 });
 
     const jscadPreviewButton = page.getByTestId(
@@ -117,9 +113,7 @@ test.describe('Ergogen Configuration Processing', () => {
     const jscadFilePreview = page.getByTestId('cases.prototype-file-preview');
     await expect(jscadFilePreview).toBeVisible({ timeout: 5000 });
   });
-  test('loads A. dux STL preview', async ({
-    page,
-  }) => {
+  test('loads A. dux STL previews', async ({ page }) => {
     // Set A. dux config directly in local storage
     await page.addInitScript(
       ({ config, key }) => {
@@ -131,20 +125,40 @@ test.describe('Ergogen Configuration Processing', () => {
     // Navigate to the main page
     await page.goto('/');
 
-    // Test STL preview (bottom output)
-    const stlRowPlate = page.getByTestId('downloads-container-mounting-plate-stl');
-    await expect(stlRowPlate).toBeVisible({ timeout: 5000 });
-    // const stlRowProto = page.getByTestId('downloads-container-prototype-stl');
-    // await expect(stlRowProto).toBeVisible({ timeout: 5000 });
-
-    const stlPreviewButton = page.getByTestId(
-      'downloads-container-mounting-plate-stl-preview'
+    // Wait for both STL files to appear (both mounting_plate and prototype)
+    const stlRowMountingPlate = page.getByTestId(
+      'downloads-container-mounting_plate-stl'
     );
-    await expect(stlPreviewButton).toBeVisible();
+    await expect(stlRowMountingPlate).toBeVisible({ timeout: 10000 });
 
-    // Click to preview the STL
-    await stlPreviewButton.click();
-    const stlFilePreview = page.getByTestId('cases.mounting-plate.stl-file-preview');
-    await expect(stlFilePreview).toBeVisible({ timeout: 5000 });
+    const stlRowPrototype = page.getByTestId(
+      'downloads-container-prototype-stl'
+    );
+    await expect(stlRowPrototype).toBeVisible({ timeout: 10000 });
+
+    // Wait for STL generation to complete (preview button should appear)
+    const stlPreviewButtonPlate = page.getByTestId(
+      'downloads-container-mounting_plate-stl-preview'
+    );
+    await expect(stlPreviewButtonPlate).toBeVisible({ timeout: 30000 });
+
+    const stlPreviewButtonProto = page.getByTestId(
+      'downloads-container-prototype-stl-preview'
+    );
+    await expect(stlPreviewButtonProto).toBeVisible({ timeout: 30000 });
+
+    // Click to preview the mounting_plate STL
+    await stlPreviewButtonPlate.click();
+    const stlFilePreviewPlate = page.getByTestId(
+      'cases.mounting_plate.stl-file-preview'
+    );
+    await expect(stlFilePreviewPlate).toBeVisible({ timeout: 5000 });
+
+    // Click to preview the prototype STL
+    await stlPreviewButtonProto.click();
+    const stlFilePreviewProto = page.getByTestId(
+      'cases.prototype.stl-file-preview'
+    );
+    await expect(stlFilePreviewProto).toBeVisible({ timeout: 5000 });
   });
 });
