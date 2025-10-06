@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import styled from 'styled-components';
 import { theme } from '../theme/theme';
@@ -28,21 +28,104 @@ const CanvasContainer = styled.div`
 `;
 
 /**
- * Component that parses and renders an STL model.
- * This component handles the parsing of STL data and creates the Three.js geometry.
+ * Error boundary component for the Canvas
  */
-const StlModel: React.FC<{ stl: string }> = ({ stl }) => {
-  const meshRef = React.useRef<THREE.Mesh>(null);
+class CanvasErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Canvas error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            color: theme.colors.text,
+          }}
+        >
+          Error loading 3D preview:{' '}
+          {this.state.error?.message || 'Unknown error'}
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+/**
+ * Component to fit camera to the model
+ */
+const CameraController: React.FC<{ geometry: THREE.BufferGeometry | null }> = ({
+  geometry,
+}) => {
+  const { camera } = useThree();
 
   React.useEffect(() => {
-    if (!meshRef.current) return;
+    if (geometry && geometry.boundingSphere) {
+      const radius = geometry.boundingSphere.radius;
+      const distance = radius / Math.tan((Math.PI * 50) / 360) + radius * 2;
 
+      camera.position.set(distance, distance * 0.5, distance);
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+
+      console.log(
+        'Camera positioned at distance:',
+        distance,
+        'radius:',
+        radius
+      );
+    }
+  }, [geometry, camera]);
+
+  return null;
+};
+
+/**
+ * A React component that renders a 3D preview of an STL file.
+ * It uses react-three-fiber and drei to provide a fully interactive 3D viewer
+ * with rotate, pan, and zoom capabilities.
+ *
+ * @param {StlPreviewProps} props - The props for the component.
+ * @returns {JSX.Element} A Canvas element that will contain the STL model.
+ */
+/**
+ * Scene content with model and camera controller
+ */
+const SceneContent: React.FC<{ stl: string }> = ({ stl }) => {
+  const meshRef = React.useRef<THREE.Mesh>(null);
+  const [geometry, setGeometry] = React.useState<THREE.BufferGeometry | null>(
+    null
+  );
+
+  React.useEffect(() => {
     try {
+      console.log('Parsing STL, length:', stl.length);
+
       // Parse STL data
       const parseStl = (stlString: string) => {
         // Check if string starts with "solid" (ASCII STL)
         const trimmed = stlString.trim();
         const isAscii = trimmed.toLowerCase().startsWith('solid');
+
+        console.log('STL format:', isAscii ? 'ASCII' : 'Binary');
 
         if (isAscii) {
           return parseAsciiStl(stlString);
@@ -150,77 +233,51 @@ const StlModel: React.FC<{ stl: string }> = ({ stl }) => {
         return;
       }
 
+      console.log('Parsed vertices:', vertices.length / 3, 'triangles');
+
       // Create Three.js BufferGeometry
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-      geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+      const newGeometry = new THREE.BufferGeometry();
+      newGeometry.setAttribute(
+        'position',
+        new THREE.BufferAttribute(vertices, 3)
+      );
+      newGeometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
 
-      // Compute bounding sphere for proper camera positioning
-      geometry.computeBoundingSphere();
+      // Center the geometry
+      newGeometry.computeBoundingBox();
+      newGeometry.computeBoundingSphere();
 
-      meshRef.current.geometry = geometry;
+      if (newGeometry.boundingBox) {
+        const center = new THREE.Vector3();
+        newGeometry.boundingBox.getCenter(center);
+        newGeometry.translate(-center.x, -center.y, -center.z);
+        console.log(
+          'Geometry centered, bounding sphere radius:',
+          newGeometry.boundingSphere?.radius
+        );
+      }
+
+      setGeometry(newGeometry);
     } catch (error) {
       console.error('Error parsing STL:', error);
     }
   }, [stl]);
 
+  if (!geometry) {
+    return null;
+  }
+
   return (
-    <mesh ref={meshRef}>
-      <meshStandardMaterial color={theme.colors.accent} />
-    </mesh>
+    <>
+      {/* eslint-disable-next-line react/no-unknown-property */}
+      <mesh ref={meshRef} geometry={geometry}>
+        <meshStandardMaterial color={theme.colors.accent} />
+      </mesh>
+      <CameraController geometry={geometry} />
+    </>
   );
 };
 
-/**
- * Error boundary component for the Canvas
- */
-class CanvasErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Canvas error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: theme.colors.text,
-          }}
-        >
-          Error loading 3D preview:{' '}
-          {this.state.error?.message || 'Unknown error'}
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-/**
- * A React component that renders a 3D preview of an STL file.
- * It uses react-three-fiber and drei to provide a fully interactive 3D viewer
- * with rotate, pan, and zoom capabilities.
- *
- * @param {StlPreviewProps} props - The props for the component.
- * @returns {JSX.Element} A Canvas element that will contain the STL model.
- */
 const StlPreview: React.FC<StlPreviewProps> = ({
   stl,
   'aria-label': ariaLabel,
@@ -229,14 +286,16 @@ const StlPreview: React.FC<StlPreviewProps> = ({
   return (
     <CanvasContainer aria-label={ariaLabel} data-testid={dataTestId}>
       <CanvasErrorBoundary>
-        <Canvas camera={{ position: [0, 0, 100], fov: 50 }}>
+        <Canvas camera={{ position: [50, 50, 50], fov: 50 }}>
           <Suspense fallback={null}>
             {/* eslint-disable-next-line react/no-unknown-property */}
             <ambientLight intensity={0.5} />
             {/* eslint-disable-next-line react/no-unknown-property */}
             <directionalLight position={[10, 10, 5]} intensity={1} />
-            <StlModel stl={stl} />
-            <OrbitControls makeDefault />
+            {/* eslint-disable-next-line react/no-unknown-property */}
+            <directionalLight position={[-10, -10, -5]} intensity={0.5} />
+            <SceneContent stl={stl} />
+            <OrbitControls makeDefault enableDamping={false} />
           </Suspense>
         </Canvas>
       </CanvasErrorBoundary>

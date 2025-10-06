@@ -6,13 +6,17 @@ jest.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-canvas">{children}</div>
   ),
+  useThree: () => ({
+    camera: {
+      position: { set: jest.fn() },
+      lookAt: jest.fn(),
+      updateProjectionMatrix: jest.fn(),
+    },
+  }),
 }));
 
 jest.mock('@react-three/drei', () => ({
   OrbitControls: () => <div data-testid="mock-orbit-controls" />,
-  Stage: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-stage">{children}</div>
-  ),
 }));
 
 describe('StlPreview', () => {
