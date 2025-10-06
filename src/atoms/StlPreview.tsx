@@ -32,8 +32,7 @@ const CanvasContainer = styled.div`
  * This component handles the parsing of STL data and creates the Three.js geometry.
  */
 const StlModel: React.FC<{ stl: string }> = ({ stl }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const meshRef = React.useRef<any>(null);
+  const meshRef = React.useRef<THREE.Mesh>(null);
 
   React.useEffect(() => {
     if (!meshRef.current) return;
