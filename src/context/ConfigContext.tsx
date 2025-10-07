@@ -248,28 +248,29 @@ const ConfigContextProvider = ({
    * @param {string} inputString - The string to parse.
    * @returns {[string, object | null]} A tuple containing the detected type ('json', 'yaml', or 'UNKNOWN') and the parsed object, or null if parsing fails.
    */
-  const parseConfig = (
-    inputString: string
-  ): [string, { [key: string]: unknown[] } | null] => {
-    let type = 'UNKNOWN';
-    let parsedConfig = null;
+  const parseConfig = useCallback(
+    (inputString: string): [string, { [key: string]: unknown[] } | null] => {
+      let type = 'UNKNOWN';
+      let parsedConfig = null;
 
-    try {
-      parsedConfig = JSON.parse(inputString);
-      type = 'json';
-    } catch (_e: unknown) {
-      // Input is not valid JSON
-    }
+      try {
+        parsedConfig = JSON.parse(inputString);
+        type = 'json';
+      } catch (_e: unknown) {
+        // Input is not valid JSON
+      }
 
-    try {
-      parsedConfig = yaml.load(inputString);
-      type = 'yaml';
-    } catch (_e: unknown) {
-      // Input is not valid YAML
-    }
+      try {
+        parsedConfig = yaml.load(inputString);
+        type = 'yaml';
+      } catch (_e: unknown) {
+        // Input is not valid YAML
+      }
 
-    return [type, parsedConfig];
-  };
+      return [type, parsedConfig];
+    },
+    []
+  );
 
   /**
    * The core function that runs the Ergogen generation process.
@@ -428,13 +429,13 @@ const ConfigContextProvider = ({
         }
       }
     },
-    [stlPreview]
+    [parseConfig, setError, setDeprecationWarning, setIsGenerating, stlPreview]
   );
 
   /**
    * A debounced version of runGeneration for auto-generation.
    */
-  const processInput = useCallback(debounce(runGeneration, 300), [
+  const processInput = useMemo(() => debounce(runGeneration, 300), [
     runGeneration,
   ]);
 
@@ -471,6 +472,7 @@ const ConfigContextProvider = ({
     } else if (configInput) {
       generateNow(configInput, injectionInput, { pointsonly: false });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

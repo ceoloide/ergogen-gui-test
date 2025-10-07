@@ -18,5 +18,11 @@
     "ergogen",
     "eslint-plugin-prettier",
     "markdownlint"
+  ],
+  // TODO: Remove this ignore section once the web worker is implemented
+  "ignore": [
+    "src/workers/ergogen.worker.ts",
+    "src/workers/ergogen.worker.types.ts",
+    "src/workers/workerFactory.ts"
   ]
 }

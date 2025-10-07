@@ -45,10 +45,10 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
               module_prefix + inj_text + module_suffix
             )();
             ergogen.inject(inj_type, inj_name, inj_value);
-          } catch (injectionError: any) {
+          } catch (injectionError: unknown) {
             warnings.push(
               `Warning in injection ${inj_name}: ${
-                injectionError.message || injectionError.toString()
+                (injectionError as Error).message || String(injectionError)
               }`
             );
           }
@@ -70,10 +70,10 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
       warnings,
       requestId,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     self.postMessage({
       type: 'error',
-      error: e.message || e.toString(),
+      error: (e as Error).message || String(e),
       requestId,
     });
   }
