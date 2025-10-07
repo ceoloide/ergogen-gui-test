@@ -6,9 +6,11 @@ import styled from 'styled-components';
 import Ergogen from './Ergogen';
 import Welcome from './pages/Welcome';
 import Header from './atoms/Header';
+import LoadingBar from './atoms/LoadingBar';
 import Banners from './organisms/Banners';
 import ConfigContextProvider, {
   CONFIG_LOCAL_STORAGE_KEY,
+  useConfigContext,
 } from './context/ConfigContext';
 
 const App = () => {
@@ -31,7 +33,24 @@ const App = () => {
       setConfigInput={setConfigInput}
       initialInjectionInput={[]}
     >
+      <AppContent configInput={configInput} />
+    </ConfigContextProvider>
+  );
+};
+
+/**
+ * Inner component that has access to the config context.
+ */
+const AppContent = ({ configInput }: { configInput: string | undefined }) => {
+  const configContext = useConfigContext();
+
+  return (
+    <>
       <Header />
+      <LoadingBar
+        visible={configContext?.isGenerating ?? false}
+        data-testid="loading-bar"
+      />
       <Banners />
       <PageWrapper>
         <Routes>
@@ -44,7 +63,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </PageWrapper>
-    </ConfigContextProvider>
+    </>
   );
 };
 
