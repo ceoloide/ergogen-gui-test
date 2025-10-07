@@ -226,7 +226,9 @@ test.describe('Ergogen Configuration Processing', () => {
     // Download both STL files and ensure they are different
     const [downloadPlate] = await Promise.all([
       page.waitForEvent('download'),
-      page.getByTestId('downloads-container-mounting_plate-stl-download').click(),
+      page
+        .getByTestId('downloads-container-mounting_plate-stl-download')
+        .click(),
     ]);
     const platePath = test.info().outputPath('mounting_plate.stl');
     await downloadPlate.saveAs(platePath);

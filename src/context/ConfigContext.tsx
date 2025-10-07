@@ -103,6 +103,8 @@ type Props = {
  * @property {Dispatch<SetStateAction<boolean>>} setKicanvasPreview - Function to toggle the KiCanvas preview.
  * @property {boolean} jscadPreview - Flag to enable the JSCAD 3D preview.
  * @property {Dispatch<SetStateAction<boolean>>} setJscadPreview - Function to toggle the JSCAD preview.
+ * @property {boolean} stlPreview - Flag to enable the STL 3D preview and conversion.
+ * @property {Dispatch<SetStateAction<boolean>>} setStlPreview - Function to toggle the STL preview.
  * @property {string | null} experiment - The value of any 'exp' query parameter.
  */
 type ContextProps = {
@@ -146,6 +148,8 @@ type ContextProps = {
   setKicanvasPreview: Dispatch<SetStateAction<boolean>>;
   jscadPreview: boolean;
   setJscadPreview: Dispatch<SetStateAction<boolean>>;
+  stlPreview: boolean;
+  setStlPreview: Dispatch<SetStateAction<boolean>>;
   experiment: string | null;
 };
 
@@ -222,6 +226,9 @@ const ConfigContextProvider = ({
   const [jscadPreview, setJscadPreview] = useState<boolean>(
     localStorageOrDefault('ergogen:config:jscadPreview', false)
   );
+  const [stlPreview, setStlPreview] = useState<boolean>(
+    localStorageOrDefault('ergogen:config:stlPreview', false)
+  );
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
   const [showDownloads, setShowDownloads] = useState<boolean>(true);
@@ -244,7 +251,11 @@ const ConfigContextProvider = ({
       'ergogen:config:jscadPreview',
       JSON.stringify(jscadPreview)
     );
-  }, [debug, autoGen, autoGen3D, kicanvasPreview, jscadPreview]);
+    localStorage.setItem(
+      'ergogen:config:stlPreview',
+      JSON.stringify(stlPreview)
+    );
+  }, [debug, autoGen, autoGen3D, kicanvasPreview, jscadPreview, stlPreview]);
 
   /**
    * Parses a string as either JSON or YAML.
@@ -391,8 +402,8 @@ const ConfigContextProvider = ({
       setResults(results as Results);
       setResultsVersion((v) => v + 1);
 
-      // Convert JSCAD cases to STL format asynchronously
-      if (results && (results as Results).cases) {
+      // Convert JSCAD cases to STL format asynchronously only if stlPreview is enabled
+      if (stlPreview && results && (results as Results).cases) {
         const casesList = Object.entries(
           (results as Results).cases as Record<string, CaseOutput>
         );
@@ -428,7 +439,7 @@ const ConfigContextProvider = ({
         }
       }
     },
-    []
+    [stlPreview]
   );
 
   /**
@@ -521,6 +532,8 @@ const ConfigContextProvider = ({
       setKicanvasPreview,
       jscadPreview,
       setJscadPreview,
+      stlPreview,
+      setStlPreview,
       experiment,
     }),
     [
@@ -554,6 +567,8 @@ const ConfigContextProvider = ({
       setKicanvasPreview,
       jscadPreview,
       setJscadPreview,
+      stlPreview,
+      setStlPreview,
       experiment,
     ]
   );
