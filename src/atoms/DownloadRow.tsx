@@ -51,22 +51,22 @@ const Row = styled.div`
  * A styled div for displaying the file name, with ellipsis for overflow.
  */
 const FileName = styled.div<{
-  active: boolean;
-  hasPreview: boolean;
-  disabled: boolean;
+  $active: boolean;
+  $hasPreview: boolean;
+  $disabled: boolean;
 }>`
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: ${theme.fontSizes.bodySmall};
-  cursor: ${(props) => (props.hasPreview ? 'pointer' : 'default')};
+  cursor: ${(props) => (props.$hasPreview ? 'pointer' : 'default')};
   border-bottom: ${(props) =>
-    props.active
+    props.$active
       ? `2px solid ${theme.colors.accent}`
       : '2px solid transparent'};
   border-top: 2px solid transparent;
-  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
   color: ${(props) =>
-    props.disabled ? theme.colors.textDarker : theme.colors.white};
+    props.$disabled ? theme.colors.textDarker : theme.colors.white};
 `;
 
 /**
@@ -146,9 +146,9 @@ const DownloadRow = ({
   return (
     <Row data-testid={testId}>
       <FileName
-        active={previewKey === preview?.key}
-        hasPreview={!!preview}
-        disabled={isDisabled}
+        $active={previewKey === preview?.key}
+        $hasPreview={!!preview}
+        $disabled={isDisabled}
         onClick={handlePreview}
         data-testid={testId && `${testId}-preview`}
       >

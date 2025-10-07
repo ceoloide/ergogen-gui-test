@@ -435,9 +435,10 @@ const ConfigContextProvider = ({
   /**
    * A debounced version of runGeneration for auto-generation.
    */
-  const processInput = useMemo(() => debounce(runGeneration, 300), [
-    runGeneration,
-  ]);
+  const processInput = useMemo(
+    () => debounce(runGeneration, 300),
+    [runGeneration]
+  );
 
   /**
    * An immediate version for the "Generate" button that cancels any pending auto-generations.

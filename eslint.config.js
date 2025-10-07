@@ -25,15 +25,16 @@ export default tseslint.config(
   },
   prettierConfig,
   {
+    ...reactHooks.configs.recommended,
+    files: ['src/**/*.{ts,tsx}'],
+  },
+  {
     files: ['src/**/*.{ts,tsx}'],
     plugins: {
-      'react-hooks': reactHooks,
       'jsx-a11y': jsxA11y,
       import: importPlugin,
     },
     rules: {
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
