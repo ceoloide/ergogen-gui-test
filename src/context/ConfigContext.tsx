@@ -293,6 +293,7 @@ const ConfigContextProvider = ({
       setDeprecationWarning(null);
       setIsGenerating(true);
 
+      // Check for deprecated KiCad 5 footprints in the config and warn the user
       if (parsedConfig && parsedConfig.pcbs) {
         const pcbs = Object.values(parsedConfig.pcbs) as Record<
           string,
@@ -338,6 +339,7 @@ const ConfigContextProvider = ({
       }
 
       try {
+        // Handle code injections if provided
         if (inputInjection !== undefined && Array.isArray(inputInjection)) {
           for (let i = 0; i < inputInjection.length; i++) {
             const injection = inputInjection[i];
@@ -355,11 +357,15 @@ const ConfigContextProvider = ({
             }
           }
         }
+
+        // Run the Ergogen process
+        console.log('--- Running Ergogen ---');
         results = await window.ergogen.process(
           inputConfig,
           true, // Set debug to true or no SVGs are generated
           (m: string) => console.log(m) // logger
         );
+        console.log('--- Ergogen Finished ---');
       } catch (e: unknown) {
         if (!e) return;
 
@@ -374,7 +380,7 @@ const ConfigContextProvider = ({
         setIsGenerating(false);
       }
 
-      // Set initial results immediately with pending STL placeholders
+      // Add pending STL placeholders to the results if STL preview is enabled
       if (stlPreview && results && (results as Results).cases) {
         const casesWithStl: Record<string, CaseOutput> = {};
         for (const [name, caseObj] of Object.entries(
