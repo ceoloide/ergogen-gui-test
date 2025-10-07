@@ -15,14 +15,6 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   console.log(
     `Ergogen worker received a message: ${JSON.stringify(event.data)}`
   );
-  console.log('Ergogen worker returning a dummy error.');
-  self.postMessage({
-    type: 'error',
-    error: 'Not implemented yet >.<',
-    requestId,
-  });
-
-  // HINT: It's OK that the code below is unreachable for now. We are testing a theory.
 
   if (type !== 'generate') {
     console.log('Unknown message type:', type);
@@ -32,7 +24,7 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   const warnings: string[] = [];
 
   try {
-    // Process injections
+    // Handle code injections if provided
     if (injectionInput && Array.isArray(injectionInput)) {
       for (const injection of injectionInput) {
         if (Array.isArray(injection) && injection.length === 3) {
@@ -57,11 +49,13 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
     }
 
     // Run Ergogen generation
+    console.log('--- Running Ergogen ---');
     const results = await ergogen.process(
       inputConfig,
       true, // Set debug to true or no SVGs are generated
       (m: string) => console.log(m) // logger
     );
+    console.log('--- Ergogen Finished ---');
 
     // Post success message with results and warnings
     self.postMessage({
