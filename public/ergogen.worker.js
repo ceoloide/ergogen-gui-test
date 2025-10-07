@@ -21,14 +21,14 @@ try {
  * Main worker message handler.
  */
 self.addEventListener('message', async (event) => {
-  const { type, inputConfig, injectionInput, initialWarnings } = event.data;
+  const { type, inputConfig, injectionInput } = event.data;
 
   if (type !== 'generate') {
     return;
   }
 
-  // Initialize warnings array with any initial warnings
-  const warnings = initialWarnings ? [...initialWarnings] : [];
+  // Initialize warnings array (currently not populated, reserved for future use)
+  const warnings = [];
 
   try {
     // Process injections

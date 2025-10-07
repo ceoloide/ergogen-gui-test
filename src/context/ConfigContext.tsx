@@ -331,7 +331,12 @@ const ConfigContextProvider = ({
       try {
         // Parse config and check for deprecation warnings
         const [, parsedConfig] = parseConfig(textInput);
-        const warning = checkForDeprecationWarnings(parsedConfig);
+        const deprecationWarning = checkForDeprecationWarnings(parsedConfig);
+
+        // Display deprecation warning immediately if found
+        if (deprecationWarning) {
+          setDeprecationWarning(deprecationWarning);
+        }
 
         // Prepare config for generation
         let inputConfig: string | object = textInput;
@@ -391,16 +396,11 @@ const ConfigContextProvider = ({
           worker.addEventListener('error', handleError as EventListener);
         });
 
-        // Post message to worker with initial warnings
-        const initialWarnings: string[] = [];
-        if (warning) {
-          initialWarnings.push(warning);
-        }
+        // Post message to worker
         const request: WorkerRequest = {
           type: 'generate',
           inputConfig,
           injectionInput,
-          initialWarnings,
         };
         worker.postMessage(request);
 
@@ -409,9 +409,16 @@ const ConfigContextProvider = ({
           await generationPromise;
         const results = generatedResults as Results;
 
-        // Display warnings if any
+        // Display worker warnings if any (in addition to deprecation warning)
         if (workerWarnings && workerWarnings.length > 0) {
-          setDeprecationWarning(workerWarnings.join('\n'));
+          // If there's already a deprecation warning, append worker warnings
+          if (deprecationWarning) {
+            setDeprecationWarning(
+              `${deprecationWarning}\n${workerWarnings.join('\n')}`
+            );
+          } else {
+            setDeprecationWarning(workerWarnings.join('\n'));
+          }
         }
 
         // Set initial results immediately with pending STL placeholders

@@ -6,7 +6,6 @@ export type WorkerRequest = {
   type: 'generate';
   inputConfig: string | object;
   injectionInput?: string[][];
-  initialWarnings?: string[];
 };
 
 export type WorkerResponse =
