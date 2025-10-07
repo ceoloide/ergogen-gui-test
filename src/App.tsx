@@ -33,7 +33,7 @@ const App = () => {
       setConfigInput={setConfigInput}
       initialInjectionInput={[]}
     >
-      <AppContent configInput={configInput} />
+      <AppContent />
     </ConfigContextProvider>
   );
 };
@@ -41,8 +41,10 @@ const App = () => {
 /**
  * Inner component that has access to the config context.
  */
-const AppContent = ({ configInput }: { configInput: string | undefined }) => {
+const AppContent = () => {
   const configContext = useConfigContext();
+  // Get configInput from context to ensure we have the latest value
+  const configInput = configContext?.configInput;
 
   return (
     <>
