@@ -5,4 +5,4 @@
 /**
  * The key used to store the main configuration in local storage.
  */
-export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG';
+export const CONFIG_LOCAL_STORAGE_KEY = 'ergogen:config';
