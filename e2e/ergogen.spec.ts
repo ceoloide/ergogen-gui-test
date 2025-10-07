@@ -155,6 +155,7 @@ test.describe('Ergogen Configuration Processing', () => {
     await page.addInitScript(
       ({ config, key }) => {
         localStorage.setItem(key, JSON.stringify(config));
+        localStorage.setItem('ergogen:config:stlPreview', 'true');
       },
       { config: ADux.value, key: CONFIG_LOCAL_STORAGE_KEY }
     );
