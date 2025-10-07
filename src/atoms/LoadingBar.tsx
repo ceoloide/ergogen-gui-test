@@ -15,14 +15,18 @@ const indeterminateAnimation = keyframes`
 `;
 
 /**
- * A container for the loading bar that sits below the header.
+ * A container for the loading bar that overlays below the header.
  */
 const LoadingBarContainer = styled.div`
+  position: fixed;
+  top: 3em;
+  left: 0;
+  right: 0;
   width: 100%;
   height: 3px;
   background-color: ${theme.colors.backgroundLighter};
   overflow: hidden;
-  flex-shrink: 0;
+  z-index: 1000;
 `;
 
 /**

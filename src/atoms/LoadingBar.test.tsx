@@ -18,7 +18,7 @@ describe('LoadingBar', () => {
     expect(screen.queryByTestId('loading-bar')).not.toBeInTheDocument();
   });
 
-  it('should use accent color from theme', () => {
+  it('should use accent color from theme and be positioned as overlay', () => {
     // Arrange & Act
     render(<LoadingBar visible={true} data-testid="loading-bar" />);
 
@@ -26,7 +26,11 @@ describe('LoadingBar', () => {
 
     // Assert
     expect(loadingBar).toBeInTheDocument();
-    // The loading bar container should exist
-    expect(loadingBar).toHaveStyle({ height: '3px' });
+    // The loading bar container should be positioned fixed as an overlay
+    expect(loadingBar).toHaveStyle({
+      height: '3px',
+      position: 'fixed',
+      top: '3em',
+    });
   });
 });

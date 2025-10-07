@@ -15,10 +15,7 @@ import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 import { convertJscadToStl } from '../utils/jscad';
-import {
-  WorkerRequest,
-  WorkerResponse,
-} from '../workers/ergogen.worker.types';
+import { WorkerRequest, WorkerResponse } from '../workers/ergogen.worker.types';
 import { createErgogenWorker } from '../workers/workerFactory';
 
 // Strongly-typed shape for Ergogen results used in the UI
