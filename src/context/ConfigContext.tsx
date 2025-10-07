@@ -169,11 +169,6 @@ type ProcessOptions = {
 const ConfigContext = createContext<ContextProps | null>(null);
 
 /**
- * The key used to store the main configuration in local storage.
- */
-export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG';
-
-/**
  * Retrieves a value from local storage, or returns a default value if not found.
  * @param {string} key - The local storage key.
  * @param {any} defaultValue - The default value to return if the key is not found.
@@ -615,3 +610,6 @@ export default ConfigContextProvider;
  * @returns {ContextProps | null} The context value, or null if used outside a provider.
  */
 export const useConfigContext = () => useContext(ConfigContext);
+
+// Re-export constants for backward compatibility
+export { CONFIG_LOCAL_STORAGE_KEY } from './constants';

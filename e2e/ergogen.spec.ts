@@ -3,7 +3,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { makeShooter } from './utils/screenshots';
 import ADux from '../src/examples/adux';
-import { CONFIG_LOCAL_STORAGE_KEY } from '../src/context/ConfigContext';
+import { CONFIG_LOCAL_STORAGE_KEY } from '../src/context/constants';
 
 test.describe('Ergogen Configuration Processing', () => {
   const hashFile = async (filePath: string): Promise<string> => {

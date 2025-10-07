@@ -4,7 +4,6 @@
  */
 
 /* eslint-env worker */
- 
 
 // Extend worker global scope with importScripts and ergogen
 interface WorkerGlobalScopeWithImport {

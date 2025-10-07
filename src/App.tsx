@@ -9,9 +9,9 @@ import Header from './atoms/Header';
 import LoadingBar from './atoms/LoadingBar';
 import Banners from './organisms/Banners';
 import ConfigContextProvider, {
-  CONFIG_LOCAL_STORAGE_KEY,
   useConfigContext,
 } from './context/ConfigContext';
+import { CONFIG_LOCAL_STORAGE_KEY } from './context/constants';
 
 const App = () => {
   // Synchronously get the initial value to avoid race conditions on first render.
