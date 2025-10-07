@@ -101,8 +101,6 @@ type Props = {
  * @property {Dispatch<SetStateAction<boolean>>} setAutoGen3D - Function to toggle 3D auto-generation.
  * @property {boolean} kicanvasPreview - Flag to enable the KiCanvas preview for PCBs.
  * @property {Dispatch<SetStateAction<boolean>>} setKicanvasPreview - Function to toggle the KiCanvas preview.
- * @property {boolean} jscadPreview - Flag to enable the JSCAD 3D preview.
- * @property {Dispatch<SetStateAction<boolean>>} setJscadPreview - Function to toggle the JSCAD preview.
  * @property {boolean} stlPreview - Flag to enable the STL 3D preview and conversion.
  * @property {Dispatch<SetStateAction<boolean>>} setStlPreview - Function to toggle the STL preview.
  * @property {string | null} experiment - The value of any 'exp' query parameter.
@@ -146,8 +144,6 @@ type ContextProps = {
   setAutoGen3D: Dispatch<SetStateAction<boolean>>;
   kicanvasPreview: boolean;
   setKicanvasPreview: Dispatch<SetStateAction<boolean>>;
-  jscadPreview: boolean;
-  setJscadPreview: Dispatch<SetStateAction<boolean>>;
   stlPreview: boolean;
   setStlPreview: Dispatch<SetStateAction<boolean>>;
   experiment: string | null;
@@ -223,9 +219,6 @@ const ConfigContextProvider = ({
   const [kicanvasPreview, setKicanvasPreview] = useState<boolean>(
     localStorageOrDefault('ergogen:config:kicanvasPreview', true)
   );
-  const [jscadPreview, setJscadPreview] = useState<boolean>(
-    localStorageOrDefault('ergogen:config:jscadPreview', false)
-  );
   const [stlPreview, setStlPreview] = useState<boolean>(
     localStorageOrDefault('ergogen:config:stlPreview', false)
   );
@@ -248,14 +241,10 @@ const ConfigContextProvider = ({
       JSON.stringify(kicanvasPreview)
     );
     localStorage.setItem(
-      'ergogen:config:jscadPreview',
-      JSON.stringify(jscadPreview)
-    );
-    localStorage.setItem(
       'ergogen:config:stlPreview',
       JSON.stringify(stlPreview)
     );
-  }, [debug, autoGen, autoGen3D, kicanvasPreview, jscadPreview, stlPreview]);
+  }, [debug, autoGen, autoGen3D, kicanvasPreview, stlPreview]);
 
   /**
    * Parses a string as either JSON or YAML.
@@ -530,8 +519,6 @@ const ConfigContextProvider = ({
       setAutoGen3D,
       kicanvasPreview,
       setKicanvasPreview,
-      jscadPreview,
-      setJscadPreview,
       stlPreview,
       setStlPreview,
       experiment,
@@ -565,8 +552,6 @@ const ConfigContextProvider = ({
       setAutoGen3D,
       kicanvasPreview,
       setKicanvasPreview,
-      jscadPreview,
-      setJscadPreview,
       stlPreview,
       setStlPreview,
       experiment,

@@ -1,4 +1,3 @@
-import JscadPreview from '../atoms/JscadPreview';
 import PcbPreview from '../atoms/PcbPreview';
 import StlPreview from '../atoms/StlPreview';
 import SvgPreview from '../atoms/SvgPreview';
@@ -13,7 +12,6 @@ import TextPreview from '../atoms/TextPreview';
  * @property {number | string} [width='100%'] - The width of the preview area.
  * @property {number | string} [height='100%'] - The height of the preview area.
  * @property {string} [className] - An optional CSS class for the container div.
- * @property {boolean} [jscadPreview] - A flag to enable the 3D JSCAD preview.
  * @property {string} [data-testid] - An optional data-testid for testing purposes.
  */
 type Props = {
@@ -23,7 +21,6 @@ type Props = {
   width?: number | string;
   height?: number | string;
   className?: string;
-  jscadPreview?: boolean;
   'data-testid'?: string;
   'aria-label'?: string;
 };
@@ -42,7 +39,6 @@ const FilePreview = ({
   width = '100%',
   height = '100%',
   className,
-  jscadPreview,
   'data-testid': dataTestId,
   'aria-label': ariaLabel,
 }: Props) => {
@@ -82,13 +78,7 @@ const FilePreview = ({
           />
         );
       case 'jscad':
-        return jscadPreview ? (
-          <JscadPreview
-            jscad={previewContent}
-            aria-label={ariaLabel || `3D preview for ${previewKey}`}
-            data-testid={dataTestId && `${dataTestId}-jscad`}
-          />
-        ) : (
+        return (
           <TextPreview
             language="javascript"
             content={previewContent}
