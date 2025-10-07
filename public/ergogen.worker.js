@@ -21,21 +21,16 @@ try {
  * Main worker message handler.
  */
 self.addEventListener('message', async (event) => {
-  const { type, inputConfig, injectionInput, deprecationWarning } = event.data;
+  const { type, inputConfig, injectionInput, initialWarnings } = event.data;
 
   if (type !== 'generate') {
     return;
   }
 
-  try {
-    // Post deprecation warning if provided
-    if (deprecationWarning) {
-      self.postMessage({
-        type: 'warning',
-        warning: deprecationWarning,
-      });
-    }
+  // Initialize warnings array with any initial warnings
+  const warnings = initialWarnings ? [...initialWarnings] : [];
 
+  try {
     // Process injections
     if (injectionInput !== undefined && Array.isArray(injectionInput)) {
       for (let i = 0; i < injectionInput.length; i++) {
@@ -46,11 +41,18 @@ self.addEventListener('message', async (event) => {
           const inj_text = injection[2];
           const module_prefix = 'const module = {};\n\n';
           const module_suffix = '\n\nreturn module.exports;';
-          const inj_value = new Function(
-            'require',
-            module_prefix + inj_text + module_suffix
-          )();
-          self.ergogen.inject(inj_type, inj_name, inj_value);
+          try {
+            const inj_value = new Function(
+              'require',
+              module_prefix + inj_text + module_suffix
+            )();
+            self.ergogen.inject(inj_type, inj_name, inj_value);
+          } catch (injectionError) {
+            // Add injection warning and continue
+            warnings.push(
+              `Warning in injection ${inj_name}: ${injectionError.message || injectionError.toString()}`
+            );
+          }
         }
       }
     }
@@ -62,10 +64,11 @@ self.addEventListener('message', async (event) => {
       (m) => console.log(m) // logger
     );
 
-    // Post success message with results
+    // Post success message with results and warnings
     self.postMessage({
       type: 'success',
       results,
+      warnings,
     });
   } catch (e) {
     let errorMessage = 'Unknown error occurred';

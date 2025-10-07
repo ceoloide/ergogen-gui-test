@@ -356,20 +356,24 @@ const ConfigContextProvider = ({
         const worker = workerRef.current;
 
         // Set up promise to handle worker response
-        const generationPromise = new Promise<unknown>((resolve, reject) => {
+        const generationPromise = new Promise<{
+          results: unknown;
+          warnings: string[];
+        }>((resolve, reject) => {
           const handleMessage = (event: MessageEvent<WorkerResponse>) => {
             const response = event.data;
 
             if (response.type === 'success') {
               worker.removeEventListener('message', handleMessage);
               worker.removeEventListener('error', handleError);
-              resolve(response.results);
+              resolve({
+                results: response.results,
+                warnings: response.warnings,
+              });
             } else if (response.type === 'error') {
               worker.removeEventListener('message', handleMessage);
               worker.removeEventListener('error', handleError);
               reject(new Error(response.error));
-            } else if (response.type === 'warning') {
-              setDeprecationWarning(response.warning);
             }
           };
 
@@ -387,17 +391,28 @@ const ConfigContextProvider = ({
           worker.addEventListener('error', handleError as EventListener);
         });
 
-        // Post message to worker
+        // Post message to worker with initial warnings
+        const initialWarnings: string[] = [];
+        if (warning) {
+          initialWarnings.push(warning);
+        }
         const request: WorkerRequest = {
           type: 'generate',
           inputConfig,
           injectionInput,
-          deprecationWarning: warning,
+          initialWarnings,
         };
         worker.postMessage(request);
 
         // Wait for results
-        const results = (await generationPromise) as Results;
+        const { results: generatedResults, warnings: workerWarnings } =
+          await generationPromise;
+        const results = generatedResults as Results;
+
+        // Display warnings if any
+        if (workerWarnings && workerWarnings.length > 0) {
+          setDeprecationWarning(workerWarnings.join('\n'));
+        }
 
         // Set initial results immediately with pending STL placeholders
         if (results && results.cases) {

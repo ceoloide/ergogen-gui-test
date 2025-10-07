@@ -6,19 +6,16 @@ export type WorkerRequest = {
   type: 'generate';
   inputConfig: string | object;
   injectionInput?: string[][];
-  deprecationWarning?: string | null;
+  initialWarnings?: string[];
 };
 
 export type WorkerResponse =
   | {
       type: 'success';
       results: unknown;
+      warnings: string[];
     }
   | {
       type: 'error';
       error: string;
-    }
-  | {
-      type: 'warning';
-      warning: string;
     };
