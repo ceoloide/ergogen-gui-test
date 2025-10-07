@@ -11,7 +11,9 @@ export const createErgogenWorker = (): Worker | null => {
 
   try {
     // Use the plain JavaScript worker from the public directory
-    return new Worker('/ergogen.worker.js');
+    // Prefer absolute path relative to the current origin to support subpath deployments
+    const workerUrl = new URL('/ergogen.worker.js', window.location.origin);
+    return new Worker(workerUrl.toString());
   } catch (e) {
     console.error('Failed to create worker:', e);
     return null;

@@ -6,8 +6,11 @@
 /* eslint-env worker */
 /* global self, importScripts */
 
+console.log('Ergogen worker starting...');
+
 // Load dependencies in the worker context
 try {
+  console.log('Loading ergogen.js...');
   self.importScripts('/dependencies/ergogen.js');
 } catch (e) {
   // If ergogen.js fails to load, post an error
@@ -21,9 +24,13 @@ try {
  * Main worker message handler.
  */
 self.addEventListener('message', async (event) => {
-  const { type, inputConfig, injectionInput } = event.data;
+  const { type, inputConfig, injectionInput, requestId } = event.data || {};
+
+  console.log('Worker received message:', JSON.stringify(event.data));
 
   if (type !== 'generate') {
+    console.log('Unknown message type:', type);
+    console.log('Message:', JSON.stringify(event.data));
     return;
   }
 
@@ -32,9 +39,11 @@ self.addEventListener('message', async (event) => {
 
   try {
     // Process injections
+    console.log('Processing injections...');
     if (injectionInput !== undefined && Array.isArray(injectionInput)) {
       for (let i = 0; i < injectionInput.length; i++) {
         const injection = injectionInput[i];
+        console.log('Processing injection:', JSON.stringify(injection));
         if (Array.isArray(injection) && injection.length === 3) {
           const inj_type = injection[0];
           const inj_name = injection[1];
@@ -69,6 +78,7 @@ self.addEventListener('message', async (event) => {
       type: 'success',
       results,
       warnings,
+      requestId,
     });
   } catch (e) {
     let errorMessage = 'Unknown error occurred';
@@ -84,6 +94,7 @@ self.addEventListener('message', async (event) => {
     self.postMessage({
       type: 'error',
       error: errorMessage,
+      requestId,
     });
   }
 });
