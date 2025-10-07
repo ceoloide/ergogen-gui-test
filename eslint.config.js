@@ -25,8 +25,11 @@ export default tseslint.config(
   },
   prettierConfig,
   {
-    ...reactHooks.configs.recommended,
     files: ['src/**/*.{ts,tsx}'],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: reactHooks.configs.recommended.rules,
   },
   {
     files: ['src/**/*.{ts,tsx}'],
