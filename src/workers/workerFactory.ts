@@ -11,7 +11,7 @@ export const createErgogenWorker = (): Worker | null => {
 
   try {
     // Use the new URL syntax to let Webpack bundle the worker
-    const workerUrl = new URL('./ergogen.worker.ts', import.meta.url)
+    const workerUrl = new URL('./ergogen.worker.ts', import.meta.url);
     console.log('Worker URL:', workerUrl);
     return new Worker(workerUrl, {
       type: 'module',

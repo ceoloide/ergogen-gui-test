@@ -10,10 +10,11 @@ console.log('Ergogen worker module starting...');
  * Main worker message handler.
  */
 self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
-  const { type, inputConfig, injectionInput, requestId } =
-    event.data || {};
+  const { type, inputConfig, injectionInput, requestId } = event.data || {};
 
-  console.log(`Ergogen worker received a message: ${JSON.stringify(event.data)}`);
+  console.log(
+    `Ergogen worker received a message: ${JSON.stringify(event.data)}`
+  );
   console.log('Ergogen worker returning a dummy error.');
   self.postMessage({
     type: 'error',
