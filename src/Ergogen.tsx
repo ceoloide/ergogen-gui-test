@@ -543,7 +543,6 @@ const Ergogen = () => {
                     previewKey={`${preview.key}-${configContext.resultsVersion}`}
                     previewContent={preview.content}
                     jscadPreview={configContext.jscadPreview}
-                    stlPreview={configContext.stlPreview}
                   />
                 </LeftSplitPane>
                 <RightSplitPane>

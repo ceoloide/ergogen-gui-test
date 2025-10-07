@@ -14,7 +14,6 @@ import TextPreview from '../atoms/TextPreview';
  * @property {number | string} [height='100%'] - The height of the preview area.
  * @property {string} [className] - An optional CSS class for the container div.
  * @property {boolean} [jscadPreview] - A flag to enable the 3D JSCAD preview.
- * @property {boolean} [stlPreview] - A flag to enable the 3D STL preview.
  * @property {string} [data-testid] - An optional data-testid for testing purposes.
  */
 type Props = {
@@ -25,7 +24,6 @@ type Props = {
   height?: number | string;
   className?: string;
   jscadPreview?: boolean;
-  stlPreview?: boolean;
   'data-testid'?: string;
   'aria-label'?: string;
 };
@@ -45,7 +43,6 @@ const FilePreview = ({
   height = '100%',
   className,
   jscadPreview,
-  stlPreview,
   'data-testid': dataTestId,
   'aria-label': ariaLabel,
 }: Props) => {
@@ -109,18 +106,11 @@ const FilePreview = ({
           />
         );
       case 'stl':
-        return stlPreview ? (
+        return (
           <StlPreview
             stl={previewContent}
             aria-label={ariaLabel || `STL preview for ${previewKey}`}
             data-testid={dataTestId && `${dataTestId}-stl`}
-          />
-        ) : (
-          <TextPreview
-            language="text"
-            content={previewContent}
-            aria-label={ariaLabel || `STL code preview for ${previewKey}`}
-            data-testid={dataTestId && `${dataTestId}-stl-text`}
           />
         );
       default:
