@@ -10,10 +10,12 @@ export const createErgogenWorker = (): Worker | null => {
   }
 
   try {
-    // Use the plain JavaScript worker from the public directory
-    // Prefer absolute path relative to the current origin to support subpath deployments
-    const workerUrl = new URL('/ergogen.worker.js', window.location.origin);
-    return new Worker(workerUrl.toString());
+    // Use the new URL syntax to let Webpack bundle the worker
+    const workerUrl = new URL('./ergogen.worker.ts', import.meta.url)
+    console.log('Worker URL:', workerUrl);
+    return new Worker(workerUrl, {
+      type: 'module',
+    });
   } catch (e) {
     console.error('Failed to create worker:', e);
     return null;
