@@ -543,6 +543,7 @@ const Ergogen = () => {
                     previewKey={`${preview.key}-${configContext.resultsVersion}`}
                     previewContent={preview.content}
                     jscadPreview={configContext.jscadPreview}
+                    stlPreview={configContext.stlPreview}
                   />
                 </LeftSplitPane>
                 <RightSplitPane>
@@ -615,6 +616,17 @@ const Ergogen = () => {
                     setSelected={configContext.setJscadPreview}
                     checked={configContext.jscadPreview}
                     aria-label="Enable JSCAD preview (experimental)"
+                  />
+                  <GenOption
+                    optionId={'stlPreview'}
+                    label={
+                      <>
+                        STL Preview <small>(experimental)</small>
+                      </>
+                    }
+                    setSelected={configContext.setStlPreview}
+                    checked={configContext.stlPreview}
+                    aria-label="Enable STL preview (experimental)"
                   />
                 </OptionContainer>
                 <Injections
