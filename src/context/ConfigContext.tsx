@@ -375,7 +375,7 @@ const ConfigContextProvider = ({
       }
 
       // Set initial results immediately with pending STL placeholders
-      if (results && (results as Results).cases) {
+      if (stlPreview && results && (results as Results).cases) {
         const casesWithStl: Record<string, CaseOutput> = {};
         for (const [name, caseObj] of Object.entries(
           (results as Results).cases as Record<string, CaseOutput>
