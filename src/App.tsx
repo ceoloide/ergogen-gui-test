@@ -15,6 +15,22 @@ import { CONFIG_LOCAL_STORAGE_KEY } from './context/constants';
 
 const App = () => {
   // Synchronously get the initial value to avoid race conditions on first render.
+
+  // Since we changed the local storage key for the Ergogen config, we need to always check for the legacy key first and migrate it if it exists.
+  // This migration code can be removed in a future release once we are confident most users have migrated.
+  const legacyStoredConfigValue = localStorage.getItem('LOCAL_STORAGE_CONFIG');
+  const legacyInitialConfig = legacyStoredConfigValue
+    ? JSON.parse(legacyStoredConfigValue)
+    : '';
+  if (legacyInitialConfig) {
+    // The user has a legacy configuration we need to import once, overriding the current initialConfig and then removing the legacy local storage key and value.
+    localStorage.removeItem('LOCAL_STORAGE_CONFIG');
+    localStorage.setItem(
+      CONFIG_LOCAL_STORAGE_KEY,
+      JSON.stringify(legacyInitialConfig)
+    );
+  }
+
   const storedConfigValue = localStorage.getItem(CONFIG_LOCAL_STORAGE_KEY);
   const initialConfig = storedConfigValue ? JSON.parse(storedConfigValue) : '';
 
