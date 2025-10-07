@@ -15,7 +15,10 @@ import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 import { convertJscadToStl } from '../utils/jscad';
-import { WorkerRequest, WorkerResponse } from '../workers/ergogen.worker';
+import {
+  WorkerRequest,
+  WorkerResponse,
+} from '../workers/ergogen.worker.types';
 import { createErgogenWorker } from '../workers/workerFactory';
 
 // Strongly-typed shape for Ergogen results used in the UI
@@ -362,16 +365,29 @@ const ConfigContextProvider = ({
 
             if (response.type === 'success') {
               worker.removeEventListener('message', handleMessage);
+              worker.removeEventListener('error', handleError);
               resolve(response.results);
             } else if (response.type === 'error') {
               worker.removeEventListener('message', handleMessage);
+              worker.removeEventListener('error', handleError);
               reject(new Error(response.error));
             } else if (response.type === 'warning') {
               setDeprecationWarning(response.warning);
             }
           };
 
+          const handleError = (error: ErrorEvent) => {
+            worker.removeEventListener('message', handleMessage);
+            worker.removeEventListener('error', handleError);
+            reject(
+              new Error(
+                `Worker error: ${error.message || 'Unknown worker error'}`
+              )
+            );
+          };
+
           worker.addEventListener('message', handleMessage);
+          worker.addEventListener('error', handleError as EventListener);
         });
 
         // Post message to worker

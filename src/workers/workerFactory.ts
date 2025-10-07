@@ -10,7 +10,8 @@ export const createErgogenWorker = (): Worker | null => {
   }
 
   try {
-    return new Worker(new URL('./ergogen.worker.ts', import.meta.url));
+    // Use the plain JavaScript worker from the public directory
+    return new Worker('/ergogen.worker.js');
   } catch (e) {
     console.error('Failed to create worker:', e);
     return null;
