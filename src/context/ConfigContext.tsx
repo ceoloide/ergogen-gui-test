@@ -7,7 +7,6 @@ import React, {
   useEffect,
   useState,
   useMemo,
-  useRef,
 } from 'react';
 import { DebouncedFunc } from 'lodash-es';
 import yaml from 'js-yaml';
@@ -15,8 +14,6 @@ import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 import { convertJscadToStl } from '../utils/jscad';
-import { WorkerRequest, WorkerResponse } from '../workers/ergogen.worker.types';
-import { createErgogenWorker } from '../workers/workerFactory';
 
 // Strongly-typed shape for Ergogen results used in the UI
 type DemoOutput = {
@@ -107,7 +104,6 @@ type Props = {
  * @property {boolean} stlPreview - Flag to enable the STL 3D preview and conversion.
  * @property {Dispatch<SetStateAction<boolean>>} setStlPreview - Function to toggle the STL preview.
  * @property {string | null} experiment - The value of any 'exp' query parameter.
- * @property {boolean} isGenerating - Flag indicating if Ergogen generation is currently in progress.
  */
 type ContextProps = {
   configInput: string | undefined;
@@ -227,8 +223,6 @@ const ConfigContextProvider = ({
   const [showDownloads, setShowDownloads] = useState<boolean>(true);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  const workerRef = useRef<Worker | null>(null);
-
   const clearError = useCallback(() => setError(null), []);
   const clearWarning = useCallback(() => setDeprecationWarning(null), []);
 
@@ -278,15 +272,32 @@ const ConfigContextProvider = ({
   };
 
   /**
-   * Helper to check for deprecation warnings.
+   * The core function that runs the Ergogen generation process.
    */
-  const checkForDeprecationWarnings = useCallback(
-    (parsedConfig: { [key: string]: unknown } | null): string | null => {
+  const runGeneration = useCallback(
+    async (
+      textInput: string | undefined,
+      injectionInput: string[][] | undefined,
+      options: ProcessOptions = { pointsonly: true }
+    ) => {
+      if (!textInput) {
+        return;
+      }
+      let results = null;
+      let inputConfig: string | object = textInput ?? '';
+      const inputInjection: string[][] | undefined = injectionInput;
+      const [, parsedConfig] = parseConfig(textInput ?? '');
+
+      setError(null);
+      setDeprecationWarning(null);
+      setIsGenerating(true);
+
       if (parsedConfig && parsedConfig.pcbs) {
         const pcbs = Object.values(parsedConfig.pcbs) as Record<
           string,
           unknown
         >[];
+        let warningFound = false;
         for (const pcb of pcbs) {
           if (!pcb.template || pcb.template === 'kicad5') {
             if (pcb.footprints) {
@@ -299,196 +310,125 @@ const ConfigContextProvider = ({
                   typeof footprint.what === 'string' &&
                   footprint.what.startsWith('ceoloide')
                 ) {
-                  return 'KiCad 5 is deprecated. Please add "template: kicad8" to your PCB definitions to avoid errors when opening PCB files with KiCad 8 or newer.';
+                  setDeprecationWarning(
+                    'KiCad 5 is deprecated. Please add "template: kicad8" to your PCB definitions to avoid errors when opening PCB files with KiCad 8 or newer.'
+                  );
+                  warningFound = true;
+                  break;
                 }
               }
             }
           }
+          if (warningFound) {
+            break;
+          }
         }
       }
-      return null;
-    },
-    []
-  );
 
-  /**
-   * The core function that runs the Ergogen generation process using a web worker.
-   */
-  const runGeneration = useCallback(
-    async (
-      textInput: string | undefined,
-      injectionInput: string[][] | undefined,
-      options: ProcessOptions = { pointsonly: true }
-    ) => {
-      if (!textInput) {
-        return;
+      // When running this as part of onChange we remove `pcbs` and `cases` properties to generate
+      // a simplified preview.
+      // If there is no 'points' key we send the input to Ergogen as-is, it could be KLE or invalid.
+      if (parsedConfig?.points && options?.pointsonly) {
+        inputConfig = {
+          ...parsedConfig,
+          pcbs: undefined,
+          cases: undefined,
+        };
       }
-
-      setError(null);
-      setDeprecationWarning(null);
-      setIsGenerating(true);
 
       try {
-        // Parse config and check for deprecation warnings
-        const [, parsedConfig] = parseConfig(textInput);
-        const deprecationWarning = checkForDeprecationWarnings(parsedConfig);
-
-        // Display deprecation warning immediately if found
-        if (deprecationWarning) {
-          setDeprecationWarning(deprecationWarning);
-        }
-
-        // Prepare config for generation
-        let inputConfig: string | object = textInput;
-        if (parsedConfig?.points && options?.pointsonly) {
-          inputConfig = {
-            ...parsedConfig,
-            pcbs: undefined,
-            cases: undefined,
-          };
-        }
-
-        // Create or reuse worker
-        if (!workerRef.current) {
-          workerRef.current = createErgogenWorker();
-        }
-
-        // If no worker available (test environment), throw error
-        if (!workerRef.current) {
-          throw new Error('Worker not available in test environment');
-        }
-
-        const worker = workerRef.current;
-
-        // Set up promise to handle worker response
-        const generationPromise = new Promise<{
-          results: unknown;
-          warnings: string[];
-        }>((resolve, reject) => {
-          const handleMessage = (event: MessageEvent<WorkerResponse>) => {
-            const response = event.data;
-
-            if (response.type === 'success') {
-              worker.removeEventListener('message', handleMessage);
-              worker.removeEventListener('error', handleError);
-              resolve({
-                results: response.results,
-                warnings: response.warnings,
-              });
-            } else if (response.type === 'error') {
-              worker.removeEventListener('message', handleMessage);
-              worker.removeEventListener('error', handleError);
-              reject(new Error(response.error));
+        if (inputInjection !== undefined && Array.isArray(inputInjection)) {
+          for (let i = 0; i < inputInjection.length; i++) {
+            const injection = inputInjection[i];
+            if (Array.isArray(injection) && injection.length === 3) {
+              const inj_type = injection[0];
+              const inj_name = injection[1];
+              const inj_text = injection[2];
+              const module_prefix = 'const module = {};\n\n';
+              const module_suffix = '\n\nreturn module.exports;';
+              const inj_value = new Function(
+                'require',
+                module_prefix + inj_text + module_suffix
+              )();
+              window.ergogen.inject(inj_type, inj_name, inj_value);
             }
-          };
-
-          const handleError = (error: ErrorEvent) => {
-            worker.removeEventListener('message', handleMessage);
-            worker.removeEventListener('error', handleError);
-            reject(
-              new Error(
-                `Worker error: ${error.message || 'Unknown worker error'}`
-              )
-            );
-          };
-
-          worker.addEventListener('message', handleMessage);
-          worker.addEventListener('error', handleError as EventListener);
-        });
-
-        // Post message to worker
-        const request: WorkerRequest = {
-          type: 'generate',
+          }
+        }
+        results = await window.ergogen.process(
           inputConfig,
-          injectionInput,
-        };
-        worker.postMessage(request);
-
-        // Wait for results
-        const { results: generatedResults, warnings: workerWarnings } =
-          await generationPromise;
-        const results = generatedResults as Results;
-
-        // Display worker warnings if any (in addition to deprecation warning)
-        if (workerWarnings && workerWarnings.length > 0) {
-          // If there's already a deprecation warning, append worker warnings
-          if (deprecationWarning) {
-            setDeprecationWarning(
-              `${deprecationWarning}\n${workerWarnings.join('\n')}`
-            );
-          } else {
-            setDeprecationWarning(workerWarnings.join('\n'));
-          }
-        }
-
-        // Set initial results immediately with pending STL placeholders
-        if (results && results.cases) {
-          const casesWithStl: Record<string, CaseOutput> = {};
-          for (const [name, caseObj] of Object.entries(
-            results.cases as Record<string, CaseOutput>
-          )) {
-            casesWithStl[name] = {
-              ...caseObj,
-              stl: undefined, // Mark as pending
-            };
-          }
-          results.cases = casesWithStl;
-        }
-
-        // Set results immediately so UI shows pending STL files
-        setResults(results);
-        setResultsVersion((v) => v + 1);
-
-        // Convert JSCAD cases to STL format asynchronously only if stlPreview is enabled
-        if (stlPreview && results && results.cases) {
-          const casesList = Object.entries(
-            results.cases as Record<string, CaseOutput>
-          );
-
-          // Convert each JSCAD to STL asynchronously
-          for (const [caseName, caseObj] of casesList) {
-            if (caseObj.jscad) {
-              // Capture caseName in an IIFE to ensure proper closure
-              ((name) => {
-                convertJscadToStl(caseObj.jscad!).then((stl) => {
-                  // Update results with the new STL for this specific case
-                  setResults((prevResults) => {
-                    if (!prevResults?.cases) return prevResults;
-
-                    return {
-                      ...prevResults,
-                      cases: {
-                        ...prevResults.cases,
-                        [name]: {
-                          ...prevResults.cases[name],
-                          stl: stl ?? undefined,
-                        },
-                      },
-                    };
-                  });
-
-                  // Increment version to trigger re-render
-                  setResultsVersion((v) => v + 1);
-                });
-              })(caseName);
-            }
-          }
-        }
+          true, // Set debug to true or no SVGs are generated
+          (m: string) => console.log(m) // logger
+        );
       } catch (e: unknown) {
         if (!e) return;
 
         if (typeof e === 'string') {
           setError(e);
-        } else if (e instanceof Error) {
-          setError(e.message);
-        } else if (typeof e === 'object' && e !== null) {
+        }
+        if (typeof e === 'object' && e !== null) {
           setError(e.toString());
         }
+        return;
       } finally {
         setIsGenerating(false);
       }
+
+      // Set initial results immediately with pending STL placeholders
+      if (results && (results as Results).cases) {
+        const casesWithStl: Record<string, CaseOutput> = {};
+        for (const [name, caseObj] of Object.entries(
+          (results as Results).cases as Record<string, CaseOutput>
+        )) {
+          casesWithStl[name] = {
+            ...caseObj,
+            stl: undefined, // Mark as pending
+          };
+        }
+        (results as Results).cases = casesWithStl;
+      }
+
+      // Set results immediately so UI shows pending STL files
+      setResults(results as Results);
+      setResultsVersion((v) => v + 1);
+
+      // Convert JSCAD cases to STL format asynchronously only if stlPreview is enabled
+      if (stlPreview && results && (results as Results).cases) {
+        const casesList = Object.entries(
+          (results as Results).cases as Record<string, CaseOutput>
+        );
+
+        // Convert each JSCAD to STL asynchronously
+        // Use a copy of the caseName in the closure to avoid reference issues
+        for (const [caseName, caseObj] of casesList) {
+          if (caseObj.jscad) {
+            // Capture caseName in an IIFE to ensure proper closure
+            ((name) => {
+              convertJscadToStl(caseObj.jscad!).then((stl) => {
+                // Update results with the new STL for this specific case
+                setResults((prevResults) => {
+                  if (!prevResults?.cases) return prevResults;
+
+                  return {
+                    ...prevResults,
+                    cases: {
+                      ...prevResults.cases,
+                      [name]: {
+                        ...prevResults.cases[name],
+                        stl: stl ?? undefined,
+                      },
+                    },
+                  };
+                });
+
+                // Increment version to trigger re-render
+                setResultsVersion((v) => v + 1);
+              });
+            })(caseName);
+          }
+        }
+      }
     },
-    [stlPreview, checkForDeprecationWarnings]
+    [stlPreview]
   );
 
   /**
@@ -547,17 +487,6 @@ const ConfigContextProvider = ({
   const experiment = useMemo(() => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('exp');
-  }, []);
-
-  /**
-   * Effect to clean up the web worker on unmount.
-   */
-  useEffect(() => {
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
   }, []);
 
   const contextValue = useMemo(
@@ -645,6 +574,3 @@ export default ConfigContextProvider;
  * @returns {ContextProps | null} The context value, or null if used outside a provider.
  */
 export const useConfigContext = () => useContext(ConfigContext);
-
-// Re-export constants for backward compatibility
-export { CONFIG_LOCAL_STORAGE_KEY } from './constants';
