@@ -373,25 +373,60 @@ const ConfigContextProvider = ({
         return;
       }
 
-      // Convert JSCAD cases to STL format
+      // Set initial results immediately with pending STL placeholders
       if (results && (results as Results).cases) {
         const casesWithStl: Record<string, CaseOutput> = {};
         for (const [name, caseObj] of Object.entries(
           (results as Results).cases as Record<string, CaseOutput>
         )) {
-          const stl = caseObj.jscad
-            ? await convertJscadToStl(caseObj.jscad)
-            : null;
           casesWithStl[name] = {
             ...caseObj,
-            stl: stl ?? undefined,
+            stl: undefined, // Mark as pending
           };
         }
         (results as Results).cases = casesWithStl;
       }
 
+      // Set results immediately so UI shows pending STL files
       setResults(results as Results);
       setResultsVersion((v) => v + 1);
+
+      // Convert JSCAD cases to STL format asynchronously
+      if (results && (results as Results).cases) {
+        const casesList = Object.entries(
+          (results as Results).cases as Record<string, CaseOutput>
+        );
+
+        // Convert each JSCAD to STL asynchronously
+        // Use a copy of the caseName in the closure to avoid reference issues
+        for (const [caseName, caseObj] of casesList) {
+          if (caseObj.jscad) {
+            // Capture caseName in an IIFE to ensure proper closure
+            ((name) => {
+              convertJscadToStl(caseObj.jscad!).then((stl) => {
+                // Update results with the new STL for this specific case
+                setResults((prevResults) => {
+                  if (!prevResults?.cases) return prevResults;
+
+                  return {
+                    ...prevResults,
+                    cases: {
+                      ...prevResults.cases,
+                      [name]: {
+                        ...prevResults.cases[name],
+                        stl: stl ?? undefined,
+                      },
+                    },
+                  };
+                });
+
+                // Increment version to trigger re-render
+                setResultsVersion((v) => v + 1);
+              });
+            })(caseName);
+          }
+        }
+      }
     },
     []
   );

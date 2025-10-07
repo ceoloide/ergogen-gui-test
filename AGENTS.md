@@ -55,7 +55,7 @@ Your task is to record important information in this file (`AGENTS.md`), which a
 
 ### User preferences & instructions
 
-- **Always run tests in headless/CI mode.** When running tests, ensure they are configured to execute once and exit, without entering interactive watch mode.
+- **Always run tests in headless/CI mode.** When running tests, ensure they are configured to execute once and exit.
 - **Propose a plan before complex refactoring.** For non-trivial changes, especially concerning tests or core logic, present a plan of action before implementing it. This allows for feedback and ensures alignment.
 - **Critique your work and log follow-up tasks.** After making significant changes, provide a critique of the work, identifying areas for improvement. Log these areas as actionable items in the AGENTS.md "Future Tasks" section. This formalizes the process we followed after the test refactoring.
 - **CRITICAL: Confirm task completion before removal.** You **MUST** always confirm with the user that a task from the "Future Tasks" list is complete before removing it from this document. Once the user confirms, and only then, the task should be removed from the "Future Tasks" section.

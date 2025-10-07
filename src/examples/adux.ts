@@ -145,16 +145,62 @@ outlines:
     - what: outline
       name: _second
       fillet: 1
-  panel:
+  bottom:
     - what: outline
       name: _third
       fillet: 0.5
+  _key_slot_negative:
+    - what: rectangle
+      where: true
+      size: 13.8
+  _key_snap:
+    - what: outline
+      name: _key_slot_negative
+      expand: 1.2
+    - what: outline
+      name: _key_slot_negative
+      operation: subtract
+  _prototype_plate:
+    - what: outline
+      name: bottom
+    - what: outline
+      name: _key_slot_negative
+      operation: subtract
+  _mounting_plate:
+    - what: hull
+      points: 
+        - matrix_pinky_bottom
+        - matrix_pinky_home
+        - matrix_pinky_top
+        - matrix_ring_bottom
+        - matrix_ring_home
+        - matrix_ring_top
+        - matrix_middle_bottom
+        - matrix_middle_home
+        - matrix_middle_top
+        - matrix_index_bottom
+        - matrix_index_home
+        - matrix_index_top
+        - matrix_inner_bottom
+        - matrix_inner_home
+        - matrix_inner_top
+        - thumb_first_only
+        - thumb_second_only
+      concavity: 50
+      expand: -0.5
+    - what: outline
+      name: bottom
+      operation: intersect
+      fillet: 5
+    - what: outline
+      name: _key_slot_negative
+      operation: subtract
 pcbs:
   architeuthis_dux:
     template: kicad8
     outlines:
       main:
-        outline: panel
+        outline: bottom
     footprints:
       choc_hotswap:
         what: ceoloide/switch_choc_v1_v2
@@ -209,6 +255,18 @@ pcbs:
           reversible: true
         adjust:
           shift: [0,-1u]  
+cases:
+  prototype:
+    - what: outline
+      name: _prototype_plate
+      extrude: 1.6
+    - what: outline
+      name: _key_snap
+      extrude: 1.6 + 5
+  mounting_plate:
+    - what: outline
+      name: _mounting_plate
+      extrude: 1.2
 `,
 };
 

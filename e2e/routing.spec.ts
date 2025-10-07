@@ -1,15 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { makeShooter } from './utils/screenshots';
 import Absolem from '../src/examples/absolem';
 import { CONFIG_LOCAL_STORAGE_KEY } from '../src/context/ConfigContext';
 
 test.describe('Routing and Welcome Page', () => {
   test('new user is redirected to /new', async ({ page }) => {
+    const shoot = makeShooter(page, test.info());
     await page.goto('/');
+    await shoot('before-redirect-to-new');
     await expect(page).toHaveURL(/.*\/new/);
     await expect(page.getByText('Welcome to Ergogen Web UI')).toBeVisible();
+    await shoot('after-redirect-to-new');
   });
 
   test('existing user is routed to /', async ({ page }) => {
+    const shoot = makeShooter(page, test.info());
     // Simulate existing user by setting a value in local storage
     await page.addInitScript((CONFIG_LOCAL_STORAGE_KEY) => {
       localStorage.setItem(
@@ -18,19 +23,26 @@ test.describe('Routing and Welcome Page', () => {
       );
     }, CONFIG_LOCAL_STORAGE_KEY);
     await page.goto('/');
+    await shoot('before-existing-user-routed-home');
     await expect(page).toHaveURL(/.*\/$/);
     await expect(page.getByTestId('config-editor')).toBeVisible();
+    await shoot('after-existing-user-routed-home');
   });
 
   test('"Add" (new config) button requires existing config', async ({
     page,
   }) => {
+    const shoot = makeShooter(page, test.info());
     await page.goto('/');
     // With no config, the "New Design" button should not be visible on the main page
-    await expect(page.getByTestId('new-config-button')).not.toBeVisible();
+    const btn = page.getByTestId('new-config-button');
+    await shoot('before-new-config-btn-not-visible');
+    await expect(btn).not.toBeVisible();
+    await shoot('after-new-config-btn-not-visible');
   });
 
   test('"Add" (new config) button navigates to /new', async ({ page }) => {
+    const shoot = makeShooter(page, test.info());
     // The header button that starts a new config on the home page
     const newConfigButton = page.getByTestId('new-config-button');
 
@@ -44,23 +56,28 @@ test.describe('Routing and Welcome Page', () => {
     await page.goto('/');
 
     // 2. Now the button should be visible, click it
-
+    await shoot('before-new-config-button-visible');
     await expect(newConfigButton).toBeVisible();
+    await shoot('after-new-config-button-visible');
     await newConfigButton.click();
 
     // 3. Assert navigation to the /new page
+    await shoot('before-url-new-and-welcome');
     await expect(page).toHaveURL(/.*\/new/);
     await expect(page.getByText('Welcome to Ergogen Web UI')).toBeVisible();
+    await shoot('after-url-new-and-welcome');
   });
 
   test('clicking "Empty Configuration" creates an empty config and navigates to /', async ({
     page,
   }) => {
+    const shoot = makeShooter(page, test.info());
     await page.goto('/new');
     await page.getByRole('button', { name: 'Empty Configuration' }).click();
-
+    await shoot('before-empty-config-url-and-editor');
     await expect(page).toHaveURL(/.*\/$/);
     await expect(page.getByTestId('config-editor')).toBeVisible();
+    await shoot('after-empty-config-url-and-editor');
 
     await expect(async () => {
       const editorContent = await page.locator('.monaco-editor').textContent();
@@ -71,10 +88,13 @@ test.describe('Routing and Welcome Page', () => {
   test('clicking an example loads the config and navigates to /', async ({
     page,
   }) => {
+    const shoot = makeShooter(page, test.info());
     await page.goto('/new');
     await page.getByText(Absolem.label).click();
+    await shoot('before-example-url-and-editor');
     await expect(page).toHaveURL(/.*\/$/);
     await expect(page.getByTestId('config-editor')).toBeVisible();
+    await shoot('after-example-url-and-editor');
 
     // Verify the config was stored by checking localStorage rather than Monaco's DOM text,
     // which renders whitespace differently and is flaky to assert on.

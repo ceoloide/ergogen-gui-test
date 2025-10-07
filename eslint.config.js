@@ -61,7 +61,11 @@ export default tseslint.config(
       globals: {
         ...globals.jest,
         ...globals.browser,
+        ...globals.node,
       },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   }
 );

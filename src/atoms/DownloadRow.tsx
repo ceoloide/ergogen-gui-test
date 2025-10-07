@@ -50,7 +50,11 @@ const Row = styled.div`
 /**
  * A styled div for displaying the file name, with ellipsis for overflow.
  */
-const FileName = styled.div<{ active: boolean; hasPreview: boolean }>`
+const FileName = styled.div<{
+  active: boolean;
+  hasPreview: boolean;
+  disabled: boolean;
+}>`
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: ${theme.fontSizes.bodySmall};
@@ -60,6 +64,9 @@ const FileName = styled.div<{ active: boolean; hasPreview: boolean }>`
       ? `2px solid ${theme.colors.accent}`
       : '2px solid transparent'};
   border-top: 2px solid transparent;
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+  color: ${(props) =>
+    props.disabled ? theme.colors.textDarker : theme.colors.white};
 `;
 
 /**
@@ -76,12 +83,12 @@ const Buttons = styled.div`
  * A styled anchor tag that looks like a button.
  * Used for preview and download actions.
  */
-const StyledLinkButton = styled.a`
+const StyledLinkButton = styled.a<{ disabled?: boolean }>`
     background-color: ${theme.colors.background};
     border: none;
     border-radius: 6px;
     color: ${theme.colors.white};
-    display: flex;
+    display: ${(props) => (props.disabled ? 'none' : 'flex')};
     align-items: center;
     padding: 4px 6px;
     text-decoration: none;
@@ -115,7 +122,11 @@ const DownloadRow = ({
   previewKey,
   'data-testid': dataTestId,
 }: Props) => {
+  // Determine if this row is disabled (pending STL generation)
+  const isDisabled = extension === 'stl' && !content;
+
   const handleDownload = () => {
+    if (isDisabled) return;
     const element = document.createElement('a');
     const file = new Blob([content], { type: 'octet/stream' });
     element.href = URL.createObjectURL(file);
@@ -125,26 +136,30 @@ const DownloadRow = ({
   };
 
   const handlePreview = () => {
-    if (preview) {
+    if (preview && !isDisabled) {
       setPreview(preview);
     }
   };
 
+  const testId = dataTestId ? `${dataTestId}-${extension}` : undefined;
+
   return (
-    <Row data-testid={dataTestId}>
+    <Row data-testid={testId}>
       <FileName
         active={previewKey === preview?.key}
         hasPreview={!!preview}
+        disabled={isDisabled}
         onClick={handlePreview}
-        data-testid={dataTestId && `${dataTestId}-preview`}
+        data-testid={testId && `${testId}-preview`}
       >
         {fileName}.{extension}
       </FileName>
       <Buttons>
         <StyledLinkButton
           onClick={handleDownload}
+          disabled={isDisabled}
           aria-label={`Download ${fileName}.${extension}`}
-          data-testid={dataTestId && `${dataTestId}-download`}
+          data-testid={testId && `${testId}-download`}
         >
           <span className="material-symbols-outlined">download</span>
         </StyledLinkButton>
