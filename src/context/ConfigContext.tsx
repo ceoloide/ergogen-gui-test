@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useState,
   useMemo,
+  useRef,
 } from 'react';
 import { DebouncedFunc } from 'lodash-es';
 import yaml from 'js-yaml';
@@ -14,6 +15,7 @@ import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 import { convertJscadToStl } from '../utils/jscad';
+import { createErgogenWorker } from '../workers/workerFactory';
 
 // Strongly-typed shape for Ergogen results used in the UI
 type DemoOutput = {
@@ -223,8 +225,40 @@ const ConfigContextProvider = ({
   const [showDownloads, setShowDownloads] = useState<boolean>(true);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
+  // Worker ref to hold the Ergogen worker instance
+  const workerRef = useRef<Worker | null>(null);
+
   const clearError = useCallback(() => setError(null), []);
   const clearWarning = useCallback(() => setDeprecationWarning(null), []);
+
+  /**
+   * Effect to initialize the Ergogen worker early in the component lifecycle.
+   * This prevents race conditions by ensuring the worker is ready before any generation requests.
+   */
+  useEffect(() => {
+    // Initialize worker if not already created
+    if (!workerRef.current) {
+      console.log('Initializing Ergogen worker...');
+      workerRef.current = createErgogenWorker();
+
+      if (workerRef.current) {
+        console.log('Ergogen worker initialized successfully');
+      } else {
+        console.warn(
+          'Failed to initialize Ergogen worker (may be in test environment)'
+        );
+      }
+    }
+
+    // Cleanup function to terminate the worker when component unmounts
+    return () => {
+      if (workerRef.current) {
+        console.log('Terminating Ergogen worker...');
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
 
   /**
    * Effect to save user settings to local storage whenever they change.
