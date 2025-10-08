@@ -4,13 +4,13 @@
 import * as ergogen from 'ergogen';
 import { WorkerRequest } from './ergogen.worker.types';
 
-console.log('Ergogen worker module starting...');
+console.log('<-> Ergogen worker module starting...');
 
 /**
  * Error handler for uncaught errors in the worker.
  */
 self.onerror = (error) => {
-  console.error('Uncaught error in worker:', error);
+  console.error('>>> Uncaught error in worker:', error);
   const errorMessage =
     error instanceof ErrorEvent ? error.message : String(error);
   self.postMessage({
@@ -27,11 +27,11 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   const { type, inputConfig, injectionInput, requestId } = event.data || {};
 
   console.log(
-    `Ergogen worker received a message: ${JSON.stringify(event.data)}`
+    `<<< Ergogen worker received a message: ${JSON.stringify(event.data)}`
   );
 
   if (type !== 'generate') {
-    console.log('Unknown message type:', type);
+    console.log('>>> Unknown message type:', type);
     self.postMessage({
       type: 'error',
       error: `Unknown message type: ${type}`,
@@ -57,24 +57,26 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
             )();
             ergogen.inject(inj_type, inj_name, inj_value);
           } catch (injectionError: unknown) {
-            warnings.push(
-              `Warning in injection ${inj_name}: ${
-                (injectionError as Error).message || String(injectionError)
-              }`
-            );
+            self.postMessage({
+              type: 'error',
+              error:
+                (injectionError as Error).message || String(injectionError),
+              requestId,
+            });
+            return true;
           }
         }
       }
     }
 
     // Run Ergogen generation
-    console.log('--- Running Ergogen ---');
+    console.log('<-> Running Ergogen in worker');
     const results = await ergogen.process(
       inputConfig,
       true, // Set debug to true or no SVGs are generated
       (m: string) => console.log(m) // logger
     );
-    console.log('--- Ergogen Finished ---');
+    console.log('>>> Ergogen finished in worker');
 
     // Post success message with results and warnings
     self.postMessage({
@@ -83,10 +85,13 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
       warnings,
       requestId,
     });
-  } catch (e: unknown) {
+  } catch (error: unknown) {
+    console.error('>>> Ergogen encountered an error: ', error);
+    const errorMessage =
+      error instanceof ErrorEvent ? error.message : String(error);
     self.postMessage({
       type: 'error',
-      error: (e as Error).message || String(e),
+      error: errorMessage,
       requestId,
     });
   }
