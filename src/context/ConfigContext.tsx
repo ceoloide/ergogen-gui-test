@@ -467,6 +467,9 @@ const ConfigContextProvider = ({
           true, // Set debug to true or no SVGs are generated
           (m: string) => console.log(m) // logger
         );
+        workerRef.current?.postMessage({
+          type: 'ping',
+        })
         console.log('--- Ergogen Finished ---');
       } catch (e: unknown) {
         if (!e) return;
