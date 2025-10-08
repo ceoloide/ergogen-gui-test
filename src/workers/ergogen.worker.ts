@@ -7,6 +7,18 @@ import { WorkerRequest } from './ergogen.worker.types';
 console.log('Ergogen worker module starting...');
 
 /**
+ * Error handler for uncaught errors in the worker.
+ */
+self.onerror = (error) => {
+  console.error('Uncaught error in worker:', error);
+  self.postMessage({
+    type: 'error',
+    error: `Worker initialization or execution error: ${error.message || String(error)}`,
+  });
+  return true; // Prevent default error handling
+};
+
+/**
  * Main worker message handler.
  */
 self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
@@ -18,6 +30,11 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
 
   if (type !== 'generate') {
     console.log('Unknown message type:', type);
+    self.postMessage({
+      type: 'error',
+      error: `Unknown message type: ${type}`,
+      requestId,
+    });
     return;
   }
 

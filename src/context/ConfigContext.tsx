@@ -313,7 +313,16 @@ const ConfigContextProvider = ({
       // Error handler for worker-level errors
       const handleWorkerError = (error: ErrorEvent) => {
         console.error('Worker error event:', error);
-        setError(`Worker error: ${error.message}`);
+        console.error('Error details:', {
+          message: error.message,
+          filename: error.filename,
+          lineno: error.lineno,
+          colno: error.colno,
+          error: error.error,
+        });
+        const errorMsg =
+          error.message || error.error?.message || 'Unknown worker error';
+        setError(`Worker error: ${errorMsg}`);
         setIsGenerating(false);
       };
 
@@ -325,6 +334,8 @@ const ConfigContextProvider = ({
         worker.removeEventListener('message', handleWorkerMessage);
         worker.removeEventListener('error', handleWorkerError);
       };
+    } else {
+      console.warn('Worker not available when trying to attach listeners');
     }
   }, [handleWorkerMessage]);
 
@@ -467,9 +478,17 @@ const ConfigContextProvider = ({
           true, // Set debug to true or no SVGs are generated
           (m: string) => console.log(m) // logger
         );
-        workerRef.current?.postMessage({
-          type: 'ping',
-        })
+
+        // Test worker with a ping message (temporary for debugging)
+        if (workerRef.current) {
+          console.log('Sending ping message to worker...');
+          workerRef.current.postMessage({
+            type: 'ping',
+          });
+        } else {
+          console.warn('Worker not available for ping test');
+        }
+
         console.log('--- Ergogen Finished ---');
       } catch (e: unknown) {
         if (!e) return;
