@@ -11,9 +11,13 @@ console.log('Ergogen worker module starting...');
  */
 self.onerror = (error) => {
   console.error('Uncaught error in worker:', error);
+  const errorMessage =
+    error instanceof ErrorEvent
+      ? error.message
+      : String(error);
   self.postMessage({
     type: 'error',
-    error: `Worker initialization or execution error: ${error.message || String(error)}`,
+    error: `Worker initialization or execution error: ${errorMessage}`,
   });
   return true; // Prevent default error handling
 };
