@@ -277,7 +277,7 @@ const ConfigContextProvider = ({
         setIsGenerating(false);
       } else if (response.type === 'success') {
         // Handle success response
-        console.log('Worker success, processing warnings...');
+        console.log('Worker success, processing results and warnings...');
 
         // Check for warnings and display them
         if (response.warnings && response.warnings.length > 0) {
@@ -293,8 +293,15 @@ const ConfigContextProvider = ({
           }
         }
 
-        // Note: Result processing will be added in a future commit
-        // For now, we only handle errors and warnings
+        // Process and set the Ergogen results
+        if (response.results) {
+          console.log('Setting Ergogen results from worker');
+          setResults(response.results as Results);
+          setResultsVersion((v) => v + 1);
+        }
+
+        // Stop loading state
+        setIsGenerating(false);
       }
     },
     [deprecationWarning]
