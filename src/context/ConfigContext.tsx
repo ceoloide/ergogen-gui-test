@@ -16,6 +16,7 @@ import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 import { convertJscadToStl } from '../utils/jscad';
 import { createErgogenWorker } from '../workers/workerFactory';
+import type { WorkerResponse } from '../workers/ergogen.worker.types';
 
 // Strongly-typed shape for Ergogen results used in the UI
 type DemoOutput = {
@@ -259,6 +260,73 @@ const ConfigContextProvider = ({
       }
     };
   }, []); // Empty dependency array ensures this runs once on mount
+
+  /**
+   * Handler for messages received from the Ergogen worker.
+   * Processes success, error, and warning responses from the worker.
+   */
+  const handleWorkerMessage = useCallback(
+    (event: MessageEvent<WorkerResponse>) => {
+      const response = event.data;
+      console.log('Received message from worker:', response.type);
+
+      if (response.type === 'error') {
+        // Handle error response
+        console.error('Worker error:', response.error);
+        setError(response.error);
+        setIsGenerating(false);
+      } else if (response.type === 'success') {
+        // Handle success response
+        console.log('Worker success, processing warnings...');
+
+        // Check for warnings and display them
+        if (response.warnings && response.warnings.length > 0) {
+          console.log(`Worker returned ${response.warnings.length} warning(s)`);
+          // Combine with any existing deprecation warnings
+          const existingWarning = deprecationWarning;
+          if (existingWarning) {
+            setDeprecationWarning(
+              `${existingWarning}\n${response.warnings.join('\n')}`
+            );
+          } else {
+            setDeprecationWarning(response.warnings.join('\n'));
+          }
+        }
+
+        // Note: Result processing will be added in a future commit
+        // For now, we only handle errors and warnings
+      }
+    },
+    [deprecationWarning]
+  );
+
+  /**
+   * Effect to attach message and error listeners to the worker.
+   * This allows the worker to send responses back to the main thread.
+   */
+  useEffect(() => {
+    const worker = workerRef.current;
+    if (worker) {
+      console.log('Attaching message listener to worker...');
+      worker.addEventListener('message', handleWorkerMessage);
+
+      // Error handler for worker-level errors
+      const handleWorkerError = (error: ErrorEvent) => {
+        console.error('Worker error event:', error);
+        setError(`Worker error: ${error.message}`);
+        setIsGenerating(false);
+      };
+
+      worker.addEventListener('error', handleWorkerError);
+
+      // Cleanup: remove listeners when handler changes or component unmounts
+      return () => {
+        console.log('Removing listeners from worker...');
+        worker.removeEventListener('message', handleWorkerMessage);
+        worker.removeEventListener('error', handleWorkerError);
+      };
+    }
+  }, [handleWorkerMessage]);
 
   /**
    * Effect to save user settings to local storage whenever they change.
