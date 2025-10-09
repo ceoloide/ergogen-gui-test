@@ -1,5 +1,14 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { theme } from '../theme/theme';
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 /**
  * Interface for a preview object.
@@ -83,19 +92,19 @@ const Buttons = styled.div`
  * A styled anchor tag that looks like a button.
  * Used for preview and download actions.
  */
-const StyledLinkButton = styled.a<{ disabled?: boolean }>`
+const StyledLinkButton = styled.a`
     background-color: ${theme.colors.background};
     border: none;
     border-radius: 6px;
     color: ${theme.colors.white};
-    display: ${(props) => (props.disabled ? 'none' : 'flex')};
+    display: flex;
     align-items: center;
     padding: 4px 6px;
     text-decoration: none;
     cursor: pointer;
     font-size: ${theme.fontSizes.bodySmall};
     line-height: 16px;
-    gap: 6px
+    gap: 6px;
     height: 34px;
 
     .material-symbols-outlined {
@@ -106,6 +115,29 @@ const StyledLinkButton = styled.a<{ disabled?: boolean }>`
         background-color: ${theme.colors.buttonHover};
     }
 `;
+
+const LoadingButton = styled.div`
+  background-color: ${theme.colors.background};
+  border: none;
+  border-radius: 6px;
+  color: ${theme.colors.white};
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  text-decoration: none;
+  cursor: not-allowed;
+  font-size: ${theme.fontSizes.bodySmall};
+  line-height: 16px;
+  gap: 6px;
+  height: 34px;
+  opacity: 0.5;
+
+  .material-symbols-outlined {
+    font-size: ${theme.fontSizes.iconMedium} !important;
+    animation: ${spin} 1s linear infinite;
+  }
+`;
+
 
 /**
  * A component that displays a file name and provides buttons for previewing and downloading.
@@ -155,14 +187,22 @@ const DownloadRow = ({
         {fileName}.{extension}
       </FileName>
       <Buttons>
-        <StyledLinkButton
-          onClick={handleDownload}
-          disabled={isDisabled}
-          aria-label={`Download ${fileName}.${extension}`}
-          data-testid={testId && `${testId}-download`}
-        >
-          <span className="material-symbols-outlined">download</span>
-        </StyledLinkButton>
+        {isDisabled ? (
+          <LoadingButton
+            aria-label={`Generating ${fileName}.${extension}`}
+            data-testid={testId && `${testId}-loading`}
+          >
+            <span className="material-symbols-outlined">progress_activity</span>
+          </LoadingButton>
+        ) : (
+          <StyledLinkButton
+            onClick={handleDownload}
+            aria-label={`Download ${fileName}.${extension}`}
+            data-testid={testId && `${testId}-download`}
+          >
+            <span className="material-symbols-outlined">download</span>
+          </StyledLinkButton>
+        )}
       </Buttons>
     </Row>
   );
