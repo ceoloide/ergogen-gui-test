@@ -27,6 +27,7 @@ try {
   // and attaches 'myjscad' to it. 'self.window' is an alias for 'self', so this should work.
   // We also need to initialize myjscad as an object, just like in index.html
   (self as any).myjscad = {};
+  // @ts-expect-error - importScripts is available in web workers
   importScripts('/dependencies/openjscad.js');
 } catch (e) {
   // If the script fails to load, set up a message handler that reports the error.

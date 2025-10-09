@@ -326,15 +326,16 @@ const ConfigContextProvider = ({
       const caseName = requestId.replace(/^jscad-convert-/, '');
 
       setResults((prevResults) => {
-        if (!prevResults?.cases?.[caseName]) return prevResults;
-
+        if (!prevResults?.cases?.[caseName]) {
+          return prevResults;
+        }
         const newResults = {
           ...prevResults,
           cases: {
             ...prevResults.cases,
             [caseName]: {
               ...prevResults.cases[caseName],
-              stl: stl ?? null, // Store STL, or null if conversion failed but worker didn't error
+              stl: stl ?? undefined,
             },
           },
         };
