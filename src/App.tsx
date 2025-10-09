@@ -29,6 +29,11 @@ const App = () => {
       CONFIG_LOCAL_STORAGE_KEY,
       JSON.stringify(legacyInitialConfig)
     );
+    if (window.gtag) {
+      window.gtag('event', 'legacy_config_migrated', {
+        event_category: 'config',
+      });
+    }
   }
 
   const storedConfigValue = localStorage.getItem(CONFIG_LOCAL_STORAGE_KEY);
