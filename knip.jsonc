@@ -16,7 +16,6 @@
     "@testing-library/user-event",
     "@types/styled-components",
     "@typescript-eslint/parser",
-    "ergogen",
     "eslint-plugin-prettier",
     "markdownlint"
   ]
