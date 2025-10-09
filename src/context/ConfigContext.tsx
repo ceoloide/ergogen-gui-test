@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useState,
   useMemo,
+  useRef,
 } from 'react';
 import { DebouncedFunc } from 'lodash-es';
 import yaml from 'js-yaml';
@@ -14,6 +15,8 @@ import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
 import { convertJscadToStl } from '../utils/jscad';
+import { createErgogenWorker } from '../workers/workerFactory';
+import type { WorkerResponse } from '../workers/ergogen.worker.types';
 
 // Strongly-typed shape for Ergogen results used in the UI
 type DemoOutput = {
@@ -147,6 +150,7 @@ type ContextProps = {
   stlPreview: boolean;
   setStlPreview: Dispatch<SetStateAction<boolean>>;
   experiment: string | null;
+  isGenerating: boolean;
 };
 
 /**
@@ -162,11 +166,6 @@ type ProcessOptions = {
  * The main React context for managing Ergogen configuration and results.
  */
 const ConfigContext = createContext<ContextProps | null>(null);
-
-/**
- * The key used to store the main configuration in local storage.
- */
-export const CONFIG_LOCAL_STORAGE_KEY = 'LOCAL_STORAGE_CONFIG';
 
 /**
  * Retrieves a value from local storage, or returns a default value if not found.
@@ -225,9 +224,145 @@ const ConfigContextProvider = ({
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
   const [showDownloads, setShowDownloads] = useState<boolean>(true);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+
+  // Worker ref to hold the Ergogen worker instance
+  const workerRef = useRef<Worker | null>(null);
+
+  useEffect(() => {
+    console.log('--- ConfigContextProvider mounted ---');
+    return () => {
+      console.log('--- ConfigContextProvider unmounted ---');
+    };
+  }, []);
 
   const clearError = useCallback(() => setError(null), []);
   const clearWarning = useCallback(() => setDeprecationWarning(null), []);
+
+  /**
+   * Handler for messages received from the Ergogen worker.
+   * Processes success, error, and warning responses from the worker.
+   */
+  const handleWorkerMessage = (event: MessageEvent<WorkerResponse>) => {
+    const response = event.data;
+    console.log('<<< Received message from worker:', response.type);
+
+    if (response.type === 'error') {
+      // Handle error response
+      console.error('--- Worker error:', response.error);
+      setError(response.error);
+    } else if (response.type === 'success') {
+      // Handle success response
+      console.log('--- Worker success, processing results and warnings...');
+
+      // Check for warnings and display them
+      if (response.warnings && response.warnings.length > 0) {
+        console.log(
+          `--- Worker returned ${response.warnings.length} warning(s)`
+        );
+        // Combine with any existing deprecation warnings
+        const existingWarning = deprecationWarning;
+        if (existingWarning) {
+          setDeprecationWarning(
+            `${existingWarning}\n${response.warnings.join('\n')}`
+          );
+        } else {
+          setDeprecationWarning(response.warnings.join('\n'));
+        }
+      }
+
+      // Process and set the Ergogen results
+      if (response.results) {
+        console.log('Setting Ergogen results from worker');
+
+        // Add pending STL placeholders to the results if STL preview is enabled
+        if (stlPreview && (response.results as Results).cases) {
+          const casesWithStl: Record<string, CaseOutput> = {};
+          for (const [name, caseObj] of Object.entries(
+            (response.results as Results).cases as Record<string, CaseOutput>
+          )) {
+            casesWithStl[name] = {
+              ...caseObj,
+              stl: undefined, // Mark as pending
+            };
+          }
+          (response.results as Results).cases = casesWithStl;
+        }
+
+        // Convert JSCAD cases to STL format asynchronously only if stlPreview is enabled
+        if (stlPreview && results && (results as Results).cases) {
+          const casesList = Object.entries(
+            (results as Results).cases as Record<string, CaseOutput>
+          );
+
+          // Convert each JSCAD to STL asynchronously
+          // Use a copy of the caseName in the closure to avoid reference issues
+          for (const [caseName, caseObj] of casesList) {
+            if (caseObj.jscad) {
+              // Capture caseName in an IIFE to ensure proper closure
+              ((name) => {
+                convertJscadToStl(caseObj.jscad!).then((stl) => {
+                  // Update results with the new STL for this specific case
+                  setResults((prevResults) => {
+                    if (!prevResults?.cases) return prevResults;
+
+                    return {
+                      ...prevResults,
+                      cases: {
+                        ...prevResults.cases,
+                        [name]: {
+                          ...prevResults.cases[name],
+                          stl: stl ?? undefined,
+                        },
+                      },
+                    };
+                  });
+
+                  // Increment version to trigger re-render
+                  setResultsVersion((v) => v + 1);
+                });
+              })(caseName);
+            }
+          }
+        }
+
+        setResults(response.results as Results);
+        setResultsVersion((v) => v + 1);
+      }
+
+      // Stop loading state
+      setIsGenerating(false);
+    }
+  };
+
+  /**
+   * Effect to initialize the Ergogen worker early in the component lifecycle.
+   * This prevents race conditions by ensuring the worker is ready before any generation requests.
+   */
+  useEffect(() => {
+    // Initialize worker if not already created
+    if (!workerRef.current) {
+      console.log('Initializing Ergogen worker...');
+      workerRef.current = createErgogenWorker();
+
+      if (workerRef.current) {
+        workerRef.current.onmessage = handleWorkerMessage;
+        console.log('Ergogen worker initialized successfully');
+      } else {
+        console.warn('Failed to initialize Ergogen worker');
+      }
+    }
+
+    // Cleanup function to terminate the worker when component unmounts
+    return () => {
+      if (workerRef.current) {
+        console.log('Terminating Ergogen worker...');
+        workerRef.current.terminate();
+        workerRef.current = null;
+        console.log('Ergogen worker terminated');
+      }
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
 
   /**
    * Effect to save user settings to local storage whenever they change.
@@ -251,28 +386,29 @@ const ConfigContextProvider = ({
    * @param {string} inputString - The string to parse.
    * @returns {[string, object | null]} A tuple containing the detected type ('json', 'yaml', or 'UNKNOWN') and the parsed object, or null if parsing fails.
    */
-  const parseConfig = (
-    inputString: string
-  ): [string, { [key: string]: unknown[] } | null] => {
-    let type = 'UNKNOWN';
-    let parsedConfig = null;
+  const parseConfig = useCallback(
+    (inputString: string): [string, { [key: string]: unknown[] } | null] => {
+      let type = 'UNKNOWN';
+      let parsedConfig = null;
 
-    try {
-      parsedConfig = JSON.parse(inputString);
-      type = 'json';
-    } catch (_e: unknown) {
-      // Input is not valid JSON
-    }
+      try {
+        parsedConfig = JSON.parse(inputString);
+        type = 'json';
+      } catch (_e: unknown) {
+        // Input is not valid JSON
+      }
 
-    try {
-      parsedConfig = yaml.load(inputString);
-      type = 'yaml';
-    } catch (_e: unknown) {
-      // Input is not valid YAML
-    }
+      try {
+        parsedConfig = yaml.load(inputString);
+        type = 'yaml';
+      } catch (_e: unknown) {
+        // Input is not valid YAML
+      }
 
-    return [type, parsedConfig];
-  };
+      return [type, parsedConfig];
+    },
+    []
+  );
 
   /**
    * The core function that runs the Ergogen generation process.
@@ -293,7 +429,9 @@ const ConfigContextProvider = ({
 
       setError(null);
       setDeprecationWarning(null);
+      setIsGenerating(true);
 
+      // Check for deprecated KiCad 5 footprints in the config and warn the user
       if (parsedConfig && parsedConfig.pcbs) {
         const pcbs = Object.values(parsedConfig.pcbs) as Record<
           string,
@@ -339,6 +477,7 @@ const ConfigContextProvider = ({
       }
 
       try {
+        // Handle code injections if provided
         if (inputInjection !== undefined && Array.isArray(inputInjection)) {
           for (let i = 0; i < inputInjection.length; i++) {
             const injection = inputInjection[i];
@@ -356,12 +495,21 @@ const ConfigContextProvider = ({
             }
           }
         }
-        results = await window.ergogen.process(
-          inputConfig,
-          true, // Set debug to true or no SVGs are generated
-          (m: string) => console.log(m) // logger
-        );
+
+        // Run the Ergogen process
+        if (workerRef.current) {
+          console.log('>>> Sending Ergogen process requestt...');
+          workerRef.current.postMessage({
+            type: 'generate',
+            inputConfig,
+            injectionInput: inputInjection,
+            requestId: `ergogen-generate-${resultsVersion}-${Date.now()}`,
+          });
+        } else {
+          console.error('Worker not available for processing request.');
+        }
       } catch (e: unknown) {
+        setIsGenerating(false);
         if (!e) return;
 
         if (typeof e === 'string') {
@@ -372,71 +520,17 @@ const ConfigContextProvider = ({
         }
         return;
       }
-
-      // Set initial results immediately with pending STL placeholders
-      if (results && (results as Results).cases) {
-        const casesWithStl: Record<string, CaseOutput> = {};
-        for (const [name, caseObj] of Object.entries(
-          (results as Results).cases as Record<string, CaseOutput>
-        )) {
-          casesWithStl[name] = {
-            ...caseObj,
-            stl: undefined, // Mark as pending
-          };
-        }
-        (results as Results).cases = casesWithStl;
-      }
-
-      // Set results immediately so UI shows pending STL files
-      setResults(results as Results);
-      setResultsVersion((v) => v + 1);
-
-      // Convert JSCAD cases to STL format asynchronously only if stlPreview is enabled
-      if (stlPreview && results && (results as Results).cases) {
-        const casesList = Object.entries(
-          (results as Results).cases as Record<string, CaseOutput>
-        );
-
-        // Convert each JSCAD to STL asynchronously
-        // Use a copy of the caseName in the closure to avoid reference issues
-        for (const [caseName, caseObj] of casesList) {
-          if (caseObj.jscad) {
-            // Capture caseName in an IIFE to ensure proper closure
-            ((name) => {
-              convertJscadToStl(caseObj.jscad!).then((stl) => {
-                // Update results with the new STL for this specific case
-                setResults((prevResults) => {
-                  if (!prevResults?.cases) return prevResults;
-
-                  return {
-                    ...prevResults,
-                    cases: {
-                      ...prevResults.cases,
-                      [name]: {
-                        ...prevResults.cases[name],
-                        stl: stl ?? undefined,
-                      },
-                    },
-                  };
-                });
-
-                // Increment version to trigger re-render
-                setResultsVersion((v) => v + 1);
-              });
-            })(caseName);
-          }
-        }
-      }
     },
-    [stlPreview]
+    [parseConfig, setError, setDeprecationWarning, setIsGenerating, stlPreview]
   );
 
   /**
    * A debounced version of runGeneration for auto-generation.
    */
-  const processInput = useCallback(debounce(runGeneration, 300), [
-    runGeneration,
-  ]);
+  const processInput = useMemo(
+    () => debounce(runGeneration, 300),
+    [runGeneration]
+  );
 
   /**
    * An immediate version for the "Generate" button that cancels any pending auto-generations.
@@ -471,6 +565,7 @@ const ConfigContextProvider = ({
     } else if (configInput) {
       generateNow(configInput, injectionInput, { pointsonly: false });
     }
+    // eslint-disable-next-line
   }, []);
 
   /**
@@ -522,6 +617,7 @@ const ConfigContextProvider = ({
       stlPreview,
       setStlPreview,
       experiment,
+      isGenerating,
     }),
     [
       configInput,
@@ -555,6 +651,7 @@ const ConfigContextProvider = ({
       stlPreview,
       setStlPreview,
       experiment,
+      isGenerating,
     ]
   );
 

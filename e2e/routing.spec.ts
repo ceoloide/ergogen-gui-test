@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { makeShooter } from './utils/screenshots';
 import Absolem from '../src/examples/absolem';
-import { CONFIG_LOCAL_STORAGE_KEY } from '../src/context/ConfigContext';
+import { CONFIG_LOCAL_STORAGE_KEY } from '../src/context/constants';
 
 test.describe('Routing and Welcome Page', () => {
   test('new user is redirected to /new', async ({ page }) => {

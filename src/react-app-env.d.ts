@@ -1,4 +1,5 @@
 /// <reference types="react-scripts" />
+/// <reference types="./gtag" />
 declare namespace JSX {
   interface IntrinsicElements {
     'kicanvas-embed': {

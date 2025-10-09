@@ -2,7 +2,8 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
     "src/index.tsx",
-    "**/*.test.{ts,tsx}"
+    "**/*.test.{ts,tsx}",
+    "src/workers/*.worker.{ts,tsx}"
   ],
   "project": [
     "src/**/*.{ts,tsx}"
@@ -15,7 +16,6 @@
     "@testing-library/user-event",
     "@types/styled-components",
     "@typescript-eslint/parser",
-    "ergogen",
     "eslint-plugin-prettier",
     "markdownlint"
   ]

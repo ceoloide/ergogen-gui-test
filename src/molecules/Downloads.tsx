@@ -175,7 +175,7 @@ const Downloads = ({
       });
       // Always add STL entry if there's JSCAD
       // STL might be pending (undefined) or ready (string)
-      if (caseObj.jscad) {
+      if (configContext.stlPreview && caseObj.jscad) {
         const stlReady = !!caseObj.stl;
         downloads.push({
           fileName: name,

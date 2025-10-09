@@ -1,10 +1,27 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
+
+// Mock the worker factory to prevent worker creation in tests
+jest.mock('../workers/workerFactory', () => ({
+  createErgogenWorker: () => null,
+}));
+
+// Mock ergogen globally
+global.window.ergogen = {
+  process: jest.fn(),
+  inject: jest.fn(),
+};
+
 import ConfigContextProvider from './ConfigContext';
 
 const mockConfig = 'points: {}';
 
 describe('ConfigContextProvider', () => {
+  beforeEach(() => {
+    // Clear the URL for each test
+    window.history.replaceState({}, 'Test page', '/');
+  });
+
   it('should fetch config from github url parameter and update the config', async () => {
     const fetchSpy = jest
       .spyOn(window, 'fetch')

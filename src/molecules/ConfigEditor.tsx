@@ -1,5 +1,5 @@
 import { Editor, OnMount } from '@monaco-editor/react';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useConfigContext } from '../context/ConfigContext';
 
 /**
@@ -65,11 +65,14 @@ const ConfigEditor = ({
    * Updates the global configuration state if the input is valid.
    * @param {string | undefined} textInput - The new text content from the editor.
    */
-  const handleChange = async (textInput: string | undefined) => {
-    if (!textInput) return null;
+  const handleChange = useCallback(
+    async (textInput: string | undefined) => {
+      if (!textInput) return null;
 
-    setConfigInput(textInput);
-  };
+      setConfigInput(textInput);
+    },
+    [setConfigInput]
+  );
 
   useEffect(() => {
     handleChange(configInput);

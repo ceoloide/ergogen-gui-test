@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../theme/theme';
@@ -137,6 +137,15 @@ const Welcome = () => {
   const configContext = useConfigContext();
   const [githubInput, setGithubInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldNavigate, setShouldNavigate] = useState(false);
+
+  // Navigate to home when config has been set
+  useEffect(() => {
+    if (shouldNavigate && configContext?.configInput) {
+      navigate('/');
+      setShouldNavigate(false);
+    }
+  }, [shouldNavigate, configContext?.configInput, navigate]);
 
   const handleSelectExample = async (configValue: string) => {
     if (configContext) {
@@ -146,8 +155,8 @@ const Welcome = () => {
         configContext.injectionInput,
         { pointsonly: false }
       );
+      setShouldNavigate(true);
     }
-    navigate('/');
   };
 
   const handleGitHub = () => {
@@ -162,8 +171,8 @@ const Welcome = () => {
           await configContext.generateNow(data, configContext.injectionInput, {
             pointsonly: false,
           });
+          setShouldNavigate(true);
         }
-        navigate('/');
       })
       .catch((e) => {
         setError(`Failed to fetch config from GitHub: ${e.message}`);
