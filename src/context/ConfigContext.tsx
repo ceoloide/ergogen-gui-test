@@ -476,7 +476,6 @@ const ConfigContextProvider = ({
       if (!textInput) {
         return;
       }
-      let results = null;
       let inputConfig: string | object = textInput ?? '';
       const inputInjection: string[][] | undefined = injectionInput;
       const [, parsedConfig] = parseConfig(textInput ?? '');
