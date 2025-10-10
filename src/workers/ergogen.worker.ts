@@ -10,12 +10,12 @@ console.log('<-> Ergogen worker module starting...');
  * Error handler for uncaught errors in the worker.
  */
 self.onerror = (error) => {
-  console.error('>>> Uncaught error in worker:', error);
+  console.error('>>> Uncaught error in Ergogen worker:', error);
   const errorMessage =
     error instanceof ErrorEvent ? error.message : String(error);
   self.postMessage({
     type: 'error',
-    error: `Worker initialization or execution error: ${errorMessage}`,
+    error: `Ergogen worker initialization or execution error: ${errorMessage}`,
   });
   return true; // Prevent default error handling
 };

@@ -93,26 +93,26 @@ const Buttons = styled.div`
  * Used for preview and download actions.
  */
 const StyledLinkButton = styled.a`
-    background-color: ${theme.colors.background};
-    border: none;
-    border-radius: 6px;
-    color: ${theme.colors.white};
-    display: flex;
-    align-items: center;
-    padding: 4px 6px;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: ${theme.fontSizes.bodySmall};
-    line-height: 16px;
-    height: 34px;
+  background-color: ${theme.colors.background};
+  border: none;
+  border-radius: 6px;
+  color: ${theme.colors.white};
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: ${theme.fontSizes.bodySmall};
+  line-height: 16px;
+  height: 34px;
 
-    .material-symbols-outlined {
-        font-size: ${theme.fontSizes.iconMedium} !important;
-    }
+  .material-symbols-outlined {
+    font-size: ${theme.fontSizes.iconMedium} !important;
+  }
 
-    &:hover {
-        background-color: ${theme.colors.buttonHover};
-    }
+  &:hover {
+    background-color: ${theme.colors.buttonHover};
+  }
 `;
 
 const LoadingButton = styled.a`
@@ -135,7 +135,6 @@ const LoadingButton = styled.a`
     animation: ${spin} 1s linear infinite;
   }
 `;
-
 
 /**
  * A component that displays a file name and provides buttons for previewing and downloading.

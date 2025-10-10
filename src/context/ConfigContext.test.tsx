@@ -54,7 +54,9 @@ Object.defineProperty(window, 'localStorage', {
 
 const TestComponent = () => {
   const context = useConfigContext();
-  return <div data-testid="context-results">{JSON.stringify(context?.results)}</div>;
+  return (
+    <div data-testid="context-results">{JSON.stringify(context?.results)}</div>
+  );
 };
 
 describe('ConfigContextProvider', () => {
@@ -137,7 +139,10 @@ describe('ConfigContextProvider', () => {
       localStorage.setItem('ergogen:config:stlPreview', 'true');
       const setConfigInputMock = jest.fn();
       const { getByTestId } = render(
-        <ConfigContextProvider configInput={mockConfig} setConfigInput={setConfigInputMock}>
+        <ConfigContextProvider
+          configInput={mockConfig}
+          setConfigInput={setConfigInputMock}
+        >
           <TestComponent />
         </ConfigContextProvider>
       );
@@ -178,7 +183,9 @@ describe('ConfigContextProvider', () => {
 
       // 4. Verify that the results were updated with the new STL
       await waitFor(() => {
-        const results = JSON.parse(getByTestId('context-results').textContent || '{}');
+        const results = JSON.parse(
+          getByTestId('context-results').textContent || '{}'
+        );
         expect(results.cases.left.stl).toBe(stlContent);
       });
     });

@@ -14,7 +14,10 @@ import yaml from 'js-yaml';
 import debounce from 'lodash.debounce';
 import { useLocalStorage } from 'react-use';
 import { fetchConfigFromUrl } from '../utils/github';
-import { createErgogenWorker, createJscadWorker } from '../workers/workerFactory';
+import {
+  createErgogenWorker,
+  createJscadWorker,
+} from '../workers/workerFactory';
 import type { WorkerResponse as ErgogenWorkerResponse } from '../workers/ergogen.worker.types';
 import type {
   JscadWorkerRequest,
@@ -269,8 +272,8 @@ const ConfigContextProvider = ({
 
       // Handle warnings
       if (response.warnings && response.warnings.length > 0) {
-        setDeprecationWarning((prev) =>
-          (prev ? prev + '\n' : '') + response.warnings.join('\n')
+        setDeprecationWarning(
+          (prev) => (prev ? prev + '\n' : '') + response.warnings.join('\n')
         );
       }
 
@@ -395,7 +398,9 @@ const ConfigContextProvider = ({
   useEffect(() => {
     if (!isJscadConverting && jscadConversionQueue.length > 0) {
       const nextItem = jscadConversionQueue[0];
-      console.log(`>>> Sending ${nextItem.name} to JSCAD worker for STL conversion`);
+      console.log(
+        `>>> Sending ${nextItem.name} to JSCAD worker for STL conversion`
+      );
       setIsJscadConverting(true);
 
       if (jscadWorkerRef.current) {

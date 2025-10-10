@@ -3,51 +3,167 @@
 
 import { JscadWorkerRequest, JscadWorkerResponse } from './jscad.worker.types';
 
-// The JSCAD library is loaded via importScripts and attaches itself to the global scope.
-// We need to declare its existence and shape for TypeScript.
-declare global {
-  const myjscad: {
-    setup: () => void;
-    compile: (code: string) => Promise<string>;
-    generateOutput: (
-      format: string,
-      geometry: unknown
-    ) => {
-      asBuffer: () => {
-        toString: () => string;
-      };
+console.log('<-> JSCAD worker module starting...');
+
+/**
+ * Error handler for uncaught errors in the worker.
+ */
+self.onerror = (error) => {
+  console.error('>>> Uncaught error in JSCAD worker:', error);
+  const errorMessage =
+    error instanceof ErrorEvent ? error.message : String(error);
+  self.postMessage({
+    type: 'error',
+    error: `JSCAD worker error: ${errorMessage}`,
+  });
+  return true; // Prevent default error handling
+};
+
+// Create minimal mock of document object for openjscad.js
+// The library expects DOM APIs; we provide minimal shims and a simple event system
+const docListeners: Record<string, Array<(ev?: any) => void>> = {};
+const makeStubElement = () => {
+  const options: any = {
+    length: 0,
+    remove: () => {},
+    add: () => {},
+  };
+  return {
+    style: {},
+    firstChild: { textContent: '' },
+    className: '',
+    text: '',
+    value: 0,
+    min: 0,
+    max: 0,
+    options,
+    appendChild: () => {},
+    setAttribute: () => {},
+  } as any;
+};
+(self as any).document = {
+  getElementById: (_id?: string) => makeStubElement(),
+  createElement: (_tag?: string) => makeStubElement(),
+  implementation: {},
+  location: { href: '' },
+  addEventListener: (type: string, listener: (ev?: any) => void) => {
+    (docListeners[type] ||= []).push(listener);
+  },
+  dispatchEvent: (evt: any) => {
+    const type = typeof evt === 'string' ? evt : evt?.type;
+    (docListeners[type] || []).forEach((fn) => {
+      try {
+        fn(evt);
+      } catch (e) {
+        /* noop */
+      }
+    });
+  },
+};
+
+// Global interface for the myjscad library loaded from openjscad.js
+interface MyJscad {
+  setup: () => void;
+  compile: (code: string) => Promise<string>;
+  generateOutput: (
+    format: string,
+    geometry: unknown
+  ) => {
+    asBuffer: () => {
+      toString: () => string;
     };
   };
 }
 
-// Load the JSCAD library. The path is relative to the deployed root.
-// The script is in public/dependencies/openjscad.js
-try {
-  // In a worker, 'self' is the global scope. openjscad.js seems to expect a 'window' object
-  // and attaches 'myjscad' to it. 'self.window' is an alias for 'self', so this should work.
-  // We also need to initialize myjscad as an object, just like in index.html
-  (self as any).myjscad = {};
-  // @ts-expect-error - importScripts is available in web workers
-  importScripts('/dependencies/openjscad.js');
-} catch (e) {
-  // If the script fails to load, set up a message handler that reports the error.
-  self.onmessage = (event: MessageEvent<JscadWorkerRequest>) => {
-    const response: JscadWorkerResponse = {
-      type: 'error',
-      error: `Failed to load JSCAD library in worker: ${String(e)}`,
-      requestId: event.data.requestId,
-    };
-    self.postMessage(response);
-  };
-  // We should not continue if the library failed to load.
-  throw e;
+declare global {
+  interface Window {
+    myjscad: ((opts: unknown) => MyJscad) | MyJscad;
+  }
 }
+
+// Create window alias for self since openjscad.js expects window.myjscad
+// In a web worker, window doesn't exist, so we alias it to self
+(self as any).window = self;
+
+let jscadInstance: MyJscad | null = null;
+let initializationError: Error | null = null;
+
+// Wrap initialization in a self-invoking async function to handle promises
+const initializationPromise = (async () => {
+  try {
+    // @ts-expect-error - importScripts is available in web workers
+    importScripts('/dependencies/openjscad.js');
+
+    // The vendor bundle registers an init() on DOMContentLoaded which defines
+    // window.myjscad.setup/compile/generateOutput. In a worker there's no DOMContentLoaded,
+    // so we manually dispatch it now that the script is loaded.
+    // Give the bundle a tick to finish registering listeners, then dispatch.
+    await new Promise((r) => setTimeout(r, 0));
+    (self as any).document.dispatchEvent?.('DOMContentLoaded');
+
+    // Retry a few times in case the init runs asynchronously.
+    const maxAttempts = 5;
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+      const candidate = (window as any).myjscad as Partial<MyJscad> | undefined;
+      const hasApi =
+        !!candidate &&
+        typeof candidate.setup === 'function' &&
+        typeof candidate.compile === 'function' &&
+        typeof candidate.generateOutput === 'function';
+      if (hasApi) {
+        jscadInstance = candidate as MyJscad;
+        break;
+      }
+      attempt += 1;
+      // small delay between attempts
+      await new Promise((r) => setTimeout(r, 10));
+    }
+
+    if (!jscadInstance) {
+      const currentKeys = Object.keys((window as any).myjscad || {});
+      console.error(
+        'JSCAD init: myjscad not ready after attempts; keys =',
+        currentKeys
+      );
+      throw new Error(
+        'window.myjscad was not correctly populated by openjscad.js script.'
+      );
+    }
+    console.log('<-> OpenJSCAD library loaded and initialized in worker');
+  } catch (error) {
+    // Capture initialization error and log it; onmessage will report back to caller
+    initializationError =
+      error instanceof Error ? error : new Error(String(error));
+    console.error(
+      '>>> Failed to load or initialize OpenJSCAD library:',
+      initializationError
+    );
+  }
+})();
 
 /**
  * Main worker message handler.
  */
 self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
+  // Wait for the initialization to complete before processing any message
+  await initializationPromise;
+
   const { type, jscad, requestId } = event.data || {};
+
+  if (initializationError) {
+    const response: JscadWorkerResponse = {
+      type: 'error',
+      error: `JSCAD library initialization failed: ${initializationError}`,
+      requestId,
+    };
+    self.postMessage(response);
+    return;
+  }
+
+  if (!jscadInstance) {
+    throw new Error('JSCAD library is not loaded or initialized correctly.');
+  }
 
   if (type !== 'jscad_to_stl') {
     const response: JscadWorkerResponse = {
@@ -58,20 +174,15 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
     self.postMessage(response);
     return;
   }
-
   try {
-    if (!myjscad) {
-      throw new Error('myjscad library is not loaded or initialized correctly.');
-    }
-
     if (!jscad || jscad.trim() === '') {
       throw new Error('JSCAD script is empty.');
     }
 
     // This logic is adapted from the original convertJscadToStl utility function.
-    myjscad.setup();
-    await myjscad.compile(jscad);
-    const output = myjscad.generateOutput('stla', null); // 'stla' for ASCII STL
+    jscadInstance.setup();
+    await jscadInstance.compile(jscad);
+    const output = jscadInstance.generateOutput('stla', null); // 'stla' for ASCII STL
     const stlContent = output.asBuffer().toString();
 
     if (!stlContent || stlContent.trim() === '') {
