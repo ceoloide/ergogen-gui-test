@@ -4,7 +4,30 @@
  */
 
 
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+window.myjscad = (function(){
+// Browserify prelude to execute the module table below
+return (function r(e,n,t){
+    function o(i,f){
+        if(!n[i]){
+            if(!e[i]){
+                var a = typeof require=="function" && require;
+                if(!f && a) return a(i, true);
+                var u = new Error("Cannot find module '"+i+"'");
+                // @ts-ignore
+                u.code = 'MODULE_NOT_FOUND';
+                throw u;
+            }
+            var l = n[i] = { exports: {} };
+            e[i][0].call(l.exports, function(r){
+                var c = e[i][1][r];
+                return o(c || r);
+            }, l, l.exports, r, e, n, t);
+        }
+        return n[i].exports;
+    }
+    for(var p = 0; p < t.length; p++) o(t[p]);
+    return o;
+})({1:[function(require,module,exports){
         const WebWorkify = require('webworkify')
         const { CAG, CSG } = require('@jscad/csg')
         const oscad = require('@jscad/csg/api')
@@ -50264,3 +50287,6 @@ return baseBuffer$
         module.exports = GL;
 
     },{}]},{},[236]);
+// Return something (the module system) to keep assignment defined; API is attached via window.myjscad inside module 236
+return {};
+})();

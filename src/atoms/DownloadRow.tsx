@@ -1,5 +1,14 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { theme } from '../theme/theme';
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 /**
  * Interface for a preview object.
@@ -83,28 +92,48 @@ const Buttons = styled.div`
  * A styled anchor tag that looks like a button.
  * Used for preview and download actions.
  */
-const StyledLinkButton = styled.a<{ disabled?: boolean }>`
-    background-color: ${theme.colors.background};
-    border: none;
-    border-radius: 6px;
-    color: ${theme.colors.white};
-    display: ${(props) => (props.disabled ? 'none' : 'flex')};
-    align-items: center;
-    padding: 4px 6px;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: ${theme.fontSizes.bodySmall};
-    line-height: 16px;
-    gap: 6px
-    height: 34px;
+const StyledLinkButton = styled.a`
+  background-color: ${theme.colors.background};
+  border: none;
+  border-radius: 6px;
+  color: ${theme.colors.white};
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: ${theme.fontSizes.bodySmall};
+  line-height: 16px;
+  height: 28px;
 
-    .material-symbols-outlined {
-        font-size: ${theme.fontSizes.iconMedium} !important;
-    }
+  .material-symbols-outlined {
+    font-size: ${theme.fontSizes.iconMedium} !important;
+  }
 
-    &:hover {
-        background-color: ${theme.colors.buttonHover};
-    }
+  &:hover {
+    background-color: ${theme.colors.buttonHover};
+  }
+`;
+
+const LoadingButton = styled.a`
+  background-color: ${theme.colors.background};
+  border: none;
+  border-radius: 6px;
+  color: ${theme.colors.white};
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  text-decoration: none;
+  cursor: not-allowed;
+  font-size: ${theme.fontSizes.bodySmall};
+  line-height: 16px;
+  height: 28px;
+  opacity: 0.5;
+
+  .material-symbols-outlined {
+    font-size: ${theme.fontSizes.iconMedium} !important;
+    animation: ${spin} 1s linear infinite;
+  }
 `;
 
 /**
@@ -155,14 +184,22 @@ const DownloadRow = ({
         {fileName}.{extension}
       </FileName>
       <Buttons>
-        <StyledLinkButton
-          onClick={handleDownload}
-          disabled={isDisabled}
-          aria-label={`Download ${fileName}.${extension}`}
-          data-testid={testId && `${testId}-download`}
-        >
-          <span className="material-symbols-outlined">download</span>
-        </StyledLinkButton>
+        {isDisabled ? (
+          <LoadingButton
+            aria-label={`Generating ${fileName}.${extension}`}
+            data-testid={testId && `${testId}-loading`}
+          >
+            <span className="material-symbols-outlined">progress_activity</span>
+          </LoadingButton>
+        ) : (
+          <StyledLinkButton
+            onClick={handleDownload}
+            aria-label={`Download ${fileName}.${extension}`}
+            data-testid={testId && `${testId}-download`}
+          >
+            <span className="material-symbols-outlined">download</span>
+          </StyledLinkButton>
+        )}
       </Buttons>
     </Row>
   );

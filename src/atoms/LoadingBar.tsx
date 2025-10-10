@@ -19,7 +19,7 @@ const indeterminateAnimation = keyframes`
  */
 const LoadingBarContainer = styled.div`
   position: fixed;
-  top: 3em;
+  top: 45px;
   left: 0;
   right: 0;
   width: 100%;

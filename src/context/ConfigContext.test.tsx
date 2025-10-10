@@ -1,9 +1,25 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 
+import { act } from 'react-dom/test-utils';
+import { useConfigContext } from './ConfigContext';
+
 // Mock the worker factory to prevent worker creation in tests
+const mockErgogenWorker = {
+  postMessage: jest.fn(),
+  terminate: jest.fn(),
+  onmessage: (_e: any) => {},
+};
+
+const mockJscadWorker = {
+  postMessage: jest.fn(),
+  terminate: jest.fn(),
+  onmessage: (_e: any) => {},
+};
+
 jest.mock('../workers/workerFactory', () => ({
-  createErgogenWorker: () => null,
+  createErgogenWorker: () => mockErgogenWorker,
+  createJscadWorker: () => mockJscadWorker,
 }));
 
 // Mock ergogen globally
@@ -16,10 +32,40 @@ import ConfigContextProvider from './ConfigContext';
 
 const mockConfig = 'points: {}';
 
+const localStorageMock = (() => {
+  let store: { [key: string]: string } = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = String(value);
+    },
+    clear: () => {
+      store = {};
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
+const TestComponent = () => {
+  const context = useConfigContext();
+  return (
+    <div data-testid="context-results">{JSON.stringify(context?.results)}</div>
+  );
+};
+
 describe('ConfigContextProvider', () => {
   beforeEach(() => {
     // Clear the URL for each test
     window.history.replaceState({}, 'Test page', '/');
+    mockErgogenWorker.postMessage.mockClear();
+    mockJscadWorker.postMessage.mockClear();
+    localStorage.clear();
   });
 
   it('should fetch config from github url parameter and update the config', async () => {
@@ -86,5 +132,62 @@ describe('ConfigContextProvider', () => {
     );
 
     fetchSpy.mockRestore();
+  });
+
+  describe('STL Conversion', () => {
+    it('should queue and convert JSCAD to STL when stlPreview is true', async () => {
+      localStorage.setItem('ergogen:config:stlPreview', 'true');
+      const setConfigInputMock = jest.fn();
+      const { getByTestId } = render(
+        <ConfigContextProvider
+          configInput={mockConfig}
+          setConfigInput={setConfigInputMock}
+        >
+          <TestComponent />
+        </ConfigContextProvider>
+      );
+
+      // 1. Simulate Ergogen worker returning results with a JSCAD case
+      const ergogenResults = {
+        cases: {
+          left: { jscad: 'mock_jscad_code' },
+        },
+      };
+
+      act(() => {
+        mockErgogenWorker.onmessage({
+          data: { type: 'success', results: ergogenResults },
+        } as MessageEvent);
+      });
+
+      // 2. Verify that the JSCAD worker was called
+      await waitFor(() => {
+        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith({
+          type: 'jscad_to_stl',
+          jscad: 'mock_jscad_code',
+          requestId: 'jscad-convert-left',
+        });
+      });
+
+      // 3. Simulate JSCAD worker returning the converted STL
+      const stlContent = 'solid mock_stl';
+      act(() => {
+        mockJscadWorker.onmessage({
+          data: {
+            type: 'success',
+            stl: stlContent,
+            requestId: 'jscad-convert-left',
+          },
+        } as MessageEvent);
+      });
+
+      // 4. Verify that the results were updated with the new STL
+      await waitFor(() => {
+        const results = JSON.parse(
+          getByTestId('context-results').textContent || '{}'
+        );
+        expect(results.cases.left.stl).toBe(stlContent);
+      });
+    });
   });
 });
