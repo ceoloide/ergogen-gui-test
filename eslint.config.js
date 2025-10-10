@@ -29,7 +29,11 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
     },
-    rules: reactHooks.configs.recommended.rules,
+    // Use explicit react-hooks rules to avoid config shape mismatches across versions
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
   },
   {
     files: ['src/**/*.{ts,tsx}'],
