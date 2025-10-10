@@ -8,13 +8,13 @@ import { useConfigContext } from './ConfigContext';
 const mockErgogenWorker = {
   postMessage: jest.fn(),
   terminate: jest.fn(),
-  onmessage: (e: any) => {},
+  onmessage: (_e: any) => {},
 };
 
 const mockJscadWorker = {
   postMessage: jest.fn(),
   terminate: jest.fn(),
-  onmessage: (e: any) => {},
+  onmessage: (_e: any) => {},
 };
 
 jest.mock('../workers/workerFactory', () => ({

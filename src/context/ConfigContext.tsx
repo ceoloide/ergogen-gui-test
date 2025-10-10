@@ -257,98 +257,101 @@ const ConfigContextProvider = ({
    * Handler for messages received from the Ergogen worker.
    * Processes success, error, and warning responses from the worker.
    */
-  const handleErgogenWorkerMessage = (
-    event: MessageEvent<ErgogenWorkerResponse>
-  ) => {
-    const response = event.data;
-    console.log('<<< Received message from Ergogen worker:', response.type);
+  const handleErgogenWorkerMessage = useCallback(
+    (event: MessageEvent<ErgogenWorkerResponse>) => {
+      const response = event.data;
+      console.log('<<< Received message from Ergogen worker:', response.type);
 
-    if (response.type === 'error') {
-      console.error('--- Ergogen worker error:', response.error);
-      setError(response.error);
-      setIsGenerating(false);
-    } else if (response.type === 'success') {
-      console.log('--- Ergogen worker success, processing results...');
-
-      // Handle warnings
-      if (response.warnings && response.warnings.length > 0) {
-        setDeprecationWarning(
-          (prev) => (prev ? prev + '\n' : '') + response.warnings.join('\n')
-        );
+      if (response.type === 'error') {
+        console.error('--- Ergogen worker error:', response.error);
+        setError(response.error);
+        setIsGenerating(false);
+        return;
       }
 
-      // Set results and manage STL conversion queue
-      if (response.results) {
-        const newResults = response.results as Results;
-        currentConfigVersion.current += 1; // Increment version for this new result set
+      if (response.type === 'success') {
+        console.log('--- Ergogen worker success, processing results...');
 
-        if (stlPreview && newResults.cases) {
-          const queue: { name: string; jscad: string }[] = [];
-          for (const [name, caseObj] of Object.entries(newResults.cases)) {
-            if (caseObj.jscad) {
-              queue.push({ name, jscad: caseObj.jscad });
-              // Mark STL as pending
-              newResults.cases[name].stl = undefined;
-            }
-          }
-          setJscadConversionQueue(queue);
+        // Handle warnings
+        if (response.warnings && response.warnings.length > 0) {
+          setDeprecationWarning(
+            (prev) => (prev ? prev + '\n' : '') + response.warnings.join('\n')
+          );
         }
 
-        setResults(newResults);
+        // Set results and manage STL conversion queue
+        if (response.results) {
+          const newResults = response.results as Results;
+          currentConfigVersion.current += 1; // Increment version for this new result set
+
+          if (stlPreview && newResults.cases) {
+            const queue: { name: string; jscad: string }[] = [];
+            for (const [name, caseObj] of Object.entries(newResults.cases)) {
+              if (caseObj.jscad) {
+                queue.push({ name, jscad: caseObj.jscad });
+                // Mark STL as pending
+                newResults.cases[name].stl = undefined;
+              }
+            }
+            setJscadConversionQueue(queue);
+          }
+
+          setResults(newResults);
+          setResultsVersion((v) => v + 1);
+        }
+      }
+
+      setIsGenerating(false);
+    },
+    [stlPreview]
+  );
+
+  /**
+   * Handler for messages received from the JSCAD worker.
+   */
+  const handleJscadWorkerMessage = useCallback(
+    (event: MessageEvent<JscadWorkerResponse>, requestVersion: number) => {
+      const response = event.data;
+      console.log('<<< Received message from JSCAD worker:', response.type);
+
+      if (requestVersion !== currentConfigVersion.current) {
+        console.log(
+          `Discarding stale STL result for version ${requestVersion} (current: ${currentConfigVersion.current})`
+        );
+        setIsJscadConverting(false); // Process next in queue
+        return;
+      }
+
+      if (response.type === 'error') {
+        console.error('--- JSCAD worker error:', response.error);
+        // Optionally, set a specific error state for STL conversion
+      } else if (response.type === 'success') {
+        const { stl, requestId } = response;
+        const caseName = requestId.replace(/^jscad-convert-/, '');
+
+        setResults((prevResults) => {
+          if (!prevResults?.cases?.[caseName]) {
+            return prevResults;
+          }
+          const newResults = {
+            ...prevResults,
+            cases: {
+              ...prevResults.cases,
+              [caseName]: {
+                ...prevResults.cases[caseName],
+                stl: stl ?? undefined,
+              },
+            },
+          };
+          return newResults;
+        });
         setResultsVersion((v) => v + 1);
       }
 
-      setIsGenerating(false);
-    }
-  };
-
-  /**
-   * Effect to initialize the Ergogen worker early in the component lifecycle.
-   * This prevents race conditions by ensuring the worker is ready before any generation requests.
-   */
-  const handleJscadWorkerMessage = (
-    event: MessageEvent<JscadWorkerResponse>,
-    requestVersion: number
-  ) => {
-    const response = event.data;
-    console.log('<<< Received message from JSCAD worker:', response.type);
-
-    if (requestVersion !== currentConfigVersion.current) {
-      console.log(
-        `Discarding stale STL result for version ${requestVersion} (current: ${currentConfigVersion.current})`
-      );
-      setIsJscadConverting(false); // Process next in queue
-      return;
-    }
-
-    if (response.type === 'error') {
-      console.error('--- JSCAD worker error:', response.error);
-      // Optionally, set a specific error state for STL conversion
-    } else if (response.type === 'success') {
-      const { stl, requestId } = response;
-      const caseName = requestId.replace(/^jscad-convert-/, '');
-
-      setResults((prevResults) => {
-        if (!prevResults?.cases?.[caseName]) {
-          return prevResults;
-        }
-        const newResults = {
-          ...prevResults,
-          cases: {
-            ...prevResults.cases,
-            [caseName]: {
-              ...prevResults.cases[caseName],
-              stl: stl ?? undefined,
-            },
-          },
-        };
-        return newResults;
-      });
-      setResultsVersion((v) => v + 1);
-    }
-
-    setIsJscadConverting(false); // Ready for the next item
-  };
+      setIsJscadConverting(false); // Ready for the next item
+    },
+    []
+  );
 
   /**
    * Effect to initialize and terminate workers.
@@ -390,7 +393,7 @@ const ConfigContextProvider = ({
         console.log('JSCAD worker terminated.');
       }
     };
-  }, []);
+  }, [handleErgogenWorkerMessage, handleJscadWorkerMessage]);
 
   /**
    * Effect to process the JSCAD conversion queue.
@@ -574,7 +577,7 @@ const ConfigContextProvider = ({
         return;
       }
     },
-    [parseConfig, setError, setDeprecationWarning, setIsGenerating, stlPreview]
+    [parseConfig, setError, setDeprecationWarning, setIsGenerating]
   );
 
   /**

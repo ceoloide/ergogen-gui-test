@@ -54,7 +54,7 @@ const makeStubElement = () => {
     (docListeners[type] || []).forEach((fn) => {
       try {
         fn(evt);
-      } catch (e) {
+      } catch (_e) {
         /* noop */
       }
     });
