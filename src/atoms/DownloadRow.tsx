@@ -104,7 +104,7 @@ const StyledLinkButton = styled.a`
   cursor: pointer;
   font-size: ${theme.fontSizes.bodySmall};
   line-height: 16px;
-  height: 34px;
+  height: 28px;
 
   .material-symbols-outlined {
     font-size: ${theme.fontSizes.iconMedium} !important;
@@ -127,7 +127,7 @@ const LoadingButton = styled.a`
   cursor: not-allowed;
   font-size: ${theme.fontSizes.bodySmall};
   line-height: 16px;
-  height: 34px;
+  height: 28px;
   opacity: 0.5;
 
   .material-symbols-outlined {
