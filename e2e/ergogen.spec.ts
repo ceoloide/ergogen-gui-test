@@ -114,12 +114,81 @@ test.describe('Ergogen Configuration Processing', () => {
     await expect(pcbFilePreview).toBeVisible({ timeout: 5000 });
     await shoot('after-pcb-file-preview-visible');
   });
-  test('loads A. dux JSCAD preview', async ({ page }) => {
+  test('loads A. dux JSCAD preview when stlPreview is false', async ({
+    page,
+  }) => {
     const shoot = makeShooter(page, test.info());
     // Set A. dux config directly in local storage
     await page.addInitScript(
       ({ config, key }) => {
         localStorage.setItem(key, JSON.stringify(config));
+        localStorage.setItem('ergogen:config:stlPreview', 'false');
+      },
+      { config: ADux.value, key: CONFIG_LOCAL_STORAGE_KEY }
+    );
+
+    // Navigate to the main page
+    await page.goto('/');
+
+    // Test JSCAD preview (bottom output)
+    const demoJscadRow = page.getByTestId(
+      'downloads-container-prototype-jscad'
+    );
+    await shoot('before-jscad-row-visible');
+    await expect(demoJscadRow).toBeVisible({ timeout: 5000 });
+    await shoot('after-jscad-row-visible');
+
+    const jscadPreviewButton = page.getByTestId(
+      'downloads-container-prototype-jscad-preview'
+    );
+    await shoot('before-jscad-preview-button-visible');
+    await expect(jscadPreviewButton).toBeVisible();
+    await shoot('after-jscad-preview-button-visible');
+
+    // Click to preview the JSCAD
+    await jscadPreviewButton.click();
+    const jscadFilePreview = page.getByTestId('cases.prototype-file-preview');
+    await shoot('before-jscad-file-preview-visible');
+    await expect(jscadFilePreview).toBeVisible({ timeout: 5000 });
+    await shoot('after-jscad-file-preview-visible');
+  });
+
+  test('hides A. dux JSCAD preview when stlPreview is true and debug is false', async ({
+    page,
+  }) => {
+    const shoot = makeShooter(page, test.info());
+    // Set A. dux config directly in local storage
+    await page.addInitScript(
+      ({ config, key }) => {
+        localStorage.setItem(key, JSON.stringify(config));
+        localStorage.setItem('ergogen:config:stlPreview', 'true');
+        localStorage.setItem('ergogen:config:debug', 'false');
+      },
+      { config: ADux.value, key: CONFIG_LOCAL_STORAGE_KEY }
+    );
+
+    // Navigate to the main page
+    await page.goto('/');
+
+    // The JSCAD download should NOT be visible
+    const demoJscadRow = page.getByTestId(
+      'downloads-container-prototype-jscad'
+    );
+    await shoot('before-jscad-row-hidden');
+    await expect(demoJscadRow).not.toBeVisible();
+    await shoot('after-jscad-row-hidden');
+  });
+
+  test('loads A. dux JSCAD preview when stlPreview is true and debug is true', async ({
+    page,
+  }) => {
+    const shoot = makeShooter(page, test.info());
+    // Set A. dux config directly in local storage
+    await page.addInitScript(
+      ({ config, key }) => {
+        localStorage.setItem(key, JSON.stringify(config));
+        localStorage.setItem('ergogen:config:stlPreview', 'true');
+        localStorage.setItem('ergogen:config:debug', 'true');
       },
       { config: ADux.value, key: CONFIG_LOCAL_STORAGE_KEY }
     );
