@@ -226,7 +226,7 @@ const ConfigContextProvider = ({
     localStorageOrDefault('ergogen:config:kicanvasPreview', true)
   );
   const [stlPreview, setStlPreview] = useState<boolean>(
-    localStorageOrDefault('ergogen:config:stlPreview', false)
+    localStorageOrDefault('ergogen:config:stlPreview', true)
   );
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(true);
