@@ -6,8 +6,12 @@ on:
   push:
     branches:
       - main
+  # Run on pull requests to validate changes
   pull_request:
+  # Allows manual deployments from GitHub Actions
   workflow_dispatch:
+  # Run workflow on repository sync to upstream
+  repository_dispatch:
 
 jobs:
   deploy:
