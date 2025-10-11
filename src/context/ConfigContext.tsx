@@ -349,13 +349,14 @@ const ConfigContextProvider = ({
           `--- JSCAD worker success, updating ${Object.keys(response.cases).length} cases`
         );
 
+        const responseCases = response.cases; // Capture for type narrowing
         setResults((prevResults) => {
           if (!prevResults?.cases) {
             return prevResults;
           }
 
           const updatedCases = { ...prevResults.cases };
-          for (const [name, caseData] of Object.entries(response.cases)) {
+          for (const [name, caseData] of Object.entries(responseCases)) {
             if (updatedCases[name]) {
               updatedCases[name] = {
                 ...updatedCases[name],
