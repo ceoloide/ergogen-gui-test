@@ -185,7 +185,7 @@ const Welcome = () => {
   return (
     <WelcomePageWrapper>
       <WelcomeContainer>
-        <Header>Welcome to Ergogen Web UI</Header>
+        <Header>Ergogen Web UI</Header>
         <SubHeader>
           A web-based interface for Ergogen, the ergonomic keyboard generator.
           <br />
