@@ -66,6 +66,24 @@ The Ergogen GUI is divided into three main sections: the configuration editor on
 - **Outputs**: This section lists all the files generated from your configuration. You can download any file by clicking the download icon next to it.
 - **Settings**: Click the gear icon in the header to open the settings panel. Here, you can manage custom footprints and adjust generation options.
 
+## Deployment to GitHub Pages
+
+This repository includes a GitHub Actions workflow to automatically build and deploy the application to GitHub Pages.
+
+### Custom Domain Configuration
+
+The deployment workflow supports configuring a custom domain via a repository variable. This allows forks of this repository to be deployed to their own custom domains.
+
+To configure a custom domain for your deployment:
+
+1. Navigate to your repository on GitHub.
+2. Go to **Settings** > **Secrets and variables** > **Actions**.
+3. Select the **Variables** tab and click **New repository variable**.
+4. For the **Name**, enter `CNAME_DOMAIN`.
+5. For the **Value**, enter your custom domain (e.g., `your.domain.com`).
+
+When the workflow runs on the `main` branch, it will generate a `CNAME` file with the value of this variable. If the `CNAME_DOMAIN` variable is not set, no `CNAME` file will be created, and the site will be deployed to the default GitHub Pages URL (`<username>.github.io/<repository-name>`).
+
 ## Project Structure
 
 The codebase is organized into the following main directories:
