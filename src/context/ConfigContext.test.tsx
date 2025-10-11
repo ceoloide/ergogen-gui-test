@@ -194,5 +194,135 @@ describe('ConfigContextProvider', () => {
         expect(results.cases.left.stl).toBe(stlContent);
       });
     });
+
+    it('should discard stale STL results from old config versions', async () => {
+      localStorage.setItem('ergogen:config:stlPreview', 'true');
+      const setConfigInputMock = jest.fn();
+      const TestComponentWithTrigger = () => {
+        const ctx = useConfigContext();
+        return (
+          <>
+            <div data-testid="context-results">
+              {JSON.stringify(ctx?.results)}
+            </div>
+            <button
+              data-testid="trigger-generate"
+              onClick={() =>
+                ctx?.generateNow(mockConfig, undefined, { pointsonly: false })
+              }
+            >
+              Generate
+            </button>
+          </>
+        );
+      };
+
+      const { getByTestId } = render(
+        <ConfigContextProvider
+          configInput={mockConfig}
+          setConfigInput={setConfigInputMock}
+        >
+          <TestComponentWithTrigger />
+        </ConfigContextProvider>
+      );
+
+      // 1. Trigger first generation (will set version to 2 since initial load is version 1)
+      act(() => {
+        getByTestId('trigger-generate').click();
+      });
+
+      // 2. Simulate first Ergogen worker response
+      const ergogenResults1 = {
+        cases: {
+          left: { jscad: 'mock_jscad_code_v1' },
+        },
+      };
+
+      act(() => {
+        mockErgogenWorker.onmessage({
+          data: { type: 'success', results: ergogenResults1 },
+        } as MessageEvent);
+      });
+
+      // 3. Verify JSCAD worker was called with version 2
+      await waitFor(() => {
+        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            configVersion: 2,
+          })
+        );
+      });
+
+      // 4. Trigger second generation (will set version to 3)
+      act(() => {
+        getByTestId('trigger-generate').click();
+      });
+
+      // 5. Simulate second Ergogen worker response
+      const ergogenResults2 = {
+        cases: {
+          left: { jscad: 'mock_jscad_code_v2' },
+        },
+      };
+
+      act(() => {
+        mockErgogenWorker.onmessage({
+          data: { type: 'success', results: ergogenResults2 },
+        } as MessageEvent);
+      });
+
+      // 6. Simulate JSCAD worker returning stale results from version 2
+      const staleStlContent = 'solid stale_stl';
+      act(() => {
+        mockJscadWorker.onmessage({
+          data: {
+            type: 'success',
+            cases: {
+              left: {
+                jscad: 'mock_jscad_code_v1',
+                stl: staleStlContent,
+              },
+            },
+            configVersion: 2, // Old version
+          },
+        } as MessageEvent);
+      });
+
+      // 7. Verify that stale results were NOT applied
+      await waitFor(() => {
+        const results = JSON.parse(
+          getByTestId('context-results').textContent || '{}'
+        );
+        // STL should still be undefined because stale result was discarded
+        expect(results.cases.left.stl).toBeUndefined();
+        // But JSCAD should be from version 3
+        expect(results.cases.left.jscad).toBe('mock_jscad_code_v2');
+      });
+
+      // 8. Now simulate fresh results from version 3
+      const freshStlContent = 'solid fresh_stl';
+      act(() => {
+        mockJscadWorker.onmessage({
+          data: {
+            type: 'success',
+            cases: {
+              left: {
+                jscad: 'mock_jscad_code_v2',
+                stl: freshStlContent,
+              },
+            },
+            configVersion: 3, // Current version
+          },
+        } as MessageEvent);
+      });
+
+      // 9. Verify that fresh results WERE applied
+      await waitFor(() => {
+        const results = JSON.parse(
+          getByTestId('context-results').textContent || '{}'
+        );
+        expect(results.cases.left.stl).toBe(freshStlContent);
+      });
+    });
   });
 });
