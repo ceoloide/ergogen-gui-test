@@ -1,12 +1,12 @@
 export type JscadWorkerRequest = {
-  type: 'jscad_to_stl';
-  jscad: string;
-  requestId: string;
+  type: 'batch_jscad_to_stl';
+  cases: Array<{ name: string; jscad: string }>;
+  configVersion: number;
 };
 
 export type JscadWorkerResponse = {
   type: 'success' | 'error';
-  stl?: string;
+  cases?: Record<string, { jscad: string; stl: string }>;
   error?: string;
-  requestId: string;
+  configVersion: number;
 };

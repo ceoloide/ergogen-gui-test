@@ -149,13 +149,13 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
   // Wait for the initialization to complete before processing any message
   await initializationPromise;
 
-  const { type, jscad, requestId } = event.data || {};
+  const { type, cases, configVersion } = event.data || {};
 
   if (initializationError) {
     const response: JscadWorkerResponse = {
       type: 'error',
       error: `JSCAD library initialization failed: ${initializationError}`,
-      requestId,
+      configVersion,
     };
     self.postMessage(response);
     return;
@@ -165,42 +165,68 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
     throw new Error('JSCAD library is not loaded or initialized correctly.');
   }
 
-  if (type !== 'jscad_to_stl') {
+  if (type !== 'batch_jscad_to_stl') {
     const response: JscadWorkerResponse = {
       type: 'error',
       error: `Unknown message type: ${type}`,
-      requestId,
+      configVersion,
     };
     self.postMessage(response);
     return;
   }
+
   try {
-    if (!jscad || jscad.trim() === '') {
-      throw new Error('JSCAD script is empty.');
+    if (!cases || cases.length === 0) {
+      throw new Error('No JSCAD cases to process.');
     }
 
-    // This logic is adapted from the original convertJscadToStl utility function.
-    jscadInstance.setup();
-    await jscadInstance.compile(jscad);
-    const output = jscadInstance.generateOutput('stla', null); // 'stla' for ASCII STL
-    const stlContent = output.asBuffer().toString();
+    const results: Record<string, { jscad: string; stl: string }> = {};
 
-    if (!stlContent || stlContent.trim() === '') {
-      throw new Error('Generated STL content is empty.');
+    // Process each case sequentially
+    for (const caseItem of cases) {
+      const { name, jscad } = caseItem;
+
+      if (!jscad || jscad.trim() === '') {
+        console.warn(`Skipping empty JSCAD for case: ${name}`);
+        continue;
+      }
+
+      try {
+        // This logic is adapted from the original convertJscadToStl utility function.
+        jscadInstance.setup();
+        await jscadInstance.compile(jscad);
+        const output = jscadInstance.generateOutput('stla', null); // 'stla' for ASCII STL
+        const stlContent = output.asBuffer().toString();
+
+        if (!stlContent || stlContent.trim() === '') {
+          console.warn(`Generated STL content is empty for case: ${name}`);
+          continue;
+        }
+
+        results[name] = {
+          jscad,
+          stl: stlContent,
+        };
+      } catch (caseError: unknown) {
+        const errorMessage =
+          caseError instanceof Error ? caseError.message : String(caseError);
+        console.error(`Failed to convert case ${name}: ${errorMessage}`);
+        // Continue with other cases even if one fails
+      }
     }
 
     const response: JscadWorkerResponse = {
       type: 'success',
-      stl: stlContent,
-      requestId,
+      cases: results,
+      configVersion,
     };
     self.postMessage(response);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const response: JscadWorkerResponse = {
       type: 'error',
-      error: `JSCAD to STL conversion failed: ${errorMessage}`,
-      requestId,
+      error: `JSCAD to STL batch conversion failed: ${errorMessage}`,
+      configVersion,
     };
     self.postMessage(response);
   }

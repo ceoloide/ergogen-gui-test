@@ -135,7 +135,7 @@ describe('ConfigContextProvider', () => {
   });
 
   describe('STL Conversion', () => {
-    it('should queue and convert JSCAD to STL when stlPreview is true', async () => {
+    it('should batch convert JSCAD to STL when stlPreview is true', async () => {
       localStorage.setItem('ergogen:config:stlPreview', 'true');
       const setConfigInputMock = jest.fn();
       const { getByTestId } = render(
@@ -160,23 +160,28 @@ describe('ConfigContextProvider', () => {
         } as MessageEvent);
       });
 
-      // 2. Verify that the JSCAD worker was called
+      // 2. Verify that the JSCAD worker was called with batch request
       await waitFor(() => {
         expect(mockJscadWorker.postMessage).toHaveBeenCalledWith({
-          type: 'jscad_to_stl',
-          jscad: 'mock_jscad_code',
-          requestId: 'jscad-convert-left',
+          type: 'batch_jscad_to_stl',
+          cases: [{ name: 'left', jscad: 'mock_jscad_code' }],
+          configVersion: 1,
         });
       });
 
-      // 3. Simulate JSCAD worker returning the converted STL
+      // 3. Simulate JSCAD worker returning the batch converted STL
       const stlContent = 'solid mock_stl';
       act(() => {
         mockJscadWorker.onmessage({
           data: {
             type: 'success',
-            stl: stlContent,
-            requestId: 'jscad-convert-left',
+            cases: {
+              left: {
+                jscad: 'mock_jscad_code',
+                stl: stlContent,
+              },
+            },
+            configVersion: 1,
           },
         } as MessageEvent);
       });

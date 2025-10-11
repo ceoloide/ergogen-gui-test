@@ -236,12 +236,10 @@ const ConfigContextProvider = ({
   const ergogenWorkerRef = useRef<Worker | null>(null);
   const jscadWorkerRef = useRef<Worker | null>(null);
 
-  // State for STL conversion queue
-  const [jscadConversionQueue, setJscadConversionQueue] = useState<
-    { name: string; jscad: string }[]
-  >([]);
-  const [isJscadConverting, setIsJscadConverting] = useState<boolean>(false);
+  // Config version tracking
   const currentConfigVersion = useRef<number>(0);
+  // Track if JSCAD conversion is in progress (internal state)
+  const [_isJscadConverting, setIsJscadConverting] = useState<boolean>(false);
 
   useEffect(() => {
     console.log('--- ConfigContextProvider mounted ---');
@@ -266,6 +264,7 @@ const ConfigContextProvider = ({
         console.error('--- Ergogen worker error:', response.error);
         setError(response.error);
         setIsGenerating(false);
+        setIsJscadConverting(false);
         return;
       }
 
@@ -279,29 +278,49 @@ const ConfigContextProvider = ({
           );
         }
 
-        // Set results and manage STL conversion queue
+        // Set results and trigger STL conversion if needed
         if (response.results) {
           const newResults = response.results as Results;
-          currentConfigVersion.current += 1; // Increment version for this new result set
+          let willConvertStl = false;
 
           if (stlPreview && newResults.cases) {
-            const queue: { name: string; jscad: string }[] = [];
+            const casesToConvert: { name: string; jscad: string }[] = [];
             for (const [name, caseObj] of Object.entries(newResults.cases)) {
               if (caseObj.jscad) {
-                queue.push({ name, jscad: caseObj.jscad });
+                casesToConvert.push({ name, jscad: caseObj.jscad });
                 // Mark STL as pending
                 newResults.cases[name].stl = undefined;
               }
             }
-            setJscadConversionQueue(queue);
+
+            if (casesToConvert.length > 0 && jscadWorkerRef.current) {
+              willConvertStl = true;
+              setIsJscadConverting(true);
+              console.log(
+                `>>> Sending ${casesToConvert.length} cases to JSCAD worker for batch STL conversion`
+              );
+              const request: JscadWorkerRequest = {
+                type: 'batch_jscad_to_stl',
+                cases: casesToConvert,
+                configVersion: currentConfigVersion.current,
+              };
+              jscadWorkerRef.current.postMessage(request);
+            }
           }
 
           setResults(newResults);
           setResultsVersion((v) => v + 1);
-        }
-      }
 
-      setIsGenerating(false);
+          // Only clear isGenerating if we're not waiting for STL conversion
+          if (!willConvertStl) {
+            setIsGenerating(false);
+          }
+        } else {
+          setIsGenerating(false);
+        }
+      } else {
+        setIsGenerating(false);
+      }
     },
     [stlPreview]
   );
@@ -310,45 +329,50 @@ const ConfigContextProvider = ({
    * Handler for messages received from the JSCAD worker.
    */
   const handleJscadWorkerMessage = useCallback(
-    (event: MessageEvent<JscadWorkerResponse>, requestVersion: number) => {
+    (event: MessageEvent<JscadWorkerResponse>) => {
       const response = event.data;
       console.log('<<< Received message from JSCAD worker:', response.type);
 
-      if (requestVersion !== currentConfigVersion.current) {
+      if (response.configVersion !== currentConfigVersion.current) {
         console.log(
-          `Discarding stale STL result for version ${requestVersion} (current: ${currentConfigVersion.current})`
+          `Discarding stale STL result for version ${response.configVersion} (current: ${currentConfigVersion.current})`
         );
-        setIsJscadConverting(false); // Process next in queue
         return;
       }
 
       if (response.type === 'error') {
         console.error('--- JSCAD worker error:', response.error);
-        // Optionally, set a specific error state for STL conversion
-      } else if (response.type === 'success') {
-        const { stl, requestId } = response;
-        const caseName = requestId.replace(/^jscad-convert-/, '');
+        setIsJscadConverting(false);
+        setIsGenerating(false);
+      } else if (response.type === 'success' && response.cases) {
+        console.log(
+          `--- JSCAD worker success, updating ${Object.keys(response.cases).length} cases`
+        );
 
         setResults((prevResults) => {
-          if (!prevResults?.cases?.[caseName]) {
+          if (!prevResults?.cases) {
             return prevResults;
           }
-          const newResults = {
+
+          const updatedCases = { ...prevResults.cases };
+          for (const [name, caseData] of Object.entries(response.cases)) {
+            if (updatedCases[name]) {
+              updatedCases[name] = {
+                ...updatedCases[name],
+                stl: caseData.stl,
+              };
+            }
+          }
+
+          return {
             ...prevResults,
-            cases: {
-              ...prevResults.cases,
-              [caseName]: {
-                ...prevResults.cases[caseName],
-                stl: stl ?? undefined,
-              },
-            },
+            cases: updatedCases,
           };
-          return newResults;
         });
         setResultsVersion((v) => v + 1);
+        setIsJscadConverting(false);
+        setIsGenerating(false);
       }
-
-      setIsJscadConverting(false); // Ready for the next item
     },
     []
   );
@@ -372,9 +396,7 @@ const ConfigContextProvider = ({
       console.log('Initializing JSCAD worker...');
       jscadWorkerRef.current = createJscadWorker();
       if (jscadWorkerRef.current) {
-        // Pass the config version at the time of request
-        jscadWorkerRef.current.onmessage = (e) =>
-          handleJscadWorkerMessage(e, currentConfigVersion.current);
+        jscadWorkerRef.current.onmessage = handleJscadWorkerMessage;
         console.log('JSCAD worker initialized.');
       } else {
         console.warn('Failed to initialize JSCAD worker.');
@@ -394,32 +416,6 @@ const ConfigContextProvider = ({
       }
     };
   }, [handleErgogenWorkerMessage, handleJscadWorkerMessage]);
-
-  /**
-   * Effect to process the JSCAD conversion queue.
-   */
-  useEffect(() => {
-    if (!isJscadConverting && jscadConversionQueue.length > 0) {
-      const nextItem = jscadConversionQueue[0];
-      console.log(
-        `>>> Sending ${nextItem.name} to JSCAD worker for STL conversion`
-      );
-      setIsJscadConverting(true);
-
-      if (jscadWorkerRef.current) {
-        const request: JscadWorkerRequest = {
-          type: 'jscad_to_stl',
-          jscad: nextItem.jscad,
-          requestId: `jscad-convert-${nextItem.name}`,
-        };
-        jscadWorkerRef.current.postMessage(request);
-        // The version is passed to the handler when the message is received
-      }
-
-      // Remove the processed item from the queue
-      setJscadConversionQueue((prev) => prev.slice(1));
-    }
-  }, [jscadConversionQueue, isJscadConverting]);
 
   /**
    * Effect to save user settings to local storage whenever they change.
@@ -486,6 +482,7 @@ const ConfigContextProvider = ({
       setError(null);
       setDeprecationWarning(null);
       setIsGenerating(true);
+      currentConfigVersion.current += 1; // Increment version at the start of generation
 
       // Check for deprecated KiCad 5 footprints in the config and warn the user
       if (parsedConfig && parsedConfig.pcbs) {
@@ -559,7 +556,7 @@ const ConfigContextProvider = ({
             type: 'generate',
             inputConfig,
             injectionInput: inputInjection,
-            requestId: `ergogen-generate-${resultsVersion}-${Date.now()}`,
+            requestId: `ergogen-generate-${currentConfigVersion.current}-${Date.now()}`,
           });
         } else {
           console.error('Worker not available for processing request.');
