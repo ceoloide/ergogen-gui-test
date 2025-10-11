@@ -234,6 +234,11 @@ const Downloads = ({
             raw: 'txt',
           };
           if (ignore[download.fileName] === download.extension) return false;
+
+          // Hide JSCAD files when stlPreview is true and debug is false
+          if (configContext.stlPreview && download.extension === 'jscad') {
+            return false;
+          }
         }
 
         return (
