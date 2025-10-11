@@ -160,13 +160,19 @@ describe('ConfigContextProvider', () => {
         } as MessageEvent);
       });
 
-      // 2. Verify that the JSCAD worker was called with batch request
+      // 2. Verify that the JSCAD worker was called with batch request containing full results
       await waitFor(() => {
-        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith({
-          type: 'batch_jscad_to_stl',
-          cases: [{ name: 'left', jscad: 'mock_jscad_code' }],
-          configVersion: 1,
-        });
+        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'batch_jscad_to_stl',
+            results: expect.objectContaining({
+              cases: expect.objectContaining({
+                left: { jscad: 'mock_jscad_code', stl: undefined },
+              }),
+            }),
+            configVersion: 1,
+          })
+        );
       });
 
       // 3. Simulate JSCAD worker returning the batch converted STL
@@ -175,10 +181,12 @@ describe('ConfigContextProvider', () => {
         mockJscadWorker.onmessage({
           data: {
             type: 'success',
-            cases: {
-              left: {
-                jscad: 'mock_jscad_code',
-                stl: stlContent,
+            results: {
+              cases: {
+                left: {
+                  jscad: 'mock_jscad_code',
+                  stl: stlContent,
+                },
               },
             },
             configVersion: 1,
@@ -277,10 +285,12 @@ describe('ConfigContextProvider', () => {
         mockJscadWorker.onmessage({
           data: {
             type: 'success',
-            cases: {
-              left: {
-                jscad: 'mock_jscad_code_v1',
-                stl: staleStlContent,
+            results: {
+              cases: {
+                left: {
+                  jscad: 'mock_jscad_code_v1',
+                  stl: staleStlContent,
+                },
               },
             },
             configVersion: 2, // Old version
@@ -305,10 +315,12 @@ describe('ConfigContextProvider', () => {
         mockJscadWorker.onmessage({
           data: {
             type: 'success',
-            cases: {
-              left: {
-                jscad: 'mock_jscad_code_v2',
-                stl: freshStlContent,
+            results: {
+              cases: {
+                left: {
+                  jscad: 'mock_jscad_code_v2',
+                  stl: freshStlContent,
+                },
               },
             },
             configVersion: 3, // Current version

@@ -1,7 +1,11 @@
 /* eslint-env worker */
 /* global self */
 
-import { JscadWorkerRequest, JscadWorkerResponse } from './jscad.worker.types';
+import {
+  JscadWorkerRequest,
+  JscadWorkerResponse,
+  ResultsLike,
+} from './jscad.worker.types';
 
 console.log('<-> JSCAD worker module starting...');
 
@@ -149,7 +153,7 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
   // Wait for the initialization to complete before processing any message
   await initializationPromise;
 
-  const { type, cases, configVersion } = event.data || {};
+  const { type, results, configVersion } = event.data || {};
 
   if (initializationError) {
     const response: JscadWorkerResponse = {
@@ -176,23 +180,30 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
   }
 
   try {
-    if (!cases || cases.length === 0) {
+    const originalResults: ResultsLike | undefined = results;
+    if (!originalResults || !originalResults.cases) {
+      throw new Error('No results or cases provided to process.');
+    }
+
+    // Clone shallowly to avoid mutating caller's object directly
+    const updatedResults: ResultsLike = { ...originalResults };
+    updatedResults.cases = { ...originalResults.cases };
+
+    const entries = Object.entries(updatedResults.cases);
+    if (entries.length === 0) {
       throw new Error('No JSCAD cases to process.');
     }
 
-    const results: Record<string, { jscad: string; stl: string }> = {};
-
     // Process each case sequentially
-    for (const caseItem of cases) {
-      const { name, jscad } = caseItem;
-
+    for (const [name, caseObj] of entries) {
+      const jscad = caseObj?.jscad as string | undefined;
       if (!jscad || jscad.trim() === '') {
-        console.warn(`Skipping empty JSCAD for case: ${name}`);
+        // Keep existing entry as-is
         continue;
       }
 
       try {
-        // This logic is adapted from the original convertJscadToStl utility function.
+        // Convert JSCAD to STL
         jscadInstance.setup();
         await jscadInstance.compile(jscad);
         const output = jscadInstance.generateOutput('stla', null); // 'stla' for ASCII STL
@@ -203,8 +214,8 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
           continue;
         }
 
-        results[name] = {
-          jscad,
+        updatedResults.cases[name] = {
+          ...(updatedResults.cases[name] as any),
           stl: stlContent,
         };
       } catch (caseError: unknown) {
@@ -217,7 +228,7 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
 
     const response: JscadWorkerResponse = {
       type: 'success',
-      cases: results,
+      results: updatedResults,
       configVersion,
     };
     self.postMessage(response);

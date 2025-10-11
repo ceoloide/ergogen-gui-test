@@ -128,3 +128,15 @@ Proposed Fix: I will break down the runGeneration function into several smaller,
 3. Refactoring these components to use the `PanelGroup`, `Panel`, and `PanelResizeHandle` components from the new library.
 4. Ensuring that the new implementation is styled consistently with the application's theme and provides a smooth, VS Code-like user experience.
 5. Verifying that all related functionality, including E2E tests, remains intact after the migration.
+
+### [TASK-005] Unify Results Types Between Main and Worker
+
+**Context:** After updating the JSCAD pipeline to send and receive the entire `results` object, we introduced a lightweight `ResultsLike` type for worker messaging. The UI has a separate `Results` shape in `ConfigContext.tsx`. Maintaining two parallel shapes risks drift.
+
+**Task:** Extract a shared results type definition used by both the main thread and workers. Consider placing it under `src/types/results.ts` and importing it in `ConfigContext.tsx` and `src/workers/jscad.worker.types.ts` to ensure a single source of truth and stronger type safety.
+
+### [TASK-006] Modernize React act Usage In Tests
+
+**Context:** Some tests use `react-dom/test-utils` for `act`, which emits deprecation warnings. The recommended approach in React 18+ is to use `import { act } from 'react'`.
+
+**Task:** Update test files to import `act` from `react` instead of `react-dom/test-utils`, and adjust usage where needed. Verify no deprecation warnings remain during unit test runs.

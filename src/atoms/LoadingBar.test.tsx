@@ -30,7 +30,7 @@ describe('LoadingBar', () => {
     expect(loadingBar).toHaveStyle({
       height: '3px',
       position: 'fixed',
-      top: '3em',
+      top: '45px',
     });
   });
 });

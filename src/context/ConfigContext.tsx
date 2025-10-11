@@ -22,6 +22,7 @@ import type { WorkerResponse as ErgogenWorkerResponse } from '../workers/ergogen
 import type {
   JscadWorkerRequest,
   JscadWorkerResponse,
+  ResultsLike,
 } from '../workers/jscad.worker.types';
 
 // Strongly-typed shape for Ergogen results used in the UI
@@ -284,24 +285,23 @@ const ConfigContextProvider = ({
           let willConvertStl = false;
 
           if (stlPreview && newResults.cases) {
-            const casesToConvert: { name: string; jscad: string }[] = [];
-            for (const [name, caseObj] of Object.entries(newResults.cases)) {
-              if (caseObj.jscad) {
-                casesToConvert.push({ name, jscad: caseObj.jscad });
-                // Mark STL as pending
+            // Mark STL as pending for all cases that have JSCAD
+            for (const name of Object.keys(newResults.cases)) {
+              const caseObj = newResults.cases[name];
+              if (caseObj?.jscad) {
                 newResults.cases[name].stl = undefined;
               }
             }
 
-            if (casesToConvert.length > 0 && jscadWorkerRef.current) {
+            if (jscadWorkerRef.current) {
               willConvertStl = true;
               setIsJscadConverting(true);
               console.log(
-                `>>> Sending ${casesToConvert.length} cases to JSCAD worker for batch STL conversion`
+                '>>> Sending full results to JSCAD worker for STL conversion'
               );
               const request: JscadWorkerRequest = {
                 type: 'batch_jscad_to_stl',
-                cases: casesToConvert,
+                results: newResults as ResultsLike,
                 configVersion: currentConfigVersion.current,
               };
               jscadWorkerRef.current.postMessage(request);
@@ -344,32 +344,10 @@ const ConfigContextProvider = ({
         console.error('--- JSCAD worker error:', response.error);
         setIsJscadConverting(false);
         setIsGenerating(false);
-      } else if (response.type === 'success' && response.cases) {
-        console.log(
-          `--- JSCAD worker success, updating ${Object.keys(response.cases).length} cases`
-        );
+      } else if (response.type === 'success' && response.results) {
+        console.log('--- JSCAD worker success, applying updated results');
 
-        const responseCases = response.cases; // Capture for type narrowing
-        setResults((prevResults) => {
-          if (!prevResults?.cases) {
-            return prevResults;
-          }
-
-          const updatedCases = { ...prevResults.cases };
-          for (const [name, caseData] of Object.entries(responseCases)) {
-            if (updatedCases[name]) {
-              updatedCases[name] = {
-                ...updatedCases[name],
-                stl: caseData.stl,
-              };
-            }
-          }
-
-          return {
-            ...prevResults,
-            cases: updatedCases,
-          };
-        });
+        setResults(response.results as Results);
         setResultsVersion((v) => v + 1);
         setIsJscadConverting(false);
         setIsGenerating(false);

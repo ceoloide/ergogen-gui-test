@@ -6,12 +6,21 @@
  */
 
 /**
- * Request sent to JSCAD worker to convert a batch of JSCAD cases to STL format.
+ * Minimal structural types to describe the results payload shared with the worker.
+ * We only care about the shape of `cases`; all other keys are passed through.
+ */
+type JscadCase = { jscad?: string; stl?: string };
+type JscadCases = Record<string, JscadCase>;
+export type ResultsLike = { cases?: JscadCases; [key: string]: unknown };
+
+/**
+ * Request sent to JSCAD worker to convert JSCAD cases to STL format.
+ * The full `results` object is provided so the worker can update it in-place and return it.
  */
 export type JscadWorkerRequest = {
   type: 'batch_jscad_to_stl';
-  /** Array of cases to convert, each with a name and JSCAD code */
-  cases: Array<{ name: string; jscad: string }>;
+  /** Full results object that may contain `cases` with JSCAD strings */
+  results: ResultsLike;
   /** Config version to track which generation this batch belongs to */
   configVersion: number;
 };
@@ -21,8 +30,8 @@ export type JscadWorkerRequest = {
  */
 export type JscadWorkerResponse = {
   type: 'success' | 'error';
-  /** On success, contains converted STL data for each case */
-  cases?: Record<string, { jscad: string; stl: string }>;
+  /** On success, contains the entire results object with updated cases */
+  results?: ResultsLike;
   /** On error, contains the error message */
   error?: string;
   /** Echo of the config version from the request */
