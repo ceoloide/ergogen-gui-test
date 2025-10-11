@@ -207,7 +207,9 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
         jscadInstance.setup();
         await jscadInstance.compile(jscad);
         const output = jscadInstance.generateOutput('stla', null); // 'stla' for ASCII STL
-        const stlContent = output.asBuffer().toString();
+        let stlContent = output.asBuffer().toString();
+        // Rename default STL header from "solid csg.js" to the specific case name for clarity
+        stlContent = stlContent.replace(/^solid csg\.js\b/, `solid ${name}`);
 
         if (!stlContent || stlContent.trim() === '') {
           console.warn(`Generated STL content is empty for case: ${name}`);
