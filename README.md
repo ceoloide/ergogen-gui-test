@@ -70,6 +70,17 @@ The Ergogen GUI is divided into three main sections: the configuration editor on
 
 This repository includes a GitHub Actions workflow to automatically build and deploy the application to GitHub Pages.
 
+### Manual Deployment
+
+In addition to automatic deployments on pushes to `main`, the workflow can be triggered manually from the GitHub Actions tab. This is particularly useful for deploying changes that don't involve a code commit, such as updating static assets in the `/public` directory.
+
+To manually trigger a deployment:
+
+1.  Navigate to your repository on GitHub.
+2.  Click on the **Actions** tab.
+3.  In the list of workflows on the left, select **GitHub Pages**.
+4.  Click the **Run workflow** button, choose the branch you want to deploy from, and confirm by clicking **Run workflow** again.
+
 ### Custom Domain Configuration
 
 The deployment workflow supports configuring a custom domain via a repository variable. This allows forks of this repository to be deployed to their own custom domains.

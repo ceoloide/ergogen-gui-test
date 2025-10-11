@@ -11,8 +11,8 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 - The project uses `yarn` to handle dependencies, build, test, and run the dev web server. While `npm` is present, it should not be used for any development related activities.
 - Always use `yarn add` when you need to install a new dependency, do NOT use `npm` directly.
 - Before making any changes, make sure the target builds and the tests pass. Use `yarn build` and `yarn test`, respectively.
-- When running tests with `yarn test`, add the `--verbose` argument to see failure reasons and additional test details.
-- Prefer test-drive development; first write the tests for the bug fix or new feature, make sure they fail in the expected way, then make them pass.
+- When running unit tests with `yarn test:unit`, you can add the `--verbose` argument to see failure reasons and additional test details. This argument is not supported for end-to-end tests.
+- Prefer test-driven development; first write the tests for the bug fix or new feature, make sure they fail in the expected way, then make them pass.
 - Try to make tests fast, for example by mocking heavy operations or other similar things when appropriate.
 - Use `yarn knip` to tidy up dependencies before finishing. Always ignore unusued files warning for files in the `patch` of `public` directories.
 - Use `yarn format` and `yarn lint` to check and fix formatting errors before finishing. You MUST always run `yarn format` and `yarn lint` before committing any file.
@@ -21,7 +21,8 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 
 ### Commit Procedure
 
-**CRITICAL:** You **MUST** run `yarn precommit` before every commit. This command formats, lints, checks for unused dependencies, and runs the entire test suite. Address all errors before proceeding. Warnings can be ignored, but should be mentioned as potential follow-up tasks.
+- **CRITICAL:** You **MUST** run `yarn precommit` before every commit. This command formats, lints, checks for unused dependencies, and runs the entire test suite. Address all errors before proceeding. Warnings can be ignored, but should be mentioned as potential follow-up tasks.
+- **Update AGENTS.md**: You **MUST** update the `AGENTS.md` file to reflect any significant changes to the application's architecture, component structure, or development workflow. This ensures the knowledge base remains current.
 
 ## Design principles
 
@@ -76,15 +77,26 @@ When creating proposals for the knowledge base, primarily focus on extracting in
   - **Setup Commands**: Detail the exact, sequential commands required to set up the development environment and install all dependencies if they are proven useful.
   - **Execution Commands**: List the commands needed to build, test, and run the project (e.g., `yarn build`, `yarn test`) if they are proven useful.
 
-### Guiding Principles
+### Component Architecture
 
-- **Concise & Factual**: Each proposal must be a concise, verifiable fact. Avoid assumptions. Ask the user if you need additional details.
-- **Quality over quantity**: Be extremely cautious when creating proposals. Prioritize creating fewer, high-quality proposal for the knowledge base over a wide range of mediocre ones. When in doubt about whether a piece of information should be stored, do not store it.
-- **Filter for long-term relevance**: Record information that has long-term relevance. DO NOT record temporary, task-specific details or the exact feature request.
-  - **Example**:
-    - **DO record**: "The project uses Yarn for dependency management"
-    - **DO NOT record**: "The user wants to refactor button style rules"
-    - **DO NOT record**: "I have completed the task to create a new welcome page for the web app."
+The project follows the principles of **Atomic Design** to structure its React components. This methodology helps create a scalable and maintainable component library. Components are organized into the following directories:
+
+-   **`src/atoms`**: The smallest, most basic building blocks of the UI. These are individual HTML elements like buttons, inputs, and icons. They are highly reusable and should not contain any business logic.
+-   **`src/molecules`**: Groups of atoms that function together as a single unit. For example, a search form might consist of an input atom and a button atom.
+-   **`src/organisms`**: More complex UI components composed of molecules and/or atoms. These components represent distinct sections of an interface, like a header or a file download list.
+-   **`src/pages`**: The highest-level components that represent entire pages in the application. They are responsible for composing organisms and other components to build a complete user view.
+
+This structure promotes reusability and a clear separation of concerns, making it easier to develop and test components in isolation.
+
+## Web Workers
+
+The application offloads long-running, computationally intensive tasks to Web Workers to prevent the main UI thread from freezing. This ensures the user interface remains responsive while processing complex keyboard layouts or generating 3D models.
+
+-   **`ergogen.worker.ts`**: This worker is responsible for running the core Ergogen logic. It takes the user's YAML configuration as input and generates the raw output data, including outlines, PCB information, and case designs.
+
+-   **`jscad.worker.ts`**: This worker handles 3D geometry processing. It receives the output from the Ergogen worker and uses JSCAD to generate 3D models for previewing. It is also responsible for converting these models into the STL format for downloading.
+
+Communication with the workers is managed through a standard message-passing system (`postMessage` and `onmessage`), with the main application thread and workers exchanging data as needed.
 
 ## Future Tasks
 
