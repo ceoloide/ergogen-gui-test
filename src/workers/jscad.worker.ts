@@ -202,4 +202,4 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
 };
 
 // Export empty object to satisfy TypeScript's module requirement
-export { };
+export {};
