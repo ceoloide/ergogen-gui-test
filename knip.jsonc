@@ -8,15 +8,7 @@
   "project": [
     "src/**/*.{ts,tsx}"
   ],
-  "ignoreDependencies": [
-    "@babel/plugin-proposal-private-property-in-object",
-    "@jscad/csg",
-    "@jscad/stl-serializer",
-    "@testing-library/jest-dom",
-    "@testing-library/user-event",
-    "@types/styled-components",
-    "@typescript-eslint/parser",
-    "eslint-plugin-prettier",
-    "markdownlint"
+  "ignore": [
+    "src/ergogen.d.ts"
   ]
 }
