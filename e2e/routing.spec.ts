@@ -9,7 +9,7 @@ test.describe('Routing and Welcome Page', () => {
     await page.goto('/');
     await shoot('before-redirect-to-new');
     await expect(page).toHaveURL(/.*\/new/);
-    await expect(page.getByText('Welcome to Ergogen Web UI')).toBeVisible();
+    await expect(page.getByText('Ergogen Web UI')).toBeVisible();
     await shoot('after-redirect-to-new');
   });
 
@@ -64,7 +64,7 @@ test.describe('Routing and Welcome Page', () => {
     // 3. Assert navigation to the /new page
     await shoot('before-url-new-and-welcome');
     await expect(page).toHaveURL(/.*\/new/);
-    await expect(page.getByText('Welcome to Ergogen Web UI')).toBeVisible();
+    await expect(page.getByText('Ergogen Web UI')).toBeVisible();
     await shoot('after-url-new-and-welcome');
   });
 

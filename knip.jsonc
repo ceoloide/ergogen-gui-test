@@ -8,6 +8,9 @@
   "project": [
     "src/**/*.{ts,tsx}"
   ],
+  "ignore": [
+    "src/ergogen.d.ts"
+  ],
   "ignoreDependencies": [
     "@babel/plugin-proposal-private-property-in-object",
     "@jscad/csg",
