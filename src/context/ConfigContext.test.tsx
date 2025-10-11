@@ -135,7 +135,7 @@ describe('ConfigContextProvider', () => {
   });
 
   describe('STL Conversion', () => {
-    it('should queue and convert JSCAD to STL when stlPreview is true', async () => {
+    it('should batch convert JSCAD to STL when stlPreview is true', async () => {
       localStorage.setItem('ergogen:config:stlPreview', 'true');
       const setConfigInputMock = jest.fn();
       const { getByTestId } = render(
@@ -160,23 +160,36 @@ describe('ConfigContextProvider', () => {
         } as MessageEvent);
       });
 
-      // 2. Verify that the JSCAD worker was called
+      // 2. Verify that the JSCAD worker was called with batch request containing full results
       await waitFor(() => {
-        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith({
-          type: 'jscad_to_stl',
-          jscad: 'mock_jscad_code',
-          requestId: 'jscad-convert-left',
-        });
+        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'batch_jscad_to_stl',
+            results: expect.objectContaining({
+              cases: expect.objectContaining({
+                left: { jscad: 'mock_jscad_code', stl: undefined },
+              }),
+            }),
+            configVersion: 1,
+          })
+        );
       });
 
-      // 3. Simulate JSCAD worker returning the converted STL
+      // 3. Simulate JSCAD worker returning the batch converted STL
       const stlContent = 'solid mock_stl';
       act(() => {
         mockJscadWorker.onmessage({
           data: {
             type: 'success',
-            stl: stlContent,
-            requestId: 'jscad-convert-left',
+            results: {
+              cases: {
+                left: {
+                  jscad: 'mock_jscad_code',
+                  stl: stlContent,
+                },
+              },
+            },
+            configVersion: 1,
           },
         } as MessageEvent);
       });
@@ -187,6 +200,140 @@ describe('ConfigContextProvider', () => {
           getByTestId('context-results').textContent || '{}'
         );
         expect(results.cases.left.stl).toBe(stlContent);
+      });
+    });
+
+    it('should discard stale STL results from old config versions', async () => {
+      localStorage.setItem('ergogen:config:stlPreview', 'true');
+      const setConfigInputMock = jest.fn();
+      const TestComponentWithTrigger = () => {
+        const ctx = useConfigContext();
+        return (
+          <>
+            <div data-testid="context-results">
+              {JSON.stringify(ctx?.results)}
+            </div>
+            <button
+              data-testid="trigger-generate"
+              onClick={() =>
+                ctx?.generateNow(mockConfig, undefined, { pointsonly: false })
+              }
+            >
+              Generate
+            </button>
+          </>
+        );
+      };
+
+      const { getByTestId } = render(
+        <ConfigContextProvider
+          configInput={mockConfig}
+          setConfigInput={setConfigInputMock}
+        >
+          <TestComponentWithTrigger />
+        </ConfigContextProvider>
+      );
+
+      // 1. Trigger first generation (will set version to 2 since initial load is version 1)
+      act(() => {
+        getByTestId('trigger-generate').click();
+      });
+
+      // 2. Simulate first Ergogen worker response
+      const ergogenResults1 = {
+        cases: {
+          left: { jscad: 'mock_jscad_code_v1' },
+        },
+      };
+
+      act(() => {
+        mockErgogenWorker.onmessage({
+          data: { type: 'success', results: ergogenResults1 },
+        } as MessageEvent);
+      });
+
+      // 3. Verify JSCAD worker was called with version 2
+      await waitFor(() => {
+        expect(mockJscadWorker.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            configVersion: 2,
+          })
+        );
+      });
+
+      // 4. Trigger second generation (will set version to 3)
+      act(() => {
+        getByTestId('trigger-generate').click();
+      });
+
+      // 5. Simulate second Ergogen worker response
+      const ergogenResults2 = {
+        cases: {
+          left: { jscad: 'mock_jscad_code_v2' },
+        },
+      };
+
+      act(() => {
+        mockErgogenWorker.onmessage({
+          data: { type: 'success', results: ergogenResults2 },
+        } as MessageEvent);
+      });
+
+      // 6. Simulate JSCAD worker returning stale results from version 2
+      const staleStlContent = 'solid stale_stl';
+      act(() => {
+        mockJscadWorker.onmessage({
+          data: {
+            type: 'success',
+            results: {
+              cases: {
+                left: {
+                  jscad: 'mock_jscad_code_v1',
+                  stl: staleStlContent,
+                },
+              },
+            },
+            configVersion: 2, // Old version
+          },
+        } as MessageEvent);
+      });
+
+      // 7. Verify that stale results were NOT applied
+      await waitFor(() => {
+        const results = JSON.parse(
+          getByTestId('context-results').textContent || '{}'
+        );
+        // STL should still be undefined because stale result was discarded
+        expect(results.cases.left.stl).toBeUndefined();
+        // But JSCAD should be from version 3
+        expect(results.cases.left.jscad).toBe('mock_jscad_code_v2');
+      });
+
+      // 8. Now simulate fresh results from version 3
+      const freshStlContent = 'solid fresh_stl';
+      act(() => {
+        mockJscadWorker.onmessage({
+          data: {
+            type: 'success',
+            results: {
+              cases: {
+                left: {
+                  jscad: 'mock_jscad_code_v2',
+                  stl: freshStlContent,
+                },
+              },
+            },
+            configVersion: 3, // Current version
+          },
+        } as MessageEvent);
+      });
+
+      // 9. Verify that fresh results WERE applied
+      await waitFor(() => {
+        const results = JSON.parse(
+          getByTestId('context-results').textContent || '{}'
+        );
+        expect(results.cases.left.stl).toBe(freshStlContent);
       });
     });
   });
