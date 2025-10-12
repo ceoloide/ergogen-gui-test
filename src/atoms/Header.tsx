@@ -61,6 +61,9 @@ const AppName = styled.div`
   font-size: ${theme.fontSizes.base};
   font-weight: ${theme.fontWeights.semiBold};
   color: ${theme.colors.white};
+  @media (max-width: 410px) {
+    display: none;
+  }
 `;
 
 /**
@@ -71,6 +74,9 @@ const VersionText = styled.a`
   color: ${theme.colors.accent};
   text-decoration: none;
   align-items: center;
+  @media (max-width: 345px) {
+    display: none;
+  }
 `;
 
 /**
@@ -160,8 +166,8 @@ const AccentIconButton = styled(OutlineIconButton)`
  */
 const LogoButton = styled(Link)`
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 6px;
   flex-shrink: 0;
 `;
