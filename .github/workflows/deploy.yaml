@@ -18,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     defaults:
       run:
         working-directory: ./
@@ -45,8 +44,6 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: yarn build
-        env:
-          CI: false
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
