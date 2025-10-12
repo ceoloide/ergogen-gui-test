@@ -509,25 +509,6 @@ const ConfigContextProvider = ({
       }
 
       try {
-        // Handle code injections if provided
-        if (inputInjection !== undefined && Array.isArray(inputInjection)) {
-          for (let i = 0; i < inputInjection.length; i++) {
-            const injection = inputInjection[i];
-            if (Array.isArray(injection) && injection.length === 3) {
-              const inj_type = injection[0];
-              const inj_name = injection[1];
-              const inj_text = injection[2];
-              const module_prefix = 'const module = {};\n\n';
-              const module_suffix = '\n\nreturn module.exports;';
-              const inj_value = new Function(
-                'require',
-                module_prefix + inj_text + module_suffix
-              )();
-              window.ergogen.inject(inj_type, inj_name, inj_value);
-            }
-          }
-        }
-
         // Run the Ergogen process
         if (ergogenWorkerRef.current) {
           console.log('>>> Sending Ergogen process requestt...');
