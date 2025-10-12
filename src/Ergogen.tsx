@@ -20,6 +20,7 @@ import OutlineIconButton from './atoms/OutlineIconButton';
 import GrowButton from './atoms/GrowButton';
 import Title from './atoms/Title';
 import { theme } from './theme/theme';
+import { createZip } from './utils/zip';
 
 // Shortcut key sub-label styled component
 const ShortcutKey = styled.span`
@@ -412,6 +413,27 @@ const Ergogen = () => {
     document.body.removeChild(element);
   };
 
+  /**
+   * Triggers a download of all generated files as a zip archive.
+   */
+  const handleDownloadArchive = () => {
+    if (
+      !configContext.results ||
+      !configContext.configInput ||
+      configContext.isGenerating ||
+      configContext.isJscadConverting
+    ) {
+      return;
+    }
+    createZip(
+      configContext.results,
+      configContext.configInput,
+      configContext.injectionInput,
+      configContext.debug,
+      configContext.stlPreview
+    );
+  };
+
   return (
     <ErgogenWrapper>
       {!configContext.showSettings && (
@@ -460,9 +482,13 @@ const Ergogen = () => {
           {!configContext.showConfig && (
             <>
               <OutlineIconButton
+                onClick={handleDownloadArchive}
+                disabled={
+                  configContext.isGenerating || configContext.isJscadConverting
+                }
                 aria-label="Download archive of all generated files"
                 data-testid="mobile-download-outputs-button"
-                >
+              >
                 <span className="material-symbols-outlined">archive</span>
               </OutlineIconButton>
               <OutlineIconButton
