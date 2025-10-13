@@ -236,12 +236,32 @@ const Welcome = () => {
 
     setCurrentConflict(null);
 
-    // Resume processing with the chosen resolution
-    await processFootprints(
-      pendingFootprints,
-      pendingConfig,
-      applyToAllConflicts ? action : action
+    // Process the current footprint with the chosen action
+    const currentFootprint = pendingFootprints[0];
+    const remainingFootprints = pendingFootprints.slice(1);
+
+    const mergedInjections = mergeInjections(
+      [currentFootprint],
+      configContext.injectionInput,
+      action
     );
+    configContext.setInjectionInput(mergedInjections);
+
+    // Resume processing remaining footprints with resolution if "apply to all" is checked
+    if (remainingFootprints.length > 0) {
+      await processFootprints(
+        remainingFootprints,
+        pendingConfig,
+        applyToAllConflicts ? action : null
+      );
+    } else {
+      // All footprints processed, load the config
+      configContext.setConfigInput(pendingConfig);
+      await configContext.generateNow(pendingConfig, mergedInjections, {
+        pointsonly: false,
+      });
+      setShouldNavigate(true);
+    }
 
     // Clean up state
     setPendingFootprints([]);
