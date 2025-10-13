@@ -57,7 +57,11 @@ The `CHANGELOG.md` file tracks user-facing changes to the application in reverse
 
 ### Changelog Entry Format
 
-**Title and Date**: Use format "Brief Feature Title – Month DD, YYYY"
+**Title**: Use format "## Brief Feature Title"
+
+**Date**: Use format "_Month DD, YYYY_"
+
+**Image**: Use format: ![A description of a screenshot of the feature.](./public/images/changelog/placeholder.png)
 
 **Opening Paragraph**: Describe the user problem or challenge that existed before the change. Make it relatable and concrete.
 
@@ -71,7 +75,10 @@ The `CHANGELOG.md` file tracks user-facing changes to the application in reverse
 
 **Example structure:**
 ```markdown
-## Feature Title – Month DD, YYYY
+## Feature Title
+_Month DD, YYYY-
+
+![A description of a screenshot of the feature.](./public/images/changelog/placeholder.png)
 
 [Problem description - 1-2 sentences about what was difficult before]
 
