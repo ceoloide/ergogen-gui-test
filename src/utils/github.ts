@@ -35,6 +35,7 @@ export type GitHubLoadResult = {
 const parseGitmodules = (
   content: string
 ): Array<{ path: string; url: string }> => {
+  console.log('[GitHub] Parsing .gitmodules file');
   const submodules: Array<{ path: string; url: string }> = [];
   const lines = content.split('\n');
   let currentSubmodule: { path?: string; url?: string } = {};
@@ -65,6 +66,7 @@ const parseGitmodules = (
     });
   }
 
+  console.log(`[GitHub] Found ${submodules.length} submodules:`, submodules);
   return submodules;
 };
 
@@ -82,12 +84,18 @@ const fetchFootprintsFromRepo = async (
   branch: string,
   basePath: string = ''
 ): Promise<GitHubFootprint[]> => {
+  console.log(
+    `[GitHub] Fetching footprints from repo ${owner}/${repo} (branch: ${branch}, path: ${basePath || 'root'})`
+  );
   const footprints: GitHubFootprint[] = [];
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${basePath ? basePath : ''}?ref=${branch}`;
 
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
+      console.log(
+        `[GitHub] Failed to fetch from ${apiUrl}: ${response.status}`
+      );
       return footprints;
     }
 
@@ -102,6 +110,7 @@ const fetchFootprintsFromRepo = async (
           // Construct the footprint name from path and filename without extension
           const fileName = item.name.replace(/\.js$/, '');
           const name = basePath ? `${basePath}/${fileName}` : fileName;
+          console.log(`[GitHub] Loaded footprint: ${name}`);
           footprints.push({ name, content });
         }
       } else if (item.type === 'dir') {
@@ -117,9 +126,12 @@ const fetchFootprintsFromRepo = async (
       }
     }
   } catch (error) {
-    console.warn('Failed to fetch footprints from repo:', error);
+    console.warn('[GitHub] Failed to fetch footprints from repo:', error);
   }
 
+  console.log(
+    `[GitHub] Loaded ${footprints.length} footprints from ${owner}/${repo}`
+  );
   return footprints;
 };
 
@@ -133,12 +145,14 @@ const fetchFootprintsFromDirectory = async (
   apiUrl: string,
   basePath: string = ''
 ): Promise<GitHubFootprint[]> => {
+  console.log(`[GitHub] Fetching footprints from directory: ${apiUrl}`);
   const footprints: GitHubFootprint[] = [];
 
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
       // Directory doesn't exist or is inaccessible, return empty array
+      console.log(`[GitHub] Directory not found or inaccessible: ${apiUrl}`);
       return footprints;
     }
 
@@ -153,6 +167,7 @@ const fetchFootprintsFromDirectory = async (
           // Construct the footprint name from path and filename without extension
           const fileName = item.name.replace(/\.js$/, '');
           const name = basePath ? `${basePath}/${fileName}` : fileName;
+          console.log(`[GitHub] Loaded footprint: ${name}`);
           footprints.push({ name, content });
         }
       } else if (item.type === 'dir') {
@@ -167,9 +182,10 @@ const fetchFootprintsFromDirectory = async (
     }
   } catch (error) {
     // Silently fail if directory doesn't exist or can't be accessed
-    console.warn('Failed to fetch footprints from directory:', error);
+    console.warn('[GitHub] Failed to fetch footprints from directory:', error);
   }
 
+  console.log(`[GitHub] Loaded ${footprints.length} footprints from directory`);
   return footprints;
 };
 
@@ -185,6 +201,7 @@ const fetchFootprintsFromDirectory = async (
 export const fetchConfigFromUrl = async (
   url: string
 ): Promise<GitHubLoadResult> => {
+  console.log(`[GitHub] Starting fetch from URL: ${url}`);
   let newUrl = url.trim();
 
   const repoPattern = /^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/;
@@ -195,6 +212,7 @@ export const fetchConfigFromUrl = async (
   }
 
   const baseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl;
+  console.log(`[GitHub] Normalized URL: ${baseUrl}`);
 
   /**
    * Checks if a given URL points to the root of a GitHub repository.
@@ -259,9 +277,11 @@ export const fetchConfigFromUrl = async (
    * @throws {Error} Throws an error if the file cannot be fetched from any location in the branch.
    */
   const fetchWithBranch = async (branch: string): Promise<GitHubLoadResult> => {
+    console.log(`[GitHub] Attempting to fetch from branch: ${branch}`);
     // Extract owner and repo from baseUrl
     const urlObject = new URL(baseUrl);
     const [, owner, repo] = urlObject.pathname.split('/');
+    console.log(`[GitHub] Repository: ${owner}/${repo}`);
 
     // First, try the root directory
     const firstUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
@@ -272,6 +292,7 @@ export const fetchConfigFromUrl = async (
     if (response.ok) {
       config = await response.text();
       configPath = '';
+      console.log('[GitHub] Config found in root directory');
     } else if (response.status === 400 || response.status === 404) {
       // If not found, try the /ergogen/ directory
       const secondUrl = getRawUrl(
@@ -281,6 +302,7 @@ export const fetchConfigFromUrl = async (
       if (response.ok) {
         config = await response.text();
         configPath = 'ergogen';
+        console.log('[GitHub] Config found in ergogen/ directory');
       } else {
         // If still not found or another error occurred, throw.
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -293,20 +315,26 @@ export const fetchConfigFromUrl = async (
     const footprintsPath = configPath
       ? `${configPath}/footprints`
       : 'footprints';
+    console.log(`[GitHub] Looking for footprints in: ${footprintsPath}`);
     const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
     const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
 
     // Check for .gitmodules to handle submodules
+    console.log('[GitHub] Checking for .gitmodules file');
     try {
       const gitmodulesUrl = getRawUrl(`${baseUrl}/blob/${branch}/.gitmodules`);
       const gitmodulesResponse = await fetch(gitmodulesUrl);
       if (gitmodulesResponse.ok) {
+        console.log('[GitHub] .gitmodules found, parsing submodules');
         const gitmodulesContent = await gitmodulesResponse.text();
         const submodules = parseGitmodules(gitmodulesContent);
 
         // Filter submodules that are within the footprints folder
         for (const submodule of submodules) {
           if (submodule.path.startsWith(footprintsPath)) {
+            console.log(
+              `[GitHub] Processing submodule: ${submodule.path} -> ${submodule.url}`
+            );
             // Extract owner and repo from submodule URL
             const submoduleMatch = submodule.url.match(
               /github\.com[/:]([^/]+)\/([^/.]+)/
@@ -317,6 +345,7 @@ export const fetchConfigFromUrl = async (
               const relativePath = submodule.path.substring(
                 footprintsPath.length + 1
               );
+              console.log(`[GitHub] Submodule relative path: ${relativePath}`);
               // Try both main and master branches for the submodule
               let submoduleFootprints: GitHubFootprint[] = [];
               try {
@@ -345,16 +374,26 @@ export const fetchConfigFromUrl = async (
                 name: relativePath ? `${relativePath}/${fp.name}` : fp.name,
                 content: fp.content,
               }));
+              console.log(
+                `[GitHub] Added ${prefixedFootprints.length} footprints from submodule ${submodule.path}`
+              );
               footprints.push(...prefixedFootprints);
             }
+          } else {
+            console.log(
+              `[GitHub] Skipping submodule (not in footprints): ${submodule.path}`
+            );
           }
         }
+      } else {
+        console.log('[GitHub] No .gitmodules file found');
       }
     } catch (error) {
       // .gitmodules doesn't exist or couldn't be parsed, continue without submodules
-      console.warn('No .gitmodules found or failed to parse:', error);
+      console.warn('[GitHub] No .gitmodules found or failed to parse:', error);
     }
 
+    console.log(`[GitHub] Total footprints loaded: ${footprints.length}`);
     return { config, footprints, configPath };
   };
 
