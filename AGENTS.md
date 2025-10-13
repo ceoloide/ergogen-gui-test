@@ -139,9 +139,25 @@ When loading footprints from GitHub, the application checks for naming conflicts
   - `fetchFootprintsFromDirectory`: Recursive directory traversal for a single directory
   - `fetchFootprintsFromRepo`: Recursive traversal of an entire repository (for submodules)
   - `parseGitmodules`: Parses `.gitmodules` file to extract submodule paths and URLs
+  - `bfsForYamlFiles`: Performs breadth-first search to find YAML files in repository
 - **`src/utils/injections.ts`**: Utility functions for conflict detection (`checkForConflict`), unique name generation (`generateUniqueName`), and merging injections (`mergeInjections`)
 - **`src/molecules/ConflictResolutionDialog.tsx`**: React component for the conflict resolution UI
 - **`src/pages/Welcome.tsx`**: Orchestrates the loading process, handles conflicts sequentially, and manages dialog state
+
+### GitHub API Rate Limiting
+
+The GitHub loading functionality uses unauthenticated API requests, which are subject to GitHub's rate limits:
+
+- **Rate Limit**: 60 requests per hour for unauthenticated requests
+- **Detection**: The code checks for HTTP 403 status with `X-RateLimit-Remaining: 0` header
+- **User Feedback**: When rate limit is exceeded, a clear error message is displayed: "GitHub API rate limit exceeded. Please wait and try again in about an hour."
+- **Graceful Handling**: The loading process continues even if rate limit is hit, just showing the error to the user
+
+**Future Enhancement**: Implement authenticated GitHub API requests to increase rate limit to 5,000 requests per hour. This would require:
+- OAuth integration or personal access token support
+- Secure token storage
+- UI for token configuration
+- Fallback to unauthenticated requests if no token is provided
 
 ## Future Tasks
 
@@ -203,3 +219,17 @@ Proposed Fix: I will break down the runGeneration function into several smaller,
 **Context:** After migrating the JSCAD worker to use the new `convert` API, we continue to request ASCII `stla` output and decode it into strings for compatibility. This maintains current behavior but increases payload size and requires extra decoding logic in the worker.
 
 **Task:** Investigate switching to binary `stlb` output with typed array handling end-to-end. Update the worker and download pipeline to support binary blobs without manual header replacement, ensuring previews and downloads still function as expected.
+
+### [TASK-008] Implement Authenticated GitHub API Requests
+
+**Context:** The GitHub loading functionality currently uses unauthenticated API requests, which are limited to 60 requests per hour. For repositories with many footprints or submodules, this rate limit can be easily exceeded, preventing users from loading configurations.
+
+**Task:** Implement authenticated GitHub API requests to increase the rate limit to 5,000 requests per hour. This will involve:
+
+1. Adding OAuth integration or personal access token support
+2. Implementing secure token storage (localStorage with encryption or browser's credential storage)
+3. Creating a UI for users to configure their GitHub token (Settings page)
+4. Updating all fetch calls in `src/utils/github.ts` to include the Authorization header when a token is available
+5. Implementing fallback to unauthenticated requests if no token is provided
+6. Adding clear documentation on how to create a GitHub personal access token with appropriate permissions (public_repo scope)
+7. Handling token expiration and invalid token errors gracefully

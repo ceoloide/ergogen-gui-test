@@ -93,6 +93,14 @@ const fetchFootprintsFromRepo = async (
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
+      if (response.status === 403) {
+        // Check if it's a rate limit error
+        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+        }
+      }
       console.log(
         `[GitHub] Failed to fetch from ${apiUrl}: ${response.status}`
       );
@@ -151,6 +159,14 @@ const fetchFootprintsFromDirectory = async (
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
+      if (response.status === 403) {
+        // Check if it's a rate limit error
+        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+        }
+      }
       // Directory doesn't exist or is inaccessible, return empty array
       console.log(`[GitHub] Directory not found or inaccessible: ${apiUrl}`);
       return footprints;
@@ -263,6 +279,13 @@ export const fetchConfigFromUrl = async (
   if (!isRepoRoot(baseUrl)) {
     const response = await fetch(getRawUrl(baseUrl));
     if (!response.ok) {
+      if (response.status === 403) {
+        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+        }
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const config = await response.text();
@@ -309,6 +332,13 @@ export const fetchConfigFromUrl = async (
         `https://github.com/${owner}/${repo}/blob/${branch}/.gitmodules`
       );
       const gitmodulesResponse = await fetch(gitmodulesUrl);
+      if (gitmodulesResponse.status === 403) {
+        const rateLimitRemaining = gitmodulesResponse.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+        }
+      }
       if (gitmodulesResponse.ok) {
         console.log('[GitHub] .gitmodules found, parsing submodules');
         const gitmodulesContent = await gitmodulesResponse.text();
@@ -409,7 +439,16 @@ export const fetchConfigFromUrl = async (
 
       try {
         const response = await fetch(apiUrl);
-        if (!response.ok) continue;
+        if (!response.ok) {
+          if (response.status === 403) {
+            const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+            if (rateLimitRemaining === '0') {
+              console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+              throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+            }
+          }
+          continue;
+        }
 
         const items = await response.json();
         if (!Array.isArray(items)) continue;
@@ -417,6 +456,13 @@ export const fetchConfigFromUrl = async (
         for (const item of items) {
           if (item.type === 'file' && item.name.endsWith('.yaml')) {
             const fileResponse = await fetch(item.download_url);
+            if (fileResponse.status === 403) {
+              const rateLimitRemaining = fileResponse.headers.get('X-RateLimit-Remaining');
+              if (rateLimitRemaining === '0') {
+                console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+                throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+              }
+            }
             if (fileResponse.ok) {
               const content = await fileResponse.text();
               const filePath = item.path;
@@ -461,6 +507,14 @@ export const fetchConfigFromUrl = async (
     const rootUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
     let response = await fetch(rootUrl);
 
+    if (response.status === 403) {
+      const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+      if (rateLimitRemaining === '0') {
+        console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+        throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+      }
+    }
+
     if (response.ok) {
       config = await response.text();
       configPath = '';
@@ -471,6 +525,14 @@ export const fetchConfigFromUrl = async (
         `${baseUrl}/blob/${branch}/ergogen/config.yaml`
       );
       response = await fetch(ergogenUrl);
+
+      if (response.status === 403) {
+        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+        }
+      }
 
       if (response.ok) {
         config = await response.text();
@@ -542,6 +604,13 @@ export const fetchConfigFromUrl = async (
     try {
       const gitmodulesUrl = getRawUrl(`${baseUrl}/blob/${branch}/.gitmodules`);
       const gitmodulesResponse = await fetch(gitmodulesUrl);
+      if (gitmodulesResponse.status === 403) {
+        const rateLimitRemaining = gitmodulesResponse.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
+          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+        }
+      }
       if (gitmodulesResponse.ok) {
         console.log('[GitHub] .gitmodules found, parsing submodules');
         const gitmodulesContent = await gitmodulesResponse.text();
