@@ -116,6 +116,12 @@ When a user provides a GitHub repository URL (e.g., `user/repo` or `https://gith
    - Constructs footprint names from the folder path and filename (e.g., `folder1/folder2/file_name`)
    - Uses the GitHub API to traverse directories
 
+3. **Handles Git Submodules**: Checks for `.gitmodules` file in the repository root:
+   - Parses the `.gitmodules` file to find submodules within the footprints folder
+   - For each matching submodule, fetches the submodule repository recursively
+   - Loads all `.js` files from the submodule and prefixes names with the relative path
+   - Example: A submodule at `footprints/external` with `switch.js` becomes `external/switch`
+
 ### Conflict Resolution
 
 When loading footprints from GitHub, the application checks for naming conflicts with existing custom footprints. If a conflict is detected:
@@ -129,7 +135,10 @@ When loading footprints from GitHub, the application checks for naming conflicts
 
 ### Implementation Files
 
-- **`src/utils/github.ts`**: Contains `fetchConfigFromUrl` function that returns both config and footprints, plus `fetchFootprintsFromDirectory` for recursive directory traversal
+- **`src/utils/github.ts`**: Contains `fetchConfigFromUrl` function that returns both config and footprints, plus helper functions:
+  - `fetchFootprintsFromDirectory`: Recursive directory traversal for a single directory
+  - `fetchFootprintsFromRepo`: Recursive traversal of an entire repository (for submodules)
+  - `parseGitmodules`: Parses `.gitmodules` file to extract submodule paths and URLs
 - **`src/utils/injections.ts`**: Utility functions for conflict detection (`checkForConflict`), unique name generation (`generateUniqueName`), and merging injections (`mergeInjections`)
 - **`src/molecules/ConflictResolutionDialog.tsx`**: React component for the conflict resolution UI
 - **`src/pages/Welcome.tsx`**: Orchestrates the loading process, handles conflicts sequentially, and manages dialog state

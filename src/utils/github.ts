@@ -28,6 +28,102 @@ export type GitHubLoadResult = {
 };
 
 /**
+ * Parses .gitmodules content to extract submodule information.
+ * @param {string} content - The content of the .gitmodules file.
+ * @returns {Array<{path: string, url: string}>} Array of submodule objects.
+ */
+const parseGitmodules = (
+  content: string
+): Array<{ path: string; url: string }> => {
+  const submodules: Array<{ path: string; url: string }> = [];
+  const lines = content.split('\n');
+  let currentSubmodule: { path?: string; url?: string } = {};
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('[submodule')) {
+      // Start of a new submodule
+      if (currentSubmodule.path && currentSubmodule.url) {
+        submodules.push({
+          path: currentSubmodule.path,
+          url: currentSubmodule.url,
+        });
+      }
+      currentSubmodule = {};
+    } else if (trimmed.startsWith('path =')) {
+      currentSubmodule.path = trimmed.substring(7).trim();
+    } else if (trimmed.startsWith('url =')) {
+      currentSubmodule.url = trimmed.substring(6).trim();
+    }
+  }
+
+  // Add the last submodule if exists
+  if (currentSubmodule.path && currentSubmodule.url) {
+    submodules.push({
+      path: currentSubmodule.path,
+      url: currentSubmodule.url,
+    });
+  }
+
+  return submodules;
+};
+
+/**
+ * Recursively fetches all .js files from a GitHub repository.
+ * @param {string} owner - The repository owner.
+ * @param {string} repo - The repository name.
+ * @param {string} branch - The branch to fetch from.
+ * @param {string} basePath - The base path for constructing footprint names.
+ * @returns {Promise<GitHubFootprint[]>} A promise that resolves with the list of footprints.
+ */
+const fetchFootprintsFromRepo = async (
+  owner: string,
+  repo: string,
+  branch: string,
+  basePath: string = ''
+): Promise<GitHubFootprint[]> => {
+  const footprints: GitHubFootprint[] = [];
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${basePath ? basePath : ''}?ref=${branch}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      return footprints;
+    }
+
+    const items = await response.json();
+
+    for (const item of items) {
+      if (item.type === 'file' && item.name.endsWith('.js')) {
+        // Fetch the content of the .js file
+        const contentResponse = await fetch(item.download_url);
+        if (contentResponse.ok) {
+          const content = await contentResponse.text();
+          // Construct the footprint name from path and filename without extension
+          const fileName = item.name.replace(/\.js$/, '');
+          const name = basePath ? `${basePath}/${fileName}` : fileName;
+          footprints.push({ name, content });
+        }
+      } else if (item.type === 'dir') {
+        // Recursively fetch from subdirectory
+        const subPath = basePath ? `${basePath}/${item.name}` : item.name;
+        const subFootprints = await fetchFootprintsFromRepo(
+          owner,
+          repo,
+          branch,
+          subPath
+        );
+        footprints.push(...subFootprints);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to fetch footprints from repo:', error);
+  }
+
+  return footprints;
+};
+
+/**
  * Recursively fetches all .js files from a GitHub directory and its subdirectories.
  * @param {string} apiUrl - The GitHub API URL for the directory.
  * @param {string} basePath - The base path for constructing footprint names.
@@ -199,6 +295,65 @@ export const fetchConfigFromUrl = async (
       : 'footprints';
     const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
     const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
+
+    // Check for .gitmodules to handle submodules
+    try {
+      const gitmodulesUrl = getRawUrl(`${baseUrl}/blob/${branch}/.gitmodules`);
+      const gitmodulesResponse = await fetch(gitmodulesUrl);
+      if (gitmodulesResponse.ok) {
+        const gitmodulesContent = await gitmodulesResponse.text();
+        const submodules = parseGitmodules(gitmodulesContent);
+
+        // Filter submodules that are within the footprints folder
+        for (const submodule of submodules) {
+          if (submodule.path.startsWith(footprintsPath)) {
+            // Extract owner and repo from submodule URL
+            const submoduleMatch = submodule.url.match(
+              /github\.com[/:]([^/]+)\/([^/.]+)/
+            );
+            if (submoduleMatch) {
+              const [, subOwner, subRepo] = submoduleMatch;
+              // Calculate the relative path for naming
+              const relativePath = submodule.path.substring(
+                footprintsPath.length + 1
+              );
+              // Try both main and master branches for the submodule
+              let submoduleFootprints: GitHubFootprint[] = [];
+              try {
+                submoduleFootprints = await fetchFootprintsFromRepo(
+                  subOwner,
+                  subRepo,
+                  'main',
+                  ''
+                );
+              } catch (_e) {
+                try {
+                  submoduleFootprints = await fetchFootprintsFromRepo(
+                    subOwner,
+                    subRepo,
+                    'master',
+                    ''
+                  );
+                } catch (_e2) {
+                  console.warn(
+                    `Failed to fetch submodule footprints from ${submodule.url}`
+                  );
+                }
+              }
+              // Prefix the footprint names with the relative path
+              const prefixedFootprints = submoduleFootprints.map((fp) => ({
+                name: relativePath ? `${relativePath}/${fp.name}` : fp.name,
+                content: fp.content,
+              }));
+              footprints.push(...prefixedFootprints);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      // .gitmodules doesn't exist or couldn't be parsed, continue without submodules
+      console.warn('No .gitmodules found or failed to parse:', error);
+    }
 
     return { config, footprints, configPath };
   };
