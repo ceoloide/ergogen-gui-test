@@ -4,6 +4,7 @@ import { useConfigContext } from '../context/ConfigContext';
 import DiscordIcon from './DiscordIcon';
 import GithubIcon from './GithubIcon';
 import { theme } from '../theme/theme';
+import { createZip } from '../utils/zip';
 
 /**
  * A styled container for the entire header.
@@ -61,7 +62,7 @@ const AppName = styled.div`
   font-size: ${theme.fontSizes.base};
   font-weight: ${theme.fontWeights.semiBold};
   color: ${theme.colors.white};
-  @media (max-width: 410px) {
+  @media (max-width: 420px) {
     display: none;
   }
 `;
@@ -74,7 +75,7 @@ const VersionText = styled.a`
   color: ${theme.colors.accent};
   text-decoration: none;
   align-items: center;
-  @media (max-width: 345px) {
+  @media (max-width: 350px) {
     display: none;
   }
 `;
@@ -160,6 +161,12 @@ const AccentIconButton = styled(OutlineIconButton)`
   }
 `;
 
+const ArchiveIconButton = styled(OutlineIconButton)`
+  @media (max-width: 639px) {
+    display: none;
+  }
+`;
+
 /**
  * A responsive button that is only visible on smaller screens.
  * Note: This component is defined but not currently used in the Header.
@@ -202,6 +209,24 @@ const Header = (): JSX.Element => {
     navigate('/new');
   };
 
+  const handleDownloadArchive = () => {
+    if (
+      !configContext?.results ||
+      !configContext?.configInput ||
+      configContext?.isGenerating ||
+      configContext?.isJscadConverting
+    ) {
+      return;
+    }
+    createZip(
+      configContext.results,
+      configContext.configInput,
+      configContext.injectionInput,
+      configContext.debug,
+      configContext.stlPreview
+    );
+  };
+
   return (
     <HeaderContainer>
       <LeftContainer>
@@ -235,6 +260,18 @@ const Header = (): JSX.Element => {
           >
             <span className="material-symbols-outlined">add_2</span>
           </AccentIconButton>
+        )}
+        {location.pathname === '/' && (
+          <ArchiveIconButton
+            onClick={handleDownloadArchive}
+            disabled={
+              configContext?.isGenerating || configContext?.isJscadConverting
+            }
+            aria-label="Download archive of all generated files"
+            data-testid="header-download-outputs-button"
+          >
+            <span className="material-symbols-outlined">archive</span>
+          </ArchiveIconButton>
         )}
         <DocsButton
           href="https://docs.ergogen.xyz/"

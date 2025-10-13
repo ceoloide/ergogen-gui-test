@@ -158,6 +158,7 @@ type ContextProps = {
   setStlPreview: Dispatch<SetStateAction<boolean>>;
   experiment: string | null;
   isGenerating: boolean;
+  isJscadConverting: boolean;
 };
 
 /**
@@ -239,8 +240,7 @@ const ConfigContextProvider = ({
 
   // Config version tracking
   const currentConfigVersion = useRef<number>(0);
-  // Track if JSCAD conversion is in progress (internal state)
-  const [_isJscadConverting, setIsJscadConverting] = useState<boolean>(false);
+  const [isJscadConverting, setIsJscadConverting] = useState<boolean>(false);
 
   useEffect(() => {
     console.log('--- ConfigContextProvider mounted ---');
@@ -631,6 +631,7 @@ const ConfigContextProvider = ({
       setStlPreview,
       experiment,
       isGenerating,
+      isJscadConverting,
     }),
     [
       configInput,
@@ -665,6 +666,7 @@ const ConfigContextProvider = ({
       setStlPreview,
       experiment,
       isGenerating,
+      isJscadConverting,
     ]
   );
 
