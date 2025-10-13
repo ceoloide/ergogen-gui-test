@@ -174,8 +174,10 @@ const Welcome = () => {
     footprints: GitHubFootprint[],
     config: string,
     resolution: ConflictResolution | null = null
-  ) => {
-    if (!configContext) return;
+  ): Promise<void> => {
+    if (!configContext) {
+      throw new Error('Configuration context not available');
+    }
 
     if (footprints.length === 0) {
       // No footprints to process, just load the config
@@ -273,6 +275,10 @@ const Welcome = () => {
     setPendingFootprints([]);
     setPendingConfig(null);
     setIsLoading(false);
+    // Show error message that loading was cancelled
+    if (configContext) {
+      configContext.setError('Loading cancelled by user');
+    }
   };
 
   const handleGitHub = () => {
@@ -280,15 +286,30 @@ const Welcome = () => {
     const { setError, clearError } = configContext;
     setIsLoading(true);
     clearError();
+
+    // Reset any pending conflict resolution state from previous loads
+    setCurrentConflict(null);
+    setPendingFootprints([]);
+    setPendingConfig(null);
+
     fetchConfigFromUrl(githubInput)
       .then(async (result) => {
         if (configContext) {
-          // Process footprints with conflict resolution
-          await processFootprints(result.footprints, result.config);
+          try {
+            // Process footprints with conflict resolution
+            await processFootprints(result.footprints, result.config);
+          } catch (error) {
+            // If footprint processing fails, don't load the config
+            throw new Error(
+              `Failed to process footprints: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+          }
         }
       })
       .catch((e) => {
-        setError(`Failed to fetch config from GitHub: ${e.message}`);
+        setError(`Failed to load from GitHub: ${e.message}`);
+        // Ensure we reset loading state and don't navigate
+        setIsLoading(false);
       })
       .finally(() => {
         setIsLoading(false);

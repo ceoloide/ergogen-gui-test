@@ -569,23 +569,30 @@ const ConfigContextProvider = ({
     if (githubUrl) {
       fetchConfigFromUrl(githubUrl)
         .then(async (result) => {
-          // Import mergeInjections to handle footprints
-          const { mergeInjections } = await import('../utils/injections');
+          try {
+            // Import mergeInjections to handle footprints
+            const { mergeInjections } = await import('../utils/injections');
 
-          // Merge footprints with existing injections using 'overwrite' strategy
-          // This ensures GitHub footprints take precedence when loading from URL
-          const mergedInjections = mergeInjections(
-            result.footprints,
-            injectionInput,
-            'overwrite'
-          );
+            // Merge footprints with existing injections using 'overwrite' strategy
+            // This ensures GitHub footprints take precedence when loading from URL
+            const mergedInjections = mergeInjections(
+              result.footprints,
+              injectionInput,
+              'overwrite'
+            );
 
-          setInjectionInput(mergedInjections);
-          setConfigInput(result.config);
-          generateNow(result.config, mergedInjections, { pointsonly: false });
+            setInjectionInput(mergedInjections);
+            setConfigInput(result.config);
+            generateNow(result.config, mergedInjections, { pointsonly: false });
+          } catch (error) {
+            // If footprint processing fails, don't load the config
+            throw new Error(
+              `Failed to process footprints: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+          }
         })
         .catch((e) => {
-          setError(`Failed to fetch config from GitHub: ${e.message}`);
+          setError(`Failed to load from GitHub: ${e.message}`);
         });
     } else if (configInput) {
       generateNow(configInput, injectionInput, { pointsonly: false });

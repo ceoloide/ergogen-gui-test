@@ -143,4 +143,83 @@ test.describe('GitHub Loading', () => {
     logs.forEach((log) => console.log(log));
     console.log('=== End GitHub Logs ===\n');
   });
+
+  test('should accumulate footprints from sequential loads and reset conflict dialog', async ({
+    page,
+  }) => {
+    const shoot = makeShooter(page, test.info());
+
+    // Navigate to the welcome page
+    await page.goto('/new');
+
+    // Find the GitHub input and load button
+    const githubInput = page.getByTestId('github-input');
+    const loadButton = page.getByTestId('github-load-button');
+
+    // Load first repository
+    await githubInput.fill(
+      'https://github.com/unspecworks/gamma-omega/blob/main/original/ergogen/config.yaml'
+    );
+    await loadButton.click();
+    await shoot('first-repo-loading');
+
+    // Wait for the config to be loaded
+    await expect(page).toHaveURL(/.*\/$/, { timeout: 30000 });
+    await shoot('first-repo-loaded');
+
+    // Wait for config editor to be visible
+    await expect(page.getByTestId('config-editor')).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Open settings and verify first footprint
+    let settingsButton = page.getByTestId('settings-toggle-button');
+    await settingsButton.click();
+    await shoot('settings-opened-first');
+
+    await expect(page.getByTestId('injections-container')).toBeVisible({
+      timeout: 5000,
+    });
+
+    // Check for unspecworks/pico_oneside footprint
+    const unspecworksFootprint = page.getByTestId(
+      'injections-container-unspecworks/pico_oneside'
+    );
+    await expect(unspecworksFootprint).toBeVisible();
+    await shoot('unspecworks-footprint-present');
+
+    // Navigate back to welcome page
+    const newConfigButton = page.getByTestId('new-config-button');
+    await newConfigButton.click();
+    await expect(page).toHaveURL(/.*\/new/, { timeout: 5000 });
+    await shoot('back-to-welcome');
+
+    // Load second repository
+    await githubInput.fill('ceoloide/mr_useful');
+    await loadButton.click();
+    await shoot('second-repo-loading');
+
+    // Wait for the config to be loaded
+    await expect(page).toHaveURL(/.*\/$/, { timeout: 30000 });
+    await shoot('second-repo-loaded');
+
+    // Open settings and verify both footprints are present
+    settingsButton = page.getByTestId('settings-toggle-button');
+    await settingsButton.click();
+    await shoot('settings-opened-second');
+
+    await expect(page.getByTestId('injections-container')).toBeVisible({
+      timeout: 5000,
+    });
+
+    // Both footprints should be present
+    const logoFootprint = page.getByTestId(
+      'injections-container-logo_mr_useful'
+    );
+    await expect(logoFootprint).toBeVisible();
+    await expect(unspecworksFootprint).toBeVisible();
+    await shoot('both-footprints-present');
+
+    console.log('Sequential loading test completed successfully');
+  });
 });
