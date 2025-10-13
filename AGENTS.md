@@ -23,6 +23,7 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 
 - **CRITICAL:** You **MUST** run `yarn precommit` before every commit. This command formats, lints, checks for unused dependencies, and runs the entire test suite. Address all errors before proceeding. Warnings can be ignored, but should be mentioned as potential follow-up tasks.
 - **Update AGENTS.md**: You **MUST** update the `AGENTS.md` file to reflect any significant changes to the application's architecture, component structure, or development workflow. This ensures the knowledge base remains current.
+- **Update CHANGELOG.md**: For every major change or PR, you **MUST** add an entry to `CHANGELOG.md`. See the Changelog section below for formatting guidelines.
 
 ## Design principles
 
@@ -49,6 +50,60 @@ This project is a React-based web interface for the [Ergogen](https://github.com
   - The change addresses **just one thing**. This is usally just one part of a feature, rather than the whole feature at once.
   - The change should include related test code.
   - The commit description should explain what the committed changes aim to address. Avoid repeating the same general context, and focus on information that makes it possible for the reviewer to understand the change and the reasoning behind it. Briefly call out things that will be implemented at a later stage, but avoid including too much future planning.
+
+## Changelog
+
+The `CHANGELOG.md` file tracks user-facing changes to the application in reverse chronological order (newest first). Each entry should be written in a blog post style that non-technical users can understand.
+
+### Changelog Entry Format
+
+**Title**: Use format "## Brief Feature Title"
+
+**Date**: Use format "_Month DD, YYYY_"
+
+**Image**: Use format: ![A description of a screenshot of the feature.](./public/images/changelog/placeholder.png)
+
+**Opening Paragraph**: Describe the user problem or challenge that existed before the change. Make it relatable and concrete.
+
+**Middle Paragraphs**: Explain how the feature solves the problem. Focus on benefits and user experience, avoiding technical jargon. Keep the total entry under 300 words (maximum 500 words).
+
+**What changed section**: End with a bulleted list under "**What changed:**" that provides specific details:
+- Use present tense and active voice
+- Focus on user-visible changes, not implementation details
+- Keep bullets concise (one line each)
+- Highlight the most impactful changes first
+
+**Example structure:**
+```markdown
+## Feature Title
+_Month DD, YYYY-
+
+![A description of a screenshot of the feature.](./public/images/changelog/placeholder.png)
+
+[Problem description - 1-2 sentences about what was difficult before]
+
+[Solution explanation - 2-3 sentences about how it works now and why it's better]
+
+**What changed:**
+
+- **Key feature**: Brief description of what users can now do
+- **Another feature**: How it improves the experience
+- **Supporting feature**: Additional benefit or capability
+```
+
+### When to Add Changelog Entries
+
+Add an entry for:
+- New user-facing features
+- Significant improvements to existing features
+- Bug fixes that notably impact user experience
+- Changes to workflows or user interactions
+
+Skip entries for:
+- Internal refactoring without user-visible changes
+- Dependency updates
+- Minor bug fixes
+- Documentation-only changes
 
 ## Knowledge base
 
@@ -97,6 +152,80 @@ The application offloads long-running, computationally intensive tasks to Web Wo
 - **`jscad.worker.ts`**: This worker handles 3D geometry processing. It receives the output from the Ergogen worker and uses JSCAD to generate 3D models for previewing. It is also responsible for converting these models into the STL format for downloading.
 
 Communication with the workers is managed through a standard message-passing system (`postMessage` and `onmessage`), with the main application thread and workers exchanging data as needed.
+
+## GitHub Integration
+
+The application supports loading Ergogen configurations directly from GitHub repositories. This feature has been extended to include automatic footprint loading.
+
+### Loading from GitHub
+
+When a user provides a GitHub repository URL (e.g., `user/repo` or `https://github.com/user/repo`), the application:
+
+1. **Fetches the configuration file**: Attempts to load `config.yaml` from standard locations:
+   - Root directory: `/config.yaml`
+   - Ergogen subdirectory: `/ergogen/config.yaml`
+   - Tries both `main` and `master` branches
+
+2. **Fetches footprints**: Recursively scans for a `footprints` folder alongside the config file:
+   - Searches for `.js` files at any depth within the `footprints` folder
+   - Constructs footprint names from the folder path and filename (e.g., `folder1/folder2/file_name`)
+   - Uses the GitHub API to traverse directories
+
+3. **Handles Git Submodules**: Checks for `.gitmodules` file in the repository root:
+   - Parses the `.gitmodules` file to find submodules within the footprints folder
+   - For each matching submodule, fetches the submodule repository recursively
+   - Loads all `.js` files from the submodule and prefixes names with the relative path
+   - Example: A submodule at `footprints/external` with `switch.js` becomes `external/switch`
+
+### Conflict Resolution
+
+When loading footprints from GitHub, the application checks for naming conflicts with existing custom footprints. If a conflict is detected:
+
+1. A `ConflictResolutionDialog` is displayed to the user with three options:
+   - **Skip**: The new footprint is not loaded
+   - **Overwrite**: The new footprint replaces the existing one
+   - **Keep Both**: Both footprints are retained; the new one gets a unique name with an incremental suffix (e.g., `footprint_1`)
+
+2. An "Apply to all conflicts" checkbox allows the user to use the same resolution strategy for all subsequent conflicts in the current load operation.
+
+### Implementation Files
+
+- **`src/utils/github.ts`**: Contains `fetchConfigFromUrl` function that returns both config and footprints, plus helper functions:
+  - `fetchFootprintsFromDirectory`: Recursive directory traversal for a single directory
+  - `fetchFootprintsFromRepo`: Recursive traversal of an entire repository (for submodules)
+  - `parseGitmodules`: Parses `.gitmodules` file to extract submodule paths and URLs
+  - `bfsForYamlFiles`: Performs breadth-first search to find YAML files in repository
+- **`src/utils/injections.ts`**: Utility functions for conflict detection (`checkForConflict`), unique name generation (`generateUniqueName`), and merging injections (`mergeInjections`)
+- **`src/molecules/ConflictResolutionDialog.tsx`**: React component for the conflict resolution UI
+- **`src/pages/Welcome.tsx`**: Orchestrates the loading process, handles conflicts sequentially, and manages dialog state
+
+### GitHub API Rate Limiting
+
+The GitHub loading functionality uses unauthenticated requests, which are subject to GitHub's rate limits:
+
+#### API Requests (api.github.com)
+
+- **Rate Limit**: 60 requests per hour for unauthenticated requests
+- **Detection**: The code checks for HTTP 403 status with `X-RateLimit-Remaining: 0` header
+- **80% Warning**: Displays warning when 80% of hourly allowance is consumed
+- **User Feedback**: When rate limit is exceeded, a clear error message is displayed: "Cannot load from GitHub right now. You've used your hourly request allowance. Please wait about an hour and try again."
+- **Graceful Handling**: The loading process continues even if rate limit is hit, just showing the error to the user
+- **Console Logging**: All rate limit headers (Limit, Remaining, Used, Reset) are logged with `[GitHub Rate Limit]` prefix
+
+#### Raw Content Requests (raw.githubusercontent.com)
+
+- **Rate Limit**: 5,000 requests per hour for unauthenticated requests
+- **Detection**: The code checks for HTTP 429 status
+- **User Feedback**: When rate limit is exceeded, displays: "You've reached your hourly request allowance for loading content from GitHub. Please wait 30 minutes and try again."
+- **No 80% Warning**: raw.githubusercontent.com doesn't provide rate limit headers, so proactive warnings are not possible
+- **Graceful Handling**: The loading process continues even if rate limit is hit, just showing the error to the user
+
+**Future Enhancement**: Implement authenticated GitHub API requests to increase API rate limit to 5,000 requests per hour. This would require:
+
+- OAuth integration or personal access token support
+- Secure token storage
+- UI for token configuration
+- Fallback to unauthenticated requests if no token is provided
 
 ## Future Tasks
 
@@ -158,3 +287,17 @@ Proposed Fix: I will break down the runGeneration function into several smaller,
 **Context:** After migrating the JSCAD worker to use the new `convert` API, we continue to request ASCII `stla` output and decode it into strings for compatibility. This maintains current behavior but increases payload size and requires extra decoding logic in the worker.
 
 **Task:** Investigate switching to binary `stlb` output with typed array handling end-to-end. Update the worker and download pipeline to support binary blobs without manual header replacement, ensuring previews and downloads still function as expected.
+
+### [TASK-008] Implement Authenticated GitHub API Requests
+
+**Context:** The GitHub loading functionality currently uses unauthenticated API requests, which are limited to 60 requests per hour. For repositories with many footprints or submodules, this rate limit can be easily exceeded, preventing users from loading configurations.
+
+**Task:** Implement authenticated GitHub API requests to increase the rate limit to 5,000 requests per hour. This will involve:
+
+1. Adding OAuth integration or personal access token support
+2. Implementing secure token storage (localStorage with encryption or browser's credential storage)
+3. Creating a UI for users to configure their GitHub token (Settings page)
+4. Updating all fetch calls in `src/utils/github.ts` to include the Authorization header when a token is available
+5. Implementing fallback to unauthenticated requests if no token is provided
+6. Adding clear documentation on how to create a GitHub personal access token with appropriate permissions (public_repo scope)
+7. Handling token expiration and invalid token errors gracefully

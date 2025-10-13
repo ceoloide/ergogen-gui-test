@@ -158,6 +158,7 @@ type ContextProps = {
   setStlPreview: Dispatch<SetStateAction<boolean>>;
   experiment: string | null;
   isGenerating: boolean;
+  setIsGenerating: Dispatch<SetStateAction<boolean>>;
   isJscadConverting: boolean;
 };
 
@@ -567,13 +568,68 @@ const ConfigContextProvider = ({
     const queryParameters = new URLSearchParams(window.location.search);
     const githubUrl = queryParameters.get('github');
     if (githubUrl) {
+      console.log('[ConfigContext] Loading from URL parameter:', githubUrl);
       fetchConfigFromUrl(githubUrl)
-        .then((data) => {
-          setConfigInput(data);
-          generateNow(data, injectionInput, { pointsonly: false });
+        .then(async (result) => {
+          console.log('[ConfigContext] Fetch result:', {
+            configLength: result.config.length,
+            footprintsCount: result.footprints.length,
+            configPath: result.configPath,
+            rateLimitWarning: result.rateLimitWarning,
+          });
+          console.log(
+            '[ConfigContext] Footprints:',
+            result.footprints.map((f) => f.name)
+          );
+
+          // Show rate limit warning if present
+          if (result.rateLimitWarning) {
+            setError(result.rateLimitWarning);
+          }
+
+          try {
+            // Import mergeInjections to handle footprints
+            const { mergeInjections } = await import('../utils/injections');
+
+            console.log(
+              '[ConfigContext] Current injectionInput before merge:',
+              injectionInput
+            );
+
+            // Merge footprints with existing injections using 'overwrite' strategy
+            // This ensures GitHub footprints take precedence when loading from URL
+            const mergedInjections = mergeInjections(
+              result.footprints,
+              injectionInput,
+              'overwrite'
+            );
+
+            console.log(
+              '[ConfigContext] Merged injections count:',
+              mergedInjections.length
+            );
+            console.log(
+              '[ConfigContext] Merged injections:',
+              mergedInjections.map((inj) => inj[1])
+            );
+
+            setInjectionInput(mergedInjections);
+            setConfigInput(result.config);
+            generateNow(result.config, mergedInjections, { pointsonly: false });
+          } catch (error) {
+            // If footprint processing fails, don't load the config
+            console.error(
+              '[ConfigContext] Error processing footprints:',
+              error
+            );
+            throw new Error(
+              `Failed to process footprints: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+          }
         })
         .catch((e) => {
-          setError(`Failed to fetch config from GitHub: ${e.message}`);
+          console.error('[ConfigContext] Failed to load from GitHub:', e);
+          setError(`Failed to load from GitHub: ${e.message}`);
         });
     } else if (configInput) {
       generateNow(configInput, injectionInput, { pointsonly: false });
@@ -631,6 +687,7 @@ const ConfigContextProvider = ({
       setStlPreview,
       experiment,
       isGenerating,
+      setIsGenerating,
       isJscadConverting,
     }),
     [
@@ -666,6 +723,7 @@ const ConfigContextProvider = ({
       setStlPreview,
       experiment,
       isGenerating,
+      setIsGenerating,
       isJscadConverting,
     ]
   );
