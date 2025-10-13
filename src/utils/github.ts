@@ -282,85 +282,102 @@ export const fetchConfigFromUrl = async (
     console.log(
       '[GitHub] Direct config.yaml link, attempting to load footprints'
     );
-    try {
-      // Extract owner, repo, branch, and path from the URL
-      const urlMatch = baseUrl.match(
-        /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/
+
+    // Extract owner, repo, branch, and path from the URL
+    const urlMatch = baseUrl.match(
+      /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/
+    );
+    if (!urlMatch) {
+      console.warn(
+        '[GitHub] Could not parse direct file URL, skipping footprints'
       );
-      if (urlMatch) {
-        const [, owner, repo, branch, filePath] = urlMatch;
-        const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
-        const footprintsPath = dirPath ? `${dirPath}/footprints` : 'footprints';
+      return { config, footprints: [], configPath: '' };
+    }
 
-        const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
-        const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
+    const [, owner, repo, branch, filePath] = urlMatch;
+    const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
+    const footprintsPath = dirPath ? `${dirPath}/footprints` : 'footprints';
+    console.log(`[GitHub] Looking for footprints in: ${footprintsPath}`);
 
-        // Check for submodules
-        const gitmodulesUrl = getRawUrl(
-          `https://github.com/${owner}/${repo}/blob/${branch}/.gitmodules`
-        );
-        const gitmodulesResponse = await fetch(gitmodulesUrl);
-        if (gitmodulesResponse.ok) {
-          const gitmodulesContent = await gitmodulesResponse.text();
-          const submodules = parseGitmodules(gitmodulesContent);
+    const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
+    const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
 
-          for (const submodule of submodules) {
-            if (submodule.path.startsWith(footprintsPath)) {
-              const submoduleMatch = submodule.url.match(
-                /github\.com[/:]([^/]+)\/([^/.]+)/
+    // Check for submodules
+    console.log('[GitHub] Checking for .gitmodules file');
+    try {
+      const gitmodulesUrl = getRawUrl(
+        `https://github.com/${owner}/${repo}/blob/${branch}/.gitmodules`
+      );
+      const gitmodulesResponse = await fetch(gitmodulesUrl);
+      if (gitmodulesResponse.ok) {
+        console.log('[GitHub] .gitmodules found, parsing submodules');
+        const gitmodulesContent = await gitmodulesResponse.text();
+        const submodules = parseGitmodules(gitmodulesContent);
+
+        for (const submodule of submodules) {
+          if (submodule.path.startsWith(footprintsPath)) {
+            console.log(
+              `[GitHub] Processing submodule: ${submodule.path} -> ${submodule.url}`
+            );
+            const submoduleMatch = submodule.url.match(
+              /github\.com[/:]([^/]+)\/([^/.]+)/
+            );
+            if (submoduleMatch) {
+              const [, subOwner, subRepo] = submoduleMatch;
+              const relativePath = submodule.path.substring(
+                footprintsPath.length + 1
               );
-              if (submoduleMatch) {
-                const [, subOwner, subRepo] = submoduleMatch;
-                const relativePath = submodule.path.substring(
-                  footprintsPath.length + 1
-                );
+              console.log(`[GitHub] Submodule relative path: ${relativePath}`);
 
-                let submoduleFootprints: GitHubFootprint[] = [];
+              let submoduleFootprints: GitHubFootprint[] = [];
+              try {
+                submoduleFootprints = await fetchFootprintsFromRepo(
+                  subOwner,
+                  subRepo,
+                  'main',
+                  ''
+                );
+              } catch (_e) {
                 try {
                   submoduleFootprints = await fetchFootprintsFromRepo(
                     subOwner,
                     subRepo,
-                    'main',
+                    'master',
                     ''
                   );
-                } catch (_e) {
-                  try {
-                    submoduleFootprints = await fetchFootprintsFromRepo(
-                      subOwner,
-                      subRepo,
-                      'master',
-                      ''
-                    );
-                  } catch (_e2) {
-                    console.warn(
-                      `Failed to fetch submodule footprints from ${submodule.url}`
-                    );
-                  }
+                } catch (_e2) {
+                  console.warn(
+                    `Failed to fetch submodule footprints from ${submodule.url}`
+                  );
                 }
-
-                const prefixedFootprints = submoduleFootprints.map((fp) => ({
-                  name: relativePath ? `${relativePath}/${fp.name}` : fp.name,
-                  content: fp.content,
-                }));
-                footprints.push(...prefixedFootprints);
               }
+
+              const prefixedFootprints = submoduleFootprints.map((fp) => ({
+                name: relativePath ? `${relativePath}/${fp.name}` : fp.name,
+                content: fp.content,
+              }));
+              console.log(
+                `[GitHub] Added ${prefixedFootprints.length} footprints from submodule ${submodule.path}`
+              );
+              footprints.push(...prefixedFootprints);
             }
+          } else {
+            console.log(
+              `[GitHub] Skipping submodule (not in footprints): ${submodule.path}`
+            );
           }
         }
-
-        console.log(
-          `[GitHub] Loaded ${footprints.length} footprints from direct link`
-        );
-        return { config, footprints, configPath: dirPath };
+      } else {
+        console.log('[GitHub] No .gitmodules file found');
       }
     } catch (error) {
-      console.warn(
-        '[GitHub] Failed to load footprints for direct config.yaml link:',
-        error
-      );
+      console.warn('[GitHub] Error checking for .gitmodules:', error);
     }
 
-    return { config, footprints: [], configPath: '' };
+    console.log(
+      `[GitHub] Loaded ${footprints.length} footprints from direct link`
+    );
+    return { config, footprints, configPath: dirPath };
   }
 
   /**
