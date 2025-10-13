@@ -568,9 +568,21 @@ const ConfigContextProvider = ({
     const githubUrl = queryParameters.get('github');
     if (githubUrl) {
       fetchConfigFromUrl(githubUrl)
-        .then((result) => {
+        .then(async (result) => {
+          // Import mergeInjections to handle footprints
+          const { mergeInjections } = await import('../utils/injections');
+
+          // Merge footprints with existing injections using 'overwrite' strategy
+          // This ensures GitHub footprints take precedence when loading from URL
+          const mergedInjections = mergeInjections(
+            result.footprints,
+            injectionInput,
+            'overwrite'
+          );
+
+          setInjectionInput(mergedInjections);
           setConfigInput(result.config);
-          generateNow(result.config, injectionInput, { pointsonly: false });
+          generateNow(result.config, mergedInjections, { pointsonly: false });
         })
         .catch((e) => {
           setError(`Failed to fetch config from GitHub: ${e.message}`);

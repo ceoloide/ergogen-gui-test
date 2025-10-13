@@ -156,6 +156,77 @@ describe('ConfigContextProvider', () => {
     fetchSpy.mockRestore();
   });
 
+  it('should load footprints from github url parameter and merge them', async () => {
+    const fetchSpy = jest.spyOn(window, 'fetch').mockImplementation((url) => {
+      if (
+        url ===
+        'https://raw.githubusercontent.com/ceoloide/test-repo/main/config.yaml'
+      ) {
+        return Promise.resolve(new Response(mockConfig, { status: 200 }));
+      }
+      if (
+        typeof url === 'string' &&
+        url.includes('api.github.com/repos') &&
+        url.includes('footprints')
+      ) {
+        // Return a footprint
+        return Promise.resolve(
+          new Response(
+            JSON.stringify([
+              {
+                type: 'file',
+                name: 'test_footprint.js',
+                download_url:
+                  'https://raw.githubusercontent.com/ceoloide/test-repo/main/footprints/test_footprint.js',
+              },
+            ]),
+            { status: 200 }
+          )
+        );
+      }
+      if (
+        url ===
+        'https://raw.githubusercontent.com/ceoloide/test-repo/main/footprints/test_footprint.js'
+      ) {
+        return Promise.resolve(
+          new Response('module.exports = {}', { status: 200 })
+        );
+      }
+      if (typeof url === 'string' && url.includes('.gitmodules')) {
+        return Promise.resolve(new Response('', { status: 404 }));
+      }
+      return Promise.resolve(new Response('', { status: 404 }));
+    });
+
+    // Set the URL for the test
+    window.history.pushState({}, 'Test page', '/?github=ceoloide/test-repo');
+
+    const setConfigInputMock = jest.fn();
+
+    render(
+      <ConfigContextProvider configInput="" setConfigInput={setConfigInputMock}>
+        <div></div>
+      </ConfigContextProvider>
+    );
+
+    // Wait for config to be set
+    await waitFor(() => {
+      expect(setConfigInputMock).toHaveBeenCalledWith(mockConfig);
+    });
+
+    // Verify that the footprint was loaded by checking localStorage
+    await waitFor(() => {
+      const injections = localStorage.getItem('ergogen:injection');
+      expect(injections).toBeTruthy();
+      const parsed = JSON.parse(injections as string);
+      expect(parsed).toEqual([
+        ['footprint', 'test_footprint', 'module.exports = {}'],
+      ]);
+    });
+
+    fetchSpy.mockRestore();
+  });
+
   describe('STL Conversion', () => {
     it('should batch convert JSCAD to STL when stlPreview is true', async () => {
       localStorage.setItem('ergogen:config:stlPreview', 'true');
