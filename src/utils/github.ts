@@ -13,12 +13,35 @@ const getRawUrl = (url: string) => {
 /**
  * Checks GitHub API rate limit headers and logs usage information.
  * Returns an error object if rate limit is exceeded or threshold is crossed.
+ * Also handles raw.githubusercontent.com rate limits (HTTP 429).
  * @param {Response} response - The fetch response object.
+ * @param {string} url - The URL being fetched (to determine if it's API or raw content).
  * @returns {{isLimitExceeded: boolean, error: string | null}} Rate limit status.
  */
 const checkRateLimit = (
-  response: Response
+  response: Response,
+  url: string
 ): { isLimitExceeded: boolean; error: string | null } => {
+  // Check if this is a raw content URL (raw.githubusercontent.com)
+  const isRawContent = url.includes('raw.githubusercontent.com');
+
+  if (isRawContent) {
+    // raw.githubusercontent.com uses HTTP 429 for rate limiting
+    if (response.status === 429) {
+      console.warn(
+        '[GitHub] Raw content rate limit exceeded (429). Please wait 30 minutes and try again.'
+      );
+      return {
+        isLimitExceeded: true,
+        error:
+          "You've reached your hourly request allowance for loading content from GitHub. Please wait 30 minutes and try again.",
+      };
+    }
+    // No rate limit headers on raw.githubusercontent.com, so we can't warn at 80%
+    return { isLimitExceeded: false, error: null };
+  }
+
+  // For api.github.com requests, check rate limit headers
   const limit = response.headers.get('X-RateLimit-Limit') || 'unknown';
   const remaining = response.headers.get('X-RateLimit-Remaining') || 'unknown';
   const used = response.headers.get('X-RateLimit-Used') || 'unknown';
@@ -149,7 +172,7 @@ const fetchFootprintsFromRepo = async (
     const response = await fetch(apiUrl);
 
     // Check rate limit
-    const rateLimitCheck = checkRateLimit(response);
+    const rateLimitCheck = checkRateLimit(response, apiUrl);
     if (rateLimitCheck.error && !rateLimitTracker.warning) {
       rateLimitTracker.warning = rateLimitCheck.error;
     }
@@ -172,7 +195,10 @@ const fetchFootprintsFromRepo = async (
         const contentResponse = await fetch(item.download_url);
 
         // Check rate limit for file download
-        const fileRateLimitCheck = checkRateLimit(contentResponse);
+        const fileRateLimitCheck = checkRateLimit(
+          contentResponse,
+          item.download_url
+        );
         if (fileRateLimitCheck.error && !rateLimitTracker.warning) {
           rateLimitTracker.warning = fileRateLimitCheck.error;
         }
@@ -229,7 +255,7 @@ const fetchFootprintsFromDirectory = async (
     const response = await fetch(apiUrl);
 
     // Check rate limit
-    const rateLimitCheck = checkRateLimit(response);
+    const rateLimitCheck = checkRateLimit(response, apiUrl);
     if (rateLimitCheck.error && !rateLimitTracker.warning) {
       rateLimitTracker.warning = rateLimitCheck.error;
     }
@@ -251,7 +277,10 @@ const fetchFootprintsFromDirectory = async (
         const contentResponse = await fetch(item.download_url);
 
         // Check rate limit for file download
-        const fileRateLimitCheck = checkRateLimit(contentResponse);
+        const fileRateLimitCheck = checkRateLimit(
+          contentResponse,
+          item.download_url
+        );
         if (fileRateLimitCheck.error && !rateLimitTracker.warning) {
           rateLimitTracker.warning = fileRateLimitCheck.error;
         }
@@ -439,7 +468,10 @@ export const fetchConfigFromUrl = async (
       const gitmodulesResponse = await fetch(gitmodulesUrl);
 
       // Check rate limit for .gitmodules fetch
-      const gitmodulesRateLimitCheck = checkRateLimit(gitmodulesResponse);
+      const gitmodulesRateLimitCheck = checkRateLimit(
+        gitmodulesResponse,
+        gitmodulesUrl
+      );
       if (gitmodulesRateLimitCheck.error && !rateLimitTracker.warning) {
         rateLimitTracker.warning = gitmodulesRateLimitCheck.error;
       }
@@ -559,7 +591,7 @@ export const fetchConfigFromUrl = async (
         const response = await fetch(apiUrl);
 
         // Check rate limit
-        const bfsRateLimitCheck = checkRateLimit(response);
+        const bfsRateLimitCheck = checkRateLimit(response, apiUrl);
         if (bfsRateLimitCheck.error && !rateLimitTracker.warning) {
           rateLimitTracker.warning = bfsRateLimitCheck.error;
         }
@@ -579,7 +611,10 @@ export const fetchConfigFromUrl = async (
             const fileResponse = await fetch(item.download_url);
 
             // Check rate limit for YAML file download
-            const yamlRateLimitCheck = checkRateLimit(fileResponse);
+            const yamlRateLimitCheck = checkRateLimit(
+              fileResponse,
+              item.download_url
+            );
             if (yamlRateLimitCheck.error && !rateLimitTracker.warning) {
               rateLimitTracker.warning = yamlRateLimitCheck.error;
             }
@@ -634,7 +669,7 @@ export const fetchConfigFromUrl = async (
     let response = await fetch(rootUrl);
 
     // Check rate limit
-    const rateLimitCheck = checkRateLimit(response);
+    const rateLimitCheck = checkRateLimit(response, rootUrl);
     if (rateLimitCheck.error && !rateLimitTracker.warning) {
       rateLimitTracker.warning = rateLimitCheck.error;
     }
@@ -654,7 +689,7 @@ export const fetchConfigFromUrl = async (
       response = await fetch(ergogenUrl);
 
       // Check rate limit
-      const ergogenRateLimitCheck = checkRateLimit(response);
+      const ergogenRateLimitCheck = checkRateLimit(response, ergogenUrl);
       if (ergogenRateLimitCheck.error && !rateLimitTracker.warning) {
         rateLimitTracker.warning = ergogenRateLimitCheck.error;
       }
@@ -744,7 +779,10 @@ export const fetchConfigFromUrl = async (
       const gitmodulesResponse = await fetch(gitmodulesUrl);
 
       // Check rate limit for .gitmodules fetch
-      const gitmodulesRateLimitCheck = checkRateLimit(gitmodulesResponse);
+      const gitmodulesRateLimitCheck = checkRateLimit(
+        gitmodulesResponse,
+        gitmodulesUrl
+      );
       if (gitmodulesRateLimitCheck.error && !rateLimitTracker.warning) {
         rateLimitTracker.warning = gitmodulesRateLimitCheck.error;
       }

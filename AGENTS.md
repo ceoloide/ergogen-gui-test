@@ -146,14 +146,26 @@ When loading footprints from GitHub, the application checks for naming conflicts
 
 ### GitHub API Rate Limiting
 
-The GitHub loading functionality uses unauthenticated API requests, which are subject to GitHub's rate limits:
+The GitHub loading functionality uses unauthenticated requests, which are subject to GitHub's rate limits:
+
+#### API Requests (api.github.com)
 
 - **Rate Limit**: 60 requests per hour for unauthenticated requests
 - **Detection**: The code checks for HTTP 403 status with `X-RateLimit-Remaining: 0` header
-- **User Feedback**: When rate limit is exceeded, a clear error message is displayed: "GitHub API rate limit exceeded. Please wait and try again in about an hour."
+- **80% Warning**: Displays warning when 80% of hourly allowance is consumed
+- **User Feedback**: When rate limit is exceeded, a clear error message is displayed: "Cannot load from GitHub right now. You've used your hourly request allowance. Please wait about an hour and try again."
+- **Graceful Handling**: The loading process continues even if rate limit is hit, just showing the error to the user
+- **Console Logging**: All rate limit headers (Limit, Remaining, Used, Reset) are logged with `[GitHub Rate Limit]` prefix
+
+#### Raw Content Requests (raw.githubusercontent.com)
+
+- **Rate Limit**: 5,000 requests per hour for unauthenticated requests
+- **Detection**: The code checks for HTTP 429 status
+- **User Feedback**: When rate limit is exceeded, displays: "You've reached your hourly request allowance for loading content from GitHub. Please wait 30 minutes and try again."
+- **No 80% Warning**: raw.githubusercontent.com doesn't provide rate limit headers, so proactive warnings are not possible
 - **Graceful Handling**: The loading process continues even if rate limit is hit, just showing the error to the user
 
-**Future Enhancement**: Implement authenticated GitHub API requests to increase rate limit to 5,000 requests per hour. This would require:
+**Future Enhancement**: Implement authenticated GitHub API requests to increase API rate limit to 5,000 requests per hour. This would require:
 
 - OAuth integration or personal access token support
 - Secure token storage
