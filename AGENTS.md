@@ -98,6 +98,42 @@ The application offloads long-running, computationally intensive tasks to Web Wo
 
 Communication with the workers is managed through a standard message-passing system (`postMessage` and `onmessage`), with the main application thread and workers exchanging data as needed.
 
+## GitHub Integration
+
+The application supports loading Ergogen configurations directly from GitHub repositories. This feature has been extended to include automatic footprint loading.
+
+### Loading from GitHub
+
+When a user provides a GitHub repository URL (e.g., `user/repo` or `https://github.com/user/repo`), the application:
+
+1. **Fetches the configuration file**: Attempts to load `config.yaml` from standard locations:
+   - Root directory: `/config.yaml`
+   - Ergogen subdirectory: `/ergogen/config.yaml`
+   - Tries both `main` and `master` branches
+
+2. **Fetches footprints**: Recursively scans for a `footprints` folder alongside the config file:
+   - Searches for `.js` files at any depth within the `footprints` folder
+   - Constructs footprint names from the folder path and filename (e.g., `folder1/folder2/file_name`)
+   - Uses the GitHub API to traverse directories
+
+### Conflict Resolution
+
+When loading footprints from GitHub, the application checks for naming conflicts with existing custom footprints. If a conflict is detected:
+
+1. A `ConflictResolutionDialog` is displayed to the user with three options:
+   - **Skip**: The new footprint is not loaded
+   - **Overwrite**: The new footprint replaces the existing one
+   - **Keep Both**: Both footprints are retained; the new one gets a unique name with an incremental suffix (e.g., `footprint_1`)
+
+2. An "Apply to all conflicts" checkbox allows the user to use the same resolution strategy for all subsequent conflicts in the current load operation.
+
+### Implementation Files
+
+- **`src/utils/github.ts`**: Contains `fetchConfigFromUrl` function that returns both config and footprints, plus `fetchFootprintsFromDirectory` for recursive directory traversal
+- **`src/utils/injections.ts`**: Utility functions for conflict detection (`checkForConflict`), unique name generation (`generateUniqueName`), and merging injections (`mergeInjections`)
+- **`src/molecules/ConflictResolutionDialog.tsx`**: React component for the conflict resolution UI
+- **`src/pages/Welcome.tsx`**: Orchestrates the loading process, handles conflicts sequentially, and manages dialog state
+
 ## Future Tasks
 
 When adding a new future task, always structure them with a unique ID, a brief title, the context, and the task, for example:
