@@ -275,11 +275,11 @@ const Welcome = () => {
         pointsonly: false,
       });
       setShouldNavigate(true);
-    }
 
-    // Clean up state
-    setPendingFootprints([]);
-    setPendingConfig(null);
+      // Clean up state only after all footprints are processed
+      setPendingFootprints([]);
+      setPendingConfig(null);
+    }
   };
 
   const handleConflictCancel = () => {

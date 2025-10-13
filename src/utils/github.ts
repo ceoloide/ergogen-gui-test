@@ -266,9 +266,162 @@ export const fetchConfigFromUrl = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const config = await response.text();
-    // For direct file links, we don't fetch footprints
+
+    // Check if the file is named config.yaml to decide if we should look for footprints
+    const filename = baseUrl.split('/').pop() || '';
+    const shouldLoadFootprints = filename === 'config.yaml';
+
+    if (!shouldLoadFootprints) {
+      console.log(
+        '[GitHub] File is not config.yaml, skipping footprint loading'
+      );
+      return { config, footprints: [], configPath: '' };
+    }
+
+    // For config.yaml files, try to fetch footprints from the same directory
+    console.log(
+      '[GitHub] Direct config.yaml link, attempting to load footprints'
+    );
+    try {
+      // Extract owner, repo, branch, and path from the URL
+      const urlMatch = baseUrl.match(
+        /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/
+      );
+      if (urlMatch) {
+        const [, owner, repo, branch, filePath] = urlMatch;
+        const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
+        const footprintsPath = dirPath ? `${dirPath}/footprints` : 'footprints';
+
+        const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
+        const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
+
+        // Check for submodules
+        const gitmodulesUrl = getRawUrl(
+          `https://github.com/${owner}/${repo}/blob/${branch}/.gitmodules`
+        );
+        const gitmodulesResponse = await fetch(gitmodulesUrl);
+        if (gitmodulesResponse.ok) {
+          const gitmodulesContent = await gitmodulesResponse.text();
+          const submodules = parseGitmodules(gitmodulesContent);
+
+          for (const submodule of submodules) {
+            if (submodule.path.startsWith(footprintsPath)) {
+              const submoduleMatch = submodule.url.match(
+                /github\.com[/:]([^/]+)\/([^/.]+)/
+              );
+              if (submoduleMatch) {
+                const [, subOwner, subRepo] = submoduleMatch;
+                const relativePath = submodule.path.substring(
+                  footprintsPath.length + 1
+                );
+
+                let submoduleFootprints: GitHubFootprint[] = [];
+                try {
+                  submoduleFootprints = await fetchFootprintsFromRepo(
+                    subOwner,
+                    subRepo,
+                    'main',
+                    ''
+                  );
+                } catch (_e) {
+                  try {
+                    submoduleFootprints = await fetchFootprintsFromRepo(
+                      subOwner,
+                      subRepo,
+                      'master',
+                      ''
+                    );
+                  } catch (_e2) {
+                    console.warn(
+                      `Failed to fetch submodule footprints from ${submodule.url}`
+                    );
+                  }
+                }
+
+                const prefixedFootprints = submoduleFootprints.map((fp) => ({
+                  name: relativePath ? `${relativePath}/${fp.name}` : fp.name,
+                  content: fp.content,
+                }));
+                footprints.push(...prefixedFootprints);
+              }
+            }
+          }
+        }
+
+        console.log(
+          `[GitHub] Loaded ${footprints.length} footprints from direct link`
+        );
+        return { config, footprints, configPath: dirPath };
+      }
+    } catch (error) {
+      console.warn(
+        '[GitHub] Failed to load footprints for direct config.yaml link:',
+        error
+      );
+    }
+
     return { config, footprints: [], configPath: '' };
   }
+
+  /**
+   * Performs a breadth-first search to find YAML files in a repository.
+   * @param {string} owner - Repository owner.
+   * @param {string} repo - Repository name.
+   * @param {string} branch - Branch to search.
+   * @returns {Promise<{configYamls: {path: string, content: string}[], anyYamls: {path: string, content: string}[]}>}
+   */
+  const bfsForYamlFiles = async (
+    owner: string,
+    repo: string,
+    branch: string
+  ): Promise<{
+    configYamls: { path: string; content: string }[];
+    anyYamls: { path: string; content: string }[];
+  }> => {
+    const configYamls: { path: string; content: string }[] = [];
+    const anyYamls: { path: string; content: string }[] = [];
+    const queue: string[] = [''];
+    const visited = new Set<string>();
+
+    while (queue.length > 0) {
+      const currentPath = queue.shift()!;
+      if (visited.has(currentPath)) continue;
+      visited.add(currentPath);
+
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${currentPath}?ref=${branch}`;
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) continue;
+
+        const items = await response.json();
+        if (!Array.isArray(items)) continue;
+
+        for (const item of items) {
+          if (item.type === 'file' && item.name.endsWith('.yaml')) {
+            const fileResponse = await fetch(item.download_url);
+            if (fileResponse.ok) {
+              const content = await fileResponse.text();
+              const filePath = item.path;
+
+              if (item.name === 'config.yaml') {
+                configYamls.push({ path: filePath, content });
+              } else {
+                anyYamls.push({ path: filePath, content });
+              }
+            }
+          } else if (item.type === 'dir') {
+            queue.push(item.path);
+          }
+        }
+      } catch (_error) {
+        // Continue searching other directories
+        continue;
+      }
+    }
+
+    return { configYamls, anyYamls };
+  };
 
   /**
    * Attempts to fetch `config.yaml` and footprints from standard locations within a specific branch of a repository.
@@ -283,32 +436,80 @@ export const fetchConfigFromUrl = async (
     const [, owner, repo] = urlObject.pathname.split('/');
     console.log(`[GitHub] Repository: ${owner}/${repo}`);
 
-    // First, try the root directory
-    const firstUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
-    let response = await fetch(firstUrl);
     let configPath = '';
     let config = '';
+    let shouldLoadFootprints = true;
+
+    // First, try the root directory
+    const rootUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
+    let response = await fetch(rootUrl);
 
     if (response.ok) {
       config = await response.text();
       configPath = '';
       console.log('[GitHub] Config found in root directory');
     } else if (response.status === 400 || response.status === 404) {
-      // If not found, try the /ergogen/ directory
-      const secondUrl = getRawUrl(
+      // Try the /ergogen/ directory
+      const ergogenUrl = getRawUrl(
         `${baseUrl}/blob/${branch}/ergogen/config.yaml`
       );
-      response = await fetch(secondUrl);
+      response = await fetch(ergogenUrl);
+
       if (response.ok) {
         config = await response.text();
         configPath = 'ergogen';
         console.log('[GitHub] Config found in ergogen/ directory');
       } else {
-        // If still not found or another error occurred, throw.
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Perform breadth-first search for YAML files
+        console.log('[GitHub] Performing breadth-first search for YAML files');
+        const { configYamls, anyYamls } = await bfsForYamlFiles(
+          owner,
+          repo,
+          branch
+        );
+
+        if (configYamls.length > 0) {
+          // Use the first config.yaml found
+          const firstConfig = configYamls[0];
+          config = firstConfig.content;
+          configPath = firstConfig.path.substring(
+            0,
+            firstConfig.path.lastIndexOf('/')
+          );
+          console.log(`[GitHub] Found config.yaml at: ${firstConfig.path}`);
+
+          if (configYamls.length > 1) {
+            console.log(
+              `[GitHub] Multiple config.yaml files found, using first: ${firstConfig.path}`
+            );
+          }
+        } else if (anyYamls.length > 0) {
+          // No config.yaml found, use first .yaml file
+          const firstYaml = anyYamls[0];
+          config = firstYaml.content;
+          configPath = firstYaml.path.substring(
+            0,
+            firstYaml.path.lastIndexOf('/')
+          );
+          shouldLoadFootprints = false;
+          console.log(
+            `[GitHub] No config.yaml found, using: ${firstYaml.path}`
+          );
+        } else {
+          // No YAML files found at all
+          throw new Error('No YAML configuration files found in repository');
+        }
       }
     } else {
       throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Only load footprints if we found a config.yaml file
+    if (!shouldLoadFootprints) {
+      console.log(
+        '[GitHub] Skipping footprint loading for non-config.yaml file'
+      );
+      return { config, footprints: [], configPath };
     }
 
     // Now fetch footprints from the footprints folder
