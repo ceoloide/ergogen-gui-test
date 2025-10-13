@@ -487,7 +487,7 @@ const Ergogen = () => {
                   configContext.isGenerating || configContext.isJscadConverting
                 }
                 aria-label="Download archive of all generated files"
-                data-testid="mobile-download-outputs-button"
+                data-testid="subheader-download-outputs-button"
               >
                 <span className="material-symbols-outlined">archive</span>
               </OutlineIconButton>
