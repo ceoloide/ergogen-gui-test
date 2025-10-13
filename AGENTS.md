@@ -23,6 +23,7 @@ This project is a React-based web interface for the [Ergogen](https://github.com
 
 - **CRITICAL:** You **MUST** run `yarn precommit` before every commit. This command formats, lints, checks for unused dependencies, and runs the entire test suite. Address all errors before proceeding. Warnings can be ignored, but should be mentioned as potential follow-up tasks.
 - **Update AGENTS.md**: You **MUST** update the `AGENTS.md` file to reflect any significant changes to the application's architecture, component structure, or development workflow. This ensures the knowledge base remains current.
+- **Update CHANGELOG.md**: For every major change or PR, you **MUST** add an entry to `CHANGELOG.md`. See the Changelog section below for formatting guidelines.
 
 ## Design principles
 
@@ -49,6 +50,53 @@ This project is a React-based web interface for the [Ergogen](https://github.com
   - The change addresses **just one thing**. This is usally just one part of a feature, rather than the whole feature at once.
   - The change should include related test code.
   - The commit description should explain what the committed changes aim to address. Avoid repeating the same general context, and focus on information that makes it possible for the reviewer to understand the change and the reasoning behind it. Briefly call out things that will be implemented at a later stage, but avoid including too much future planning.
+
+## Changelog
+
+The `CHANGELOG.md` file tracks user-facing changes to the application in reverse chronological order (newest first). Each entry should be written in a blog post style that non-technical users can understand.
+
+### Changelog Entry Format
+
+**Title and Date**: Use format "Brief Feature Title – Month DD, YYYY"
+
+**Opening Paragraph**: Describe the user problem or challenge that existed before the change. Make it relatable and concrete.
+
+**Middle Paragraphs**: Explain how the feature solves the problem. Focus on benefits and user experience, avoiding technical jargon. Keep the total entry under 300 words (maximum 500 words).
+
+**What changed section**: End with a bulleted list under "**What changed:**" that provides specific details:
+- Use present tense and active voice
+- Focus on user-visible changes, not implementation details
+- Keep bullets concise (one line each)
+- Highlight the most impactful changes first
+
+**Example structure:**
+```markdown
+## Feature Title – Month DD, YYYY
+
+[Problem description - 1-2 sentences about what was difficult before]
+
+[Solution explanation - 2-3 sentences about how it works now and why it's better]
+
+**What changed:**
+
+- **Key feature**: Brief description of what users can now do
+- **Another feature**: How it improves the experience
+- **Supporting feature**: Additional benefit or capability
+```
+
+### When to Add Changelog Entries
+
+Add an entry for:
+- New user-facing features
+- Significant improvements to existing features
+- Bug fixes that notably impact user experience
+- Changes to workflows or user interactions
+
+Skip entries for:
+- Internal refactoring without user-visible changes
+- Dependency updates
+- Minor bug fixes
+- Documentation-only changes
 
 ## Knowledge base
 
