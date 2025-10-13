@@ -295,8 +295,9 @@ const Welcome = () => {
 
   const handleGitHub = () => {
     if (!githubInput || !configContext) return;
-    const { setError, clearError } = configContext;
+    const { setError, clearError, setIsGenerating } = configContext;
     setIsLoading(true);
+    setIsGenerating(true); // Show progress bar during GitHub loading
     clearError();
 
     // Reset any pending conflict resolution state from previous loads
@@ -327,9 +328,11 @@ const Welcome = () => {
         setError(`Failed to load from GitHub: ${e.message}`);
         // Ensure we reset loading state and don't navigate
         setIsLoading(false);
+        setIsGenerating(false);
       })
       .finally(() => {
         setIsLoading(false);
+        // Note: isGenerating will be reset by generateNow or needs explicit reset on error
       });
   };
 

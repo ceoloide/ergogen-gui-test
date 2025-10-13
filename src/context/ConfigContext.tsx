@@ -158,6 +158,7 @@ type ContextProps = {
   setStlPreview: Dispatch<SetStateAction<boolean>>;
   experiment: string | null;
   isGenerating: boolean;
+  setIsGenerating: Dispatch<SetStateAction<boolean>>;
   isJscadConverting: boolean;
 };
 
@@ -686,6 +687,7 @@ const ConfigContextProvider = ({
       setStlPreview,
       experiment,
       isGenerating,
+      setIsGenerating,
       isJscadConverting,
     }),
     [
@@ -721,6 +723,7 @@ const ConfigContextProvider = ({
       setStlPreview,
       experiment,
       isGenerating,
+      setIsGenerating,
       isJscadConverting,
     ]
   );
