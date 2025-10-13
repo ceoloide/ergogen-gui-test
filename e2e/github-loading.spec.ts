@@ -9,11 +9,16 @@ test.describe('GitHub Loading', () => {
 
     // Listen for console logs to verify our instrumentation
     const logs: string[] = [];
+    const rateLimitLogs: string[] = [];
     page.on('console', (msg) => {
       const text = msg.text();
       if (text.startsWith('[GitHub]')) {
         logs.push(text);
         console.log(text); // Also output to test log
+      }
+      if (text.startsWith('[GitHub Rate Limit]')) {
+        rateLimitLogs.push(text);
+        console.log(text); // Also output rate limit info
       }
     });
 
@@ -32,6 +37,11 @@ test.describe('GitHub Loading', () => {
     // Click the load button
     await loadButton.click();
     await shoot('after-load-button-clicked');
+
+    // Verify loading bar appears during GitHub loading
+    const loadingBar = page.getByTestId('loading-bar');
+    await expect(loadingBar).toBeVisible({ timeout: 5000 });
+    await shoot('loading-bar-visible');
 
     // Wait for the config to be loaded (should navigate to home)
     await expect(page).toHaveURL(/.*\/$/, { timeout: 30000 });
@@ -86,6 +96,13 @@ test.describe('GitHub Loading', () => {
     console.log('\n=== All GitHub Logs ===');
     logs.forEach((log) => console.log(log));
     console.log('=== End GitHub Logs ===\n');
+
+    // Output rate limit logs if any
+    if (rateLimitLogs.length > 0) {
+      console.log('\n=== Rate Limit Logs ===');
+      rateLimitLogs.forEach((log) => console.log(log));
+      console.log('=== End Rate Limit Logs ===\n');
+    }
   });
 
   test('should load config with URL parameter and footprints', async ({
@@ -95,10 +112,15 @@ test.describe('GitHub Loading', () => {
 
     // Listen for console logs
     const logs: string[] = [];
+    const rateLimitLogs: string[] = [];
     page.on('console', (msg) => {
       const text = msg.text();
       if (text.startsWith('[GitHub]')) {
         logs.push(text);
+        console.log(text);
+      }
+      if (text.startsWith('[GitHub Rate Limit]')) {
+        rateLimitLogs.push(text);
         console.log(text);
       }
     });
@@ -106,6 +128,11 @@ test.describe('GitHub Loading', () => {
     // Navigate directly with the github URL parameter
     await page.goto('/?github=ceoloide/mr_useful');
     await shoot('loaded-with-url-param');
+
+    // Verify loading bar appears during URL parameter loading
+    const loadingBar = page.getByTestId('loading-bar');
+    await expect(loadingBar).toBeVisible({ timeout: 5000 });
+    await shoot('loading-bar-visible-url-param');
 
     // Wait for config to be loaded and editor to be visible
     await expect(page.getByTestId('config-editor')).toBeVisible({
@@ -142,6 +169,13 @@ test.describe('GitHub Loading', () => {
     console.log('\n=== All GitHub Logs (URL Param) ===');
     logs.forEach((log) => console.log(log));
     console.log('=== End GitHub Logs ===\n');
+
+    // Output rate limit logs if any
+    if (rateLimitLogs.length > 0) {
+      console.log('\n=== Rate Limit Logs (URL Param) ===');
+      rateLimitLogs.forEach((log) => console.log(log));
+      console.log('=== End Rate Limit Logs ===\n');
+    }
   });
 
   test('should accumulate footprints from sequential loads and reset conflict dialog', async ({
