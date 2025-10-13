@@ -307,6 +307,11 @@ const Welcome = () => {
     fetchConfigFromUrl(githubInput)
       .then(async (result) => {
         if (configContext) {
+          // Show rate limit warning if present
+          if (result.rateLimitWarning) {
+            setError(result.rateLimitWarning);
+          }
+
           try {
             // Process footprints with conflict resolution
             await processFootprints(result.footprints, result.config);

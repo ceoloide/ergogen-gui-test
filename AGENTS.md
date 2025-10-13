@@ -154,6 +154,7 @@ The GitHub loading functionality uses unauthenticated API requests, which are su
 - **Graceful Handling**: The loading process continues even if rate limit is hit, just showing the error to the user
 
 **Future Enhancement**: Implement authenticated GitHub API requests to increase rate limit to 5,000 requests per hour. This would require:
+
 - OAuth integration or personal access token support
 - Secure token storage
 - UI for token configuration

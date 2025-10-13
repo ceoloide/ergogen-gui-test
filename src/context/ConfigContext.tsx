@@ -574,15 +574,27 @@ const ConfigContextProvider = ({
             configLength: result.config.length,
             footprintsCount: result.footprints.length,
             configPath: result.configPath,
+            rateLimitWarning: result.rateLimitWarning,
           });
-          console.log('[ConfigContext] Footprints:', result.footprints.map(f => f.name));
-          
+          console.log(
+            '[ConfigContext] Footprints:',
+            result.footprints.map((f) => f.name)
+          );
+
+          // Show rate limit warning if present
+          if (result.rateLimitWarning) {
+            setError(result.rateLimitWarning);
+          }
+
           try {
             // Import mergeInjections to handle footprints
             const { mergeInjections } = await import('../utils/injections');
 
-            console.log('[ConfigContext] Current injectionInput before merge:', injectionInput);
-            
+            console.log(
+              '[ConfigContext] Current injectionInput before merge:',
+              injectionInput
+            );
+
             // Merge footprints with existing injections using 'overwrite' strategy
             // This ensures GitHub footprints take precedence when loading from URL
             const mergedInjections = mergeInjections(
@@ -591,15 +603,24 @@ const ConfigContextProvider = ({
               'overwrite'
             );
 
-            console.log('[ConfigContext] Merged injections count:', mergedInjections.length);
-            console.log('[ConfigContext] Merged injections:', mergedInjections.map(inj => inj[1]));
+            console.log(
+              '[ConfigContext] Merged injections count:',
+              mergedInjections.length
+            );
+            console.log(
+              '[ConfigContext] Merged injections:',
+              mergedInjections.map((inj) => inj[1])
+            );
 
             setInjectionInput(mergedInjections);
             setConfigInput(result.config);
             generateNow(result.config, mergedInjections, { pointsonly: false });
           } catch (error) {
             // If footprint processing fails, don't load the config
-            console.error('[ConfigContext] Error processing footprints:', error);
+            console.error(
+              '[ConfigContext] Error processing footprints:',
+              error
+            );
             throw new Error(
               `Failed to process footprints: ${error instanceof Error ? error.message : 'Unknown error'}`
             );

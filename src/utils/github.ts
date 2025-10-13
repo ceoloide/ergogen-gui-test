@@ -11,6 +11,58 @@ const getRawUrl = (url: string) => {
 };
 
 /**
+ * Checks GitHub API rate limit headers and logs usage information.
+ * Returns an error object if rate limit is exceeded or threshold is crossed.
+ * @param {Response} response - The fetch response object.
+ * @returns {{isLimitExceeded: boolean, error: string | null}} Rate limit status.
+ */
+const checkRateLimit = (
+  response: Response
+): { isLimitExceeded: boolean; error: string | null } => {
+  const limit = response.headers.get('X-RateLimit-Limit') || 'unknown';
+  const remaining = response.headers.get('X-RateLimit-Remaining') || 'unknown';
+  const used = response.headers.get('X-RateLimit-Used') || 'unknown';
+  const reset = response.headers.get('X-RateLimit-Reset') || 'unknown';
+
+  // Log rate limit info
+  console.log(
+    `[GitHub Rate Limit] Limit: ${limit}, Remaining: ${remaining}, Used: ${used}, Reset: ${reset}`
+  );
+
+  // Check if rate limit is exceeded
+  if (response.status === 403 && remaining === '0') {
+    console.warn(
+      '[GitHub] Rate limit exceeded. Please wait and try again in about an hour.'
+    );
+    return {
+      isLimitExceeded: true,
+      error:
+        "Cannot load from GitHub right now. You've used your hourly request allowance. Please wait about an hour and try again.",
+    };
+  }
+
+  // Check if approaching rate limit (80% threshold)
+  if (remaining !== 'unknown' && limit !== 'unknown') {
+    const limitNum = parseInt(limit);
+    const remainingNum = parseInt(remaining);
+    const percentUsed = ((limitNum - remainingNum) / limitNum) * 100;
+
+    if (percentUsed >= 80 && remainingNum > 0) {
+      console.warn(
+        `[GitHub] Approaching rate limit: ${percentUsed.toFixed(1)}% used`
+      );
+      return {
+        isLimitExceeded: false,
+        error:
+          "Loading from GitHub may become unavailable soon. You've used most of your hourly request allowance. This will reset within an hour.",
+      };
+    }
+  }
+
+  return { isLimitExceeded: false, error: null };
+};
+
+/**
  * Represents a footprint loaded from GitHub.
  */
 export type GitHubFootprint = {
@@ -25,6 +77,7 @@ export type GitHubLoadResult = {
   config: string;
   footprints: GitHubFootprint[];
   configPath: string;
+  rateLimitWarning?: string;
 };
 
 /**
@@ -76,13 +129,15 @@ const parseGitmodules = (
  * @param {string} repo - The repository name.
  * @param {string} branch - The branch to fetch from.
  * @param {string} basePath - The base path for constructing footprint names.
+ * @param {{warning: string | null}} rateLimitTracker - Mutable object to track rate limit warnings.
  * @returns {Promise<GitHubFootprint[]>} A promise that resolves with the list of footprints.
  */
 const fetchFootprintsFromRepo = async (
   owner: string,
   repo: string,
   branch: string,
-  basePath: string = ''
+  basePath: string = '',
+  rateLimitTracker: { warning: string | null } = { warning: null }
 ): Promise<GitHubFootprint[]> => {
   console.log(
     `[GitHub] Fetching footprints from repo ${owner}/${repo} (branch: ${branch}, path: ${basePath || 'root'})`
@@ -92,15 +147,17 @@ const fetchFootprintsFromRepo = async (
 
   try {
     const response = await fetch(apiUrl);
+
+    // Check rate limit
+    const rateLimitCheck = checkRateLimit(response);
+    if (rateLimitCheck.error && !rateLimitTracker.warning) {
+      rateLimitTracker.warning = rateLimitCheck.error;
+    }
+    if (rateLimitCheck.isLimitExceeded) {
+      throw new Error(rateLimitCheck.error || 'Rate limit exceeded');
+    }
+
     if (!response.ok) {
-      if (response.status === 403) {
-        // Check if it's a rate limit error
-        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-        if (rateLimitRemaining === '0') {
-          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-        }
-      }
       console.log(
         `[GitHub] Failed to fetch from ${apiUrl}: ${response.status}`
       );
@@ -113,6 +170,16 @@ const fetchFootprintsFromRepo = async (
       if (item.type === 'file' && item.name.endsWith('.js')) {
         // Fetch the content of the .js file
         const contentResponse = await fetch(item.download_url);
+
+        // Check rate limit for file download
+        const fileRateLimitCheck = checkRateLimit(contentResponse);
+        if (fileRateLimitCheck.error && !rateLimitTracker.warning) {
+          rateLimitTracker.warning = fileRateLimitCheck.error;
+        }
+        if (fileRateLimitCheck.isLimitExceeded) {
+          throw new Error(fileRateLimitCheck.error || 'Rate limit exceeded');
+        }
+
         if (contentResponse.ok) {
           const content = await contentResponse.text();
           // Construct the footprint name from path and filename without extension
@@ -128,7 +195,8 @@ const fetchFootprintsFromRepo = async (
           owner,
           repo,
           branch,
-          subPath
+          subPath,
+          rateLimitTracker
         );
         footprints.push(...subFootprints);
       }
@@ -151,22 +219,25 @@ const fetchFootprintsFromRepo = async (
  */
 const fetchFootprintsFromDirectory = async (
   apiUrl: string,
-  basePath: string = ''
+  basePath: string = '',
+  rateLimitTracker: { warning: string | null } = { warning: null }
 ): Promise<GitHubFootprint[]> => {
   console.log(`[GitHub] Fetching footprints from directory: ${apiUrl}`);
   const footprints: GitHubFootprint[] = [];
 
   try {
     const response = await fetch(apiUrl);
+
+    // Check rate limit
+    const rateLimitCheck = checkRateLimit(response);
+    if (rateLimitCheck.error && !rateLimitTracker.warning) {
+      rateLimitTracker.warning = rateLimitCheck.error;
+    }
+    if (rateLimitCheck.isLimitExceeded) {
+      throw new Error(rateLimitCheck.error || 'Rate limit exceeded');
+    }
+
     if (!response.ok) {
-      if (response.status === 403) {
-        // Check if it's a rate limit error
-        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-        if (rateLimitRemaining === '0') {
-          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-        }
-      }
       // Directory doesn't exist or is inaccessible, return empty array
       console.log(`[GitHub] Directory not found or inaccessible: ${apiUrl}`);
       return footprints;
@@ -178,6 +249,16 @@ const fetchFootprintsFromDirectory = async (
       if (item.type === 'file' && item.name.endsWith('.js')) {
         // Fetch the content of the .js file
         const contentResponse = await fetch(item.download_url);
+
+        // Check rate limit for file download
+        const fileRateLimitCheck = checkRateLimit(contentResponse);
+        if (fileRateLimitCheck.error && !rateLimitTracker.warning) {
+          rateLimitTracker.warning = fileRateLimitCheck.error;
+        }
+        if (fileRateLimitCheck.isLimitExceeded) {
+          throw new Error(fileRateLimitCheck.error || 'Rate limit exceeded');
+        }
+
         if (contentResponse.ok) {
           const content = await contentResponse.text();
           // Construct the footprint name from path and filename without extension
@@ -191,7 +272,8 @@ const fetchFootprintsFromDirectory = async (
         const subPath = basePath ? `${basePath}/${item.name}` : item.name;
         const subFootprints = await fetchFootprintsFromDirectory(
           item.url,
-          subPath
+          subPath,
+          rateLimitTracker
         );
         footprints.push(...subFootprints);
       }
@@ -219,6 +301,9 @@ export const fetchConfigFromUrl = async (
 ): Promise<GitHubLoadResult> => {
   console.log(`[GitHub] Starting fetch from URL: ${url}`);
   let newUrl = url.trim();
+
+  // Track rate limit warnings throughout the loading process
+  const rateLimitTracker: { warning: string | null } = { warning: null };
 
   const repoPattern = /^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/;
   if (repoPattern.test(newUrl)) {
@@ -280,10 +365,16 @@ export const fetchConfigFromUrl = async (
     const response = await fetch(getRawUrl(baseUrl));
     if (!response.ok) {
       if (response.status === 403) {
-        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        const rateLimitRemaining = response.headers.get(
+          'X-RateLimit-Remaining'
+        );
         if (rateLimitRemaining === '0') {
-          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
+          console.warn(
+            '[GitHub] Rate limit exceeded. Please wait and try again in about an hour.'
+          );
+          throw new Error(
+            'GitHub API rate limit exceeded. Please wait and try again in about an hour.'
+          );
         }
       }
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -298,7 +389,12 @@ export const fetchConfigFromUrl = async (
       console.log(
         '[GitHub] File is not config.yaml, skipping footprint loading'
       );
-      return { config, footprints: [], configPath: '' };
+      return {
+        config,
+        footprints: [],
+        configPath: '',
+        rateLimitWarning: rateLimitTracker.warning || undefined,
+      };
     }
 
     // For config.yaml files, try to fetch footprints from the same directory
@@ -314,7 +410,12 @@ export const fetchConfigFromUrl = async (
       console.warn(
         '[GitHub] Could not parse direct file URL, skipping footprints'
       );
-      return { config, footprints: [], configPath: '' };
+      return {
+        config,
+        footprints: [],
+        configPath: '',
+        rateLimitWarning: rateLimitTracker.warning || undefined,
+      };
     }
 
     const [, owner, repo, branch, filePath] = urlMatch;
@@ -323,7 +424,11 @@ export const fetchConfigFromUrl = async (
     console.log(`[GitHub] Looking for footprints in: ${footprintsPath}`);
 
     const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
-    const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
+    const footprints = await fetchFootprintsFromDirectory(
+      footprintsApiUrl,
+      '',
+      rateLimitTracker
+    );
 
     // Check for submodules
     console.log('[GitHub] Checking for .gitmodules file');
@@ -332,13 +437,18 @@ export const fetchConfigFromUrl = async (
         `https://github.com/${owner}/${repo}/blob/${branch}/.gitmodules`
       );
       const gitmodulesResponse = await fetch(gitmodulesUrl);
-      if (gitmodulesResponse.status === 403) {
-        const rateLimitRemaining = gitmodulesResponse.headers.get('X-RateLimit-Remaining');
-        if (rateLimitRemaining === '0') {
-          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-        }
+
+      // Check rate limit for .gitmodules fetch
+      const gitmodulesRateLimitCheck = checkRateLimit(gitmodulesResponse);
+      if (gitmodulesRateLimitCheck.error && !rateLimitTracker.warning) {
+        rateLimitTracker.warning = gitmodulesRateLimitCheck.error;
       }
+      if (gitmodulesRateLimitCheck.isLimitExceeded) {
+        throw new Error(
+          gitmodulesRateLimitCheck.error || 'Rate limit exceeded'
+        );
+      }
+
       if (gitmodulesResponse.ok) {
         console.log('[GitHub] .gitmodules found, parsing submodules');
         const gitmodulesContent = await gitmodulesResponse.text();
@@ -365,7 +475,8 @@ export const fetchConfigFromUrl = async (
                   subOwner,
                   subRepo,
                   'main',
-                  ''
+                  '',
+                  rateLimitTracker
                 );
               } catch (_e) {
                 try {
@@ -373,7 +484,8 @@ export const fetchConfigFromUrl = async (
                     subOwner,
                     subRepo,
                     'master',
-                    ''
+                    '',
+                    rateLimitTracker
                   );
                 } catch (_e2) {
                   console.warn(
@@ -407,7 +519,12 @@ export const fetchConfigFromUrl = async (
     console.log(
       `[GitHub] Loaded ${footprints.length} footprints from direct link`
     );
-    return { config, footprints, configPath: dirPath };
+    return {
+      config,
+      footprints,
+      configPath: dirPath,
+      rateLimitWarning: rateLimitTracker.warning || undefined,
+    };
   }
 
   /**
@@ -420,7 +537,8 @@ export const fetchConfigFromUrl = async (
   const bfsForYamlFiles = async (
     owner: string,
     repo: string,
-    branch: string
+    branch: string,
+    rateLimitTracker: { warning: string | null } = { warning: null }
   ): Promise<{
     configYamls: { path: string; content: string }[];
     anyYamls: { path: string; content: string }[];
@@ -439,14 +557,17 @@ export const fetchConfigFromUrl = async (
 
       try {
         const response = await fetch(apiUrl);
+
+        // Check rate limit
+        const bfsRateLimitCheck = checkRateLimit(response);
+        if (bfsRateLimitCheck.error && !rateLimitTracker.warning) {
+          rateLimitTracker.warning = bfsRateLimitCheck.error;
+        }
+        if (bfsRateLimitCheck.isLimitExceeded) {
+          throw new Error(bfsRateLimitCheck.error || 'Rate limit exceeded');
+        }
+
         if (!response.ok) {
-          if (response.status === 403) {
-            const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-            if (rateLimitRemaining === '0') {
-              console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-              throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-            }
-          }
           continue;
         }
 
@@ -456,13 +577,18 @@ export const fetchConfigFromUrl = async (
         for (const item of items) {
           if (item.type === 'file' && item.name.endsWith('.yaml')) {
             const fileResponse = await fetch(item.download_url);
-            if (fileResponse.status === 403) {
-              const rateLimitRemaining = fileResponse.headers.get('X-RateLimit-Remaining');
-              if (rateLimitRemaining === '0') {
-                console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-                throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-              }
+
+            // Check rate limit for YAML file download
+            const yamlRateLimitCheck = checkRateLimit(fileResponse);
+            if (yamlRateLimitCheck.error && !rateLimitTracker.warning) {
+              rateLimitTracker.warning = yamlRateLimitCheck.error;
             }
+            if (yamlRateLimitCheck.isLimitExceeded) {
+              throw new Error(
+                yamlRateLimitCheck.error || 'Rate limit exceeded'
+              );
+            }
+
             if (fileResponse.ok) {
               const content = await fileResponse.text();
               const filePath = item.path;
@@ -507,12 +633,13 @@ export const fetchConfigFromUrl = async (
     const rootUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
     let response = await fetch(rootUrl);
 
-    if (response.status === 403) {
-      const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-      if (rateLimitRemaining === '0') {
-        console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-        throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-      }
+    // Check rate limit
+    const rateLimitCheck = checkRateLimit(response);
+    if (rateLimitCheck.error && !rateLimitTracker.warning) {
+      rateLimitTracker.warning = rateLimitCheck.error;
+    }
+    if (rateLimitCheck.isLimitExceeded) {
+      throw new Error(rateLimitCheck.error || 'Rate limit exceeded');
     }
 
     if (response.ok) {
@@ -526,12 +653,13 @@ export const fetchConfigFromUrl = async (
       );
       response = await fetch(ergogenUrl);
 
-      if (response.status === 403) {
-        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
-        if (rateLimitRemaining === '0') {
-          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-        }
+      // Check rate limit
+      const ergogenRateLimitCheck = checkRateLimit(response);
+      if (ergogenRateLimitCheck.error && !rateLimitTracker.warning) {
+        rateLimitTracker.warning = ergogenRateLimitCheck.error;
+      }
+      if (ergogenRateLimitCheck.isLimitExceeded) {
+        throw new Error(ergogenRateLimitCheck.error || 'Rate limit exceeded');
       }
 
       if (response.ok) {
@@ -544,7 +672,8 @@ export const fetchConfigFromUrl = async (
         const { configYamls, anyYamls } = await bfsForYamlFiles(
           owner,
           repo,
-          branch
+          branch,
+          rateLimitTracker
         );
 
         if (configYamls.length > 0) {
@@ -588,7 +717,12 @@ export const fetchConfigFromUrl = async (
       console.log(
         '[GitHub] Skipping footprint loading for non-config.yaml file'
       );
-      return { config, footprints: [], configPath };
+      return {
+        config,
+        footprints: [],
+        configPath,
+        rateLimitWarning: rateLimitTracker.warning || undefined,
+      };
     }
 
     // Now fetch footprints from the footprints folder
@@ -597,20 +731,29 @@ export const fetchConfigFromUrl = async (
       : 'footprints';
     console.log(`[GitHub] Looking for footprints in: ${footprintsPath}`);
     const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
-    const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
+    const footprints = await fetchFootprintsFromDirectory(
+      footprintsApiUrl,
+      '',
+      rateLimitTracker
+    );
 
     // Check for .gitmodules to handle submodules
     console.log('[GitHub] Checking for .gitmodules file');
     try {
       const gitmodulesUrl = getRawUrl(`${baseUrl}/blob/${branch}/.gitmodules`);
       const gitmodulesResponse = await fetch(gitmodulesUrl);
-      if (gitmodulesResponse.status === 403) {
-        const rateLimitRemaining = gitmodulesResponse.headers.get('X-RateLimit-Remaining');
-        if (rateLimitRemaining === '0') {
-          console.warn('[GitHub] Rate limit exceeded. Please wait and try again in about an hour.');
-          throw new Error('GitHub API rate limit exceeded. Please wait and try again in about an hour.');
-        }
+
+      // Check rate limit for .gitmodules fetch
+      const gitmodulesRateLimitCheck = checkRateLimit(gitmodulesResponse);
+      if (gitmodulesRateLimitCheck.error && !rateLimitTracker.warning) {
+        rateLimitTracker.warning = gitmodulesRateLimitCheck.error;
       }
+      if (gitmodulesRateLimitCheck.isLimitExceeded) {
+        throw new Error(
+          gitmodulesRateLimitCheck.error || 'Rate limit exceeded'
+        );
+      }
+
       if (gitmodulesResponse.ok) {
         console.log('[GitHub] .gitmodules found, parsing submodules');
         const gitmodulesContent = await gitmodulesResponse.text();
@@ -640,7 +783,8 @@ export const fetchConfigFromUrl = async (
                   subOwner,
                   subRepo,
                   'main',
-                  ''
+                  '',
+                  rateLimitTracker
                 );
               } catch (_e) {
                 try {
@@ -648,7 +792,8 @@ export const fetchConfigFromUrl = async (
                     subOwner,
                     subRepo,
                     'master',
-                    ''
+                    '',
+                    rateLimitTracker
                   );
                 } catch (_e2) {
                   console.warn(
@@ -681,7 +826,12 @@ export const fetchConfigFromUrl = async (
     }
 
     console.log(`[GitHub] Total footprints loaded: ${footprints.length}`);
-    return { config, footprints, configPath };
+    return {
+      config,
+      footprints,
+      configPath,
+      rateLimitWarning: rateLimitTracker.warning || undefined,
+    };
   };
 
   // Try fetching from the 'main' branch first, then fall back to 'master'.
