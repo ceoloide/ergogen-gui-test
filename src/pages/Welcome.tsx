@@ -173,16 +173,21 @@ const Welcome = () => {
   const processFootprints = async (
     footprints: GitHubFootprint[],
     config: string,
-    resolution: ConflictResolution | null = null
+    resolution: ConflictResolution | null = null,
+    currentInjections?: string[][]
   ): Promise<void> => {
     if (!configContext) {
       throw new Error('Configuration context not available');
     }
 
+    // Use provided injections or fall back to context
+    const injectionsToUse = currentInjections || configContext.injectionInput;
+
     if (footprints.length === 0) {
       // No footprints to process, just load the config
+      configContext.setInjectionInput(injectionsToUse);
       configContext.setConfigInput(config);
-      await configContext.generateNow(config, configContext.injectionInput, {
+      await configContext.generateNow(config, injectionsToUse, {
         pointsonly: false,
       });
       setShouldNavigate(true);
@@ -192,10 +197,10 @@ const Welcome = () => {
     const currentFootprint = footprints[0];
     const remainingFootprints = footprints.slice(1);
 
-    // Check for conflict
+    // Check for conflict using the current injections state
     const conflictCheck = checkForConflict(
       currentFootprint.name,
-      configContext.injectionInput
+      injectionsToUse
     );
 
     if (conflictCheck.hasConflict && !resolution) {
@@ -209,19 +214,24 @@ const Welcome = () => {
     // Determine resolution to use
     const resolutionToUse = resolution || 'skip';
 
-    // Merge this footprint
+    // Merge this footprint with the current injections state
     const mergedInjections = mergeInjections(
       [currentFootprint],
-      configContext.injectionInput,
+      injectionsToUse,
       resolutionToUse
     );
-    configContext.setInjectionInput(mergedInjections);
 
-    // Process remaining footprints
+    // Process remaining footprints with the updated injections
     if (remainingFootprints.length > 0) {
-      await processFootprints(remainingFootprints, config, resolution);
+      await processFootprints(
+        remainingFootprints,
+        config,
+        resolution,
+        mergedInjections
+      );
     } else {
-      // All footprints processed, load the config
+      // All footprints processed, update context and load the config
+      configContext.setInjectionInput(mergedInjections);
       configContext.setConfigInput(config);
       await configContext.generateNow(config, mergedInjections, {
         pointsonly: false,
@@ -242,22 +252,24 @@ const Welcome = () => {
     const currentFootprint = pendingFootprints[0];
     const remainingFootprints = pendingFootprints.slice(1);
 
+    // Merge with current injections state
     const mergedInjections = mergeInjections(
       [currentFootprint],
       configContext.injectionInput,
       action
     );
-    configContext.setInjectionInput(mergedInjections);
 
-    // Resume processing remaining footprints with resolution if "apply to all" is checked
+    // Resume processing remaining footprints with the updated injections
     if (remainingFootprints.length > 0) {
       await processFootprints(
         remainingFootprints,
         pendingConfig,
-        applyToAllConflicts ? action : null
+        applyToAllConflicts ? action : null,
+        mergedInjections
       );
     } else {
-      // All footprints processed, load the config
+      // All footprints processed, update context and load the config
+      configContext.setInjectionInput(mergedInjections);
       configContext.setConfigInput(pendingConfig);
       await configContext.generateNow(pendingConfig, mergedInjections, {
         pointsonly: false,
