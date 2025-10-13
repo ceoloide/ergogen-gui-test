@@ -11,14 +11,84 @@ const getRawUrl = (url: string) => {
 };
 
 /**
+ * Represents a footprint loaded from GitHub.
+ */
+export type GitHubFootprint = {
+  name: string;
+  content: string;
+};
+
+/**
+ * Represents the result of loading from GitHub, including config and footprints.
+ */
+export type GitHubLoadResult = {
+  config: string;
+  footprints: GitHubFootprint[];
+  configPath: string;
+};
+
+/**
+ * Recursively fetches all .js files from a GitHub directory and its subdirectories.
+ * @param {string} apiUrl - The GitHub API URL for the directory.
+ * @param {string} basePath - The base path for constructing footprint names.
+ * @returns {Promise<GitHubFootprint[]>} A promise that resolves with the list of footprints.
+ */
+const fetchFootprintsFromDirectory = async (
+  apiUrl: string,
+  basePath: string = ''
+): Promise<GitHubFootprint[]> => {
+  const footprints: GitHubFootprint[] = [];
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      // Directory doesn't exist or is inaccessible, return empty array
+      return footprints;
+    }
+
+    const items = await response.json();
+
+    for (const item of items) {
+      if (item.type === 'file' && item.name.endsWith('.js')) {
+        // Fetch the content of the .js file
+        const contentResponse = await fetch(item.download_url);
+        if (contentResponse.ok) {
+          const content = await contentResponse.text();
+          // Construct the footprint name from path and filename without extension
+          const fileName = item.name.replace(/\.js$/, '');
+          const name = basePath ? `${basePath}/${fileName}` : fileName;
+          footprints.push({ name, content });
+        }
+      } else if (item.type === 'dir') {
+        // Recursively fetch from subdirectory
+        const subPath = basePath ? `${basePath}/${item.name}` : item.name;
+        const subFootprints = await fetchFootprintsFromDirectory(
+          item.url,
+          subPath
+        );
+        footprints.push(...subFootprints);
+      }
+    }
+  } catch (error) {
+    // Silently fail if directory doesn't exist or can't be accessed
+    console.warn('Failed to fetch footprints from directory:', error);
+  }
+
+  return footprints;
+};
+
+/**
  * Fetches a configuration file (`config.yaml`) from a given GitHub URL.
  * It handles repository root URLs and direct file URLs, automatically trying common branches ('main', 'master')
  * and locations (`/config.yaml`, `/ergogen/config.yaml`).
+ * Also attempts to load footprints from a `footprints` folder alongside the config file.
  * @param {string} url - The GitHub URL to fetch the configuration from.
- * @returns {Promise<string>} A promise that resolves with the text content of the configuration file.
+ * @returns {Promise<GitHubLoadResult>} A promise that resolves with the config content, footprints, and config path.
  * @throws {Error} Throws an error if the fetch fails for all attempted locations.
  */
-export const fetchConfigFromUrl = async (url: string): Promise<string> => {
+export const fetchConfigFromUrl = async (
+  url: string
+): Promise<GitHubLoadResult> => {
   let newUrl = url.trim();
 
   const repoPattern = /^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/;
@@ -81,36 +151,56 @@ export const fetchConfigFromUrl = async (url: string): Promise<string> => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return response.text();
+    const config = await response.text();
+    // For direct file links, we don't fetch footprints
+    return { config, footprints: [], configPath: '' };
   }
 
   /**
-   * Attempts to fetch `config.yaml` from standard locations within a specific branch of a repository.
+   * Attempts to fetch `config.yaml` and footprints from standard locations within a specific branch of a repository.
    * @param {string} branch - The branch to check (e.g., 'main', 'master').
-   * @returns {Promise<string>} A promise that resolves with the file content if found.
+   * @returns {Promise<GitHubLoadResult>} A promise that resolves with the config, footprints, and config path.
    * @throws {Error} Throws an error if the file cannot be fetched from any location in the branch.
    */
-  const fetchWithBranch = async (branch: string): Promise<string> => {
+  const fetchWithBranch = async (branch: string): Promise<GitHubLoadResult> => {
+    // Extract owner and repo from baseUrl
+    const urlObject = new URL(baseUrl);
+    const [, owner, repo] = urlObject.pathname.split('/');
+
     // First, try the root directory
     const firstUrl = getRawUrl(`${baseUrl}/blob/${branch}/config.yaml`);
     let response = await fetch(firstUrl);
+    let configPath = '';
+    let config = '';
 
     if (response.ok) {
-      return response.text();
-    }
-
-    // If not found, try the /ergogen/ directory
-    if (response.status === 400 || response.status === 404) {
+      config = await response.text();
+      configPath = '';
+    } else if (response.status === 400 || response.status === 404) {
+      // If not found, try the /ergogen/ directory
       const secondUrl = getRawUrl(
         `${baseUrl}/blob/${branch}/ergogen/config.yaml`
       );
       response = await fetch(secondUrl);
       if (response.ok) {
-        return response.text();
+        config = await response.text();
+        configPath = 'ergogen';
+      } else {
+        // If still not found or another error occurred, throw.
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    // If still not found or another error occurred, throw.
-    throw new Error(`HTTP error! status: ${response.status}`);
+
+    // Now fetch footprints from the footprints folder
+    const footprintsPath = configPath
+      ? `${configPath}/footprints`
+      : 'footprints';
+    const footprintsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${footprintsPath}?ref=${branch}`;
+    const footprints = await fetchFootprintsFromDirectory(footprintsApiUrl);
+
+    return { config, footprints, configPath };
   };
 
   // Try fetching from the 'main' branch first, then fall back to 'master'.

@@ -69,11 +69,22 @@ describe('ConfigContextProvider', () => {
   });
 
   it('should fetch config from github url parameter and update the config', async () => {
-    const fetchSpy = jest
-      .spyOn(window, 'fetch')
-      .mockImplementation(() =>
-        Promise.resolve(new Response(mockConfig, { status: 200 }))
-      );
+    const fetchSpy = jest.spyOn(window, 'fetch').mockImplementation((url) => {
+      if (
+        url ===
+        'https://raw.githubusercontent.com/ceoloide/corney-island/main/ergogen/config.yaml'
+      ) {
+        return Promise.resolve(new Response(mockConfig, { status: 200 }));
+      }
+      if (
+        typeof url === 'string' &&
+        url.includes('api.github.com/repos') &&
+        url.includes('footprints')
+      ) {
+        return Promise.resolve(new Response('[]', { status: 404 }));
+      }
+      return Promise.resolve(new Response('', { status: 404 }));
+    });
 
     // Set the URL for the test
     window.history.pushState(
@@ -102,11 +113,22 @@ describe('ConfigContextProvider', () => {
   });
 
   it('should fetch config from github url parameter without protocol and update the config', async () => {
-    const fetchSpy = jest
-      .spyOn(window, 'fetch')
-      .mockImplementation(() =>
-        Promise.resolve(new Response(mockConfig, { status: 200 }))
-      );
+    const fetchSpy = jest.spyOn(window, 'fetch').mockImplementation((url) => {
+      if (
+        url ===
+        'https://raw.githubusercontent.com/ceoloide/corney-island/main/ergogen/config.yaml'
+      ) {
+        return Promise.resolve(new Response(mockConfig, { status: 200 }));
+      }
+      if (
+        typeof url === 'string' &&
+        url.includes('api.github.com/repos') &&
+        url.includes('footprints')
+      ) {
+        return Promise.resolve(new Response('[]', { status: 404 }));
+      }
+      return Promise.resolve(new Response('', { status: 404 }));
+    });
 
     // Set the URL for the test
     window.history.pushState(

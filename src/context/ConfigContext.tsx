@@ -568,9 +568,9 @@ const ConfigContextProvider = ({
     const githubUrl = queryParameters.get('github');
     if (githubUrl) {
       fetchConfigFromUrl(githubUrl)
-        .then((data) => {
-          setConfigInput(data);
-          generateNow(data, injectionInput, { pointsonly: false });
+        .then((result) => {
+          setConfigInput(result.config);
+          generateNow(result.config, injectionInput, { pointsonly: false });
         })
         .catch((e) => {
           setError(`Failed to fetch config from GitHub: ${e.message}`);

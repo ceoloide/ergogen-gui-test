@@ -5,9 +5,15 @@ import { theme } from '../theme/theme';
 import { useConfigContext } from '../context/ConfigContext';
 import { exampleOptions, ConfigOption } from '../examples';
 import EmptyYAML from '../examples/empty_yaml';
-import { fetchConfigFromUrl } from '../utils/github';
+import { fetchConfigFromUrl, GitHubFootprint } from '../utils/github';
+import {
+  checkForConflict,
+  mergeInjections,
+  ConflictResolution,
+} from '../utils/injections';
 import Button from '../atoms/Button';
 import Input from '../atoms/Input';
+import ConflictResolutionDialog from '../molecules/ConflictResolutionDialog';
 
 // Styled Components
 const WelcomePageWrapper = styled.div`
@@ -138,6 +144,11 @@ const Welcome = () => {
   const [githubInput, setGithubInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false);
+  const [pendingFootprints, setPendingFootprints] = useState<GitHubFootprint[]>(
+    []
+  );
+  const [currentConflict, setCurrentConflict] = useState<string | null>(null);
+  const [pendingConfig, setPendingConfig] = useState<string | null>(null);
 
   // Navigate to home when config has been set
   useEffect(() => {
@@ -159,19 +170,101 @@ const Welcome = () => {
     }
   };
 
+  const processFootprints = async (
+    footprints: GitHubFootprint[],
+    config: string,
+    resolution: ConflictResolution | null = null
+  ) => {
+    if (!configContext) return;
+
+    if (footprints.length === 0) {
+      // No footprints to process, just load the config
+      configContext.setConfigInput(config);
+      await configContext.generateNow(config, configContext.injectionInput, {
+        pointsonly: false,
+      });
+      setShouldNavigate(true);
+      return;
+    }
+
+    const currentFootprint = footprints[0];
+    const remainingFootprints = footprints.slice(1);
+
+    // Check for conflict
+    const conflictCheck = checkForConflict(
+      currentFootprint.name,
+      configContext.injectionInput
+    );
+
+    if (conflictCheck.hasConflict && !resolution) {
+      // Show dialog and pause processing
+      setCurrentConflict(currentFootprint.name);
+      setPendingFootprints(footprints);
+      setPendingConfig(config);
+      return;
+    }
+
+    // Determine resolution to use
+    const resolutionToUse = resolution || 'skip';
+
+    // Merge this footprint
+    const mergedInjections = mergeInjections(
+      [currentFootprint],
+      configContext.injectionInput,
+      resolutionToUse
+    );
+    configContext.setInjectionInput(mergedInjections);
+
+    // Process remaining footprints
+    if (remainingFootprints.length > 0) {
+      await processFootprints(remainingFootprints, config, resolution);
+    } else {
+      // All footprints processed, load the config
+      configContext.setConfigInput(config);
+      await configContext.generateNow(config, mergedInjections, {
+        pointsonly: false,
+      });
+      setShouldNavigate(true);
+    }
+  };
+
+  const handleConflictResolution = async (
+    action: ConflictResolution,
+    applyToAllConflicts: boolean
+  ) => {
+    if (!configContext || !pendingFootprints || !pendingConfig) return;
+
+    setCurrentConflict(null);
+
+    // Resume processing with the chosen resolution
+    await processFootprints(
+      pendingFootprints,
+      pendingConfig,
+      applyToAllConflicts ? action : action
+    );
+
+    // Clean up state
+    setPendingFootprints([]);
+    setPendingConfig(null);
+  };
+
+  const handleConflictCancel = () => {
+    setCurrentConflict(null);
+    setPendingFootprints([]);
+    setPendingConfig(null);
+    setIsLoading(false);
+  };
+
   const handleGitHub = () => {
     if (!githubInput || !configContext) return;
     const { setError, clearError } = configContext;
     setIsLoading(true);
     clearError();
     fetchConfigFromUrl(githubInput)
-      .then(async (data) => {
+      .then(async (result) => {
         if (configContext) {
-          configContext.setConfigInput(data);
-          await configContext.generateNow(data, configContext.injectionInput, {
-            pointsonly: false,
-          });
-          setShouldNavigate(true);
+          // Process footprints with conflict resolution
+          await processFootprints(result.footprints, result.config);
         }
       })
       .catch((e) => {
@@ -184,6 +277,14 @@ const Welcome = () => {
 
   return (
     <WelcomePageWrapper>
+      {currentConflict && (
+        <ConflictResolutionDialog
+          footprintName={currentConflict}
+          onResolve={handleConflictResolution}
+          onCancel={handleConflictCancel}
+          data-testid="conflict-dialog"
+        />
+      )}
       <WelcomeContainer>
         <Header>Ergogen Web UI</Header>
         <SubHeader>
