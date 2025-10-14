@@ -47,16 +47,17 @@ const utf8Decoder =
   typeof TextDecoder === 'undefined' ? null : new TextDecoder();
 
 function getBasePath() {
-  // Try process.env.PUBLIC_URL first
+  // Use PUBLIC_URL if available
   if (typeof process !== 'undefined' && process.env.PUBLIC_URL) {
     return process.env.PUBLIC_URL;
   }
-  // Fallback: extract base path from worker location
+  // Extract base path from worker location
   if (typeof self !== 'undefined' && (self as any).location) {
     const { origin, pathname } = (self as any).location;
-    // Match "/ergogen-gui-test" from "/ergogen-gui-test/static/js/..."
-    const match = pathname.match(/^\/[^/]+/);
-    const base = match ? match[0] : '';
+    // Remove "/static/..." if present
+    const staticIndex = pathname.indexOf('/static/');
+    const base =
+      staticIndex > 0 ? pathname.substring(0, staticIndex) : pathname.replace(/\/$/, '');
     return `${origin}${base}`;
   }
   return '';
