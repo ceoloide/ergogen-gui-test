@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.js": "https://ceoloide.github.io/ergogen-gui-test/static/js/main.21e9093d.js",
+    "main.js": "https://ceoloide.github.io/ergogen-gui-test/static/js/main.13532324.js",
     "static/js/227.41ec5506.chunk.js": "https://ceoloide.github.io/ergogen-gui-test/static/js/227.41ec5506.chunk.js",
     "static/js/919.ded5852a.chunk.js": "https://ceoloide.github.io/ergogen-gui-test/static/js/919.ded5852a.chunk.js",
     "static/js/837.26f5720b.chunk.js": "https://ceoloide.github.io/ergogen-gui-test/static/js/837.26f5720b.chunk.js",
     "index.html": "https://ceoloide.github.io/ergogen-gui-test/index.html",
-    "main.21e9093d.js.map": "https://ceoloide.github.io/ergogen-gui-test/static/js/main.21e9093d.js.map",
+    "main.13532324.js.map": "https://ceoloide.github.io/ergogen-gui-test/static/js/main.13532324.js.map",
     "227.41ec5506.chunk.js.map": "https://ceoloide.github.io/ergogen-gui-test/static/js/227.41ec5506.chunk.js.map",
     "919.ded5852a.chunk.js.map": "https://ceoloide.github.io/ergogen-gui-test/static/js/919.ded5852a.chunk.js.map",
     "837.26f5720b.chunk.js.map": "https://ceoloide.github.io/ergogen-gui-test/static/js/837.26f5720b.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.21e9093d.js"
+    "static/js/main.13532324.js"
   ]
 }
