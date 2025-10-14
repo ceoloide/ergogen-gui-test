@@ -1,4 +1,4 @@
-# .github/workflows/deploy.yml
+# .github/workflows/deploy.yaml
 
 name: Build and deploy on GitHub Pages
 
@@ -8,6 +8,11 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'The branch, tag or SHA to run the workflow from'
+        required: true
+        default: 'main'
   repository_dispatch:
 
 jobs:
