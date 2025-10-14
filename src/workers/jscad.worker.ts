@@ -57,7 +57,7 @@ function getBasePath() {
     // Remove "/static/..." if present
     const staticIndex = pathname.indexOf('/static/');
     const base =
-      staticIndex > 0 ? pathname.substring(0, staticIndex) : pathname.replace(/\/$/, '');
+      staticIndex > 0 ? pathname.substring(0, staticIndex) : '';
     return `${origin}${base}`;
   }
   return '';
