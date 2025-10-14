@@ -1,6 +1,6 @@
 # .github/workflows/deploy.yml
 
-name: Deploy web GUI to GitHub pages
+name: Deploy web GUI to GitHub Pages
 
 on:
   push:
