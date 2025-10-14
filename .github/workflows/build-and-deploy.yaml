@@ -49,3 +49,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
+          cname: ${{ github.ref == 'refs/heads/main' && vars.CNAME_DOMAIN || '' }}
+          allow_empty_commit: true
+          full_commit_message: ${{ github.event.head_commit.message }}
+        env:
+          CNAME_DOMAIN: ${{ vars.CNAME_DOMAIN }}
