@@ -40,11 +40,13 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Yarn build
         run: yarn build
+      - name: Create deployment artifact
+        run: tar -czf artifact.tar.gz -C ./build .
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: ./build
+          path: artifact.tar.gz
 
       # - name: Deploy
       #   uses: peaceiris/actions-gh-pages@v4
