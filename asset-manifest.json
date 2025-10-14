@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.js": "/ergogen-gui-test/static/js/main.a9d1ae45.js",
-    "static/js/227.7dfb2bf2.chunk.js": "/ergogen-gui-test/static/js/227.7dfb2bf2.chunk.js",
-    "static/js/919.7e13a39a.chunk.js": "/ergogen-gui-test/static/js/919.7e13a39a.chunk.js",
-    "static/js/837.26f5720b.chunk.js": "/ergogen-gui-test/static/js/837.26f5720b.chunk.js",
-    "index.html": "/ergogen-gui-test/index.html",
-    "main.a9d1ae45.js.map": "/ergogen-gui-test/static/js/main.a9d1ae45.js.map",
-    "227.7dfb2bf2.chunk.js.map": "/ergogen-gui-test/static/js/227.7dfb2bf2.chunk.js.map",
-    "919.7e13a39a.chunk.js.map": "/ergogen-gui-test/static/js/919.7e13a39a.chunk.js.map",
-    "837.26f5720b.chunk.js.map": "/ergogen-gui-test/static/js/837.26f5720b.chunk.js.map"
+    "main.js": "/static/js/main.7a55f5cf.js",
+    "static/js/227.77829b4e.chunk.js": "/static/js/227.77829b4e.chunk.js",
+    "static/js/919.09819f8e.chunk.js": "/static/js/919.09819f8e.chunk.js",
+    "static/js/837.26f5720b.chunk.js": "/static/js/837.26f5720b.chunk.js",
+    "index.html": "/index.html",
+    "main.7a55f5cf.js.map": "/static/js/main.7a55f5cf.js.map",
+    "227.77829b4e.chunk.js.map": "/static/js/227.77829b4e.chunk.js.map",
+    "919.09819f8e.chunk.js.map": "/static/js/919.09819f8e.chunk.js.map",
+    "837.26f5720b.chunk.js.map": "/static/js/837.26f5720b.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.a9d1ae45.js"
+    "static/js/main.7a55f5cf.js"
   ]
 }
