@@ -47,6 +47,7 @@ jobs:
         env:
           # Use the repository variable, or a default for local testing/forks
           PUBLIC_URL: ${{ vars.PUBLIC_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+          REACT_APP_GTAG_ID: ${{ vars.REACT_APP_GTAG_ID || '' }}
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
