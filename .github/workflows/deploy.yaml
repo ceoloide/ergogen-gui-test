@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'npm'
+          cache: "npm"
 
       - name: Get yarn cache
         id: yarn-cache
@@ -44,6 +44,9 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: yarn build
+        env:
+          # Use the repository variable, or a default for local testing/forks
+          PUBLIC_URL: ${{ vars.PUBLIC_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4

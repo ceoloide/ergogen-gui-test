@@ -1,11 +1,7 @@
 {
   "name": "ergogen-gui",
   "version": "0.4.0",
-  "homepage": ".",
   "description": "A web-based GUI for Ergogen, the keyboard layout generator.",
-  "bugs": {
-    "url": "https://github.com/ceoloide/ergogen-gui-test/issues"
-  },
   "license": "MIT",
   "private": false,
   "dependencies": {
