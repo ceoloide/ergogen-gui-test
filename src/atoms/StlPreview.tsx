@@ -435,11 +435,11 @@ const StlPreview: React.FC<StlPreviewProps> = ({
         <Canvas camera={{ position: [50, 50, 50], fov: 30 }}>
           <Suspense fallback={null}>
             {/* eslint-disable-next-line react/no-unknown-property */}
-            <ambientLight intensity={1.5} />
+            <AmbientLight intensity={1.5} />
             {/* eslint-disable-next-line react/no-unknown-property */}
-            <directionalLight position={[10, 10, 5]} intensity={1} />
+            <DirectionalLight position={[10, 10, 5]} intensity={1} />
             {/* eslint-disable-next-line react/no-unknown-property */}
-            <directionalLight position={[-10, -10, -5]} intensity={0.5} />
+            <DirectionalLight position={[-10, -10, -5]} intensity={0.5} />
             <SceneContent stl={stl} />
             <OrbitControls makeDefault enableDamping={false} />
           </Suspense>
