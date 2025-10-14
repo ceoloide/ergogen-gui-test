@@ -42,6 +42,7 @@ jobs:
         run: yarn build
         env:
           REACT_APP_GTAG_ID: ${{ vars.REACT_APP_GTAG_ID }}
+          PUBLIC_URL: ${{ vars.PUBLIC_URL }}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch')
