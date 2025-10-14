@@ -1,6 +1,7 @@
 # Changelog
 
 ## Load Keyboards Directly from GitHub
+
 _October 13, 2025_
 
 ![The settings page showing footprints loaded from GitHub.](./public/images/changelog/2025-10-13.png)
@@ -21,4 +22,3 @@ The app also got smarter about finding configurations. It can now search through
 - **Intelligent file discovery**: Searches entire repositories to find configuration files in any location
 - **Usage monitoring**: Proactive warnings when approaching GitHub's request limits, with clear guidance
 - **Better feedback**: Loading progress bar now appears when fetching from GitHub
-

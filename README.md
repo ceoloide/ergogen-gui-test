@@ -81,8 +81,8 @@ To configure the deployment URL for your repository:
 3.  Select the **Variables** tab and click **New repository variable**.
 4.  For the **Name**, enter `PUBLIC_URL`.
 5.  For the **Value**, enter the full URL where the application will be hosted. For example:
-    *   For a custom domain: `https://ergogen.xyz`
-    *   For a standard GitHub Pages site: `https://<username>.github.io/<repository-name>`
+    - For a custom domain: `https://ergogen.xyz`
+    - For a standard GitHub Pages site: `https://<username>.github.io/<repository-name>`
 
 If the `PUBLIC_URL` variable is not set, the workflow will automatically generate a default URL based on the repository owner and name. This makes it easy for forks to deploy without any initial configuration.
 
