@@ -46,16 +46,24 @@ let initializationError: Error | null = null;
 const utf8Decoder =
   typeof TextDecoder === 'undefined' ? null : new TextDecoder();
 
-const publicUrl =
-  typeof self !== 'undefined' && (self as any).location
-    ? ((self as any).location.origin +
-      ((self as any).location.pathname.replace(/\/[^/]*$/, '') || ''))
-    : '';
+function getBasePath() {
+  // Try process.env.PUBLIC_URL first
+  if (typeof process !== 'undefined' && process.env.PUBLIC_URL) {
+    return process.env.PUBLIC_URL;
+  }
+  // Fallback: extract base path from worker location
+  if (typeof self !== 'undefined' && (self as any).location) {
+    const { origin, pathname } = (self as any).location;
+    // Match "/ergogen-gui-test" from "/ergogen-gui-test/static/js/..."
+    const match = pathname.match(/^\/[^/]+/);
+    const base = match ? match[0] : '';
+    return `${origin}${base}`;
+  }
+  return '';
+}
 
-const openjscadPath =
-  typeof process !== 'undefined' && process.env.PUBLIC_URL
-    ? `${process.env.PUBLIC_URL}/dependencies/openjscad.js`
-    : `${publicUrl}/dependencies/openjscad.js`;
+const basePath = getBasePath();
+const openjscadPath = `${basePath}/dependencies/openjscad.js`;
 
 try {
   importScripts(openjscadPath);
