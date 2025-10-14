@@ -13,6 +13,12 @@ on:
   repository_dispatch:
   pull_request:
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -34,6 +40,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Yarn build
         run: yarn build
+        env:
+          REACT_APP_GTAG_ID: ${{ vars.REACT_APP_GTAG_ID }}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch')
