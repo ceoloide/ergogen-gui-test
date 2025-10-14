@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'The branch, tag or SHA to run the workflow from'
+        description: "The branch, tag or SHA to run the workflow from"
         required: true
-        default: 'main'
+        default: "main"
   repository_dispatch:
 
 jobs:
@@ -25,6 +25,8 @@ jobs:
         working-directory: ./
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -49,7 +51,7 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event.inputs.ref == 'main' && github.event_name == 'workflow_dispatch') }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
