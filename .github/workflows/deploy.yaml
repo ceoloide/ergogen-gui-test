@@ -8,11 +8,6 @@ on:
       - main
   pull_request:
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "The branch, tag or SHA to run the workflow from"
-        required: true
-        default: "main"
   repository_dispatch:
 
 jobs:
@@ -25,8 +20,6 @@ jobs:
         working-directory: ./
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
