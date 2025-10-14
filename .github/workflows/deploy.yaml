@@ -1,16 +1,13 @@
 # .github/workflows/deploy.yml
 
-name: Deploy web GUI to GitHub Pages
+name: Build and deploy on GitHub Pages
 
 on:
   push:
     branches:
       - main
-  # Run on pull requests to validate changes
   pull_request:
-  # Allows manual deployments from GitHub Actions
   workflow_dispatch:
-  # Run workflow on repository sync to upstream
   repository_dispatch:
 
 jobs:
@@ -44,10 +41,6 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: yarn build
-        env:
-          # Use the repository variable, or a default for local testing/forks
-          PUBLIC_URL: ${{ vars.PUBLIC_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
-          REACT_APP_GTAG_ID: ${{ vars.REACT_APP_GTAG_ID || '' }}
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
@@ -55,4 +48,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
-          cname: ${{ github.ref == 'refs/heads/main' && vars.CNAME_DOMAIN || '' }}
