@@ -46,8 +46,19 @@ let initializationError: Error | null = null;
 const utf8Decoder =
   typeof TextDecoder === 'undefined' ? null : new TextDecoder();
 
+const publicUrl =
+  typeof self !== 'undefined' && (self as any).location
+    ? ((self as any).location.origin +
+      ((self as any).location.pathname.replace(/\/[^/]*$/, '') || ''))
+    : '';
+
+const openjscadPath =
+  typeof process !== 'undefined' && process.env.PUBLIC_URL
+    ? `${process.env.PUBLIC_URL}/dependencies/openjscad.js`
+    : `${publicUrl}/dependencies/openjscad.js`;
+
 try {
-  importScripts('/dependencies/openjscad.js');
+  importScripts(openjscadPath);
   const module = workerScope.JscadConvert;
   if (!module || typeof module.convert !== 'function') {
     throw new Error('openjscad.js did not expose a convert function.');
@@ -202,4 +213,4 @@ self.onmessage = async (event: MessageEvent<JscadWorkerRequest>) => {
 };
 
 // Export empty object to satisfy TypeScript's module requirement
-export {};
+export { };

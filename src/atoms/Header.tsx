@@ -233,11 +233,11 @@ const Header = (): JSX.Element => {
         {/* <LeftPanelButton onClick={() => window.location.reload()}><span className="material-symbols-outlined">left_panel_open</span></LeftPanelButton> */}
         <ErgogenLogo>
           <LogoButton
-            to="/"
+            to="{`${process.env.PUBLIC_URL}/"
             aria-label="Go to home page"
             data-testid="logo-button"
           >
-            <LogoImage src={'ergogen.png'} alt="Ergogen logo" />
+            <LogoImage src={`${process.env.PUBLIC_URL}/ergogen.png`} alt="Ergogen logo" />
           </LogoButton>
           <AppName>Ergogen</AppName>
           <VersionText
@@ -252,7 +252,7 @@ const Header = (): JSX.Element => {
         </ErgogenLogo>
       </LeftContainer>
       <RightContainer>
-        {location.pathname === '/' && (
+        {location.pathname === `${process.env.PUBLIC_URL}` && (
           <AccentIconButton
             onClick={handleNewClick}
             aria-label="Start new configuration"
@@ -261,7 +261,7 @@ const Header = (): JSX.Element => {
             <span className="material-symbols-outlined">add_2</span>
           </AccentIconButton>
         )}
-        {location.pathname === '/' && (
+        {location.pathname ===  `${process.env.PUBLIC_URL}` && (
           <ArchiveIconButton
             onClick={handleDownloadArchive}
             disabled={
